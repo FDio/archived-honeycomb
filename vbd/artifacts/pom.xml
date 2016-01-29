@@ -13,40 +13,36 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-<groupId>io.fd.honeycomb</groupId>
-  <artifactId>honeycomb-aggregator</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
-  <name>honeycomb</name>
-  <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
-  <prerequisites>
-    <maven>3.1.1</maven>
-  </prerequisites>
-  <modules>
-    <module>common</module>
-    <module>v3po</module>
-    <module>vbd</module>
-  </modules>
-  <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-install-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+  <groupId>io.fd.honeycomb.vbd</groupId>
+  <artifactId>vbd-artifacts</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>vbd-api</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+      </dependency>
+      <!--
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>vbd-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>vbd-features</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <classifier>features</classifier>
+        <type>xml</type>
+      </dependency>
+      -->
+    </dependencies>
+  </dependencyManagement>
 </project>
