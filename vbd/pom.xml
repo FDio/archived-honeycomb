@@ -35,10 +35,10 @@
     <module>api</module>
     <module>artifacts</module>
     <module>features</module>
+    <module>impl</module>
     <module>karaf</module>
 
     <!-- FIXME: these need to be enabled:
-    <module>impl</module>
     <module>it</module>
     -->
   </modules>

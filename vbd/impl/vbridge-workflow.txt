@@ -1,0 +1,106 @@
+VPP Inventory/Topology
+----------------------
+
+- VPP management done through netconf-node-topology
+- Mount point management done by sal-netconf-connector
+
+
+Virtual Bridge Domain management
+--------------------------------
+
+Prerequisite: configured netconf-node-topology
+
+1) Create a Virtual Bridge Domain:
+
+	A) The UI creates a network topology instance in Controller Data Store
+	with:
+
+	- topology-types/vbridge-topology container
+	- tunnel-type set to tunnel-type-vxlan
+	- tunnel-parameters/vxlan/vni set to appropriate value
+	- any bridge domain parameters from v3po:bridge-domain-attributes
+
+	B) The Controller App receives a DataTreeChangeNotification about the
+	topology instance being created
+
+2) Assign a VPP into a Virtual Bridge Domain
+	Prerequisite: Virtual Bridge Domain exists
+
+	A) The UI creates a 'node' within the VBD network topology in the
+	Controller Data Store with:
+
+	- bridge-member container
+	- supporting-node pointing to the VPP node in the
+	  netconf-node-topology
+	
+	B) The Controller App receives a DataTreeChangeNotification about the
+	node being added, and:
+
+	- it looks at the supporting-node in the netconf topology and if the
+	  node is connected:
+	  - it creates a bridge domain with the name matching this VBD name,
+	    copying bridge domain parameters from VBD Topology configuration
+	    into the VPP
+	  - once that succeeds it creates the corresponding
+	    supporting-bridge-domain leaf in the Controller's operational
+	    datastore. The leaf contains a RESTCONF-encoded instance
+	    identifier of the bridge domain created in the VPP, relative to
+	    that VPP's mount point.
+	
+3) Assigning a physical VPP interface into a Virtual Bridge Domain
+	Prerequisite: The VPP itself has been added to the Virtual Bridge
+	              Domain
+
+	A) The UI creates a 'termination-point' inside the 'node' added in 2),
+	with:
+
+	- user-interface, containing RESTCONF-encoded instance identifier
+	  of the VPP interface, relative to that VPP's mount point in config
+	  data store.
+
+	B) The Controller App receives a notification of this being done and:
+	- looks if the VPP is connected, if it is, the app will:
+	  - add the interface into the VPP's bridge domain configuration
+
+Inverse operations are achieved by the UI deleting the corresponding nodes in
+the Controller's configuration data store.
+	  
+
+Virtual Bridge Domain tunnel management
+---------------------------------------
+
+Operation is triggered by adding more than one VPP into the virtual bridge
+domain, for sake of clarity this describes only one-way tunnel setup. The
+process is repeated until a full mesh is achieved (FUTURE: spanning tree?).
+The process is also simplified for demo purposes, real-world deployment would
+deal with day-1 configuration and multi-provider setups.
+
+Demo assumption: there is exactly one interface with a VRF and IP address
+assined, which is the interface to be used for tunnels
+
+The Controller App looks at the Source VPP:
+- it finds the only interface with VRF and IP addresses. It will use this VRF
+  as the vxlan tunnel VRF. It will use the IP address as the vxlan tunnel
+  source.
+
+The Controller App looks at the Destination VPP:
+- it finds the only interface with VRF and IP addresses. It will use the IP
+  address as the vxlan tunnel destination.
+
+The Controller App sets up the tunnel on the source VPP, using the VNI
+configured for this Virtual Bridge Domain and IP addresses as detailed above.
+
+The controller app creates a new termination point within the VBD's the
+controller's  operational data store, under the
+node representing the source VPP, with a generated ID (mechanism is TBD, must
+not conflict with VPP names) and 'tunnel-interface' leaf, which points to the
+vxlan interface created on the source VPP (e.g. VPP config state).
+
+This process is repeated in the reverse direction.
+
+Once that is done, the controller app will create a link from the newly-created
+source TP to the newly-created destination TP in the controller's operational
+data store, with leaf 'tunnel' pointing to the source VPP's interface operation
+state (e.g. VPP vxlan oper state). A reverse link will be created, with the
+'tunnel' leaf pointing to the destination VPP's interface state.
+
