@@ -18,9 +18,10 @@ import org.opendaylight.controller.md.sal.binding.api.DataObjectModification.Mod
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.controller.md.sal.binding.api.MountPointService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.Topology1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.TopologyVbridgeAugment;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -41,19 +42,21 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
     @GuardedBy("this")
     private final BindingTransactionChain chain;
     private final ListenerRegistration<?> reg;
-    private Topology1 config;
+    private final MountPointService mountService;
+    private TopologyVbridgeAugment config;
 
-    private BridgeDomain(final DataBroker dataBroker, final KeyedInstanceIdentifier<Topology, TopologyKey> topology,
+    private BridgeDomain(final DataBroker dataBroker, final MountPointService mountService, final KeyedInstanceIdentifier<Topology, TopologyKey> topology,
             final BindingTransactionChain chain) {
         this.topology = Preconditions.checkNotNull(topology);
         this.chain = Preconditions.checkNotNull(chain);
+        this.mountService = mountService;
 
         reg = dataBroker.registerDataTreeChangeListener(
             new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, topology), this);
     }
 
     static BridgeDomain create(final DataBroker dataBroker,
-            final KeyedInstanceIdentifier<Topology, TopologyKey> topology, final BindingTransactionChain chain) {
+                               MountPointService mountService, final KeyedInstanceIdentifier<Topology, TopologyKey> topology, final BindingTransactionChain chain) {
 
         LOG.debug("Wiping operational state of {}", topology);
 
@@ -61,7 +64,7 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
         tx.delete(LogicalDatastoreType.OPERATIONAL, topology);
         tx.submit();
 
-        return new BridgeDomain(dataBroker, topology, chain);
+        return new BridgeDomain(dataBroker, mountService, topology, chain);
     }
 
     synchronized void forceStop() {
@@ -92,7 +95,7 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
                     break;
                 case SUBTREE_MODIFIED:
                     // First check if the configuration has changed
-                    final DataObjectModification<Topology1> newConfig = mod.getModifiedAugmentation(Topology1.class);
+                    final DataObjectModification<TopologyVbridgeAugment> newConfig = mod.getModifiedAugmentation(TopologyVbridgeAugment.class);
                     if (newConfig != null) {
                         if (newConfig.getModificationType() != ModificationType.DELETE) {
                             LOG.debug("Topology {} modified configuration {}", topology, newConfig);
@@ -116,7 +119,7 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
                     final Topology data = mod.getDataAfter();
 
                     // Read configuration
-                    final Topology1 config = data.getAugmentation(Topology1.class);
+                    final TopologyVbridgeAugment config = data.getAugmentation(TopologyVbridgeAugment.class);
                     if (config != null) {
                         setConfiguration(config);
                     } else {
@@ -153,14 +156,14 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
         }
     }
 
-    private void setConfiguration(final Topology1 config) {
+    private void setConfiguration(final TopologyVbridgeAugment config) {
         LOG.debug("Topology {} configuration set to {}", topology, config);
 
         this.config = config;
     }
 
     @GuardedBy("this")
-    private void updateConfiguration(final DataObjectModification<Topology1> mod) {
+    private void updateConfiguration(final DataObjectModification<TopologyVbridgeAugment> mod) {
         LOG.debug("Topology {} configuration changed", topology);
 
         // FIXME: do something smarter

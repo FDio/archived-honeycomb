@@ -37,6 +37,7 @@ module vbridge-topology {
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import odl-external-reference { prefix extref; }
     import v3po { prefix "v3po"; }
+    import yang-ext { prefix ext; revision-date "2013-07-09"; }
 
     identity tunnel-type {
         description "Type of tunneling technology";
@@ -56,12 +57,14 @@ module vbridge-topology {
     }
 
     augment "/nt:network-topology/nt:topology/nt:topology-types" {
+        ext:augment-identifier "topology-types-vbridge-augment";
         container vbridge-topology {
             presence "Indicates a virtual bridge domain topology";
         }
     }
 
     augment "/nt:network-topology/nt:topology" {
+        ext:augment-identifier "topology-vbridge-augment";
         when "./nt:topology-types/vbridge-topology";
 
         // Pointer to the NETCONF topology which supports this bridge domain

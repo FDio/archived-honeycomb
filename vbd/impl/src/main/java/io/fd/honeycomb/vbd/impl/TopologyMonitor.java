@@ -19,6 +19,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.controller.md.sal.binding.api.MountPointService;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
@@ -39,9 +40,11 @@ final class TopologyMonitor implements DataTreeChangeListener<VbridgeTopology>, 
     @GuardedBy("this")
     private final Map<TopologyKey, BridgeDomain> domains = new HashMap<>();
     private final DataBroker dataBroker;
+    private final MountPointService mountService;
 
-    TopologyMonitor(final DataBroker dataBroker) {
+    public TopologyMonitor(DataBroker dataBroker, MountPointService mountService) {
         this.dataBroker = Preconditions.checkNotNull(dataBroker);
+        this.mountService = Preconditions.checkNotNull(mountService);
     }
 
     @Override
@@ -115,7 +118,7 @@ final class TopologyMonitor implements DataTreeChangeListener<VbridgeTopology>, 
             }
         });
 
-        final BridgeDomain domain = BridgeDomain.create(dataBroker, topology, chain);
+        final BridgeDomain domain = BridgeDomain.create(dataBroker, mountService, topology, chain);
         domains.put(topology.getKey(), domain);
 
         LOG.debug("Bridge domain {} for {} started", domain, topology);
