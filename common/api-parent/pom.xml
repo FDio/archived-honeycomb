@@ -21,6 +21,10 @@
     <relativePath/>
   </parent>
 
+  <properties>
+    <nexusproxy>http://nexus.fd.io/content</nexusproxy>
+  </properties>
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.fd.honeycomb.common</groupId>
   <artifactId>api-parent</artifactId>
@@ -55,4 +59,15 @@
       </plugin>
     </plugins>
   </build>
+
+  <distributionManagement>
+    <repository>
+      <id>fdio-release</id>
+      <url>${nexusproxy}/repositories/fd.io.release/</url>
+    </repository>
+    <snapshotRepository>
+      <id>fdio-snapshot</id>
+      <url>${nexusproxy}/repositories/fd.io.dev/</url>
+    </snapshotRepository>
+  </distributionManagement>
 </project>
