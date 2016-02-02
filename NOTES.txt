@@ -21,6 +21,12 @@ https://wiki.opendaylight.org/view/CrossProject:Integration_Group:System_Test:St
 https://wiki.opendaylight.org/view/Simultaneous_Release:Beryllium_Release_Plan
 https://wiki.opendaylight.org/view/OpenDaylight_Presentations:Main
 https://wiki.opendaylight.org/view/YANG_Tools:YANG_to_Java_Mapping
+https://wiki.opendaylight.org/view/OpenDaylight_Controller:MD-SAL:Concepts
+https://wiki.opendaylight.org/view/OpenDaylight_Controller:Netconf:Design
+https://wiki.opendaylight.org/view/OpenDaylight_Controller:Config:Examples:Netconf#Configuring_Netconf_logging
+https://wiki.opendaylight.org/view/OpenDaylight_Controller:Lithium:Netconf:Integration_Test
+https://wiki.opendaylight.org/view/Controller_Core_Functionality_Tutorials:Tutorials:Netconf_Mount#Testing_against_ODL_itself_.28MD-SAL_netconf_northbound_loopback_mount.29
+https://github.com/opendaylight/coretutorials
 https://github.com/opendaylight/mdsal/tree/master/model  // IETF Yang Models
 https://github.com/opendaylight/ovsdb/blob/master/southbound/southbound-api/pom.xml#L78  // <dependency> for 2013-07-15 version of ietf-yang-types
 https://github.com/opendaylight/ovsdb/blob/master/southbound/southbound-api/pom.xml#L54  // <dependencyManagement><dependency> for mdsal.model
@@ -28,6 +34,18 @@ https://github.com/opendaylight/ovsdb/blob/master/southbound/southbound-api/pom.
 https://github.com/opendaylight/vtn/blob/master/manager/neutron/src/main/java/org/opendaylight/vtn/manager/neutron/NeutronNetworkChangeListener.java
 https://github.com/opendaylight/ovsdb/blob/master/southbound/southbound-impl/src/main/java/org/opendaylight/ovsdb/southbound/OvsdbDataChangeListener.java
 https://github.com/opendaylight/vpnservice/blob/078ae023c9cceb14aaadea10c81a5f1d90f47789/interfacemgr/interfacemgr-impl/src/main/java/org/opendaylight/vpnservice/interfacemgr/InterfaceManager.java
+http://karaf.apache.org/
+https://karaf.apache.org/manual/latest-2.2.x/developers-guide/features-maven-plugin-generate.html
+
+4) Java / JNI
+http://stackoverflow.com/questions/3949260/java-class-isinstance-vs-class-isassignablefrom
+http://stackoverflow.com/questions/7275844/interface-as-a-type-in-java
+http://www.xyzws.com/javafaq/what-does-classforname-method-do/17
+https://docs.oracle.com/javase/8/docs/api/java/lang/Class.html
+https://docs.oracle.com/javase/8/docs/technotes/guides/jni/spec/types.html#type_signatures
+
+5) Misc
+http://www.w3schools.com/tags/ref_urlencode.asp
 
 Installation/Environment
 ========================
