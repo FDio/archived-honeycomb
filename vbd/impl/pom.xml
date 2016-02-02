@@ -51,6 +51,12 @@
       <artifactId>vbd-api</artifactId>
     </dependency>
 
+      <dependency>
+          <groupId>io.fd.honeycomb.v3po</groupId>
+          <artifactId>v3po-api</artifactId>
+          <version>1.0.0-SNAPSHOT</version>
+      </dependency>
+
     <!-- Testing Dependencies -->
     <dependency>
       <groupId>junit</groupId>

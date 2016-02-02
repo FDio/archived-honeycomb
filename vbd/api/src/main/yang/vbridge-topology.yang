@@ -91,7 +91,9 @@ module vbridge-topology {
     }
 
     augment "/nt:network-topology/nt:topology/nt:node" {
+        ext:augment-identifier "node-vbridge-augment";
         when "../nt:topology-types/vbridge-topology";
+
 
         container bridge-member {
             presence "Indicates this node is part of the bridge domain";
