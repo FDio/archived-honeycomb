@@ -67,7 +67,7 @@
     </repository>
     <snapshotRepository>
       <id>fdio-snapshot</id>
-      <url>${nexusproxy}/repositories/fd.io.dev/</url>
+      <url>${nexusproxy}/repositories/fd.io.snapshot/</url>
     </snapshotRepository>
   </distributionManagement>
 </project>
