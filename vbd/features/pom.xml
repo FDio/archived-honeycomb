@@ -119,12 +119,14 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>vbd-impl</artifactId>
     </dependency>
-    <!--dependency>
+
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>vbd-impl</artifactId>
       <type>xml</type>
       <classifier>config</classifier>
-    </dependency-->
+    </dependency>
+
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>vbd-api</artifactId>

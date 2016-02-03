@@ -35,6 +35,13 @@
         <version>1.0.0-SNAPSHOT</version>
       </dependency>
       <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>vbd-impl</artifactId>
+          <type>xml</type>
+          <classifier>config</classifier>
+          <version>1.0.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>vbd-features</artifactId>
         <version>1.0.0-SNAPSHOT</version>

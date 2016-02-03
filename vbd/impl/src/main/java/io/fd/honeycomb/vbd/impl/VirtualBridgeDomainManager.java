@@ -12,8 +12,9 @@ import com.google.common.base.Preconditions;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.MountPointService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.TopologyTypes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.TopologyTypesVbridgeAugment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.network.topology.topology.topology.types.VbridgeTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -32,7 +33,7 @@ public final class VirtualBridgeDomainManager implements AutoCloseable {
     private static final DataTreeIdentifier<VbridgeTopology> LISTEN_TREE =
             new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION,
                     InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(TopologyTypes.class)
-                    .augmentation(TopologyTypes1.class).child(VbridgeTopology.class).build());
+                    .augmentation(TopologyTypesVbridgeAugment.class).child(VbridgeTopology.class).build());
 
     private final ListenerRegistration<TopologyMonitor> reg;
     private boolean closed;
@@ -41,9 +42,9 @@ public final class VirtualBridgeDomainManager implements AutoCloseable {
         this.reg = Preconditions.checkNotNull(reg);
     }
 
-    public static VirtualBridgeDomainManager create(@Nonnull final DataBroker dataBroker) {
+    public static VirtualBridgeDomainManager create(@Nonnull final DataBroker dataBroker,@Nonnull MountPointService mountService) {
         final ListenerRegistration<TopologyMonitor> reg =
-                dataBroker.registerDataTreeChangeListener(LISTEN_TREE, new TopologyMonitor(dataBroker));
+                dataBroker.registerDataTreeChangeListener(LISTEN_TREE, new TopologyMonitor(dataBroker, mountService));
 
         return new VirtualBridgeDomainManager(reg);
     }

@@ -33,16 +33,16 @@
     <feature version='${project.version}'>odl-vbd-api</feature>
     <feature version='${netconf.version}'>odl-netconf-connector-ssh</feature>
     <feature version='${netconf.mdsal.version}'>odl-netconf-mdsal</feature>
-    <!--bundle>mvn:io.fd.honeycomb.vbd/vbd-impl/{{VERSION}}</bundle-->
-    <!--configfile finalname="${configfile.directory}/vbd.xml">mvn:io.fd.honeycomb.vbd/vbd-impl/{{VERSION}}/xml/config</configfile-->
+    <bundle>mvn:io.fd.honeycomb.vbd/vbd-impl/{{VERSION}}</bundle>
+    <configfile finalname="${configfile.directory}/vbd.xml">mvn:io.fd.honeycomb.vbd/vbd-impl/{{VERSION}}/xml/config</configfile>
   </feature>
 
-  <!--feature name='odl-vbd-rest' version='${project.version}' description='OpenDaylight :: vbd :: REST'>
+  <feature name='odl-vbd-rest' version='${project.version}' description='OpenDaylight :: vbd :: REST'>
     <feature version="${project.version}">odl-vbd</feature>
     <feature version="${restconf.version}">odl-restconf</feature>
   </feature>
 
-  <feature name='odl-vbd-ui' version='${project.version}' description='OpenDaylight :: vbd :: UI'>
+  <!--feature name='odl-vbd-ui' version='${project.version}' description='OpenDaylight :: vbd :: UI'>
     <feature version="${project.version}">odl-vbd-rest</feature>
     <feature version="${restconf.version}">odl-mdsal-apidocs</feature>
     <feature version="${mdsal.version}">odl-mdsal-xsql</feature>
