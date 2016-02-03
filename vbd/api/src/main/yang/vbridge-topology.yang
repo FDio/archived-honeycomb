@@ -118,6 +118,7 @@ module vbridge-topology {
     }
 
     augment "/nt:network-topology/nt:topology/nt:node/nt:termination-point" {
+        ext:augment-identifier "termination-point-vbridge-augment";
         when "../bridge-member";
 
         choice interface-type {

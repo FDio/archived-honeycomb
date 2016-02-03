@@ -32,7 +32,7 @@ Prerequisite: configured netconf-node-topology
 	- bridge-member container
 	- supporting-node pointing to the VPP node in the
 	  netconf-node-topology
-	
+
 	B) The Controller App receives a DataTreeChangeNotification about the
 	node being added, and:
 
@@ -46,7 +46,7 @@ Prerequisite: configured netconf-node-topology
 	    datastore. The leaf contains a RESTCONF-encoded instance
 	    identifier of the bridge domain created in the VPP, relative to
 	    that VPP's mount point.
-	
+
 3) Assigning a physical VPP interface into a Virtual Bridge Domain
 	Prerequisite: The VPP itself has been added to the Virtual Bridge
 	              Domain
@@ -54,9 +54,7 @@ Prerequisite: configured netconf-node-topology
 	A) The UI creates a 'termination-point' inside the 'node' added in 2),
 	with:
 
-	- user-interface, containing RESTCONF-encoded instance identifier
-	  of the VPP interface, relative to that VPP's mount point in config
-	  data store.
+	- interface name.
 
 	B) The Controller App receives a notification of this being done and:
 	- looks if the VPP is connected, if it is, the app will:
@@ -64,7 +62,7 @@ Prerequisite: configured netconf-node-topology
 
 Inverse operations are achieved by the UI deleting the corresponding nodes in
 the Controller's configuration data store.
-	  
+
 
 Virtual Bridge Domain tunnel management
 ---------------------------------------
