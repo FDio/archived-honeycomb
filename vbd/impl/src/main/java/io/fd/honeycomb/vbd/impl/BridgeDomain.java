@@ -49,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.external
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Vxlan;
@@ -57,6 +58,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.LinkVbridgeAugment;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.LinkVbridgeAugmentBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.NodeVbridgeAugment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.TerminationPointVbridgeAugment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.TerminationPointVbridgeAugmentBuilder;
@@ -102,6 +105,7 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
     private static final String TUNNEL_ID_PREFIX = "vxlan_tunnel";
     private static final String TUNNEL_DESCRIPTION = "virtual interface which interconnects VPPs";
     private static final Long DEFAULT_ENCAP_VRF_ID = 0L;
+    private static final String TUNNEL_ID_DEMO = TUNNEL_ID_PREFIX + "0";
     private final KeyedInstanceIdentifier<Topology, TopologyKey> topology;
     @GuardedBy("this")
 
@@ -271,19 +275,20 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
                             if (ipAddressNewVpp != null && ipAddressOldVpp != null) {
                                 if (ipAddressNewVpp.isPresent() && ipAddressOldVpp.isPresent()) {
                                     //writing v3po:vxlan container to new node
-                                    Vxlan vxlanData = prepareVxlan(ipAddressNewVpp.get(),ipAddressOldVpp.get());
+                                    Vxlan vxlanData = prepareVxlan(ipAddressOldVpp.get(), ipAddressNewVpp.get());
                                     Interface intfData = prepareVirtualInterfaceData(vxlanData);
                                     createVirtualInterfaceOnVpp(intfData, iiToNewVpp);
 
                                     //writing v3po:vxlan container to existing node
-                                    vxlanData = prepareVxlan(ipAddressOldVpp.get(),ipAddressNewVpp.get());
+                                    vxlanData = prepareVxlan(ipAddressNewVpp.get(), ipAddressOldVpp.get());
                                     intfData = prepareVirtualInterfaceData(vxlanData);
                                     createVirtualInterfaceOnVpp(intfData, iiToOldVpp);
 
-                                    addTerminationPoint(iiToOldVpp);
-                                    addTerminationPoint(iiToNewVpp);
+                                    addTerminationPoint(topology.child(Node.class, new NodeKey(oldNode)));
+                                    addTerminationPoint(topology.child(Node.class, new NodeKey(newNode)));
 
-                                    addLinkBetweenTerminationPoints(newNode,oldNode);
+                                    addLinkBetweenTerminationPoints(newNode, oldNode);
+                                    addLinkBetweenTerminationPoints(oldNode, newNode);
                                 }
                             }
                         }
@@ -295,9 +300,20 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
                         if (vppDataBroker != null) {
                             final WriteTransaction wTx = vppDataBroker.newWriteOnlyTransaction();
                             final KeyedInstanceIdentifier<Interface, InterfaceKey> iiToInterface
-                                    = InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(TUNNEL_ID_PREFIX + "0"));
+                                    = InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(TUNNEL_ID_DEMO));
                             wTx.put(LogicalDatastoreType.CONFIGURATION, iiToInterface, intfData);
-                            wTx.submit();
+                            final CheckedFuture<Void, TransactionCommitFailedException> submitFuture = wTx.submit();
+                            Futures.addCallback(submitFuture, new FutureCallback<Void>() {
+                                @Override
+                                public void onSuccess(@Nullable Void result) {
+                                    LOG.debug("Writing super virtual interface to {} finished successfully.",iiToVpp.getKey().getNodeId());
+                                }
+
+                                @Override
+                                public void onFailure(Throwable t) {
+                                    LOG.debug("Writing super virtual interface to {} failed.",iiToVpp.getKey().getNodeId());
+                                }
+                            });
                         } else {
                             LOG.debug("Writing virtual interface {} to VPP {} wasn't successfull because missing data broker.",TUNNEL_DESCRIPTION, iiToVpp);
                         }
@@ -306,7 +322,8 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
                     private Interface prepareVirtualInterfaceData(final Vxlan vxlan) {
                         final InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
                         //TODO implement tunnel counter
-                        interfaceBuilder.setName(TUNNEL_ID_PREFIX + "0");
+                        interfaceBuilder.setName(TUNNEL_ID_DEMO);
+                        interfaceBuilder.setType(VxlanTunnel.class);
                         VppInterfaceAugmentationBuilder vppInterfaceAugmentationBuilder = new VppInterfaceAugmentationBuilder();
                         vppInterfaceAugmentationBuilder.setVxlan(vxlan);
                         interfaceBuilder.addAugmentation(VppInterfaceAugmentation.class, vppInterfaceAugmentationBuilder.build());
@@ -339,29 +356,33 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
 
     private void addLinkBetweenTerminationPoints(final NodeId newVpp, final NodeId odlVpp) {
         //TODO clarify how should identifier of link looks like
-        final String linkId = newVpp.getValue() + "-" + odlVpp.getValue();
-        final KeyedInstanceIdentifier<Link, LinkKey> iiToLink = topology.child(Link.class, new LinkKey(new LinkId(linkId)));
+        final String linkIdStr = newVpp.getValue() + "-" + odlVpp.getValue();
+        final LinkId linkId = new LinkId(linkIdStr);
+        final KeyedInstanceIdentifier<Link, LinkKey> iiToLink = topology.child(Link.class, new LinkKey(linkId));
         final WriteTransaction wTx = chain.newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, iiToLink, prepareData(newVpp,odlVpp));
+        wTx.put(LogicalDatastoreType.OPERATIONAL, iiToLink, prepareData(newVpp, odlVpp, linkId),true);
         wTx.submit();
 
     }
 
-    private Link prepareData(NodeId newVpp, NodeId oldVpp) {
+    private Link prepareData(final NodeId newVpp, final NodeId oldVpp, final LinkId linkId) {
         final LinkBuilder linkBuilder = new LinkBuilder();
+        linkBuilder.setLinkId(linkId);
 
         final SourceBuilder sourceBuilder = new SourceBuilder();
         sourceBuilder.setSourceNode(newVpp);
-        sourceBuilder.setSourceTp(new TpId(TUNNEL_ID_PREFIX + "0"));
+        sourceBuilder.setSourceTp(new TpId(TUNNEL_ID_DEMO));
         linkBuilder.setSource(sourceBuilder.build());
 
 
         final DestinationBuilder destinationBuilder = new DestinationBuilder();
         destinationBuilder.setDestNode(oldVpp);
-        destinationBuilder.setDestTp(new TpId(TUNNEL_ID_PREFIX + "0"));
+        destinationBuilder.setDestTp(new TpId(TUNNEL_ID_DEMO));
         linkBuilder.setDestination(destinationBuilder.build());
 
-        //TODO add augmentation link-vbridge-augment. What should be there???
+        final LinkVbridgeAugmentBuilder linkVbridgeAugmentBuilder = new LinkVbridgeAugmentBuilder();
+        linkVbridgeAugmentBuilder.setTunnel(new ExternalReference(TUNNEL_ID_DEMO));
+        linkBuilder.addAugmentation(LinkVbridgeAugment.class, linkVbridgeAugmentBuilder.build());
         return linkBuilder.build();
     }
 
@@ -515,11 +536,8 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
     }
 
     private void addTerminationPoint(final KeyedInstanceIdentifier<Node, NodeKey> nodeIID) {
-
-        String tunnelId = TUNNEL_ID_PREFIX + "0";
-
         // build data
-        final ExternalReference ref = new ExternalReference(tunnelId);
+        final ExternalReference ref = new ExternalReference(TUNNEL_ID_DEMO);
         final TunnelInterfaceBuilder iFaceBuilder = new TunnelInterfaceBuilder();
         iFaceBuilder.setTunnelInterface(ref);
 
@@ -528,12 +546,12 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
 
         final TerminationPointBuilder tpBuilder = new TerminationPointBuilder();
         tpBuilder.addAugmentation(TerminationPointVbridgeAugment.class, tpAugmentBuilder.build());
-        tpBuilder.setTpId(new TpId(tunnelId));
+        tpBuilder.setTpId(new TpId(TUNNEL_ID_DEMO));
         final TerminationPoint tp = tpBuilder.build();
 
         // process data
         final WriteTransaction wTx = chain.newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, nodeIID.child(TerminationPoint.class, tp.getKey()), tp);
+        wTx.put(LogicalDatastoreType.OPERATIONAL, nodeIID.child(TerminationPoint.class, tp.getKey()), tp, true);
         final CheckedFuture<Void, TransactionCommitFailedException> future = wTx.submit();
 
         Futures.addCallback(future, new FutureCallback<Void>() {

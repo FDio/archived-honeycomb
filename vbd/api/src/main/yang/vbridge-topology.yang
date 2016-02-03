@@ -150,7 +150,7 @@ module vbridge-topology {
 
     augment "/nt:network-topology/nt:topology/nt:link" {
         when "../nt:topology-types/vbridge-topology";
-
+        ext:augment-identifier "link-vbridge-augment";
         leaf tunnel {
             description
                 "Reference to the network element tunnel interface supporting
