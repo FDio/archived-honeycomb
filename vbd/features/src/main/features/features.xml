@@ -42,7 +42,6 @@
     <feature version="${restconf.version}">odl-restconf</feature>
   </feature>
 
-  <!-- FIXME: disabled until we find out why it fails to verify
   <feature name='odl-vbd-ui' version='${project.version}' description='OpenDaylight :: vbd :: UI'>
     <feature version="${project.version}">odl-vbd-rest</feature>
     <feature version="${restconf.version}">odl-mdsal-apidocs</feature>
@@ -50,6 +49,5 @@
     <feature version="${dlux.version}">odl-dlux-yangui</feature>
     <bundle>mvn:io.fd.honeycomb.vbd/vbd-ui-bundle/{{VERSION}}</bundle>
   </feature>
-  -->
 
 </features>
