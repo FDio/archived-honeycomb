@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -39,6 +40,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
@@ -46,28 +48,41 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.external.reference.rev160129.ExternalReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Vxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.l2.interconnection.BridgeBasedBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.NodeVbridgeAugment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.TerminationPointVbridgeAugment;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.TerminationPointVbridgeAugmentBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.TopologyVbridgeAugment;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.network.topology.topology.TunnelParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.network.topology.topology.node.BridgeMember;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.network.topology.topology.node.BridgeMemberBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.network.topology.topology.node.termination.point.InterfaceType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.network.topology.topology.node.termination.point._interface.type.TunnelInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.network.topology.topology.node.termination.point._interface.type.UserInterface;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.LinkId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TpId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.DestinationBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.SourceBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.node.attributes.SupportingNode;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -84,6 +99,9 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
     private static final Logger LOG = LoggerFactory.getLogger(BridgeDomain.class);
     private static final int SOURCE_VPP_INDEX = 0;
     private static final int DESTINATION_VPP_INDEX = 1;
+    private static final String TUNNEL_ID_PREFIX = "vxlan_tunnel";
+    private static final String TUNNEL_DESCRIPTION = "virtual interface which interconnects VPPs";
+    private static final Long DEFAULT_ENCAP_VRF_ID = 0L;
     private final KeyedInstanceIdentifier<Topology, TopologyKey> topology;
     @GuardedBy("this")
 
@@ -96,6 +114,7 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
     private final String iiBridgeDomainOnVPPRest;
     private final DataBroker dataBroker;
     private Multimap<NodeId, KeyedInstanceIdentifier<Node, NodeKey>> nodesToVpps = ArrayListMultimap.create();
+    private final List<Integer> tunnelIds;
 
     private BridgeDomain(final DataBroker dataBroker, final MountPointService mountService, final KeyedInstanceIdentifier<Topology, TopologyKey> topology,
             final BindingTransactionChain chain) {
@@ -112,6 +131,7 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
         this.dataBroker = dataBroker;
         reg = dataBroker.registerDataTreeChangeListener(
                                      new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, topology), this);
+        this.tunnelIds = new ArrayList<>();
     }
 
     private String provideIIBrdigeDomainOnVPPRest() {
@@ -236,32 +256,76 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
         for (Map.Entry<NodeId, KeyedInstanceIdentifier<Node, NodeKey>> entryToVpp : nodesToVpps.entries()) {
             if (!entryToVpp.getKey().equals(newNode)) {
                 //TODO: check whether returned value from nodesToVpps is not null
-                final ListenableFuture<List<Optional<Ipv4AddressNoZone>>> ipAddressesFuture = readIpAddressesFromVpps(entryToVpp.getValue(), nodesToVpps.get(newNode).iterator().next());
+                final KeyedInstanceIdentifier<Node, NodeKey> iiToOldVpp = entryToVpp.getValue();
+                final KeyedInstanceIdentifier<Node, NodeKey> iiToNewVpp = nodesToVpps.get(newNode).iterator().next();
+                final NodeId oldNode = entryToVpp.getKey();
+
+                final ListenableFuture<List<Optional<Ipv4AddressNoZone>>> ipAddressesFuture = readIpAddressesFromVpps(iiToOldVpp, iiToNewVpp);
                 Futures.addCallback(ipAddressesFuture, new FutureCallback<List<Optional<Ipv4AddressNoZone>>>() {
                     @Override
                     public void onSuccess(List<Optional<Ipv4AddressNoZone>> ipAddresses) {
-                        LOG.debug("All required IP addresses for creating tunnel were obtained.");
                         if (ipAddresses.size() == 2) {
-                            final Optional<Ipv4AddressNoZone> ipAddressSource = ipAddresses.get(SOURCE_VPP_INDEX);
-                            final Optional<Ipv4AddressNoZone> ipAddressDestination = ipAddresses.get(DESTINATION_VPP_INDEX);
-                            if (ipAddressSource != null && ipAddressDestination != null) {
-                                if (ipAddressSource.isPresent() && ipAddressDestination.isPresent()) {
-                                    Vxlan vxlan = prepareVxlan();
-                                    createVirtualInterfaceOnVpp(vxlan);
-                                }
+                            LOG.debug("All required IP addresses for creating tunnel were obtained.");
+                            final Optional<Ipv4AddressNoZone> ipAddressNewVpp = ipAddresses.get(SOURCE_VPP_INDEX);
+                            final Optional<Ipv4AddressNoZone> ipAddressOldVpp = ipAddresses.get(DESTINATION_VPP_INDEX);
+                            if (ipAddressNewVpp != null && ipAddressOldVpp != null) {
+                                if (ipAddressNewVpp.isPresent() && ipAddressOldVpp.isPresent()) {
+                                    //writing v3po:vxlan container to new node
+                                    Vxlan vxlanData = prepareVxlan(ipAddressNewVpp.get(),ipAddressOldVpp.get());
+                                    Interface intfData = prepareVirtualInterfaceData(vxlanData);
+                                    createVirtualInterfaceOnVpp(intfData, iiToNewVpp);
 
+                                    //writing v3po:vxlan container to existing node
+                                    vxlanData = prepareVxlan(ipAddressOldVpp.get(),ipAddressNewVpp.get());
+                                    intfData = prepareVirtualInterfaceData(vxlanData);
+                                    createVirtualInterfaceOnVpp(intfData, iiToOldVpp);
+
+                                    addTerminationPoint(iiToOldVpp);
+                                    addTerminationPoint(iiToNewVpp);
+
+                                    addLinkBetweenTerminationPoints(newNode,oldNode);
+                                }
                             }
                         }
 
                     }
 
-                    private void createVirtualInterfaceOnVpp(final Vxlan vxlan) {
-                        //TODO implement writting of virtual interface with provided vxlan to VPP
+                    private void createVirtualInterfaceOnVpp(final Interface intfData, final KeyedInstanceIdentifier<Node, NodeKey> iiToVpp) {
+                        final DataBroker vppDataBroker = resolveDataBrokerForMountPoint(iiToVpp);
+                        if (vppDataBroker != null) {
+                            final WriteTransaction wTx = vppDataBroker.newWriteOnlyTransaction();
+                            final KeyedInstanceIdentifier<Interface, InterfaceKey> iiToInterface
+                                    = InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(TUNNEL_ID_PREFIX + "0"));
+                            wTx.put(LogicalDatastoreType.CONFIGURATION, iiToInterface, intfData);
+                            wTx.submit();
+                        } else {
+                            LOG.debug("Writing virtual interface {} to VPP {} wasn't successfull because missing data broker.",TUNNEL_DESCRIPTION, iiToVpp);
+                        }
                     }
 
-                    private Vxlan prepareVxlan() {
-                        //TODO implement something smarter
-                        return null;
+                    private Interface prepareVirtualInterfaceData(final Vxlan vxlan) {
+                        final InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
+                        //TODO implement tunnel counter
+                        interfaceBuilder.setName(TUNNEL_ID_PREFIX + "0");
+                        VppInterfaceAugmentationBuilder vppInterfaceAugmentationBuilder = new VppInterfaceAugmentationBuilder();
+                        vppInterfaceAugmentationBuilder.setVxlan(vxlan);
+                        interfaceBuilder.addAugmentation(VppInterfaceAugmentation.class, vppInterfaceAugmentationBuilder.build());
+                        return interfaceBuilder.build();
+                    }
+
+                    private Vxlan prepareVxlan(final Ipv4AddressNoZone ipSrc, final Ipv4AddressNoZone ipDst) {
+                        final VxlanBuilder vxlanBuilder = new VxlanBuilder();
+                        vxlanBuilder.setSrc(ipSrc);
+                        vxlanBuilder.setDst(ipDst);
+                        final TunnelParameters tunnelParameters = config.getTunnelParameters();
+                        if (tunnelParameters instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.network.topology.topology.tunnel.parameters.Vxlan) {
+                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.network.topology.topology.tunnel.parameters.Vxlan vxlan =
+                                    (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.network.topology.topology.tunnel.parameters.Vxlan) tunnelParameters;
+                            //TODO: handle NPE
+                            vxlanBuilder.setVni(vxlan.getVxlan().getVni());
+                        }
+                        vxlanBuilder.setEncapVrfId(DEFAULT_ENCAP_VRF_ID);
+                        return vxlanBuilder.build();
                     }
 
                     @Override
@@ -271,6 +335,34 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
                 });
             }
         }
+    }
+
+    private void addLinkBetweenTerminationPoints(final NodeId newVpp, final NodeId odlVpp) {
+        //TODO clarify how should identifier of link looks like
+        final String linkId = newVpp.getValue() + "-" + odlVpp.getValue();
+        final KeyedInstanceIdentifier<Link, LinkKey> iiToLink = topology.child(Link.class, new LinkKey(new LinkId(linkId)));
+        final WriteTransaction wTx = chain.newWriteOnlyTransaction();
+        wTx.put(LogicalDatastoreType.OPERATIONAL, iiToLink, prepareData(newVpp,odlVpp));
+        wTx.submit();
+
+    }
+
+    private Link prepareData(NodeId newVpp, NodeId oldVpp) {
+        final LinkBuilder linkBuilder = new LinkBuilder();
+
+        final SourceBuilder sourceBuilder = new SourceBuilder();
+        sourceBuilder.setSourceNode(newVpp);
+        sourceBuilder.setSourceTp(new TpId(TUNNEL_ID_PREFIX + "0"));
+        linkBuilder.setSource(sourceBuilder.build());
+
+
+        final DestinationBuilder destinationBuilder = new DestinationBuilder();
+        destinationBuilder.setDestNode(oldVpp);
+        destinationBuilder.setDestTp(new TpId(TUNNEL_ID_PREFIX + "0"));
+        linkBuilder.setDestination(destinationBuilder.build());
+
+        //TODO add augmentation link-vbridge-augment. What should be there???
+        return linkBuilder.build();
     }
 
     private ListenableFuture<List<Optional<Ipv4AddressNoZone>>> readIpAddressesFromVpps(final KeyedInstanceIdentifier<Node, NodeKey>... iiToVpps) {
@@ -364,7 +456,7 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
     }
 
 
-    private DataBroker resolveDataBrokerForMountPoint(final InstanceIdentifier<?> iiToMountPoint) {
+    private DataBroker resolveDataBrokerForMountPoint(final InstanceIdentifier<Node> iiToMountPoint) {
         final Optional<MountPoint> vppMountPointOpt = mountService.getMountPoint(iiToMountPoint);
         if (vppMountPointOpt.isPresent()) {
             final MountPoint vppMountPoint = vppMountPointOpt.get();
@@ -411,6 +503,8 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
                 final WriteTransaction wTx = chain.newWriteOnlyTransaction();
                 wTx.put(LogicalDatastoreType.OPERATIONAL, iiToBridgeMember, bridgeMemberBuilder.build(), true);
                 wTx.submit();
+
+
             }
 
             @Override
@@ -418,7 +512,41 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
                 //TODO handle this state
             }
         });
+    }
 
+    private void addTerminationPoint(final KeyedInstanceIdentifier<Node, NodeKey> nodeIID) {
+
+        String tunnelId = TUNNEL_ID_PREFIX + "0";
+
+        // build data
+        final ExternalReference ref = new ExternalReference(tunnelId);
+        final TunnelInterfaceBuilder iFaceBuilder = new TunnelInterfaceBuilder();
+        iFaceBuilder.setTunnelInterface(ref);
+
+        final TerminationPointVbridgeAugmentBuilder tpAugmentBuilder = new TerminationPointVbridgeAugmentBuilder();
+        tpAugmentBuilder.setInterfaceType(iFaceBuilder.build());
+
+        final TerminationPointBuilder tpBuilder = new TerminationPointBuilder();
+        tpBuilder.addAugmentation(TerminationPointVbridgeAugment.class, tpAugmentBuilder.build());
+        tpBuilder.setTpId(new TpId(tunnelId));
+        final TerminationPoint tp = tpBuilder.build();
+
+        // process data
+        final WriteTransaction wTx = chain.newWriteOnlyTransaction();
+        wTx.put(LogicalDatastoreType.OPERATIONAL, nodeIID.child(TerminationPoint.class, tp.getKey()), tp);
+        final CheckedFuture<Void, TransactionCommitFailedException> future = wTx.submit();
+
+        Futures.addCallback(future, new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(@Nullable Void result) {
+                LOG.debug("Termination point successfully added to {}.", nodeIID);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                LOG.warn("Failed to add termination point to {}.", nodeIID);
+            }
+        });
     }
 
     private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain
