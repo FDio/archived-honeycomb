@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import java.util.Collection;
+import java.util.Map;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -26,10 +27,13 @@ import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.MountPoint;
 import org.opendaylight.controller.md.sal.binding.api.MountPointService;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.external.reference.rev160129.ExternalReference;
@@ -81,7 +85,7 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
     private final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain> iiBridgeDomainOnVPP;
     private final String iiBridgeDomainOnVPPRest;
     private final DataBroker dataBroker;
-    private Multimap<NodeId, InstanceIdentifier<?>> nodesToVpps = ArrayListMultimap.create();
+    private Multimap<NodeId, KeyedInstanceIdentifier<Node, NodeKey>> nodesToVpps = ArrayListMultimap.create();
 
     private BridgeDomain(final DataBroker dataBroker, final MountPointService mountService, final KeyedInstanceIdentifier<Topology, TopologyKey> topology,
             final BindingTransactionChain chain) {
@@ -204,7 +208,13 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
                 break;
             case WRITE:
                 LOG.debug("Topology {} node {} created", topology, nodeMod.getIdentifier());
-                createNode(nodeMod.getDataAfter());
+                final int numberVppsBeforeAddition = nodesToVpps.keySet().size();
+                final Node newNode = nodeMod.getDataAfter();
+                createNode(newNode);
+                final int numberVppsAfterAddition = nodesToVpps.keySet().size();
+                if ((numberVppsBeforeAddition < numberVppsAfterAddition) && (numberVppsBeforeAddition >= 1)) {
+                    addTunnel(newNode.getNodeId());
+                }
                 break;
             default:
                 LOG.warn("Unhandled node modification {} in topology {}", nodeMod, topology);
@@ -212,11 +222,55 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
         }
     }
 
+    private void addTunnel(final NodeId newNode) {
+        for (Map.Entry<NodeId, KeyedInstanceIdentifier<Node, NodeKey>> entryToVpp : nodesToVpps.entries()) {
+            if (!entryToVpp.getKey().equals(newNode)) {
+                createTunnelEndPoint(entryToVpp.getValue());
+                createTunnelEndPoint(nodesToVpps.get(newNode));
+            }
+
+
+        }
+    }
+
+    private void createTunnelEndPoint(Collection<KeyedInstanceIdentifier<Node, NodeKey>> keyedInstanceIdentifiers) {
+        for (KeyedInstanceIdentifier<Node, NodeKey> iiToVpp : keyedInstanceIdentifiers) {
+            createTunnelEndPoint(iiToVpp);
+        }
+    }
+
+    private void createTunnelEndPoint(final KeyedInstanceIdentifier<Node, NodeKey> iiToVpp) {
+        final DataBroker vppDataBroker = resolveDataBrokerForMountPoint(iiToVpp);
+        final ReadOnlyTransaction rTx = vppDataBroker.newReadOnlyTransaction();
+
+        final CheckedFuture<Optional<InterfacesState>, ReadFailedException> interfaceStateFuture
+                = rTx.read(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(InterfacesState.class));
+        Futures.addCallback(interfaceStateFuture, new FutureCallback<Optional<InterfacesState>>() {
+            @Override
+            public void onSuccess(Optional<InterfacesState> optInterfacesState) {
+                if (optInterfacesState.isPresent()) {
+                    for (org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface intf : optInterfacesState.get().getInterface()) {
+                        //TODO find interface with IP address set
+                    }
+                }
+
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+            }
+        });
+
+
+    }
+
+
     private void modifyTerminationPoint(final DataObjectModification<TerminationPoint> nodeChild, final NodeId nodeId) {
         final TerminationPoint terminationPoint = nodeChild.getDataAfter();
         final TerminationPointVbridgeAugment termPointVbridgeAug = terminationPoint.getAugmentation(TerminationPointVbridgeAugment.class);
         if (termPointVbridgeAug != null) {
-            final Collection<InstanceIdentifier<?>> instanceIdentifiersVPP = nodesToVpps.get(nodeId);
+            final Collection<KeyedInstanceIdentifier<Node, NodeKey>> instanceIdentifiersVPP = nodesToVpps.get(nodeId);
             //TODO: probably iterate via all instance identifiers.
             if (!instanceIdentifiersVPP.isEmpty()) {
                 final DataBroker dataBroker = resolveDataBrokerForMountPoint(instanceIdentifiersVPP.iterator().next());
