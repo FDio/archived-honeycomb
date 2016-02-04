@@ -1,0 +1,67 @@
+<md-dialog ng-cloak aria-label="new vpp dialog">
+    <form>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2 style="color: white">
+                    Configuring {{ConfigVppDialogCtrl.vpp.name}}
+                </h2>
+                <span flex></span>
+                <md-button class="md-icon-button" ng-click="ConfigVppDialogCtrl.close()" aria-label="close button">
+                    <div>X</div>
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-dialog-content style="max-width:800px;max-height:810px; ">
+            <div class="md-dialog-content">
+                <md-content layout-padding>
+                    <form name="vppConfigForm">
+                        <div layout="row">
+                            <md-input-container flex>
+                                <label>
+                                    Name
+                                </label>
+                                <input ng-model="ConfigVppDialogCtrl.vpp.name" disabled>
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>
+                                    IP Address
+                                </label>
+                                <input ng-model="ConfigVppDialogCtrl.vpp.ip" ng-disabled="ConfigVppDialogCtrl.vpp.status === 'connected'">
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>
+                                    Port
+                                </label>
+                                <input ng-model="ConfigVppDialogCtrl.vpp.port" ng-disabled="ConfigVppDialogCtrl.vpp.status === 'connected'">
+                            </md-input-container>
+                        </div>
+                        <div layout="row">
+                            <md-input-container flex ng-if="ConfigVppDialogCtrl.vpp.status != 'connected'">
+                                <label>
+                                    Username
+                                </label>
+                                <input ng-model="ConfigVppDialogCtrl.vpp.un">
+                            </md-input-container>
+                            <md-input-container flex ng-if="ConfigVppDialogCtrl.vpp.status != 'connected'">
+                                <label>
+                                    Password
+                                </label>
+                                <input ng-model="ConfigVppDialogCtrl.vpp.pw" type="password">
+                            </md-input-container>
+                        </div>
+
+                    </form>
+                </md-content>
+
+            </div>
+        </md-dialog-content>
+        <md-progress-linear md-mode="indeterminate" ng-show="ConfigVppDialogCtrl.waiting"></md-progress-linear>
+        <md-dialog-actions layout="row">
+            <span flex></span>
+            <md-button ng-click="ConfigVppDialogCtrl.updateConfig();" style="margin-right:20px;" class="md-accent" ng-if="ConfigVppDialogCtrl.vpp.status != 'connected'">
+                Update
+            </md-button>
+
+        </md-dialog-actions>
+    </form>
+</md-dialog>

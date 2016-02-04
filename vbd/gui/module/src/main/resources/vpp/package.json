@@ -1,0 +1,23 @@
+{
+  "name": "open-vpp",
+  "version": "1.0.0",
+  "description": "open-vpp",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.13.3",
+    "express-http-proxy": "^0.6.0",
+    "url": "^0.11.0"
+  },
+  "devDependencies": {
+    "bower": "~1.3.12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@stash-eng.cisco.com:7999/~dwallace/honeycomb-demo.git"
+  },
+  "author": "Varun Seereeram, Chris Metz, John Burns, Dave Wallace",
+  "license": "ISC",
+  "keywords": [
+    "open-vpp"
+  ]
+}

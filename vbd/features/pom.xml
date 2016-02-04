@@ -131,5 +131,10 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>vbd-api</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>vbd-ui-bundle</artifactId>
+    </dependency>
   </dependencies>
 </project>

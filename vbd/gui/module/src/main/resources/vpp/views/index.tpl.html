@@ -1,0 +1,16 @@
+<div ng-controller="vppCtrl">
+    <md-toolbar>
+        <div class="md-toolbar-tools float-left">
+            <span flex></span>
+            <md-button ng-click="setMainView('inventory')">Inventory</md-button>
+            <span flex></span>
+            <md-button ng-click="setMainView('bridgeDomains')">Bridge Domains</md-button>
+            <span flex></span>
+        </div>
+    </md-toolbar>
+
+    <div ng-view style="height: 100%">
+        <section ng-if="mainView === 'inventory'" ng-include src="view_path+'inventory-table.tpl.html'"></section>
+        <section ng-if="mainView === 'bridgeDomains'" ng-include src="view_path+'bridge-domains.tpl.html'"></section>
+    </div>
+</div>

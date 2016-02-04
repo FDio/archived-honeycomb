@@ -1,0 +1,18 @@
+<md-dialog ng-cloak aria-label="vpp topo">
+    <form>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2 style="color: white">
+                    Topology for {{VppTopoCtrl.vpp.name}}
+                </h2>
+                <span flex></span>
+                <md-button class="md-icon-button" ng-click="VppTopoCtrl.close()" aria-label="close button">
+                    <div>X</div>
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-dialog-content style="max-width:500px;max-height:500px;overflow:hidden">
+            <div id="next-vpp-topo"></div>
+        </md-dialog-content>
+    </form>
+</md-dialog>

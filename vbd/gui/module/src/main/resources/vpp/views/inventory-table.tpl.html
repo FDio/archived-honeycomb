@@ -1,0 +1,28 @@
+<div ng-controller="InventoryTableController">
+	<md-button ng-click="addVppShowForm()">Mount VPP</md-button>
+	<md-button ng-click="getVppList()">Reload VPPs</md-button>
+	<table class="footable">
+	 	<thead>
+	 		<tr>
+	 			<th>VPP Name</th>
+	 			<th>IP Address</th>
+	 			<th>Port</th>
+	 			<th>Connection Status</th>
+	 			<th>Actions</th>
+	 		</tr>
+	 	</thead>
+	 	<tbody>
+	 		<tr ng-repeat="vpp in vppList">
+	 			<td>{{vpp.name}}</td>
+	 			<td>{{vpp.ipAddress}}</td>
+	 			<td>{{vpp.port}}</td>
+	 			<td>{{vpp.status}}</td>
+	 			<td>
+	 				<md-button ng-click="viewTopology(vpp)">View Topology</md-button>
+	 				<md-button ng-click="editVppShowForm(vpp)" ng-hide="vpp.status === 'connected'">Edit</md-button>
+	 				<md-button ng-click="deleteVpp(vpp)" >Delete</md-button>
+	 			</td>
+	 		</tr>
+	 	</tbody>
+	</table>
+</div>

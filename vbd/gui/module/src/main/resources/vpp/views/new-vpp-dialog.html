@@ -1,0 +1,66 @@
+<md-dialog ng-cloak aria-label="new vpp dialog">
+    <form>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2 style="color: white">
+                    Mount new VPP
+                </h2>
+                <span flex></span>
+                <md-button class="md-icon-button" ng-click="NewVppDialogCtrl.close()" aria-label="close button">
+                    <div>X</div>
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-dialog-content style="max-width:800px;max-height:810px; ">
+            <div class="md-dialog-content">
+                <md-content layout-padding>
+                    <form name="vppConfigForm">
+                        <div layout="row">
+                            <md-input-container flex>
+                                <label>
+                                    Name
+                                </label>
+                                <input ng-model="NewVppDialogCtrl.vpp.name">
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>
+                                    IP Address
+                                </label>
+                                <input ng-model="NewVppDialogCtrl.vpp.ip">
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>
+                                    Port
+                                </label>
+                                <input ng-model="NewVppDialogCtrl.vpp.port">
+                            </md-input-container>
+                        </div>
+                        <div layout="row">
+                            <md-input-container flex>
+                                <label>
+                                    Username
+                                </label>
+                                <input ng-model="NewVppDialogCtrl.vpp.un">
+                            </md-input-container>
+                            <md-input-container flex>
+                                <label>
+                                    Password
+                                </label>
+                                <input ng-model="NewVppDialogCtrl.vpp.pw" type="password">
+                            </md-input-container>
+                        </div>
+
+                    </form>
+                </md-content>
+
+            </div>
+        </md-dialog-content>
+        <md-progress-linear md-mode="indeterminate" ng-show="NewVppDialogCtrl.waiting"></md-progress-linear>
+        <md-dialog-actions layout="row">
+            <span flex></span>
+            <md-button ng-click="NewVppDialogCtrl.updateConfig();" style="margin-right:20px;" class="md-accent">
+                Mount
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>
