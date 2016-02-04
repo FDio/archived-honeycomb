@@ -15,7 +15,11 @@ import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
@@ -32,16 +36,20 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.external.reference.rev160129.ExternalReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.l2.interconnection.BridgeBasedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
@@ -74,6 +82,8 @@ import org.slf4j.LoggerFactory;
  */
 final class BridgeDomain implements DataTreeChangeListener<Topology> {
     private static final Logger LOG = LoggerFactory.getLogger(BridgeDomain.class);
+    private static final int SOURCE_VPP_INDEX = 0;
+    private static final int DESTINATION_VPP_INDEX = 1;
     private final KeyedInstanceIdentifier<Topology, TopologyKey> topology;
     @GuardedBy("this")
 
@@ -225,44 +235,91 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
     private void addTunnel(final NodeId newNode) {
         for (Map.Entry<NodeId, KeyedInstanceIdentifier<Node, NodeKey>> entryToVpp : nodesToVpps.entries()) {
             if (!entryToVpp.getKey().equals(newNode)) {
-                createTunnelEndPoint(entryToVpp.getValue());
-                createTunnelEndPoint(nodesToVpps.get(newNode));
+                //TODO: check whether returned value from nodesToVpps is not null
+                final ListenableFuture<List<Optional<Ipv4AddressNoZone>>> ipAddressesFuture = readIpAddressesFromVpps(entryToVpp.getValue(), nodesToVpps.get(newNode).iterator().next());
+                Futures.addCallback(ipAddressesFuture, new FutureCallback<List<Optional<Ipv4AddressNoZone>>>() {
+                    @Override
+                    public void onSuccess(List<Optional<Ipv4AddressNoZone>> ipAddresses) {
+                        LOG.debug("All required IP addresses for creating tunnel were obtained.");
+                        if (ipAddresses.size() == 2) {
+                            final Optional<Ipv4AddressNoZone> ipAddressSource = ipAddresses.get(SOURCE_VPP_INDEX);
+                            final Optional<Ipv4AddressNoZone> ipAddressDestination = ipAddresses.get(DESTINATION_VPP_INDEX);
+                            if (ipAddressSource != null && ipAddressDestination != null) {
+                                if (ipAddressSource.isPresent() && ipAddressDestination.isPresent()) {
+                                    Vxlan vxlan = prepareVxlan();
+                                    createVirtualInterfaceOnVpp(vxlan);
+                                }
+
+                            }
+                        }
+
+                    }
+
+                    private void createVirtualInterfaceOnVpp(final Vxlan vxlan) {
+                        //TODO implement writting of virtual interface with provided vxlan to VPP
+                    }
+
+                    private Vxlan prepareVxlan() {
+                        //TODO implement something smarter
+                        return null;
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+
+                    }
+                });
             }
-
-
         }
     }
 
-    private void createTunnelEndPoint(Collection<KeyedInstanceIdentifier<Node, NodeKey>> keyedInstanceIdentifiers) {
-        for (KeyedInstanceIdentifier<Node, NodeKey> iiToVpp : keyedInstanceIdentifiers) {
-            createTunnelEndPoint(iiToVpp);
+    private ListenableFuture<List<Optional<Ipv4AddressNoZone>>> readIpAddressesFromVpps(final KeyedInstanceIdentifier<Node, NodeKey>... iiToVpps) {
+        final List<ListenableFuture<Optional<Ipv4AddressNoZone>>> ipv4Futures = new ArrayList<>();
+        for (final KeyedInstanceIdentifier<Node, NodeKey> iiToVpp : iiToVpps) {
+            ipv4Futures.add(readIpAddressFromVpp(iiToVpp));
         }
+        return Futures.successfulAsList(ipv4Futures);
     }
 
-    private void createTunnelEndPoint(final KeyedInstanceIdentifier<Node, NodeKey> iiToVpp) {
+    private ListenableFuture<Optional<Ipv4AddressNoZone>> readIpAddressFromVpp(final KeyedInstanceIdentifier<Node, NodeKey> iiToVpp) {
+        final SettableFuture<Optional<Ipv4AddressNoZone>> resultFuture = SettableFuture.create();
+
         final DataBroker vppDataBroker = resolveDataBrokerForMountPoint(iiToVpp);
         final ReadOnlyTransaction rTx = vppDataBroker.newReadOnlyTransaction();
+        final CheckedFuture<Optional<Interfaces>, ReadFailedException> interfaceStateFuture
+                = rTx.read(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Interfaces.class));
 
-        final CheckedFuture<Optional<InterfacesState>, ReadFailedException> interfaceStateFuture
-                = rTx.read(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(InterfacesState.class));
-        Futures.addCallback(interfaceStateFuture, new FutureCallback<Optional<InterfacesState>>() {
+        Futures.addCallback(interfaceStateFuture, new FutureCallback<Optional<Interfaces>>() {
             @Override
-            public void onSuccess(Optional<InterfacesState> optInterfacesState) {
-                if (optInterfacesState.isPresent()) {
-                    for (org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface intf : optInterfacesState.get().getInterface()) {
-                        //TODO find interface with IP address set
+            public void onSuccess(Optional<Interfaces> optInterfaces) {
+                if (optInterfaces.isPresent()) {
+                    for (org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface intf : optInterfaces.get().getInterface()) {
+                        final Interface1 interface1 = intf.getAugmentation(Interface1.class);
+                        if (interface1 != null) {
+                            final Ipv4 ipv4 = interface1.getIpv4();
+                            if (ipv4 != null) {
+                                final List<Address> addresses = ipv4.getAddress();
+                                if (!addresses.isEmpty()) {
+                                    final Ipv4AddressNoZone ip = addresses.iterator().next().getIp();
+                                    if (ip != null) {
+                                        resultFuture.set(Optional.of(ip));
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-
+                resultFuture.set(Optional.<Ipv4AddressNoZone>absent());
             }
 
             @Override
             public void onFailure(Throwable t) {
+                resultFuture.setException(t);
 
             }
         });
-
-
+        return resultFuture;
     }
 
 
