@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 define(['angularAMD', 'app/routingConfig', 'ui-bootstrap', 'Restangular', 'angular-animate', 'angular-aria', 'angular-material', 'angular-smart-table', 'angular-translate', 'angular-translate-loader-partial'], function() {
 
   var vpp = angular.module('app.vpp', ['ui.router.state','app.core', 'ui.bootstrap', 'restangular', 'ngAnimate', 'ngAria', 'ngMaterial', 'smart-table', 'pascalprecht.translate']);

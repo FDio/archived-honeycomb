@@ -11,9 +11,9 @@
         <property name="angularJs" value="app.vpp"/>
 		<property name="cssDependencies">
             <list>
-                 <value>src/app/vpp/vpp.css</value>
                  <value>src/app/vpp/assets/css/next.css</value>
                  <value>src/app/vpp/bower_components/angular-material/angular-material.min.css</value>
+                 <value>src/app/vpp/assets/css/vpp.css</value>
             </list>
         </property>
     </bean>

@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
 var modules = ['app/vpp/vpp.module',
                'app/vpp/vpp.services',
                ];
@@ -17,10 +25,11 @@ define(modules, function(vpp) {
     	    };
 	}]);
 
-    vpp.register.controller('InventoryTableController', ['$scope', '$rootScope','$filter', 'toastService', 'VppService', '$mdDialog', 'dataService', 'InterfaceService', function($scope, $rootScope, filter, toastService, VppService, $mdDialog, dataService, InterfaceService) {
+    vpp.register.controller('InventoryTableController', ['$scope', '$rootScope','$filter', 'toastService', 'VppService', '$mdDialog', 'dataService', 'VppInterfaceService',
+        function($scope, $rootScope, filter, toastService, VppService, $mdDialog, dataService, VppInterfaceService) {
         
         $scope.getInterfaces = function(index) {
-            InterfaceService.getInterfaceList(
+            VppInterfaceService.getInterfaceList(
                 $scope.vppList[index].name,
                 //success callback
                 function(data) {
