@@ -26,7 +26,7 @@ define(['angularAMD', 'app/routingConfig', 'ui-bootstrap', 'Restangular', 'angul
       service : $provide.service
     };
 
-    NavHelperProvider.addControllerUrl('app/vpp/vpp.controller');
+    NavHelperProvider.addControllerUrl('app/vpp/controllers/vpp.controller');
     NavHelperProvider.addToMenu('vpp', {
       "link": "#/vpp/index",
       "active": "main.vpp",
@@ -108,29 +108,6 @@ define(['angularAMD', 'app/routingConfig', 'ui-bootstrap', 'Restangular', 'angul
         })
         .accentPalette('odl-orange');
 
-      // $stateProvider.state('main.vpp.inventory', {
-      //     url: '/inventory',
-      //     access: access.admin,
-      //     views: {
-      //         '': {
-      //             controller: 'InventoryController',
-      //             controllerAs: 'InventoryCtrl',
-      //             templateUrl: 'src/app/vpp/views/inventory.html'
-      //         }
-      //     }
-      // });
-
-      // $stateProvider.state('main.vpp.bridgedomains', {
-      //     url: '/bridgedomains',
-      //     access: access.admin,
-      //     views: {
-      //         '': {
-      //             controller: 'BridgeDomainsController',
-      //             controllerAs: 'BridgeDomainsCtrl',
-      //             templateUrl: 'src/app/vpp/views/bridge-domains.html'
-      //         }
-      //     }
-      // });
   });
 
   return vpp;
