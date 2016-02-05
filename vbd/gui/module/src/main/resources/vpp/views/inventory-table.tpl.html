@@ -1,7 +1,8 @@
 <div ng-controller="InventoryTableController">
 	<md-button ng-click="addVppShowForm()">Mount VPP</md-button>
 	<md-button ng-click="getVppList()">Reload VPPs</md-button>
-	<table class="footable">
+    <!--FIXME: decide which element to use, if static, or ui-grid-->
+	<!--<table class="footable">
 	 	<thead>
 	 		<tr>
 	 			<th>VPP Name</th>
@@ -24,5 +25,8 @@
 	 			</td>
 	 		</tr>
 	 	</tbody>
-	</table>
+	</table>-->
+	<div ng-controller="InventoryTableDefinitonController" class="black">
+		<div ui-grid="gridOptions" ui-grid-expandable class="grid"></div>
+	</div>
 </div>

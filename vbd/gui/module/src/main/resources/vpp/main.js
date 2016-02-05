@@ -13,6 +13,7 @@ require.config({
     'angular-smart-table' :  'app/vpp/bower_components/angular-smart-table/dist/smart-table',
     'lodash' : 'app/vpp/assets/js/lodash.min',
     'next': 'app/vpp/assets/js/next',
+    'angular-ui-grid': 'app/vpp/bower_components/angular-ui-grid/ui-grid.min',
   },
 
   shim : {
@@ -20,6 +21,7 @@ require.config({
     'angular-animate' : ['angular'],
     'angular-aria' : ['angular'],
     'angular-smart-table' : ['angular'],
+    'angular-ui-grid' : ['angular']
   },
 
 });
