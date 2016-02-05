@@ -8,8 +8,8 @@
 
 define(['app/vpp/vpp.module'], function(vpp) {
 
-    vpp.register.controller('InventoryTableController', ['$scope', '$rootScope','$filter', 'toastService', 'VppService', '$mdDialog', 'dataService', 'VppInterfaceService',
-        function($scope, $rootScope, filter, toastService, VppService, $mdDialog, dataService, VppInterfaceService) {
+    vpp.register.controller('InventoryTableController', ['$scope', '$rootScope','$filter', 'toastService', 'VppService', '$mdDialog', 'dataService',
+        function($scope, $rootScope, filter, toastService, VppService, $mdDialog, dataService) {
 
             $scope.getVppList = function() {
                 $scope.initVppList();

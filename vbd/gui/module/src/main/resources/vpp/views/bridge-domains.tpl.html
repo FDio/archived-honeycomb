@@ -9,7 +9,7 @@
                 <md-select ng-model='BridgeDomainsController.selectedBd.name' placeholder="Select BD" ng-change="BridgeDomainsController.bdChanged()" style="width: 100%;">
                     <md-option ng-repeat="bd in BridgeDomainsController.bridgedomains" value="{{bd.name}}">{{bd.name}}</md-option>
                 </md-select>
-                <md-button class="md-raised" md-no-ink ng-click="BridgeDomainsController.addBd()" style="width: 25%;">Add BD</md-button>
+                <md-button class="md-raised" md-no-ink ng-click="addBd()" style="width: 25%;">Add BD</md-button>
                 <md-button class="md-raised" md-no-ink ng-click="BridgeDomainsController.removeBd()" style="width: 35%;" ng-if="BridgeDomainsController.dataService.injectedInterfaces.length===0 && BridgeDomainsController.dataService.selectedBd.name">Remove BD</md-button>
 
                 </md-input-container>

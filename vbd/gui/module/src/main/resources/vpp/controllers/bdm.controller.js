@@ -11,7 +11,6 @@ define(['app/vpp/vpp.module'], function(vpp) {
 
     }]);
 
-
     vpp.register.controller('TableController', ['$scope', '$rootScope','$filter', 'dataService', 'toastService', function ($scope, $rootScope, filter, dataService, toastService) {
         var vm = this;
         vm.rowCollection = dataService.tableContent;
@@ -34,94 +33,110 @@ define(['app/vpp/vpp.module'], function(vpp) {
         };
     }]);
 
-    vpp.register.controller('BridgeDomainsController', function(dataService, $location, $mdDialog, toastService) {
-        var vm = this;
-        vm.dataService = dataService;
+    vpp.register.controller('BridgeDomainsController', ['$scope', '$rootScope','$filter', 'dataService', 'bdmBridgeDomainService', 'toastService',
+        function($scope, $rootScope, $filter, dataService, bdmBridgeDomainService, toastService) {
+            $scope.addBd = function() {
+                var obj = bdmBridgeDomainService.createObj('vBD' + ((Math.random() * 100) + 1) );
 
-        dataService.nextApp.container(document.getElementById('bridge-domains-next-app'));
-        dataService.bridgeDomainsTopo.attach(dataService.nextApp);
+                bdmBridgeDomainService.add(obj,
+                    function(data) {
+                        console.log('successadding vbd');
+                    },
+                    function() {
+                        console.warn('add bd failed');
+                    });
+            };
 
-        window.addEventListener('resize', function () {
-            if ($location.path() === '/bridgedomains') {
-                dataService.topo.adaptToContainer();
-            }
-        });
+            /*var vm = this;
+            vm.dataService = dataService;
 
-        vm.bridgedomains = dataService.bridgedomains;
-        vm.selectedBd = dataService.selectedBd;
+            dataService.nextApp.container(document.getElementById('bridge-domains-next-app'));
+            dataService.bridgeDomainsTopo.attach(dataService.nextApp);
 
-        dataService.bridgeDomainsTopo.on('clickNode',function(topo,node) {
-            console.log(node);
-        });
+            window.addEventListener('resize', function () {
+                if ($location.path() === '/bridgedomains') {
+                    dataService.topo.adaptToContainer();
+                }
+            });
 
-        vm.bdChanged = function() {
-            dataService.injectBridgeDomainsTopoElements();
-            dataService.buildTableContent();
-        };
+            vm.bridgedomains = dataService.bridgedomains;
+            vm.selectedBd = dataService.selectedBd;
 
-        vm.addBd = function() {
-            //show dialog
-            $mdDialog.show({
-                controller: function() {
-                    var vm = this;
-                    vm.bd = {};
-                    vm.waiting = false;
+            dataService.bridgeDomainsTopo.on('clickNode',function(topo,node) {
+                console.log(node);
+            });
 
-                    //function called when the cancel button ( 'x' in the top right) is clicked
-                    vm.close = function() {
-                        $mdDialog.cancel();
-                    };
+            vm.bdChanged = function() {
+                dataService.injectBridgeDomainsTopoElements();
+                dataService.buildTableContent();
+            };
 
-                    vm.isDone = function(status) {
+            vm.addBd = function() {
+                //show dialog
+                $mdDialog.show({
+                    controller: function() {
+                        var vm = this;
+                        vm.bd = {};
                         vm.waiting = false;
-                        if (status === 'success') {
-                            dataService.bridgedomains.push(vm.bd);
-                            dataService.selectedBd.name = vm.bd.name;
-                            dataService.injectBridgeDomainsTopoElements();
-                            dataService.buildTableContent();
-                            vm.close();
+
+                        //function called when the cancel button ( 'x' in the top right) is clicked
+                        vm.close = function() {
+                            $mdDialog.cancel();
+                        };
+
+                        vm.isDone = function(status) {
+                            vm.waiting = false;
+                            if (status === 'success') {
+                                dataService.bridgedomains.push(vm.bd);
+                                dataService.selectedBd.name = vm.bd.name;
+                                dataService.injectBridgeDomainsTopoElements();
+                                dataService.buildTableContent();
+                                vm.close();
+                            }
+                        };
+
+                        //function called when the update button is clicked
+                        vm.updateConfig = function() {
+                            vm.waiting = true;
+                            //send a POST with the entered content in the form field
+
+                        };
+                    },
+                    controllerAs: 'NewBdDialogCtrl',
+                    templateUrl: 'templates/new-bd-dialog.html',
+                    parent: angular.element(document.body),
+                    clickOutsideToClose:false
+                })
+            };
+
+
+
+            vm.deploy = function() {
+
+            };
+
+            vm.removeBd = function() {
+                if(vm.selectedBd.name) {
+                    var successCallback = function(success) {
+                        if (success) {
+                            console.log(vm.bridgedomains);
+                            _.remove(vm.bridgedomains, {
+                                name: vm.selectedBd.name
+                            });
+                            toastService.showToast('Bridge Domain Removed!');
+                            vm.selectedBd.name = '';
+                            dataService.clearInjectedInterfacesInBridgeDomainTopo();
+                            dataService.injectBdIntoBridgeDomainsTopo();
+                            dataService.tableContent.length = 0;
+                        } else {
+                            toastService.showToast('Error removing Bridge Domain!');
+
                         }
                     };
 
-                    //function called when the update button is clicked
-                    vm.updateConfig = function() {
-                        vm.waiting = true;
-                        //send a POST with the entered content in the form field
-
-                    };
-                },
-                controllerAs: 'NewBdDialogCtrl',
-                templateUrl: 'templates/new-bd-dialog.html',
-                parent: angular.element(document.body),
-                clickOutsideToClose:false
-            })
-        };
-
-        vm.deploy = function() {
-
-        };
-
-        vm.removeBd = function() {
-            if(vm.selectedBd.name) {
-                var successCallback = function(success) {
-                    if (success) {
-                        console.log(vm.bridgedomains);
-                        _.remove(vm.bridgedomains, {
-                            name: vm.selectedBd.name
-                        });
-                        toastService.showToast('Bridge Domain Removed!');
-                        vm.selectedBd.name = '';
-                        dataService.clearInjectedInterfacesInBridgeDomainTopo();
-                        dataService.injectBdIntoBridgeDomainsTopo();
-                        dataService.tableContent.length = 0;
-                    } else {
-                        toastService.showToast('Error removing Bridge Domain!');
-
-                    }
-                };
-
-                //... removeBdFromOdl(vm.selectedBd.name, successCallback);
-            }
-        };
-    });
+                    //... removeBdFromOdl(vm.selectedBd.name, successCallback);
+                }
+            };
+            */
+    }]);
 });
