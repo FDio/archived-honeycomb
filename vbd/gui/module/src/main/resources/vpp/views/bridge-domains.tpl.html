@@ -1,16 +1,14 @@
 <div ng-controller="BridgeDomainsController">
-    <md-progress-linear md-mode="indeterminate" ng-if="BridgeDomainsController.dataService.loading"></md-progress-linear>
-
     <div layout="row" layout-xs="column" style="height:100%">
-        <div id="bridge-domains-next-app" style="height: 100%; width: 50%" flex></div>
-        <div class="md-sidenav-left md-whiteframe-z2" style="background-color: white" flex>
+        <div id="bridge-domains-next-app" style="height: 550px; width: 50%" flex></div>
+        <div class="md-sidenav-left md-whiteframe-z2" style="height: 550px" flex>
             <md-content layout-padding ng-controller="TableController as TableCtrl">
                 <md-input-container style="margin-right: 5px;" layout="row">
-                <md-select ng-model='BridgeDomainsController.selectedBd.name' placeholder="Select BD" ng-change="BridgeDomainsController.bdChanged()" style="width: 100%;">
-                    <md-option ng-repeat="bd in BridgeDomainsController.bridgedomains" value="{{bd.name}}">{{bd.name}}</md-option>
+                <md-select ng-model='selectedBd.name' placeholder="Select BD" ng-change="bdChanged()" style="width: 100%;">
+                    <md-option ng-repeat="bd in bridgedomains" value="{{bd.name}}">{{bd.name}}</md-option>
                 </md-select>
                 <md-button class="md-raised" md-no-ink ng-click="addBd()" style="width: 25%;">Add BD</md-button>
-                <md-button class="md-raised" md-no-ink ng-click="BridgeDomainsController.removeBd()" style="width: 35%;" ng-if="BridgeDomainsController.dataService.injectedInterfaces.length===0 && BridgeDomainsController.dataService.selectedBd.name">Remove BD</md-button>
+                <md-button class="md-raised" md-no-ink ng-click="removeBd()" style="width: 35%;" ng-if="dataService.injectedInterfaces.length===0 && dataService.selectedBd.name">Remove BD</md-button>
 
                 </md-input-container>
                 <table st-table="TableCtrl.displayedCollection" class="table table-striped" st-safe-src="TableCtrl.rowCollection">
@@ -35,7 +33,7 @@
                     </tbody>
                 </table>
                 <!--<md-input-container style="bottom: 10px">-->
-                    <md-button class="md-raised" md-no-ink ng-click="BridgeDomainsController.deploy()" style="width: 94%;position: fixed;" ng-if="BridgeDomainsController.dataService.changedInterfaces.length">Deploy</md-button>
+                    <md-button class="md-raised" md-no-ink ng-click="deploy()" style="width: 94%;position: fixed;" ng-if="dataService.changedInterfaces.length">Deploy</md-button>
                 <!--</md-input-container>-->
             </md-content>
         </div>

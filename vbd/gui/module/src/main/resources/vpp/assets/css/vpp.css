@@ -107,3 +107,37 @@ a.md-button.md-warn[disabled], .md-button.md-default-theme[disabled], .md-button
 .md-button.md-accent[disabled], .md-button.md-default-theme.md-warn[disabled], .md-button.md-warn[disabled] {
     color: #FFA500 !important;
 }
+
+.st-sort-ascent:after{
+    content: '\25B2';
+}
+
+.st-sort-descent:after{
+    content: '\25BC';
+}
+
+.st-sort-ascent:before{
+    content: none;
+}
+
+.st-sort-descent:before{
+    content: none;
+}
+
+button span {
+    color: orange !important;
+}
+
+button.md-raised.md-button {
+    background-color: orange !important;
+}
+
+button.md-raised.md-button span{
+    color: black !important;
+}
+
+
+
+a.md-button.md-default-theme.md-raised, a.md-button.md-raised, .md-button.md-default-theme.md-raised, .md-button.md-raised {
+    background-color: #424242 !important;
+}

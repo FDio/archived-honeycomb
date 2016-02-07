@@ -18,6 +18,8 @@ define(['app/vpp/vpp.module'], function(vpp) {
                     // success callback
                     function(data) {
                         $scope.vppList = data;
+                        $scope.displayVppList = [].concat($scope.vppList);
+
                         $scope.$broadcast('RELOAD_VPP_TABLE');
                     },
                     // error callback
@@ -29,6 +31,10 @@ define(['app/vpp/vpp.module'], function(vpp) {
 
             $scope.initVppList = function() {
                 $scope.vppList = [];
+                $scope.displayVppList = [];
+
+                //setting reference for vpp access in BDM
+                dataService.vpps = $scope.vppList;
             };
 
             $scope.viewTopology = function(vpp) {

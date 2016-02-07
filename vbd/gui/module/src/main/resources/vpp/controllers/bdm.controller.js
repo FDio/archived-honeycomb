@@ -47,8 +47,7 @@ define(['app/vpp/vpp.module'], function(vpp) {
                     });
             };
 
-            /*var vm = this;
-            vm.dataService = dataService;
+            $scope.dataService = dataService;
 
             dataService.nextApp.container(document.getElementById('bridge-domains-next-app'));
             dataService.bridgeDomainsTopo.attach(dataService.nextApp);
@@ -59,19 +58,19 @@ define(['app/vpp/vpp.module'], function(vpp) {
                 }
             });
 
-            vm.bridgedomains = dataService.bridgedomains;
-            vm.selectedBd = dataService.selectedBd;
+            $scope.bridgedomains = dataService.bridgedomains;
+            $scope.selectedBd = dataService.selectedBd;
 
             dataService.bridgeDomainsTopo.on('clickNode',function(topo,node) {
                 console.log(node);
             });
 
-            vm.bdChanged = function() {
+            $scope.bdChanged = function() {
                 dataService.injectBridgeDomainsTopoElements();
                 dataService.buildTableContent();
             };
 
-            vm.addBd = function() {
+            $scope.addBd = function() {
                 //show dialog
                 $mdDialog.show({
                     controller: function() {
@@ -111,20 +110,20 @@ define(['app/vpp/vpp.module'], function(vpp) {
 
 
 
-            vm.deploy = function() {
+            $scope.deploy = function() {
 
             };
 
-            vm.removeBd = function() {
-                if(vm.selectedBd.name) {
+            $scope.removeBd = function() {
+                if($scope.selectedBd.name) {
                     var successCallback = function(success) {
                         if (success) {
-                            console.log(vm.bridgedomains);
-                            _.remove(vm.bridgedomains, {
-                                name: vm.selectedBd.name
+                            console.log($scope.bridgedomains);
+                            _.remove($scope.bridgedomains, {
+                                name: $scope.selectedBd.name
                             });
                             toastService.showToast('Bridge Domain Removed!');
-                            vm.selectedBd.name = '';
+                            $scope.selectedBd.name = '';
                             dataService.clearInjectedInterfacesInBridgeDomainTopo();
                             dataService.injectBdIntoBridgeDomainsTopo();
                             dataService.tableContent.length = 0;
@@ -137,6 +136,6 @@ define(['app/vpp/vpp.module'], function(vpp) {
                     //... removeBdFromOdl(vm.selectedBd.name, successCallback);
                 }
             };
-            */
+
     }]);
 });

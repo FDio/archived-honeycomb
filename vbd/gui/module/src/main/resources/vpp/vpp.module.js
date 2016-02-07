@@ -6,11 +6,11 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 define(['angularAMD', 'app/routingConfig', 'ui-bootstrap', 'Restangular', 'angular-animate', 'angular-aria',
-        'angular-material', 'angular-smart-table', 'angular-ui-grid', 'angular-translate',
+        'angular-material', 'angular-smart-table', 'angular-translate',
         'angular-translate-loader-partial'], function() {
 
   var vpp = angular.module('app.vpp', ['ui.router.state','app.core', 'ui.bootstrap', 'restangular', 'ngAnimate',
-                           'ngAria', 'ngMaterial', 'smart-table', 'ui.grid', 'ui.grid.expandable', 'pascalprecht.translate']);
+                           'ngAria', 'ngMaterial', 'smart-table', 'pascalprecht.translate']);
 
   vpp.register = vpp;
 
@@ -102,7 +102,7 @@ define(['angularAMD', 'app/routingConfig', 'ui-bootstrap', 'Restangular', 'angul
         'contrastLightColors': undefined    // could also specify this if default was 'dark'
     });
 
-    $mdThemingProvider.theme('default')
+    $mdThemingProvider.theme('default').dark()
         .primaryPalette('odl-gray',{
             'default': '500'
         })
