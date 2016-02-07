@@ -15,6 +15,15 @@ html,body {
     overflow: hidden;
 }
 
+svg {
+    border: none;
+    border-radius: 0;
+    background-image: none;
+    background-color: rgb(66,66,66);
+}
+
+text.node-label { fill: #FFFFFF !important; }
+
 md-sidenav.md-locked-open {
     width: 550px;
     min-width: 550px;
@@ -99,15 +108,6 @@ span.center {
     stroke: #FFA500 !important;
 }
 
-a.md-button.md-default-theme[disabled], a.md-button[disabled], a.md-button.md-default-theme.md-raised[disabled],
-a.md-button.md-raised[disabled], a.md-button.md-default-theme.md-fab[disabled], a.md-button.md-fab[disabled],
-a.md-button.md-default-theme.md-accent[disabled], a.md-button.md-accent[disabled], a.md-button.md-default-theme.md-warn[disabled],
-a.md-button.md-warn[disabled], .md-button.md-default-theme[disabled], .md-button[disabled], .md-button.md-default-theme.md-raised[disabled],
-.md-button.md-raised[disabled], .md-button.md-default-theme.md-fab[disabled], .md-button.md-fab[disabled], .md-button.md-default-theme.md-accent[disabled],
-.md-button.md-accent[disabled], .md-button.md-default-theme.md-warn[disabled], .md-button.md-warn[disabled] {
-    color: #FFA500 !important;
-}
-
 .st-sort-ascent:after{
     content: '\25B2';
 }
@@ -124,8 +124,14 @@ a.md-button.md-warn[disabled], .md-button.md-default-theme[disabled], .md-button
     content: none;
 }
 
+/*button overrides*/
 button span {
-    color: orange !important;
+    color: orange;
+    font-weight: bold;
+}
+
+button.md-button[disabled] span {
+    color: #ffc966;
 }
 
 button.md-raised.md-button {
@@ -133,11 +139,83 @@ button.md-raised.md-button {
 }
 
 button.md-raised.md-button span{
-    color: black !important;
+    color: black;
 }
 
+a.md-button.md-default-theme.md-raised,
+a.md-button.md-raised,
+.md-button.md-default-theme.md-raised,
+.md-button.md-raised {
+    background-color: #424242;
+}
 
+a.md-button.md-default-theme[disabled], a.md-button[disabled], a.md-button.md-default-theme.md-raised[disabled],
+a.md-button.md-raised[disabled], a.md-button.md-default-theme.md-fab[disabled], a.md-button.md-fab[disabled],
+a.md-button.md-default-theme.md-accent[disabled], a.md-button.md-accent[disabled], a.md-button.md-default-theme.md-warn[disabled],
+a.md-button.md-warn[disabled], .md-button.md-default-theme[disabled], .md-button[disabled], .md-button.md-default-theme.md-raised[disabled],
+.md-button.md-raised[disabled], .md-button.md-default-theme.md-fab[disabled], .md-button.md-fab[disabled], .md-button.md-default-theme.md-accent[disabled],
+.md-button.md-accent[disabled], .md-button.md-default-theme.md-warn[disabled], .md-button.md-warn[disabled] {
+    color: #FFA500;
+}
 
-a.md-button.md-default-theme.md-raised, a.md-button.md-raised, .md-button.md-default-theme.md-raised, .md-button.md-raised {
-    background-color: #424242 !important;
+/*table overrides*/
+.table-striped > tbody > tr:nth-child(odd) > td, .table-striped > tbody > tr:nth-child(odd) > th {
+    background-color: transparent;
+}
+
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+    vertical-align: middle;
+}
+
+.table > thead > tr > th.interactive {
+    color: orange;
+}
+
+/*input overrides*/
+md-input-container.md-default-theme,
+md-input-container label,
+md-input-container.md-default-theme,
+md-input-container .md-placeholder {
+    text-shadow: none;
+    color: white;
+}
+
+md-input-container.md-default-theme:not(.md-input-invalid).md-input-focused,
+md-input-container:not(.md-input-invalid).md-input-focused label,
+md-input-container.md-default-theme:not(.md-input-invalid).md-input-has-value,
+md-input-container:not(.md-input-invalid).md-input-has-value label {
+    color: white;
+}
+
+md-input-container.md-default-theme,
+md-input-container .md-input {
+    text-shadow: none;
+}
+
+md-input-container.md-default-theme:not(.md-input-invalid).md-input-focused,
+md-input-container:not(.md-input-invalid).md-input-focused .md-input {
+    border-color: orange;
+}
+
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+    background-color: transparent !important;
+    text-shadow: none;
+    color: white !important;
+}
+
+md-select-menu.md-default-theme,
+md-select-menu md-option[selected] {
+    color: orange;
+}
+
+/*tab overrides*/
+md-tab.md-active {
+    color: orange;
 }

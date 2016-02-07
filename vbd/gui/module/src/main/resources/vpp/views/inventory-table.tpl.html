@@ -1,31 +1,41 @@
 <div ng-controller="InventoryTableController">
-	<md-button ng-click="addVppShowForm()">Mount VPP</md-button>
-	<md-button ng-click="getVppList()">Reload VPPs</md-button>
+    <div layout="row" flex="100" layout-margin>
+        <div class="md-whiteframe-z2 flex">
+            <md-content layout-padding>
+                <div style="float: left">
+                    <h3>VPP List</h3>
+                </div>
+                <div style="float: right">
+                    <md-button ng-click="addVppShowForm()" class="md-raised">Mount VPP</md-button>
+                    <md-button ng-click="getVppList()" class="md-raised">Reload VPPs</md-button>
+                </div>
 
-    <md-content layout-padding>
-        <table st-table="displayVppList" st-safe-src="vppList" class="table table-striped">
-            <thead>
-            <tr>
-                <th st-sort="name">VPP Name</th>
-                <th st-sort="ipAddress">IP Address</th>
-                <th st-sort="port">Port</th>
-                <th st-sort="status">Connection Status</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr ng-repeat="vpp in displayVppList">
-                <td>{{vpp.name}}</td>
-                <td>{{vpp.ipAddress}}</td>
-                <td>{{vpp.port}}</td>
-                <td>{{vpp.status}}</td>
-                <td>
-                    <md-button ng-click="viewTopology(vpp)">View Topology</md-button>
-                    <md-button ng-click="editVppShowForm(vpp)" ng-hide="vpp.status === 'connected'">Edit</md-button>
-                    <md-button ng-click="deleteVpp(vpp)" >Delete</md-button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </md-content>
+                <table st-table="displayVppList" st-safe-src="vppList" class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th st-sort="name" class="interactive">VPP Name</th>
+                        <th st-sort="ipAddress" class="interactive">IP Address</th>
+                        <th st-sort="port" class="interactive">Port</th>
+                        <th st-sort="status" class="interactive">Connection Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="vpp in displayVppList">
+                        <td>{{vpp.name}}</td>
+                        <td>{{vpp.ipAddress}}</td>
+                        <td>{{vpp.port}}</td>
+                        <td>{{vpp.status}}</td>
+                        <td>
+                            <!--<md-button ng-click="viewTopology(vpp)" class="md-accent">View Topology</md-button>-->
+                            <md-button ng-click="selectVpp(vpp); setMainView('inventoryDetail')" >Detail</md-button>
+                            <md-button ng-click="editVppShowForm(vpp)" ng-disabled="vpp.status === 'connected'" class="md-accent">Edit</md-button>
+                            <md-button ng-click="deleteVpp(vpp)" class="md-accent">Delete</md-button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </md-content>
+        </div>
+    </div>
 </div>

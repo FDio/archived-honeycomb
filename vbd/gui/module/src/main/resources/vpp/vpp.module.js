@@ -7,7 +7,7 @@
  */
 define(['angularAMD', 'app/routingConfig', 'ui-bootstrap', 'Restangular', 'angular-animate', 'angular-aria',
         'angular-material', 'angular-smart-table', 'angular-translate',
-        'angular-translate-loader-partial'], function() {
+        'angular-translate-loader-partial', 'lodash'], function() {
 
   var vpp = angular.module('app.vpp', ['ui.router.state','app.core', 'ui.bootstrap', 'restangular', 'ngAnimate',
                            'ngAria', 'ngMaterial', 'smart-table', 'pascalprecht.translate']);

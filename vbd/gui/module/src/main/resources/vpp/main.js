@@ -21,7 +21,8 @@ require.config({
     'angular-animate' : ['angular'],
     'angular-aria' : ['angular'],
     'angular-smart-table' : ['angular'],
-    'angular-ui-grid' : ['angular']
+    'angular-ui-grid' : ['angular'],
+    'lodash' : {exports: '_'}
   },
 
 });

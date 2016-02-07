@@ -19,6 +19,7 @@ define(['app/vpp/vpp.module'], function(vpp) {
                     function(data) {
                         $scope.vppList = data;
                         $scope.displayVppList = [].concat($scope.vppList);
+                        dataService.vpps = $scope.vppList;
 
                         $scope.$broadcast('RELOAD_VPP_TABLE');
                     },
@@ -34,10 +35,10 @@ define(['app/vpp/vpp.module'], function(vpp) {
                 $scope.displayVppList = [];
 
                 //setting reference for vpp access in BDM
-                dataService.vpps = $scope.vppList;
+                //dataService.vpps = $scope.vppList;
             };
 
-            $scope.viewTopology = function(vpp) {
+            /*$scope.viewTopology = function(vpp) {
                 $mdDialog.show({
                     controller: function() {
                         var vm = this;
@@ -129,7 +130,7 @@ define(['app/vpp/vpp.module'], function(vpp) {
                     parent: angular.element(document.body),
                     clickOutsideToClose:true
                 })
-            };
+            };*/
 
             $scope.addVppShowForm = function() {
                 $mdDialog.show({
@@ -236,52 +237,112 @@ define(['app/vpp/vpp.module'], function(vpp) {
             $scope.getVppList();
         }]);
 
-    vpp.register.controller('InventoryTableDefinitonController', ['$scope', function($scope) {
+    vpp.register.controller('InventoryDetailController', ['$scope', '$rootScope','$filter', 'toastService', 'dataService',
+        function($scope, $rootScope, filter, toastService, dataService) {
+            $scope.displayInterfaceList = [].concat($scope.selectedVpp.interfaces);
+            $scope.vppList = dataService.vpps;
 
-        var actionCellTemplate =
-            '<md-button ng-click="grid.appScope.viewTopology(row.entity)"><span style="color:black !important;">View Topology</span></md-button>' +
-            '<md-button ng-click="grid.appScope.editVppShowForm(row.entity)" ng-hide="row.entity.status === \'connected\'"><span style="color:black !important;">Edit</span></md-button>' +
-            '<md-button ng-click="grid.appScope.deleteVpp(row.entity)"><span style="color:black !important;">Delete</span></md-button>';
+            $scope.viewTopology = function(vpp) {
 
-        $scope.gridOptions = {
+                var vm = this;
 
-            expandableRowTemplate: $scope.view_path + 'inventory-table-interfaces-subgrid.tpl.html',
-            //subGridVariable will be available in subGrid scope
-            expandableRowScope: {
-                subGridVariable: 'subGridScopeVariable'
-            }
+                $scope.topo = new nx.graphic.Topology({
+                    height: 400,
+                    width: 800,
+                    scalable: true,
+                    theme:'blue',
+                    enableGradualScaling:true,
+                    nodeConfig: {
+                        color: '#ffffff',
+                        label: 'model.label',
+                        scale: 'model.scale',
+                        iconType: function(vertex) {
+                            var type = vertex.get().type;
+                            if (type === 'bd') {
+                                return 'bd'
+                            } else if (type === 'vpp') {
+                                return 'switch'
+                            } else {
+                                return 'interf';
+                            }
+                        }
+                    },
+                    linkConfig: {
+                        label: 'model.label',
+                        linkType: 'parallel',
+                        color: function(link) {
+                            if (link.getData().type === 'tunnel') {
+                                return '#ffffff';
+                            } else {
+                                return '#ffffff';
+                            }
+                        },
+                        width: function(link) {
+                            if (link.getData().type === 'tunnel') {
+                                return 5;
+                            }
+                        }
+                    },
+                    showIcon: true,
+                    dataProcessor: 'force',
+                    autoLayout: true,
+                    enableSmartNode: false,
+                    tooltipManagerConfig: {
+                        nodeTooltipContentClass: 'TooltipNode',
+                        linkTooltipContentClass: 'TooltipLink'
+                    }
+                });
+                $scope.app =  new nx.ui.Application;
 
-        }
+                vm.vpp = vpp;
+                vm.vpp.type = 'vpp';
+                vm.vpp.label = vm.vpp.name;
 
-        $scope.gridOptions.columnDefs = [
-            { name: 'name' },
-            { name: 'ipAddress'},
-            { name: 'port'},
-            { name: 'status'},
-            { name:' ',cellTemplate: actionCellTemplate}
-        ];
+                var nodes = [].concat(vm.vpp);
+                var links = [];
 
+                _.forEach(vm.vpp.interfaces, function(interf, index){
+                    interf.label = interf.name;
+                    interf.scale = 0.5;
+                    nodes.push(interf);
+                    links.push({source: 0, target: index + 1});
+                });
 
-        //$scope.gridOptions.data = $scope.vppList;
+                $scope.topo.data({
+                    nodes: nodes,
+                    links: links
+                });
 
-        $scope.gridOptions.onRegisterApi = function(gridApi){
-            $scope.gridApi = gridApi;
-        };
+                $scope.app.container(document.getElementById('next-vpp-topo'));
+                $scope.topo.attach($scope.app);
 
-        $scope.$on('RELOAD_VPP_TABLE', function(event) {
-            $scope.gridOptions.data = $scope.vppList.map(function(item) {
-                item.subGridOptions = {
-                    columnDefs: [
-                        { name:"name" },
-                        { name:"phys-address"},
-                        { name:"oper-status"}
-                    ],
-                    data: item.interfaces
-                };
+                $scope.$watch('selectedVpp', function() {
+                    vm.vpp = vpp;
+                    vm.vpp.type = 'vpp';
+                    vm.vpp.label = vm.vpp.name;
 
-                return item;
-            });
-        });
+                    var nodes = [].concat(vm.vpp);
+                    var links = [];
 
-    }]);
+                    _.forEach(vm.vpp.interfaces, function(interf, index){
+                        interf.label = interf.name;
+                        interf.scale = 0.5;
+                        nodes.push(interf);
+                        links.push({source: 0, target: index + 1});
+                    });
+
+                    $scope.topo.data({
+                        nodes: nodes,
+                        links: links
+                    });
+                });
+            };
+
+            $scope.viewTopology($scope.selectedVpp);
+
+            /*$scope.$on('RELOAD_SELECTED_VPP', function(event) {
+                $scope.viewTopology($scope.selectedVpp);
+            });*/
+
+        }]);
 });

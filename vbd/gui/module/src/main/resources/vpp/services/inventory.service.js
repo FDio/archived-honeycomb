@@ -29,30 +29,37 @@ define(['app/vpp/vpp.module', 'next'], function(vpp) {
             var restObj = VPPRestangular.one('restconf').one('operational').one('network-topology:network-topology').one('topology').one('topology-netconf');
 
             restObj.get().then(function(data) {
-                //if(data.topology.length || data.topology[0].node.length) {
-                    data.topology[0].node.forEach(function(n) {
-                        if(n['node-id'] !== 'controller-config') {
-                            //create new object
-                            var vppObj = s.createObj(n['node-id'], n['netconf-node-topology:host'], n['netconf-node-topology:port'], null, null, n['netconf-node-topology:connection-status']);
-                            // register a promise
-                            if (vppObj.status === 'connected') {
-                                var promise = VppInterfaceService.getInterfaceListByVppName(n['node-id'], function (interfaceList) {
+                data.topology[0].node.forEach(function(n) {
+                    if(n['node-id'] !== 'controller-config') {
+                        //create new object
+                        var vppObj = s.createObj(n['node-id'], n['netconf-node-topology:host'], n['netconf-node-topology:port'], null, null, n['netconf-node-topology:connection-status']);
+                        // register a promise
+                        if (vppObj.status === 'connected') {
+                            var promise = VppInterfaceService.getInterfaceListByVppName(n['node-id'],
+                                function (interfaceList) {
                                     vppObj.interfaces = interfaceList;
-                                });
-                                // add promise to array
-                                promiseList.push(promise);
-                                // when promise is resolved, push vpp into vppList
-                                promise.then(function () {
+                                },
+                                function (error) { }
+                            );
+                            // add promise to array
+                            promiseList.push(promise);
+                            // when promise is resolved, push vpp into vppList
+                            promise.then(
+                                function () {
                                     vppList.push(vppObj);
-                                })
-                            }
-                            else {
-                                vppList.push(vppObj);
-                            }
-
+                                },
+                                function() {
+                                    console.warn('blabla');
+                                }
+                            )
                         }
-                    });
-                //}
+                        else {
+                            vppList.push(vppObj);
+                        }
+
+                    }
+                });
+
                 // when all promises are resolved, call success callback
                 $q.all(promiseList).then(function () {
                     successCallback(vppList);
@@ -121,20 +128,25 @@ define(['app/vpp/vpp.module', 'next'], function(vpp) {
     vpp.register.factory('VppInterfaceService', function(VPPRestangular, $q) {
         var s = {};
 
-        s.getInterfaceListByVppName = function(vppName, successCallback) {
+        s.getInterfaceListByVppName = function(vppName, successCallback, errorCallback) {
             var interfaceList = [];
             var restObj = VPPRestangular.one('restconf').one('operational').one('network-topology:network-topology').one('topology').one('topology-netconf').one('node').one(vppName).one('yang-ext:mount').one('ietf-interfaces:interfaces-state');
 
-            return restObj.get().then(function(data) {
-                if (data['interfaces-state'].interface) {
-                    interfaceList = data['interfaces-state'].interface.filter(function(i) {
-                        if (i.name != 'local0') {
-                            return i;
-                        }
-                    });
+            return restObj.get().then(
+                function(data) {
+                    if (data['interfaces-state'].interface) {
+                        interfaceList = data['interfaces-state'].interface.filter(function(i) {
+                            if (i.name != 'local0') {
+                                return i;
+                            }
+                        });
+                    }
+                    successCallback(interfaceList);
+                },
+                function(res) {
+                    errorCallback(res);
                 }
-                successCallback(interfaceList);
-            });
+            );
         };
 
         return s;

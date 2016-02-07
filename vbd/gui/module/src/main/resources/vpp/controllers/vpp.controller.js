@@ -34,11 +34,16 @@ define(modules, function(vpp) {
             $scope.view_path =  'src/app/vpp/views/';
     		
     	    $scope.mainView = "inventory";
+            $scope.selectedVpp = null;
 
     	    $scope.setMainView = function(viewName) {
     	    	$scope.mainView = viewName;
     	    };
 
+            $scope.selectVpp = function(vpp) {
+                $scope.selectedVpp = vpp;
+                $scope.$broadcast('RELOAD_SELECTED_VPP');
+            };
 
 	}]);
 
