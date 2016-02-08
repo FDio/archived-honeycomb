@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 define(['app/vpp/vpp.module'], function(vpp) {
-    vpp.register.factory('bdmInterfaceService', function(VPPRestangular) {
+    vpp.register.factory('bdmInterfaceService', function(VPPRestangular, bdmVppService) {
         var s = {};
 
         var Interface = function(tpId, interfaceName) {
@@ -18,12 +18,32 @@ define(['app/vpp/vpp.module'], function(vpp) {
             return new Interface(tpId, interfaceName);
         };
 
-        s.add = function(interface, bridgeDomainId, vppId, successCallback, errorCallback) {
+        s.add = function(interf, bridgeDomainId, vppId, successCallback, errorCallback) {
             var restObj = VPPRestangular.one('restconf').one('config').one('network-topology:network-topology')
-                .one('topology').one(bridgeDomainId).one('node').one(vppId).one('termination-point').one(interface['tp-id']);
-            var dataObj = {'termination-point': [interface]};
+                .one('topology').one(bridgeDomainId).one('node').one(vppId).one('termination-point').one(encodeURIComponent(interf['tp-id']));
 
-            restObj.customPUT(dataObj).then(function(data) {
+            var dataObj = {'termination-point': [interf]};
+
+            var write = function() {
+                restObj.customPUT(dataObj).then(function(data) {
+                    successCallback(data);
+                }, function(res) {
+                    errorCallback(res.data, res.status);
+                });
+            };
+
+            var errorCallback = function() {};
+
+            bdmVppService.checkAndWriteVpp(bridgeDomainId, vppId, write, errorCallback);
+
+
+        };
+
+        s.delete = function(interf, bridgeDomainId, vppId, successCallback, errorCallback) {
+            var restObj = VPPRestangular.one('restconf').one('config').one('network-topology:network-topology')
+                .one('topology').one(bridgeDomainId).one('node').one(vppId).one('termination-point').one(encodeURIComponent(interf['tp-id']));
+
+            restObj.remove().then(function(data) {
                 successCallback(data);
             }, function(res) {
                 errorCallback(res.data, res.status);
@@ -40,7 +60,6 @@ define(['app/vpp/vpp.module'], function(vpp) {
                 errorCallback(res.data, res.status);
             });
         };
-
 
         return s;
     });

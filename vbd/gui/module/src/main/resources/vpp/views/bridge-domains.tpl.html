@@ -1,39 +1,44 @@
 <div ng-controller="BridgeDomainsController">
-    <div layout="row" layout-xs="column" style="height:100%">
-        <div id="bridge-domains-next-app" style="height: 550px; width: 50%" flex></div>
-        <div class="md-sidenav-left md-whiteframe-z2" style="height: 550px" flex>
+    <div layout="row" layout-xs="column" style="height: 550px; width: 100%">
+        <div id="bridge-domains-next-app" style="height: 550px; width: 60%"></div>
+        <div class="md-sidenav-left md-whiteframe-z2" style="height: 550px; background-color: #414042; overflow: scroll" flex>
             <md-content layout-padding ng-controller="TableController as TableCtrl">
                 <md-input-container style="margin-right: 5px;" layout="row">
                 <md-select ng-model='selectedBd.name' placeholder="Select BD" ng-change="bdChanged()" style="width: 100%;">
-                    <md-option ng-repeat="bd in bridgedomains" value="{{bd.name}}">{{bd.name}}</md-option>
+                    <md-option ng-repeat="bd in bridgedomains" value="{{bd['topology-id']}}">{{bd['topology-id']}}</md-option>
                 </md-select>
                 <md-button class="md-raised" md-no-ink ng-click="addBd()" style="width: 25%;">Add BD</md-button>
-                <md-button class="md-raised" md-no-ink ng-click="removeBd()" style="width: 35%;" ng-if="dataService.injectedInterfaces.length===0 && dataService.selectedBd.name">Remove BD</md-button>
+                <md-button class="md-raised" md-no-ink ng-click="removeBd()" style="width: 35%;" ng-if="dataService.injectedInterfaces.length===0 && dataService.selectedBd.name && dataService.changedInterfaces.length===0">Remove BD</md-button>
+                    <md-button class="md-raised" md-no-ink ng-click="reload()" style="width: 25%;">Reload</md-button>
 
                 </md-input-container>
-                <table st-table="TableCtrl.displayedCollection" class="table table-striped" st-safe-src="TableCtrl.rowCollection">
+                <table st-table="TableCtrl.displayedCollection" class="table" st-safe-src="TableCtrl.rowCollection">
                     <thead>
                     <tr>
                         <th>Assigned</th>
+                        <th st-sort="vppName" st-sort-default="true">Vpp</th>
                         <th st-sort="name" st-sort-default="true">Interface Name</th>
-                        <th st-sort="description">Description</th>
+                        <!--<th st-sort="description">Description</th>-->
                         <th st-sort="bridge-domain">Bridge Domain</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr ng-repeat="row in TableCtrl.displayedCollection">
-                        <td>
-                            <md-switch ng-model="row.assigned" aria-label="Assign Switch" ng-change="TableCtrl.updateAssignment(row);">
-                            </md-switch>
-                        </td>
-                        <td>{{row.label}}</td>
-                        <td>{{row.description}}</td>
-                        <td>{{row['v3po:l2']['bridge-domain']}}</td>
+                        <div ng-hide="row.hidden">
+                            <td>
+                                <md-switch ng-model="row.assigned" aria-label="Assign Switch" ng-change="TableCtrl.updateAssignment(row);">
+                                </md-switch>
+                            </td>
+                            <td>{{row.vppName}}</td>
+                            <td>{{row.name}}</td>
+                            <!--<td>{{row.description}}</td>-->
+                            <td>{{row.vbd}}</td>
+                        </div>
                     </tr>
                     </tbody>
                 </table>
                 <!--<md-input-container style="bottom: 10px">-->
-                    <md-button class="md-raised" md-no-ink ng-click="deploy()" style="width: 94%;position: fixed;" ng-if="dataService.changedInterfaces.length">Deploy</md-button>
+                    <md-button class="md-raised" md-no-ink ng-click="deploy()" style="width: 94%;" ng-if="dataService.changedInterfaces.length">Deploy</md-button>
                 <!--</md-input-container>-->
             </md-content>
         </div>

@@ -22,6 +22,9 @@ define(['app/vpp/vpp.module'], function(vpp) {
                         dataService.vpps = $scope.vppList;
 
                         $scope.$broadcast('RELOAD_VPP_TABLE');
+
+                        //for vppList access in BDM
+                        dataService.vpps = $scope.vppList;
                     },
                     // error callback
                     function(res) {
@@ -33,104 +36,7 @@ define(['app/vpp/vpp.module'], function(vpp) {
             $scope.initVppList = function() {
                 $scope.vppList = [];
                 $scope.displayVppList = [];
-
-                //setting reference for vpp access in BDM
-                //dataService.vpps = $scope.vppList;
             };
-
-            /*$scope.viewTopology = function(vpp) {
-                $mdDialog.show({
-                    controller: function() {
-                        var vm = this;
-
-                        $scope.topo = new nx.graphic.Topology({
-                            height: 350,
-                            width: 500,
-                            scalable: true,
-                            theme:'blue',
-                            enableGradualScaling:true,
-                            nodeConfig: {
-                                color: '#414040',
-                                label: 'model.label',
-                                scale: 'model.scale',
-                                iconType: function(vertex) {
-                                    var type = vertex.get().type;
-                                    if (type === 'bd') {
-                                        return 'bd'
-                                    } else if (type === 'vpp') {
-                                        return 'switch'
-                                    } else {
-                                        return 'interf';
-                                    }
-                                }
-                            },
-                            linkConfig: {
-                                label: 'model.label',
-                                linkType: 'parallel',
-                                color: function(link) {
-                                    if (link.getData().type === 'tunnel') {
-                                        return '#00FF00';
-                                    } else {
-                                        return '#414040';
-                                    }
-                                },
-                                width: function(link) {
-                                    if (link.getData().type === 'tunnel') {
-                                        return 5;
-                                    }
-                                }
-                            },
-                            showIcon: true,
-                            dataProcessor: 'force',
-                            autoLayout: true,
-                            enableSmartNode: false,
-                            tooltipManagerConfig: {
-                                nodeTooltipContentClass: 'TooltipNode',
-                                linkTooltipContentClass: 'TooltipLink'
-                            }
-                        });
-                        $scope.app =  new nx.ui.Application;
-
-                        vm.vpp = vpp;
-                        vm.vpp.type = 'vpp';
-                        vm.vpp.label = vm.vpp.name;
-
-                        var nodes = [].concat(vm.vpp);
-                        var links = [];
-
-                        _.forEach(vm.vpp.interfaces, function(interf, index){
-                            interf.label = interf.name;
-                            interf.scale = 0.5;
-                            nodes.push(interf);
-                            links.push({source: 0, target: index + 1});
-                        });
-
-                        console.log(vpp);
-                        console.log(nodes);
-                        console.log(links);
-
-                        $scope.topo.data({
-                            nodes: nodes,
-                            links: links
-                        });
-
-                        this.close = function() {
-                            $mdDialog.cancel();
-                        };
-
-                    },
-                    onComplete: function() {
-                        console.log(document.getElementById('next-vpp-topo'));
-                        $scope.app.container(document.getElementById('next-vpp-topo'));
-                        $scope.topo.attach($scope.app);
-
-                    },
-                    templateUrl: $scope.view_path + 'vpp-topo.html',
-                    controllerAs: 'VppTopoCtrl',
-                    parent: angular.element(document.body),
-                    clickOutsideToClose:true
-                })
-            };*/
 
             $scope.addVppShowForm = function() {
                 $mdDialog.show({
@@ -339,10 +245,6 @@ define(['app/vpp/vpp.module'], function(vpp) {
             };
 
             $scope.viewTopology($scope.selectedVpp);
-
-            /*$scope.$on('RELOAD_SELECTED_VPP', function(event) {
-                $scope.viewTopology($scope.selectedVpp);
-            });*/
 
         }]);
 });

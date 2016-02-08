@@ -38,14 +38,40 @@ define(['app/vpp/vpp.module'], function(vpp) {
         s.get = function(bridgeDomainId, successCallback, errorCallback) {
             var restObj = VPPRestangular.one('restconf').one('config').one('network-topology:network-topology').one('topology').one(bridgeDomainId);
 
-            restObj.get().then(function(data) {
+            return restObj.get().then(function(data) {
                 successCallback(data);
             }, function(res) {
                 errorCallback(res.data, res.status);
             });
         };
 
+        s.getOne = function(bridgeDomainId, vppId, successCallback, errorCallback) {
+            var restObj = VPPRestangular.one('restconf').one('config').one('network-topology:network-topology').one('topology').one(bridgeDomainId).one('node').one(vppId);
 
+            return restObj.get().then(function(data) {
+                successCallback(data);
+            }, function(res) {
+                errorCallback(res.data, res.status);
+            });
+        };
+
+        s.checkAndWriteVpp = function(bridgeDomainId, vppId, successCallback, errorCallback) {
+             s.getOne(bridgeDomainId, vppId,
+                function() {
+                    successCallback();
+                }, function() {
+                    var vppObject = s.createObj(vppId, vppId);
+
+                    s.add(vppObject, bridgeDomainId,  function() {
+                        successCallback();
+                    }, function() {
+                        errorCallback();
+                    });
+                }
+            );
+
+            //getPromise.then
+        };
         return s;
     });
 });

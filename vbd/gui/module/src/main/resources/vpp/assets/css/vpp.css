@@ -186,7 +186,9 @@ md-input-container .md-placeholder {
 }
 
 md-input-container.md-default-theme:not(.md-input-invalid).md-input-focused,
-md-input-container:not(.md-input-invalid).md-input-focused label,
+md-input-container:not(.md-input-invalid).md-input-focused label {
+    color: orange;
+}
 md-input-container.md-default-theme:not(.md-input-invalid).md-input-has-value,
 md-input-container:not(.md-input-invalid).md-input-has-value label {
     color: white;
@@ -218,4 +220,15 @@ md-select-menu md-option[selected] {
 /*tab overrides*/
 md-tab.md-active {
     color: orange;
+
+md-input-container label {
+    color: white !important;
+}
+
+md-input-container.md-input-focused label {
+    color: orange !important;
+}
+
+md-option div.md-text {
+    color: orange !important;
 }

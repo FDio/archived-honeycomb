@@ -55,6 +55,16 @@ define(['app/vpp/vpp.module'], function(vpp) {
             });
         };
 
+        s.remove = function(bdName,successCallback,errorCallback) {
+            //http://localhost:8181/restconf/config/network-topology:network-topology/topology/testBD
+            var restObj = VPPRestangular.one('restconf').one('config').one('network-topology:network-topology').one('topology').one(bdName);
+
+            restObj.remove().then(function(data) {
+                successCallback(data);
+            }, function(res) {
+                errorCallback(res.data, res.status);
+            });
+        };
 
         return s;
     });
