@@ -1,0 +1,191 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+#
+# Vagrantfile to set up demo VMs and network connections
+#
+# Note: VirtualBox is currently the only provier supported for the demo.
+#
+# [ host1 VM ] <== Internal Network "host1-vpp1" ==> [  vpp1 VM ]
+# [  vpp1 VM ] <== Internal Network "vpp1-vpp2"  ==> [  vpp2 VM ]
+# [  vpp1 VM ] <-- Private Network 192.168.10.x -+-> [   vbd VM ]
+#                  (Mgmt network)                |
+#                                                +-> [  vpp2 VM ]
+# [  vpp2 VM ] <== Internal Network "host2-vpp2" ==> [ host2 VM ]
+#
+Vagrant.configure(2) do |config|
+
+  config.ssh.forward_x11 = true
+
+  # Add .gnupg dir in so folks can sign patches
+  # Note, as gnupg puts socket files in that dir, we have
+  # to be cautious and make sure we are dealing with a plain file
+  homedir = File.expand_path("~/")
+  Dir["#{homedir}/.gnupg/**/*"].each do |fname|
+    if File.file?(fname)
+      destname = fname.sub(Regexp.escape("#{homedir}/"),'')
+      config.vm.provision "file", source: fname, destination: destname
+    end
+  end
+
+  # Copy in the .gitconfig if it exists
+  if File.file?(File.expand_path("~/.gitconfig"))
+    config.vm.provision  "file", source: "~/.gitconfig", destination: ".gitconfig"
+  end
+
+  # vagrant-cachier caches apt/yum etc to speed subsequent
+  # vagrant up
+  # to enable, run
+  # vagrant plugin install vagrant-cachier
+  #
+  if Vagrant.has_plugin?("vagrant-cachier")
+    config.cache.scope = :box
+  end
+
+  # Define vpp1 VM, L3 mgmt interface (eth1) to vbd and vpp2 VMs,
+  # L2 interface (GigabitEthernet0/9/0) to host1, and
+  # L2 interface (GigabitEthernet0/a/0) to vpp2
+  #
+  # [  vpp1 VM ] <-- Private Network 192.168.10.x -+-> [   vbd VM ]
+  #                  (Mgmt network)                |
+  #                                                +-> [  vpp2 VM ]
+  # [ host1 VM ] <== Internal Network "host1-vpp1" ==> [  vpp1 VM ]
+  # [  vpp1 VM ] <== Internal Network "vpp1-vpp2"  ==> [  vpp2 VM ]
+  #
+ config.vm.define :vpp1 do |vpp1|
+    vpp1.vm.box = "puppetlabs/ubuntu-14.04-64-nocm"
+    # Mount karaf packages directory if specified
+    if ENV.key?('KARAF_PACKAGES')
+      vpp1.vm.synced_folder ENV['KARAF_PACKAGES'], "/karaf-packages", disabled: false
+    end
+    # Mount Maven repository if specified
+    if ENV.key?('HONEYCOMB_M2_REPO')
+      vpp1.vm.synced_folder ENV['HONEYCOMB_M2_REPO'], "/m2-repository", disabled: false
+    end
+    # Mount VPP repository if specified
+    if ENV.key?('VPP_REPO')
+      vpp1.vm.synced_folder ENV['VPP_REPO'], "/vpp", disabled: false
+    end
+    vpp1.vm.synced_folder "../", "/honeycomb", disabled: false
+    vagrant_vpp_agent_addr = "192.168.10.11"
+    vpp1.vm.network "private_network", ip: "#{vagrant_vpp_agent_addr}"
+    vpp1.vm.provider "virtualbox" do |vb|
+      vb.customize ["modifyvm", :id, "--nic3", "intnet"]
+      vb.customize ["modifyvm", :id, "--intnet3", "host1-vpp1"]
+      vb.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+      vb.customize ["modifyvm", :id, "--nic4", "intnet"]
+      vb.customize ["modifyvm", :id, "--intnet4", "vpp1-vpp2"]
+      vb.customize ["modifyvm", :id, "--nicpromisc4", "allow-all"]
+      vb.memory = "4096"
+    end
+    vpp1.vm.provision 'shell' do | s|
+      s.path = "../vagrant/bootstrap.ubuntu1404.sh"
+      s.args = ["vpp1", "is_vpp_agent", "#{vagrant_vpp_agent_addr}"]
+    end
+end
+
+  # Define vpp2 VM, L3 mgmt interface (eth1) to vbd and vpp1 VMs,
+  # L2 interface (GigabitEthernet0/9/0) to host1, and
+  # L2 interface (GigabitEthernet0/a/0) to vpp1
+  #
+  # [  vpp1 VM ] <-- Private Network 192.168.10.x -+-> [   vbd VM ]
+  #                  (Mgmt network)                |
+  #                                                +-> [  vpp2 VM ]
+  # [  vpp2 VM ] <== Internal Network "host2-vpp2" ==> [ host2 VM ]
+  # [  vpp1 VM ] <== Internal Network "vpp1-vpp2"  ==> [  vpp2 VM ]
+  #
+ config.vm.define :vpp2 do |vpp2|
+    # TODO: Run centos on vpp2 VM
+    # vpp2.vm.box = "puppetlabs/centos-7.0-64-nocm"
+    vpp2.vm.box = "puppetlabs/ubuntu-14.04-64-nocm"
+    # Mount karaf packages directory if specified
+    if ENV.key?('KARAF_PACKAGES')
+      vpp2.vm.synced_folder ENV['KARAF_PACKAGES'], "/karaf-packages", disabled: false
+    end
+    # Mount Maven repository if specified
+    if ENV.key?('HONEYCOMB_M2_REPO')
+      vpp2.vm.synced_folder ENV['HONEYCOMB_M2_REPO'], "/m2-repository", disabled: false
+    end
+    # Mount VPP repository if specified
+    if ENV.key?('VPP_REPO')
+      vpp2.vm.synced_folder ENV['VPP_REPO'], "/vpp", disabled: false
+    end
+    vpp2.vm.synced_folder "../", "/honeycomb", disabled: false
+    vagrant_vpp_agent_addr = "192.168.10.12"
+    vpp2.vm.network "private_network", ip: "#{vagrant_vpp_agent_addr}"
+    vpp2.vm.provider "virtualbox" do |vb|
+      vb.customize ["modifyvm", :id, "--nic3", "intnet"]
+      vb.customize ["modifyvm", :id, "--intnet3", "host2-vpp2"]
+      vb.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+      vb.customize ["modifyvm", :id, "--nic4", "intnet"]
+      vb.customize ["modifyvm", :id, "--intnet4", "vpp1-vpp2"]
+      vb.customize ["modifyvm", :id, "--nicpromisc4", "allow-all"]
+      vb.memory = "4096"
+    end
+    vpp2.vm.provision 'shell' do | s|
+      s.path = "../vagrant/bootstrap.ubuntu1404.sh"
+      s.args = ["vpp2", "is_vpp_agent", "#{vagrant_vpp_agent_addr}"]
+    end
+  end
+ 
+  # Define vbd VM and L3 mgmt interface (eth1) to vpp1 and vpp2 VMs
+  #
+  # [  vpp1 VM ] <-- Private Network 192.168.10.x -+-> [   vbd VM ]
+  #                  (Mgmt network)                |
+  #                                                +-> [  vpp2 VM ]
+  #
+  config.vm.define :vbd do |vbd|
+    vbd.vm.box = "puppetlabs/ubuntu-14.04-64-nocm"
+    # Mount karaf packages directory if specified
+    if ENV.key?('KARAF_PACKAGES')
+      vbd.vm.synced_folder ENV['KARAF_PACKAGES'], "/karaf-packages", disabled: false
+    end
+    # Mount Maven repository if specified
+    if ENV.key?('HONEYCOMB_M2_REPO')
+      vbd.vm.synced_folder ENV['HONEYCOMB_M2_REPO'], "/m2-repository", disabled: false
+    end
+    vbd.vm.synced_folder "../", "/honeycomb", disabled: false
+    vbd.vm.network "private_network", ip: "192.168.10.10"
+    vbd.vm.provider "virtualbox" do |vb|
+      vb.memory = "2048"
+    end
+    vbd.vm.provision 'shell' do | s|
+      s.path = "../vagrant/bootstrap.ubuntu1404.sh"
+      s.args = ["vbd", "is_vbd_vm", ""]
+    end
+  end
+
+  # Define host1 VM and L2 interface (eth1) to vpp1 VM
+  #
+  # [ host1 VM ] <== Internal Network "host1-vpp1" ==> [  vpp1 VM ]
+  #
+  config.vm.define :host1 do |host1|
+    host1.vm.box = "puppetlabs/ubuntu-14.04-64-nocm"
+    host1.vm.provider "virtualbox" do |vb|
+      vb.customize ["modifyvm", :id, "--nic2", "intnet"]
+      vb.customize ["modifyvm", :id, "--intnet2", "host1-vpp1"]
+      vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+    end
+    host1.vm.provision "shell" do |s|
+      s.path = "bootstrap-host.ubuntu1404.sh"
+      s.args = ["host1", "172.16.15.14/24"]
+    end
+  end
+
+  # Define host2 VM and L2 interface (eth1) to vpp2 VM
+  #
+  # [  vpp2 VM ] <== Internal Network "host2-vpp2" ==> [ host2 VM ]
+  #
+  config.vm.define :host2 do |host2|
+    host2.vm.box = "puppetlabs/ubuntu-14.04-64-nocm"
+    host2.vm.provider "virtualbox" do |vb|
+      vb.customize ["modifyvm", :id, "--nic2", "intnet"]
+      vb.customize ["modifyvm", :id, "--intnet2", "host2-vpp2"]
+      vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+    end
+    host2.vm.provision "shell" do |s|
+      s.path = "bootstrap-host.ubuntu1404.sh"
+      s.args = ["host2", "172.16.15.15/24"]
+    end
+  end
+end
