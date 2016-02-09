@@ -146,15 +146,16 @@ public class VppModifier {
         return resultFuture;
     }
 
-    void createVirtualInterfaceOnVpp(final Ipv4AddressNoZone ipSrc, final Ipv4AddressNoZone ipDst, final KeyedInstanceIdentifier<Node, NodeKey> iiToVpp) {
+    void createVirtualInterfaceOnVpp(final Ipv4AddressNoZone ipSrc, final Ipv4AddressNoZone ipDst, final KeyedInstanceIdentifier<Node, NodeKey> iiToVpp,
+                                     final Integer vxlanTunnelId) {
         final Vxlan vxlanData = prepareVxlan(ipSrc, ipDst);
-        final Interface intfData = prepareVirtualInterfaceData(vxlanData);
+        final Interface intfData = prepareVirtualInterfaceData(vxlanData, vxlanTunnelId);
 
         final DataBroker vppDataBroker = VbdUtil.resolveDataBrokerForMountPoint(iiToVpp, mountService);
         if (vppDataBroker != null) {
             final WriteTransaction wTx = vppDataBroker.newWriteOnlyTransaction();
             final KeyedInstanceIdentifier<Interface, InterfaceKey> iiToInterface
-                    = InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(BridgeDomain.TUNNEL_ID_DEMO));
+                    = InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(VbdUtil.provideVxlanId(vxlanTunnelId)));
             wTx.put(LogicalDatastoreType.CONFIGURATION, iiToInterface, intfData);
             final CheckedFuture<Void, TransactionCommitFailedException> submitFuture = wTx.submit();
             Futures.addCallback(submitFuture, new FutureCallback<Void>() {
@@ -169,14 +170,14 @@ public class VppModifier {
                 }
             });
         } else {
-            LOG.debug("Writing virtual interface {} to VPP {} wasn't successfull because missing data broker.", BridgeDomain.TUNNEL_ID_DEMO, iiToVpp);
+            LOG.debug("Writing virtual interface {} to VPP {} wasn't successfull because missing data broker.", VbdUtil.provideVxlanId(vxlanTunnelId), iiToVpp);
         }
     }
 
-    private Interface prepareVirtualInterfaceData(final Vxlan vxlan) {
+    private Interface prepareVirtualInterfaceData(final Vxlan vxlan, Integer vxlanTunnelId) {
         final InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
         //TODO implement tunnel counter
-        interfaceBuilder.setName(BridgeDomain.TUNNEL_ID_DEMO);
+        interfaceBuilder.setName(VbdUtil.provideVxlanId(vxlanTunnelId));
         interfaceBuilder.setType(VxlanTunnel.class);
         VppInterfaceAugmentationBuilder vppInterfaceAugmentationBuilder = new VppInterfaceAugmentationBuilder();
         vppInterfaceAugmentationBuilder.setVxlan(vxlan);

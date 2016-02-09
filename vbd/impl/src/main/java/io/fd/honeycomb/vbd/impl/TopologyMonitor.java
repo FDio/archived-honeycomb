@@ -9,6 +9,7 @@
 package io.fd.honeycomb.vbd.impl;
 
 import com.google.common.base.Preconditions;
+import io.fd.honeycomb.vbd.api.VxlanTunnelIdAllocator;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +27,8 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListen
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.network.topology.topology.topology.types.VbridgeTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +44,12 @@ final class TopologyMonitor implements DataTreeChangeListener<VbridgeTopology>, 
     private final Map<TopologyKey, BridgeDomain> domains = new HashMap<>();
     private final DataBroker dataBroker;
     private final MountPointService mountService;
+    private static final VxlanTunnelIdAllocator tunnelIdAllocator = new VxlanTunnelIdAllocatorImpl();
 
     public TopologyMonitor(DataBroker dataBroker, MountPointService mountService) {
         this.dataBroker = Preconditions.checkNotNull(dataBroker);
         this.mountService = Preconditions.checkNotNull(mountService);
+
     }
 
     @Override
@@ -118,7 +123,7 @@ final class TopologyMonitor implements DataTreeChangeListener<VbridgeTopology>, 
             }
         });
 
-        final BridgeDomain domain = BridgeDomain.create(dataBroker, mountService, topology, chain);
+        final BridgeDomain domain = BridgeDomain.create(dataBroker, mountService, topology, chain, tunnelIdAllocator);
         domains.put(topology.getKey(), domain);
 
         LOG.debug("Bridge domain {} for {} started", domain, topology);
@@ -158,5 +163,27 @@ final class TopologyMonitor implements DataTreeChangeListener<VbridgeTopology>, 
         }
 
         LOG.debug("Topology monitor {} shut down completed", this);
+    }
+
+    public static class VxlanTunnelIdAllocatorImpl implements VxlanTunnelIdAllocator {
+
+        private final Map<KeyedInstanceIdentifier<Node, NodeKey>, Integer> vppIIToNextTunnelId;
+
+        VxlanTunnelIdAllocatorImpl() {
+            vppIIToNextTunnelId = new HashMap<>();
+        }
+
+        @Override
+        public synchronized Integer nextIdFor(final KeyedInstanceIdentifier<Node, NodeKey> iiToVPP) {
+            if(vppIIToNextTunnelId.containsKey(iiToVPP)) {
+                final int value = vppIIToNextTunnelId.get(iiToVPP);
+                vppIIToNextTunnelId.put(iiToVPP, value + 1);
+                return value + 1;
+            } else {
+                vppIIToNextTunnelId.put(iiToVPP, 0);
+                return 0;
+            }
+        }
+
     }
 }

@@ -17,6 +17,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class VbdUtil {
 
+    private static final String TUNNEL_ID_PREFIX = "vxlan_tunnel";
+
+
     private VbdUtil() {
         throw new UnsupportedOperationException("Can't instantiate util class");
     }
@@ -31,6 +34,10 @@ public class VbdUtil {
             }
         }
         return null;
+    }
+
+    static String provideVxlanId(final int vxlanTunnelId) {
+        return TUNNEL_ID_PREFIX + vxlanTunnelId;
     }
 
 
