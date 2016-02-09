@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.MountPoint;
 import org.opendaylight.controller.md.sal.binding.api.MountPointService;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -32,13 +31,24 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.external.reference.rev160129.ExternalReference;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.l2.interconnection.BridgeBasedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomains;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.TerminationPointVbridgeAugment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.TopologyVbridgeAugment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.network.topology.topology.TunnelParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.network.topology.topology.node.termination.point.InterfaceType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vbridge.topology.rev160129.network.topology.topology.node.termination.point._interface.type.UserInterface;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -54,11 +64,17 @@ public class VppModifier {
 
     private static final Logger LOG = LoggerFactory.getLogger(BridgeDomain.class);
     private final MountPointService mountService;
+    private final String bridgeDomainName;
     private TopologyVbridgeAugment config;
+    private final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain> iiBridgeDomainOnVPP;
 
 
-    public VppModifier(final MountPointService mountService) {
+    public VppModifier(final MountPointService mountService, final String bridgeDomainName) {
         this.mountService = mountService;
+        this.bridgeDomainName = bridgeDomainName;
+        this.iiBridgeDomainOnVPP = InstanceIdentifier.create(Vpp.class)
+                .child(BridgeDomains.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain.class, new BridgeDomainKey(bridgeDomainName));
     }
     /**
      * Tryies to read ipv4 addresses from all specified {@code iiToVpps } vpps.
@@ -86,7 +102,7 @@ public class VppModifier {
     private ListenableFuture<Optional<Ipv4AddressNoZone>> readIpAddressFromVpp(final KeyedInstanceIdentifier<Node, NodeKey> iiToVpp) {
         final SettableFuture<Optional<Ipv4AddressNoZone>> resultFuture = SettableFuture.create();
 
-        final DataBroker vppDataBroker = resolveDataBrokerForMountPoint(iiToVpp);
+        final DataBroker vppDataBroker = VbdUtil.resolveDataBrokerForMountPoint(iiToVpp, mountService);
         if (vppDataBroker != null) {
             final ReadOnlyTransaction rTx = vppDataBroker.newReadOnlyTransaction();
             final CheckedFuture<Optional<Interfaces>, ReadFailedException> interfaceStateFuture
@@ -134,7 +150,7 @@ public class VppModifier {
         final Vxlan vxlanData = prepareVxlan(ipSrc, ipDst);
         final Interface intfData = prepareVirtualInterfaceData(vxlanData);
 
-        final DataBroker vppDataBroker = resolveDataBrokerForMountPoint(iiToVpp);
+        final DataBroker vppDataBroker = VbdUtil.resolveDataBrokerForMountPoint(iiToVpp, mountService);
         if (vppDataBroker != null) {
             final WriteTransaction wTx = vppDataBroker.newWriteOnlyTransaction();
             final KeyedInstanceIdentifier<Interface, InterfaceKey> iiToInterface
@@ -156,20 +172,6 @@ public class VppModifier {
             LOG.debug("Writing virtual interface {} to VPP {} wasn't successfull because missing data broker.", BridgeDomain.TUNNEL_ID_DEMO, iiToVpp);
         }
     }
-
-
-    private DataBroker resolveDataBrokerForMountPoint(final InstanceIdentifier<Node> iiToMountPoint) {
-        final Optional<MountPoint> vppMountPointOpt = mountService.getMountPoint(iiToMountPoint);
-        if (vppMountPointOpt.isPresent()) {
-            final MountPoint vppMountPoint = vppMountPointOpt.get();
-            final Optional<DataBroker> dataBrokerOpt = vppMountPoint.getService(DataBroker.class);
-            if (dataBrokerOpt.isPresent()) {
-                return dataBrokerOpt.get();
-            }
-        }
-        return null;
-    }
-
 
     private Interface prepareVirtualInterfaceData(final Vxlan vxlan) {
         final InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
@@ -197,6 +199,51 @@ public class VppModifier {
         return vxlanBuilder.build();
     }
 
+    void addInterfaceToBridgeDomainOnVpp(final DataBroker vppDataBroker, final TerminationPointVbridgeAugment termPointVbridgeAug) {
+        final InterfaceType interfaceType = termPointVbridgeAug.getInterfaceType();
+        if (interfaceType instanceof UserInterface) {
+            //REMARK: according contract in YANG model this should be URI to data on mount point (accroding to RESTCONF)
+            //It was much more easier to just await concrete interface name, thus isn't necessary parse it (splitting on '/')
+            final ExternalReference userInterface = ((UserInterface) interfaceType).getUserInterface();
+            final KeyedInstanceIdentifier<Interface, InterfaceKey> iiToVpp =
+                    InstanceIdentifier.create(Interfaces.class)
+                            .child(Interface.class, new InterfaceKey(userInterface.getValue()));
+            InstanceIdentifier<L2> iiToV3poL2 = iiToVpp.augmentation(VppInterfaceAugmentation.class).child(L2.class);
+            LOG.debug("Writing L2 data to configuration DS to concrete interface.");
+            final WriteTransaction wTx = vppDataBroker.newWriteOnlyTransaction();
+            wTx.put(LogicalDatastoreType.CONFIGURATION, iiToV3poL2, prepareL2Data());
+            wTx.submit();
+        }
+    }
+
+    ListenableFuture<Void> addVppToBridgeDomain(final KeyedInstanceIdentifier<Node, NodeKey> iiToVpp, final Node node) {
+        final DataBroker vppDataBroker = VbdUtil.resolveDataBrokerForMountPoint(iiToVpp, mountService);
+        if (vppDataBroker != null) {
+            final WriteTransaction wTx = vppDataBroker.newWriteOnlyTransaction();
+            wTx.put(LogicalDatastoreType.CONFIGURATION, iiBridgeDomainOnVPP, prepareNewBridgeDomainData());
+            return wTx.submit();
+        }
+        return Futures.immediateFailedFuture(new IllegalStateException("Data broker for vpp is missing"));
+    }
+
+    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain
+    prepareNewBridgeDomainData() {
+        final BridgeDomainBuilder bridgeDomainBuilder = new BridgeDomainBuilder(config);
+        bridgeDomainBuilder.setName(bridgeDomainName);
+        return bridgeDomainBuilder.build();
+    }
+
+
+
+    private L2 prepareL2Data() {
+        final L2Builder l2Builder = new L2Builder();
+        final BridgeBasedBuilder bridgeBasedBuilder = new BridgeBasedBuilder();
+        bridgeBasedBuilder.setSplitHorizonGroup((short) 0);
+        bridgeBasedBuilder.setBridgedVirtualInterface(false);
+        bridgeBasedBuilder.setBridgeDomain(bridgeDomainName);
+        l2Builder.setInterconnection(bridgeBasedBuilder.build());
+        return l2Builder.build();
+    }
 
     public void setConfig(final TopologyVbridgeAugment config) {
         this.config = config;
