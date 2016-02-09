@@ -182,7 +182,7 @@ define(['app/vpp/vpp.module'], function(vpp) {
 
 
             /* FIXME: remove after testing */
-            /*$scope.deploy = function() {
+            $scope.deploy = function() {
                 var successfulRequestsRequired = dataService.changedInterfaces.length;
                 var successfulRequests = 0;
 
@@ -253,7 +253,7 @@ define(['app/vpp/vpp.module'], function(vpp) {
                         successfulRequests++;
                     }
                 });
-            };*/
+            };
 
             $scope.removeBd = function() {
                 if(dataService.selectedBd.name) {

@@ -45,6 +45,16 @@ define(modules, function(vpp) {
                 $scope.$broadcast('RELOAD_SELECTED_VPP');
             };
 
+            // filter used in inventory to filter interfaceList of vxlan_tunnel interfaces
+            $scope.filterRemoveVxlanIf = function (item) {
+                return item.name.indexOf('vxlan') !== 0;
+            };
+
+            // filter used in inventory to return vxlan_tunnel interfaces
+            $scope.filterGetVxlanIf = function (item) {
+                return item.name.indexOf('vxlan') === 0;
+            };
+
 	}]);
 
 

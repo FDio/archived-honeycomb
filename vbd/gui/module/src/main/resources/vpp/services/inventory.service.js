@@ -49,7 +49,7 @@ define(['app/vpp/vpp.module', 'next'], function(vpp) {
                                     vppList.push(vppObj);
                                 },
                                 function() {
-                                    console.warn('blabla');
+                                    console.warn('error');
                                 }
                             )
                         }

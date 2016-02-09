@@ -11,7 +11,12 @@
         <!-- right aligned detail -->
         <div class="md-sidenav-left md-whiteframe-z2" flex layout-margin>
             <md-content layout-padding>
-                <h3>VPP Detail</h3>
+                <div style="float: left">
+                    <h3>VPP Detail</h3>
+                </div>
+                <div style="float: right">
+                    <md-button ng-click="setMainView('inventory')" class="md-raised">Back to VPP List</md-button>
+                </div>
 
                 <table class="table table-striped">
                     <tbody>
@@ -37,6 +42,30 @@
                     </tr>
                     </tbody>
                 </table>
+
+                <div style="float: left">
+                    <h3>VXLAN Tunnel</h3>
+                </div>
+                <table st-table="displayInterfaceList" st-safe-src="selectedVpp.interfaces" class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th st-sort="name" class="interactive">Name</th>
+                        <th st-sort="oper-status" class="interactive" >Oper Status</th>
+                        <th st-sort="admin-status" class="interactive">Admin Status</th>
+                        <th st-sort="v3po:vxlan.src" class="interactive">Source IP</th>
+                        <th st-sort="v3po:vxlan.src" class="interactive">Destination IP</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="interface in displayInterfaceList | filter: filterGetVxlanIf">
+                        <td>{{interface.name}}</td>
+                        <td>{{interface['admin-status']}}</td>
+                        <td>{{interface['phys-address']}}</td>
+                        <td>{{interface['v3po:vxlan'].src}}</td>
+                        <td>{{interface['v3po:vxlan'].dst}}</td>
+                    </tr>
+                    </tbody>
+                </table>
             </md-content>
         </div>
     </div>
@@ -56,7 +85,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="interface in displayInterfaceList">
+                        <tr ng-repeat="interface in displayInterfaceList | filter: filterRemoveVxlanIf">
                             <td>{{interface.name}}</td>
                             <td>{{interface['oper-status']}}</td>
                             <td>{{interface['admin-status']}}</td>

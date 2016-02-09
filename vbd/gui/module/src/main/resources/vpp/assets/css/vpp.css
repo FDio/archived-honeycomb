@@ -170,6 +170,7 @@ a.md-button.md-warn[disabled], .md-button.md-default-theme[disabled], .md-button
 .table > tbody > tr > td,
 .table > tfoot > tr > td {
     vertical-align: middle;
+    border-top: 1px solid rgba(221, 221, 221, 0.6);
 }
 
 .table > thead > tr > th.interactive {
@@ -213,13 +214,18 @@ select:-webkit-autofill {
 }
 
 md-select-menu.md-default-theme,
-md-select-menu md-option[selected] {
+md-select-menu md-option[selected] div.md-text {
     color: orange;
 }
 
-/*tab overrides*/
-md-tab.md-active {
+md-select.md-default-theme,
+md-select .md-select-value {
+    border-bottom-color: orange;
+}
+
+md-select .md-select-value span {
     color: orange;
+}
 
 md-input-container label {
     color: white !important;
@@ -229,6 +235,24 @@ md-input-container.md-input-focused label {
     color: orange !important;
 }
 
-md-option div.md-text {
-    color: orange !important;
+md-option[selected] div.md-text {
+    color: orange;
+}
+
+md-option div.md-text:hover {
+    color: orange;
+}
+
+md-select.md-default-theme:not([disabled]):focus,
+md-select:not([disabled]):focus .md-select-value {
+    color: orange;
+}
+
+md-ripple-container {
+
+}
+
+/*tab overrides*/
+md-tab-item.md-active {
+    color: orange;
 }

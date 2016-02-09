@@ -1,7 +1,7 @@
 <div ng-controller="BridgeDomainsController">
     <div layout="row" layout-xs="column" style="height: 550px; width: 100%">
         <div id="bridge-domains-next-app" style="height: 550px; width: 60%"></div>
-        <div class="md-sidenav-left md-whiteframe-z2" style="height: 550px; background-color: #414042; overflow: scroll" flex>
+        <div class="md-sidenav-left md-whiteframe-z2" style="height: 550px; background-color: #414042; overflow-y: scroll" flex>
             <md-content layout-padding ng-controller="TableController as TableCtrl">
                 <md-input-container style="margin-right: 5px;" layout="row">
                 <md-select ng-model='selectedBd.name' placeholder="Select BD" ng-change="bdChanged()" style="width: 100%;">
@@ -23,7 +23,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="row in TableCtrl.displayedCollection">
+                    <tr ng-repeat="row in TableCtrl.displayedCollection | filter: filterRemoveVxlanIf">
                         <div ng-hide="row.hidden">
                             <td>
                                 <md-switch ng-model="row.assigned" aria-label="Assign Switch" ng-change="TableCtrl.updateAssignment(row);">

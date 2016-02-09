@@ -62,7 +62,7 @@ define(['app/vpp/vpp.module', 'next'], function(vpp) {
                     if (link.getData().type === 'tunnel') {
                         return '#00FF00';
                     } else {
-                        return '#414040';
+                        return '#ffffff';
                     }
                 },
                 width: function(link) {

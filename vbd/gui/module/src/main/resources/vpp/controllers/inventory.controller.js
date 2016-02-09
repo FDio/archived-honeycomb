@@ -20,7 +20,7 @@ define(['app/vpp/vpp.module'], function(vpp) {
                         $scope.vppList = data;
                         $scope.displayVppList = [].concat($scope.vppList);
                         dataService.vpps = $scope.vppList;
-
+console.log($scope.vppList);
                         $scope.$broadcast('RELOAD_VPP_TABLE');
 
                         //for vppList access in BDM
@@ -222,27 +222,30 @@ define(['app/vpp/vpp.module'], function(vpp) {
                 $scope.app.container(document.getElementById('next-vpp-topo'));
                 $scope.topo.attach($scope.app);
 
-                $scope.$watch('selectedVpp', function() {
-                    vm.vpp = vpp;
-                    vm.vpp.type = 'vpp';
-                    vm.vpp.label = vm.vpp.name;
+            };
 
-                    var nodes = [].concat(vm.vpp);
-                    var links = [];
+            $scope.fillTopologyData = function(vpp) {
+                var nodes = [].concat(vpp);
+                var links = [];
+                vpp.type  = 'vpp';
+                vpp.label = vpp.name;
 
-                    _.forEach(vm.vpp.interfaces, function(interf, index){
-                        interf.label = interf.name;
-                        interf.scale = 0.5;
-                        nodes.push(interf);
-                        links.push({source: 0, target: index + 1});
-                    });
+                _.forEach(vpp.interfaces, function(interf, index){
+                    interf.label = interf.name;
+                    interf.scale = 0.5;
+                    nodes.push(interf);
+                    links.push({source: 0, target: index + 1});
+                });
 
-                    $scope.topo.data({
-                        nodes: nodes,
-                        links: links
-                    });
+                $scope.topo.data({
+                    nodes: nodes,
+                    links: links
                 });
             };
+
+            $scope.$watch('selectedVpp', function() {
+                $scope.fillTopologyData($scope.selectedVpp);
+            });
 
             $scope.viewTopology($scope.selectedVpp);
 
