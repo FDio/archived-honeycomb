@@ -2,10 +2,14 @@
 VAGRANT_VM_NAME="$1"
 VAGRANT_VBD_VM="$2"
 VAGRANT_VPP_AGENT_ADDR="$3"
-echo "Running bootstrap.ubuntu1404.sh..."
-echo "VAGRANT_VM_NAME = '$VAGRANT_VM_NAME'"
-echo "VAGRANT_VBD_VM = '$VAGRANT_VBD_VM'"
-echo "VAGRANT_VPP_AGENT_ADDR = '$VAGRANT_VPP_AGENT_ADDR'"
+echo "---"
+echo "  Running bootstrap.ubuntu1404.sh..."
+echo "---"
+echo "---"
+echo "  VAGRANT_VM_NAME = '$VAGRANT_VM_NAME'"
+echo "  VAGRANT_VBD_VM = '$VAGRANT_VBD_VM'"
+echo "  VAGRANT_VPP_AGENT_ADDR = '$VAGRANT_VPP_AGENT_ADDR'"
+echo "---"
 
 # Directory and file definitions
 HONEYCOMB_MOUNT="/honeycomb"
@@ -22,10 +26,18 @@ VAGRANT_M2_REPOSITORY="$VAGRANT_M2_DIR/repository"
 HONEYCOMB_INSTALL_DIR="/opt/honeycomb"
 FDIO_SNAPSHOT_URL="https://nexus.fd.io/content/repositories/fd.io.snapshot"
 FDIO_DEV_URL="http://nexus.fd.io/content/repositories/fd.io.dev/"
+APACHE_MAVEN_VER="apache-maven-3.3.9"
+APACHE_MAVEN_TAR_GZ="$APACHE_MAVEN_VER-bin.tar.gz"
+APACHE_MAVEN_URL="http://apache.go-parts.com/maven/maven-3/3.3.9/binaries/$APACHE_MAVEN_TAR_GZ"
+APACHE_MAVEN_INSTALL_DIR="/usr/local/apache-maven"
+GOOGLE_CHROME_DEB_PKG="google-chrome-stable_current_amd64.deb"
+GOOGLE_CHROME_URL="https://dl.google.com/linux/direct/$GOOGLE_CHROME_DEB_PKG"
 
 # Don't install VPP if this is an ODL VBD application VM
 if [ "$VAGRANT_VBD_VM" != "is_vbd_vm" ] ; then
-  echo "Configuring hugepages for VPP"
+  echo "---"
+  echo "  Configuring hugepages for VPP"
+  echo "---"
   # Setup for hugepages using upstart so it persists across reboots
   echo "vm.nr_hugepages=1024" >> /etc/sysctl.d/20-hugepages.conf
   sysctl --system
@@ -46,12 +58,13 @@ EOF
   # runs out of resources, the messages below will
   # identify the issue.  Front and Center!
   nr_hugepages=$(cat /proc/sys/vm/nr_hugepages)
-  echo
   while [ "$nr_hugepages" != "1024" ] ; do
-    echo -n "Allocating hugepages... "
+    echo "---"
+    echo -n "  Allocating hugepages... "
     start hugepages
     nr_hugepages=$(cat /proc/sys/vm/nr_hugepages)
-    echo "nr_hugepages = $nr_hugepages"
+    echo "  nr_hugepages = $nr_hugepages"
+    echo "---"
   done
 fi
 
@@ -69,6 +82,9 @@ export DEBIAN_FRONTEND=noninteractive
 echo "deb $FDIO_DEV_URL ./" > /etc/apt/sources.list.d/99fd.io.list
 
 # Standard update + upgrade dance
+echo "---"
+echo "  Update and install ubuntu packages for development environment"
+echo "---"
 apt-get update
 apt-get upgrade -y
 
@@ -79,12 +95,35 @@ apt-get install -y build-essential autoconf automake bison libssl-dev ccache lib
 apt-get install -y linux-image-extra-`uname -r`
 
 # Install jdk and maven
+echo "---"
+echo "  Installing openjdk"
+echo "---"
 apt-get install -y openjdk-7-jdk
-mkdir -p /usr/local/apache-maven
-cd /usr/local/apache-maven
-wget http://apache.go-parts.com/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
-tar -xzvf apache-maven-3.3.9-bin.tar.gz -C /usr/local/apache-maven/
-update-alternatives --install /usr/bin/mvn mvn /usr/local/apache-maven/apache-maven-3.3.9/bin/mvn 1
+mkdir -p $APACHE_MAVEN_INSTALL_DIR
+if [ -d "$KARAF_PACKAGES_MOUNT" ] ; then
+  APACHE_MAVEN_TARBALL="$KARAF_PACKAGES_MOUNT/$APACHE_MAVEN_TAR_GZ"
+  if [ ! -f "$APACHE_MAVEN_TARBALL" ] ; then
+    echo "---"
+    echo "  Downloading $APACHE_MAVEN_TAR_GZ and caching it in $KARAF_PACKAGES_MOUNT"
+    echo "---"
+    cd $KARAF_PACKAGES_MOUNT
+    wget -q $APACHE_MAVEN_URL
+    cd 
+  fi
+else
+  echo "---"
+  echo "  Downloading $APACHE_MAVEN_TAR_GZ in $APACHE_MAVEN_INSTALL_DIR"
+  echo "---"
+  cd $APACHE_MAVEN_INSTALL_DIR
+  wget -q $APACHE_MAVEN_URL
+  APACHE_MAVEN_TARBALL="$APACHE_MAVEN_INSTALL_DIR/$APACHE_MAVEN_TAR_GZ"
+  cd
+fi
+echo "---"
+echo "  Installing $APACHE_MAVEN_TARBALL in $APACHE_MAVEN_INSTALL_DIR"
+echo "---"
+tar -xzf $APACHE_MAVEN_TARBALL -C $APACHE_MAVEN_INSTALL_DIR
+update-alternatives --install /usr/bin/mvn mvn $APACHE_MAVEN_INSTALL_DIR/$APACHE_MAVEN_VER/bin/mvn 1
 update-alternatives --config mvn
 
 # Set up Maven
@@ -113,11 +152,15 @@ if [ "$VAGRANT_VBD_VM" != "is_vbd_vm" ] ; then
   if [ -d "$KARAF_PACKAGES_MOUNT" ] ; then
     V3PO_TARBALL="$(find $KARAF_PACKAGES_MOUNT -name v3po-karaf*.tar.gz | sort | tail -1)"
     if [ ! -f "$V3PO_TARBALL" ] ; then
-      echo "Fetching latest V3PO tarball from $FDIO_SNAPSHOT_URL"
+      echo "---"
+      echo "  Fetching latest V3PO tarball from $FDIO_SNAPSHOT_URL"
+      echo "---"
       sudo -H -u vagrant mvn dependency:get -DremoteRepositories=$FDIO_SNAPSHOT_URL -DgroupId=io.fd.honeycomb.v3po -DartifactId=v3po-karaf -Dversion=1.0.0-SNAPSHOT -Dpackaging=tar.gz -Dtransitive=false
       M2_TB_DIR="$VAGRANT_M2_REPOSITORY/io/fd/honeycomb/v3po/v3po-karaf/1.0.0-SNAPSHOT"
       V3PO_TARBALL="$(find $M2_TB_DIR -name v3po-karaf*.tar.gz | grep -v v3po-karaf-1.0.0-SNAPSHOT | sort | tail -1)"
-      echo "Copying V3PO tarball ($(basename $V3PO_TARBALL)) to $KARAF_PACKAGES_MOUNT"
+      echo "---"
+      echo "  Copying V3PO tarball ($(basename $V3PO_TARBALL)) to $KARAF_PACKAGES_MOUNT"
+      echo "---"
       [ -f "$V3PO_TARBALL" ] && cp -p $V3PO_TARBALL $KARAF_PACKAGES_MOUNT
       V3PO_TARBALL="$(find $KARAF_PACKAGES_MOUNT -name v3po-karaf*.tar.gz | sort | tail -1)"
     fi
@@ -147,7 +190,9 @@ if [ "$VAGRANT_VBD_VM" != "is_vbd_vm" ] ; then
     # Build and install VPP if necessary
     if [ -d "$VPP_BUILD_ROOT" ] ; then
       if [ "$(ls $VPP_BUILD_ROOT/*.deb)" = "" ] ; then
-        echo "Building VPP"
+        echo "---"
+        echo "  Building VPP"
+        echo "---"
         # Bootstrap vpp
         cd $VPP_BUILD_ROOT
         sudo -H -u vagrant ./bootstrap.sh
@@ -155,41 +200,51 @@ if [ "$VAGRANT_VBD_VM" != "is_vbd_vm" ] ; then
         sudo -H -u vagrant make V=0 PLATFORM=vpp TAG=vpp_debug install-deb
       fi
       # Install debian packages
-      echo "Installing VPP from $VPP_BUILD_ROOT"
+      echo "---"
+      echo "  Installing VPP from $VPP_BUILD_ROOT"
+      echo "---"
       dpkg -i $VPP_BUILD_ROOT/*.deb
     fi
   else
-    echo "Installing VPP from nexus.fd.io"
+    echo "---"
+    echo "  Installing VPP from nexus.fd.io"
+    echo "---"
     apt-get install vpp vpp-dpdk-dev vpp-dpdk-dkms vpp-dev vpp-dbg -y --force-yes
   fi
   # Start VPP if it is installed.
   if [ "$(dpkg -l | grep vpp)" != "" ] ; then
-    echo "Starting VPP"
+    echo "---"
+    echo "  Starting VPP"
+    echo "---"
     start vpp
   fi
 
   # Build Honeycomb if necessary
   if [ ! -f "$V3PO_TARBALL" ] ; then
-    echo "Building Honeycomb..."
+    echo "---"
+    echo "  Building Honeycomb..."
+    echo "---"
     cd $HONEYCOMB_MOUNT
     sudo -H -u vagrant mvn clean install -DskipTests
-    V3PO_TARBALL="$HONEYCOMB_MOUNT/v3po/karaf/target/v3po-karaf*.tar.gz"
+    V3PO_TARBALL="$(find $HONEYCOMB_MOUNT/v3po/karaf/target/ -name v3po-karaf*.tar.gz | sort | tail -1)"
   fi
 
   # Install honeycomb agent (v3po) if available.
   if [ -f "$V3PO_TARBALL" ] ; then
     V3PO_TARBALL_DIR="$(tar tvf $V3PO_TARBALL | head -1 | awk '{ print $6 }' | cut -d / -f 1)"
     V3PO_KARAF_DIR="$HONEYCOMB_INSTALL_DIR/$V3PO_TARBALL_DIR"
-    echo
-    echo "Installing Honeycomb VPP agent in $V3PO_KARAF_DIR from $V3PO_TARBALL"
+    echo "---"
+    echo "  Installing Honeycomb VPP agent in $V3PO_KARAF_DIR from $V3PO_TARBALL"
+    echo "---"
     [ ! -d "$HONEYCOMB_INSTALL_DIR" ] && mkdir -p $HONEYCOMB_INSTALL_DIR
     [ -d "$V3PO_KARAF_DIR" ] && rm -rf $V3PO_KARAF_DIR
-    cd $HONEYCOMB_INSTALL_DIR
-    tar xzf $V3PO_TARBALL
+    tar xzf $V3PO_TARBALL -C $HONEYCOMB_INSTALL_DIR
     $V3PO_KARAF_DIR/bin/start
     echo -e "\n\n# Add V3PO karaf bin directory to PATH\nexport PATH=\$PATH:$V3PO_KARAF_DIR/bin" >> $VAGRANT_BASH_ALIASES
   else
-    echo "WARNING: V3PO Tarball is not available: $V3PO_TARBALL"
+    echo "---"
+    echo "  WARNING: V3PO Tarball is not available: $V3PO_TARBALL"
+    echo "---"
   fi
 
 # ODL VBD application VM specific installation components
@@ -197,21 +252,27 @@ else
   if [ -d "$KARAF_PACKAGES_MOUNT" ] ; then
     VBD_TARBALL="$(find $KARAF_PACKAGES_MOUNT -name vbd-karaf*.tar.gz | sort | tail -1)"
     if [ ! -f "$VBD_TARBALL" ] ; then
-      echo "Fetching latest VBD tarball from $FDIO_SNAPSHOT_URL"
+      echo "---"
+      echo "  Fetching latest VBD tarball from $FDIO_SNAPSHOT_URL"
+      echo "---"
       sudo -H -u vagrant mvn dependency:get -DremoteRepositories=$FDIO_SNAPSHOT_URL -DgroupId=io.fd.honeycomb.vbd -DartifactId=vbd-karaf -Dversion=1.0.0-SNAPSHOT -Dpackaging=tar.gz -Dtransitive=false
       M2_TB_DIR="$VAGRANT_M2_REPOSITORY/io/fd/honeycomb/vbd/vbd-karaf/1.0.0-SNAPSHOT"
       VBD_TARBALL="$(find $M2_TB_DIR -name vbd-karaf*.tar.gz | grep -v vbd-karaf-1.0.0-SNAPSHOT | sort | tail -1)"
-      echo "Copying VBD tarball ($(basename $VBD_TARBALL)) to $KARAF_PACKAGES_MOUNT"
+      echo "---"
+      echo "  Copying VBD tarball ($(basename $VBD_TARBALL)) to $KARAF_PACKAGES_MOUNT"
+      echo "---"
       [ -f "$VBD_TARBALL" ] && cp -p $VBD_TARBALL $KARAF_PACKAGES_MOUNT
       VBD_TARBALL="$(find $KARAF_PACKAGES_MOUNT -name vbd-karaf*.tar.gz | sort | tail -1)"
     fi
   else
-    VBD_TARBALL="$HONEYCOMB_MOUNT/vbd/karaf/target/vbd-karaf*.tar.gz"
+    VBD_TARBALL="$(find $HONEYCOMB_MOUNT/vbd/karaf/target/ -name vbd-karaf*.tar.gz | sort | tail -1)"
   fi
 
   # Build Honeycomb if necessary
   if [ ! -f "$VBD_TARBALL" ] ; then
-    echo "Building Honeycomb..."
+    echo "---"
+    echo "  Building Honeycomb..."
+    echo "---"
     cd $HONEYCOMB_MOUNT
     sudo -H -u vagrant mvn clean install -DskipTests
     VBD_TARBALL="$HONEYCOMB_MOUNT/vbd/karaf/target/vbd-karaf*.tar.gz"
@@ -220,24 +281,32 @@ else
   if [ -f "$VBD_TARBALL" ] ; then
     VBD_TARBALL_DIR="$(tar tvf $VBD_TARBALL | head -1 | awk '{ print $6 }' | cut -d / -f 1)"
     VBD_KARAF_DIR="$HONEYCOMB_INSTALL_DIR/$VBD_TARBALL_DIR"
-    echo
-    echo "Installing ODL Virtual Bridge Domain application in $HONEYCOMB_INSTALL_DIR/$VBD_SNAPSHOT"
+    echo "---"
+    echo "  Installing ODL Virtual Bridge Domain application in $HONEYCOMB_INSTALL_DIR/$VBD_SNAPSHOT"
+    echo "---"
     [ ! -d "$HONEYCOMB_INSTALL_DIR" ] && mkdir -p $HONEYCOMB_INSTALL_DIR
     [ -d "$VBD_KARAF_DIR" ] && rm -rf $VBD_KARAF_DIR
-    cd $HONEYCOMB_INSTALL_DIR
-    tar xzf $VBD_TARBALL
+    tar xzf $VBD_TARBALL -C $HONEYCOMB_INSTALL_DIR
     $VBD_KARAF_DIR/bin/start
     echo -e "\n\n# Add VBD karaf bin directory to PATH\nexport PATH=\$PATH:$VBD_KARAF_DIR/bin" >> $VAGRANT_BASH_ALIASES
   else
-    echo "WARNING: VBD tarball is not available: $VBD_TARBALL"
+    echo "---"
+    echo "  WARNING: VBD tarball is not available: $VBD_TARBALL"
+    echo "---"
   fi
 
   # Install google chrome browser for ODL YANGUI
+  echo "---"
+  echo "  Installing google-chrome"
+  echo "---"
   cd /opt
-  wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-  sudo dpkg -i google-chrome-stable_current_amd64.deb
+  wget -q $GOOGLE_CHROME_URL
+  sudo dpkg -i $GOOGLE_CHROME_DEB_PKG
   sudo apt-get install -fy
 fi
 
-echo "VM Installation Complete!"
-echo
+echo "---"
+echo "  ========================="
+echo "  VM Installation Complete!"
+echo "  ========================="
+echo "---"
