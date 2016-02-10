@@ -6,12 +6,13 @@
 #
 # Note: VirtualBox is currently the only provier supported for the demo.
 #
-# [ host1 VM ] <== Internal Network "host1-vpp1" ==> [  vpp1 VM ]
-# [  vpp1 VM ] <== Internal Network "vpp1-vpp2"  ==> [  vpp2 VM ]
-# [  vpp1 VM ] <-- Private Network 192.168.10.x -+-> [   vbd VM ]
-#                  (Mgmt network)                |
-#                                                +-> [  vpp2 VM ]
-# [  vpp2 VM ] <== Internal Network "host2-vpp2" ==> [ host2 VM ]
+# [ host1 VM ] <=== Internal Network "host1-vpp1" ===> [  vpp1 VM ]
+# [  vpp1 VM ] <==+ Internal Network "vpp1-vpp2"  ===> [  vpp2 VM ]
+# [  jaws VM ] <==+
+# [  vpp1 VM ] <--- Private Network 192.168.10.x -+--> [   vbd VM ]
+#                   (Mgmt network)                |
+#                                                 +--> [  vpp2 VM ]
+# [  vpp2 VM ] <=== Internal Network "host2-vpp2" ===> [ host2 VM ]
 #
 Vagrant.configure(2) do |config|
 
@@ -186,6 +187,25 @@ end
     host2.vm.provision "shell" do |s|
       s.path = "bootstrap-host.ubuntu1404.sh"
       s.args = ["host2", "172.16.15.15/24"]
+    end
+  end
+
+  # Define jaws VM (for wireshark) connected to the vpp1 <-> vpp2
+  # internal network.
+  #
+  # [  vpp1 VM ] <==+ Internal Network "vpp1-vpp2"  ===> [  vpp2 VM ]
+  # [  jaws VM ] <==+
+  #
+  config.vm.define :jaws do |jaws|
+    jaws.vm.box = "puppetlabs/ubuntu-14.04-64-nocm"
+    jaws.vm.provider "virtualbox" do |vb|
+      vb.customize ["modifyvm", :id, "--nic2", "intnet"]
+      vb.customize ["modifyvm", :id, "--intnet2", "vpp1-vpp2"]
+      vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+    end
+    jaws.vm.provision "shell" do |s|
+      s.path = "bootstrap-host.ubuntu1404.sh"
+      s.args = ["jaws", "172.16.15.15/24"]
     end
   end
 end
