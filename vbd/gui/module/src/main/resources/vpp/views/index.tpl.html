@@ -8,24 +8,8 @@
         </md-tab>
         <md-tab label="Bridge Domains" md-on-select="setMainView('bridgeDomains')">
             <md-content class="md-padding">
-                <section ng-if="mainView === 'bridgeDomains'" ng-include src="view_path+'bridge-domains.tpl.html'"></section>
+                <section ng-if="mainView === 'bridgeDomains'" ng-include src="view_path+'bridge-domains.tpl.html'" style="height:80%; overflow: hidden"></section>
             </md-content>
         </md-tab>
     </md-tabs>
-
-    <!--<md-toolbar>
-        <div class="md-toolbar-tools float-left">
-            <span flex></span>
-            <md-button ng-click="setMainView('inventory')">Inventory</md-button>
-            <span flex></span>
-            <md-button ng-click="setMainView('bridgeDomains')">Bridge Domains</md-button>
-            <span flex></span>
-        </div>
-    </md-toolbar>
-
-    <div ng-view style="height: 100%">
-
-
-
-    </div>-->
 </div>

@@ -16,6 +16,7 @@ var modules = [
     'app/vpp/services/bdm.bridgedomain.service',
     'app/vpp/services/bdm.interface.service',
     'app/vpp/services/bdm.vpp.service',
+    'app/vpp/services/bdm.tunnel.service',
     //controllers
     'app/vpp/controllers/inventory.controller',
     'app/vpp/controllers/bdm.controller',
@@ -47,12 +48,12 @@ define(modules, function(vpp) {
 
             // filter used in inventory to filter interfaceList of vxlan_tunnel interfaces
             $scope.filterRemoveVxlanIf = function (item) {
-                return item.name.indexOf('vxlan') !== 0;
+                return (item.name && item.name.indexOf('vxlan') !== 0) || (item['tp-id'] && item['tp-id'].indexOf('vxlan') !== 0);
             };
 
             // filter used in inventory to return vxlan_tunnel interfaces
             $scope.filterGetVxlanIf = function (item) {
-                return item.name.indexOf('vxlan') === 0;
+                return (item.name && item.name.indexOf('vxlan') === 0) || (item['tp-id'] && item['tp-id'].indexOf('vxlan') === 0);
             };
 
 	}]);

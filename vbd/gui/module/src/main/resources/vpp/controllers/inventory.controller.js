@@ -20,7 +20,7 @@ define(['app/vpp/vpp.module'], function(vpp) {
                         $scope.vppList = data;
                         $scope.displayVppList = [].concat($scope.vppList);
                         dataService.vpps = $scope.vppList;
-console.log($scope.vppList);
+
                         $scope.$broadcast('RELOAD_VPP_TABLE');
 
                         //for vppList access in BDM
@@ -69,7 +69,7 @@ console.log($scope.vppList);
                     controllerAs: 'NewVppDialogCtrl',
                     templateUrl: $scope.view_path + 'new-vpp-dialog.html',
                     parent: angular.element(document.body),
-                    clickOutsideToClose:true
+                    clickOutsideToClose:false
                 })
             };
 

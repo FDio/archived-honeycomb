@@ -47,9 +47,27 @@ define(['app/vpp/vpp.module'], function(vpp) {
 
         s.get = function(successCallback, errorCallback) {
             var restObj = VPPRestangular.one('restconf').one('config').one('network-topology:network-topology');
+            var bridgeDomainList = [];
 
             restObj.get().then(function(data) {
-                successCallback(data);
+                if(data['network-topology'].topology) {
+                    bridgeDomainList = data['network-topology'].topology.filter(function (topology) {
+                        if (topology['topology-types'] && topology['topology-types']['vbridge-topology:vbridge-topology']) {
+                            return topology['topology-types']['vbridge-topology:vbridge-topology'] !== undefined;
+                        }
+                    });
+                }
+                successCallback(bridgeDomainList);
+            }, function(res) {
+                errorCallback(res.data, res.status);
+            });
+        };
+
+        s.getOne = function(bdId, successCallback, errorCallback) {
+            var restObj = VPPRestangular.one('restconf').one('config').one('network-topology:network-topology').one('topology').one(bdId);
+
+            restObj.get().then(function(data) {
+                successCallback(data.topology[0]);
             }, function(res) {
                 errorCallback(res.data, res.status);
             });

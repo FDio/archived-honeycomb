@@ -13,124 +13,180 @@ define(['app/vpp/vpp.module'], function(vpp) {
 
     vpp.register.controller('TableController', ['$scope', '$rootScope','$filter', 'dataService', 'toastService', 'bdmInterfaceService',
         function ($scope, $rootScope, filter, dataService, toastService, bdmInterfaceService) {
+            $scope.interfaceList = [];
+            $scope.unassignedInterfaceList = [];
+            $scope.assignedInterfaces = [];
+
             var vm = this;
-            vm.rowCollection = dataService.tableContent;
-            vm.displayedCollection = [].concat(vm.rowCollection);
 
             vm.updateAssignment = function(receivedInterface) {
-                console.log(receivedInterface);
-                var interf = _.find(dataService.interfaces, {name: receivedInterface.name, 'vppName': receivedInterface.vppName});
                 if (receivedInterface.assigned){
-                    interf.assigned = true;
-                    interf.vbd = dataService.selectedBd.name;
-                    receivedInterface.vbd = dataService.selectedBd.name;
+                    receivedInterface.vbdName = $scope.selectedBd['topology-id'];
+                    vm.assignInterface($scope.selectedBd, receivedInterface);
 
-                    vm.assignInterface(interf);
                 } else {
-                    var vbdName = receivedInterface.vbd,
-                        vppName = receivedInterface.vppName;
-
-                    interf.assigned = false;
-                    interf.vbd = '';
-                    receivedInterface.vbd = '';
-
-                    vm.unassignInterface(interf, vbdName, vppName);
+                    vm.unassignInterface(receivedInterface);
                 }
-                //dataService.buildTableContent();
-                var previouslyChangedInterface = _.find(dataService.changedInterfaces, {name: interf.name, 'vppName': interf.vppName});
-                if (!previouslyChangedInterface) {
-                    dataService.changedInterfaces.push(interf);
-                }
-                console.log(dataService.changedInterfaces);
-                dataService.injectBridgeDomainsTopoElements();
-
             };
 
-            vm.assignInterface = function(interface) {
-                var interfaceObject = bdmInterfaceService.createObj(interface.name, interface.name);
+            vm.assignInterface = function(bridgeDomain, interface) {
+                var interfaceObject = bdmInterfaceService.createObj(interface['tp-id'], interface['tp-id']);
 
                 var successCallback = function() {
                     toastService.showToast('Interface assigned');
+                    $scope.assignedInterfaces.push(interface);
+
+                    $scope.$emit('INTERFACE_CHANGED', interface);
                 };
 
                 var errorCallback = function() {
                     toastService.showToast('Unable to assign interface');
                 };
 
-                bdmInterfaceService.add(interfaceObject, interface.vbd, interface.vppName, successCallback, errorCallback);
+                bdmInterfaceService.add(interfaceObject, bridgeDomain['topology-id'], interface.vppName, successCallback, errorCallback);
             };
 
-            vm.unassignInterface = function(interface, vbdname, vppName) {
-                var interfaceObject = bdmInterfaceService.createObj(interface.name, interface.name);
+            vm.unassignInterface = function(interface) {
+                var interfaceObject = bdmInterfaceService.createObj(interface['tp-id'], interface['tp-id']);
 
                 var successCallback = function() {
                     toastService.showToast('Interface unassigned');
+                    $scope.assignedInterfaces.splice($scope.assignedInterfaces.indexOf(interface), 1);
+                    interface.vbdName = '';
+
+                    $scope.$emit('INTERFACE_CHANGED', interface);
                 };
 
                 var errorCallback = function() {
                     toastService.showToast('Unable to unassign interface');
                 };
 
-                bdmInterfaceService.delete(interfaceObject, vbdname, vppName, successCallback, errorCallback);
+                bdmInterfaceService.delete(interfaceObject, interface.vbdName, interface.vppName, successCallback, errorCallback);
 
             };
-    }]);
 
-    vpp.register.controller('BridgeDomainsController', ['$scope', '$rootScope','$filter', 'dataService', 'bdmBridgeDomainService', 'toastService', '$mdDialog','bdmInterfaceService',
-        function($scope, $rootScope, $filter, dataService, bdmBridgeDomainService, toastService, $mdDialog,bdmInterfaceService) {
+            $scope.$on('BUILD_INTERFACES_TABLE', function(event) {
+                $scope.interfaceList = [];
+                $scope.unassignedInterfaceList = [];
+                $scope.assignedInterfaces = $scope.getAssignedInterfaces();
 
-            console.log('Bridge Domains Controller executed.');
+                $scope.assignedInterfacesFlat = [];
 
-            $scope.dataService = dataService;
-            $scope.bridgedomains = dataService.bridgedomains;
-            $scope.selectedBd = dataService.selectedBd;
+                var getAssignedInterfacesFlat = function() {
+                    var keys = Object.keys($scope.assignedInterfaces);
 
-            dataService.nextApp.container(document.getElementById('bridge-domains-next-app'));
-            dataService.bridgeDomainsTopo.attach(dataService.nextApp);
+                    if(keys.length) {
+                        keys.forEach(function (k) {
+                            if($scope.assignedInterfaces[k]) {
+                                $scope.assignedInterfaces[k].forEach(function(ai) {
+                                    checkAndPushIntoArray($scope.assignedInterfacesFlat, ai);
+                                });
+                            }
+                        });
+                    }
+                };
 
-            if (!dataService.bridgedomainsLoaded) {
-                dataService.generateInterfaces();
-                bdmBridgeDomainService.get(function(data) {
-                    //success callback
-                    angular.copy(data['network-topology'].topology, dataService.bridgedomains);
-                    dataService.bridgedomainsLoaded = true;
-                    console.log('Loaded BridgeDomains:');
-                    console.log(dataService.bridgedomains);
-                    dataService.buildAssignedInterfaces();
-                }, function(data,status) {
-                    //error callback
-                    console.log(status);
+                var checkAndPushIntoArray = function(array, item) {
+                    var check = array.some(function(i) {
+                        return i['tp-id'] === item['tp-id'] && i.vppName === item.vppName;
+                    });
+
+                    if(!check) {
+                        array.push(item);
+                    }
+                };
+
+                getAssignedInterfacesFlat();
+
+                dataService.vpps.forEach(function(vpp){
+                     vpp.interfaces.forEach(function(interface){
+                         var interfaceObject = bdmInterfaceService.createObj(interface.name, interface.name);
+
+                         var check = $scope.assignedInterfacesFlat.some(function (ai) {
+                             return interfaceObject['tp-id'] === ai['tp-id'] && vpp.name === ai.vppName;
+                         });
+
+                         if(!check) {
+                             interfaceObject.vppName = vpp.name;
+                             checkAndPushIntoArray($scope.unassignedInterfaceList, interfaceObject);
+                         }
+                    });
                 });
-            }
 
-            dataService.bridgeDomainsTopo.on('clickNode',function(topo,node) {
-                console.log(node);
+                if($scope.selectedBd) {
+                    $scope.interfaceList = $scope.assignedInterfaces[$scope.selectedBd['topology-id']] ? $scope.assignedInterfaces[$scope.selectedBd['topology-id']].concat($scope.unassignedInterfaceList) : $scope.unassignedInterfaceList;
+                }
+
+                $scope.interfaceDisplayList = [].concat($scope.interfaceList);
             });
 
-            $scope.reload = function() {
-                dataService.selectedBd.name = '';
-                dataService.changedInterfaces.length = 0;
-                dataService.originalAssignments.length = 0;
-                dataService.interfaces.length = 0;
-                dataService.tableContent.length = 0;
-                dataService.bridgeDomainsTopo.clear();
-                dataService.injectedInterfaces.length = 0;
-                dataService.generateInterfaces();
+            $scope.$on('INIT_INTERFACES_TABLE', function(event) {
+                $scope.interfaceList = [];
+                $scope.unassignedInterfaceList = [];
+                $scope.assignedInterfaces = [];
+                $scope.assignedInterfacesFlat = [];
+            });
+
+
+
+    }]);
+
+    vpp.register.controller('BridgeDomainsController', ['$scope', '$rootScope','$filter', 'dataService', 'bdmBridgeDomainService', 'toastService', '$mdDialog', 'bdmTunnelService',
+        function($scope, $rootScope, $filter, dataService, bdmBridgeDomainService, toastService, $mdDialog, bdmTunnelService) {
+            $scope.bridgeDomainList = [];
+            $scope.showOverlay = true;
+
+            $scope.loadBridgeDomains = function(bridgeDomain, successCallback) {
                 bdmBridgeDomainService.get(function(data) {
-                    //success callback
-                    angular.copy(data['network-topology'].topology, dataService.bridgedomains);
-                    dataService.bridgedomainsLoaded = true;
-                    console.log('Loaded BridgeDomains:');
-                    console.log(dataService.bridgedomains);
-                    dataService.buildAssignedInterfaces();
+                    $scope.bridgeDomainList = data;
+
+                    if(bridgeDomain) {
+                        $scope.selectedBd = $scope.bridgeDomainList.filter(function(bd) {
+                           return bd['topology-id'] ===  bridgeDomain['topology-id'];
+                        })[0];
+
+                        $scope.showTopology($scope.selectedBd);
+                    }
+
+                    successCallback();
+
                 }, function(data,status) {
                     //error callback
                     console.log(status);
                 });
             };
 
-            $scope.bdChanged = function() {
-                dataService.buildTableContent();
+            $scope.getInterfacesForBridgeDomain = function(bridgeDomain) {
+                var interfaceList = [];
+
+                if(bridgeDomain.node) {
+                    bridgeDomain.node.forEach(function (n) {
+                        if (n['termination-point']) {
+                            n['termination-point'].forEach(function (tp) {
+                                tp.vppName = n['node-id'];
+                                tp.vbdName = bridgeDomain['topology-id'];
+                                tp.assigned = true;
+
+                                interfaceList.push(tp);
+                            });
+                        }
+                    });
+                }
+
+                return interfaceList;
+            };
+
+            $scope.getAssignedInterfaces = function() {
+                var interfaces = [];
+
+                $scope.bridgeDomainList.forEach(function(bd) {
+                    var bdCopy = {};
+                    angular.copy(bd, bdCopy);
+
+                    interfaces[bdCopy['topology-id']] = $scope.getInterfacesForBridgeDomain(bdCopy);
+                });
+
+                return interfaces;
             };
 
             $scope.addBd = function() {
@@ -146,12 +202,10 @@ define(['app/vpp/vpp.module'], function(vpp) {
                             $mdDialog.cancel();
                         };
 
-                        vm.isDone = function(status) {
+                        vm.isDone = function(status, bridgeDomain) {
                             vm.waiting = false;
                             if (status === 'success') {
-                                dataService.bridgedomains.push(vm.bd);
-                                dataService.selectedBd.name = vm.bd.name;
-                                $scope.reload();
+                                $scope.reload(bridgeDomain);
                                 vm.close();
                             }
                         };
@@ -165,7 +219,7 @@ define(['app/vpp/vpp.module'], function(vpp) {
 
                             bdmBridgeDomainService.add(obj,
                                 function(data) {
-                                    vm.isDone('success');
+                                    vm.isDone('success', obj);
                                 },
                                 function() {
                                     vm.isDone('failed');
@@ -180,105 +234,308 @@ define(['app/vpp/vpp.module'], function(vpp) {
                 })
             };
 
-
-            /* FIXME: remove after testing */
-            $scope.deploy = function() {
-                var successfulRequestsRequired = dataService.changedInterfaces.length;
-                var successfulRequests = 0;
-
-                console.log('Removing previous assignments...');
-                _.forEach(dataService.changedInterfaces, function(interf) {
-
-                    //Check if previously assigned.. then DELETE
-                    //....
-                    var previousAssignment = _.find(dataService.originalAssignments, {
-                        'vbridge-topology:user-interface': interf.name,
-                        vppName: interf.vppName
-                    });
-
-                    if (previousAssignment) {
-                        successfulRequestsRequired++;
-                        bdmInterfaceService.delete(
-                            {
-                                "tp-id":previousAssignment['tp-id'],
-                                "vbridge-topology:user-interface": previousAssignment['vbridge-topology:user-interface']
-                            },
-                            previousAssignment.vbd,
-                            previousAssignment.vppName,
-                            function() {
-                                //success callback
-                                console.log('Removed previous assignment:',previousAssignment);
-                                successfulRequests++;
-
-                                if (successfulRequests >= successfulRequestsRequired) {
-                                    toastService.showToast('Deployed! Bridge Domain Validated.');
-                                    dataService.changedInterfaces.length = 0;
-                                    console.log('Changed interfaces tracker has been reset.');
-                                    $scope.reload();
-                                }
-                            },
-                            function() {
-                                //error callback
-                                console.error('ERROR removing assignment:',previousAssignment);
-                            }
-                        )
-                    }
-                    if (interf.assigned) {
-                        //Send PUT to correct vBD
-                        bdmInterfaceService.add(
-                            {
-                                "tp-id":interf.vppName+'-'+interf.name,
-                                "vbridge-topology:user-interface": interf.name
-                            },
-                            interf.vbd,
-                            interf.vppName,
-                            function() {
-                                //success callback
-                                console.log('Added assignment:',interf);
-                                successfulRequests++;
-
-                                if (successfulRequests >= successfulRequestsRequired) {
-                                    toastService.showToast('Deployed! Bridge Domain Validated.');
-                                    dataService.changedInterfaces.length = 0;
-                                    console.log('Changed interfaces tracker has been reset.')
-                                    $scope.reload();
-                                }
-                            },
-                            function() {
-                                //error callback
-                                console.error('ERROR adding assignment:',interf);
-                            }
-                        )
-                    } else {
-                        successfulRequests++;
-                    }
-                });
-            };
-
             $scope.removeBd = function() {
-                if(dataService.selectedBd.name) {
+                if($scope.selectedBd['topology-id']) {
                     var successCallback = function(success) {
-                        if (success) {
-                            console.log($scope.bridgedomains);
-                            _.remove($scope.bridgedomains, {
-                                name: $scope.selectedBd.name
-                            });
-                            toastService.showToast('Bridge Domain Removed!');
-                            $scope.selectedBd.name = '';
-                            dataService.clearTopology();
-                            dataService.tableContent.length = 0;
-                            $scope.reload();
-                        } else {
-                            toastService.showToast('Error removing Bridge Domain!');
-                        }
+                        $scope.selectedBd = null;
+                        $scope.loadBridgeDomains(null, function() {
+                            $scope.$broadcast('INIT_INTERFACES_TABLE');
+                            $scope.clearTopologies();
+                        });
+
                     };
-                    bdmBridgeDomainService.remove(dataService.selectedBd.name, function(){successCallback(true)}, function(){successCallback(false)});
+                    bdmBridgeDomainService.remove($scope.selectedBd['topology-id'], function(){successCallback(true)}, function(){successCallback(false)});
                 }
             };
 
-            window.addEventListener('resize', function () {
-                dataService.bridgeDomainsTopo.adaptToContainer();
+            $scope.bdChanged = function() {
+                $scope.loadBridgeDomains($scope.selectedBd, function() {
+                    $scope.$broadcast('BUILD_INTERFACES_TABLE');
+
+                    $scope.showTopology($scope.selectedBd);
+                });
+
+            };
+
+            nx.graphic.Icons.registerIcon("bd", "src/app/vpp/assets/images/bd1.svg", 45, 45);
+            nx.graphic.Icons.registerIcon("interf", "src/app/vpp/assets/images/interf.svg", 45, 45);
+
+            $scope.showOverlayTopology = function(bridgeDomain) {
+                var bdCopy = {};
+                angular.copy(bridgeDomain, bdCopy);
+
+                $scope.bridgeDomainsTopo = new nx.graphic.Topology({
+                    adaptive: true,
+                    scalable: true,
+                    theme: 'blue',
+                    enableGradualScaling: true,
+                    nodeConfig: {
+                        color: '#414040',
+                        label: 'model.label',
+                        scale: 'model.scale',
+                        iconType: function (vertex) {
+                            var type = vertex.get().type;
+                            if (type === 'bd') {
+                                return 'bd'
+                            } else {
+                                return 'interf';
+                            }
+                        }
+                    },
+                    linkConfig: {
+                        label: 'model.label',
+                        linkType: 'parallel',
+                        color: function (link) {
+                            if (link.getData().type === 'tunnel') {
+                                return '#00FF00';
+                            } else {
+                                return '#ffffff';
+                            }
+                        },
+                        width: function (link) {
+                            if (link.getData().type === 'tunnel') {
+                                return 5;
+                            }
+                        }
+                    },
+                    showIcon: true,
+                    dataProcessor: 'force',
+                    autoLayout: true,
+                    enableSmartNode: false,
+                    tooltipManagerConfig: {
+                        nodeTooltipContentClass: 'TooltipNode',
+                        linkTooltipContentClass: 'TooltipLink'
+                    }
+                });
+
+                $scope.overlayNextApp =  new nx.ui.Application;
+
+                var bdNode = {
+                    "data": bdCopy,
+                    "type": "bd",
+                    "label": bdCopy['topology-id']
+                };
+
+                var nodes = [].concat(bdNode);
+                var links = [];
+
+                _.forEach($scope.getInterfacesForBridgeDomain(bdCopy), function(tp, index){
+                    var ifNode = {
+                        "data": tp,
+                        "type": "interf",
+                        "label": tp['tp-id']
+                    };
+                    nodes.push(ifNode);
+                    links.push({source: 0, target: nodes.length-1});
+                });
+
+
+                $scope.bridgeDomainsTopo.data({
+                    nodes: nodes,
+                    links: links
+                });
+
+                $scope.overlayNextApp.container(document.getElementById('overlay-next-app'));
+                $scope.bridgeDomainsTopo.attach($scope.overlayNextApp);
+            };
+
+            $scope.fillOverlayTopology = function(bridgeDomain) {
+                var bdCopy = {};
+                angular.copy(bridgeDomain, bdCopy);
+
+                var bdNode = {
+                    "data": bdCopy,
+                    "type": "bd",
+                    "label": bdCopy['topology-id']
+                };
+
+                var nodes = [].concat(bdNode);
+                var links = [];
+
+                _.forEach($scope.getInterfacesForBridgeDomain(bdCopy), function(tp, index){
+                    var ifNode = {
+                        "data": tp,
+                        "type": "interf",
+                        "label": tp['tp-id']
+                    };
+                    nodes.push(ifNode);
+                    links.push({source: 0, target: nodes.length-1});
+                });
+
+
+                $scope.bridgeDomainsTopo.data({
+                    nodes: nodes,
+                    links: links
+                });
+
+            };
+
+            $scope.showUnderTopology = function(bridgeDomain) {
+                //var bdCopy = {};
+                //angular.copy(bridgeDomain, bdCopy);
+
+                $scope.underlayTopo = new nx.graphic.Topology({
+                    adaptive: true,
+                    scalable: true,
+                    theme:'blue',
+                    enableGradualScaling:true,
+                    nodeConfig: {
+                        color: '#414040',
+                        label: 'model.label',
+                        scale: 'model.scale',
+                        iconType: function(vertex) {
+                            var type = vertex.get().type;
+                            if (type === 'bd') {
+                                return 'bd';
+                            } else if (type==='vpp') {
+                                return 'switch';
+                            } else {
+                                return 'interf';
+                            }
+                        }
+                    },
+                    linkConfig: {
+                        label: 'model.label',
+                        linkType: 'parallel',
+                        color: function(link) {
+                            if (link.getData().type === 'tunnel') {
+                                return '#00FF00';
+                            } else {
+                                return '#ffffff';
+                            }
+                        },
+                        width: function(link) {
+                            if (link.getData().type === 'tunnel') {
+                                return 5;
+                            }
+                        }
+                    },
+                    showIcon: true,
+                    enableSmartNode: false
+                });
+
+                $scope.underlayNextApp =  new nx.ui.Application;
+
+                $scope.fillUnderlayTopology(bridgeDomain);
+
+                $scope.underlayNextApp.container(document.getElementById('underlay-next-app'));
+                $scope.underlayTopo.attach($scope.underlayNextApp);
+            };
+
+            $scope.fillUnderlayTopology = function(bridgeDomain) {
+                var bdCopy = {};
+                angular.copy(bridgeDomain, bdCopy);
+
+                var nodes = [];
+                var links = [];
+
+                _.forEach(bdCopy.node, function(node, index){
+                    var i = index + 1;
+
+                    nodes.push({
+                        label: node['node-id'],
+                        x: (-1+(2*(i%2)))*((i+1)/2 * 500),
+                        y: 700,
+                        scale: 1.25,
+                        type: 'vpp'
+                    });
+
+
+                    bdmTunnelService.get(
+                        bdCopy['topology-id'],
+                        function(data) {
+                            //success
+                            console.log(data);
+
+                            var link = data;
+                            var sourceNode = link[0].source['source-node'];
+                            var targetNode = link[0].destination['dest-node'];
+
+                            links.push({
+                                source: _.findIndex(nodes, {label: sourceNode, type: 'vpp'}),
+                                target: _.findIndex(nodes, {label: targetNode, type: 'vpp'}),
+                                type: 'tunnel'
+                            });
+
+                            $scope.underlayTopo.data({
+                                nodes: nodes,
+                                links: links
+                            });
+
+                        }, function(res) {
+                            $scope.underlayTopo.data({
+                                nodes: nodes,
+                                links: links
+                            });
+                        });
+                });
+
+
+                $scope.underlayTopo.data({
+                    nodes: nodes,
+                    links: links
+                });
+            };
+
+            $scope.reload = function(bridgeDomain) {
+                $scope.loadBridgeDomains(bridgeDomain, function() {
+                    $scope.$broadcast('BUILD_INTERFACES_TABLE');
+
+                    $scope.showTopology($scope.selectedBd);
+                });
+
+            };
+
+            $scope.toggleUnderlay = function() {
+                $scope.showOverlay = !$scope.showOverlay;
+
+                $scope.reload($scope.selectedBd);
+            };
+
+            $scope.showTopology = function(bridgeDomain) {
+                if($scope.showOverlay) {
+                    if(!$scope.bridgeDomainsTopo) {
+                        $scope.showOverlayTopology(bridgeDomain);
+                    }
+                    else {
+                        $scope.fillOverlayTopology(bridgeDomain);
+                    }
+                } else {
+                    if(!$scope.underlayTopo) {
+                        $scope.showUnderTopology(bridgeDomain);
+                    }
+                    else {
+                        $scope.fillUnderlayTopology(bridgeDomain);
+                    }
+                }
+            };
+
+            $scope.clearTopologies = function() {
+                if($scope.bridgeDomainsTopo) {
+                    $scope.bridgeDomainsTopo.data({
+                        nodes: [],
+                        links: []
+                    });
+                }
+
+                if($scope.bridgeDomainsTopo) {
+                    $scope.underlayTopo.data({
+                        nodes: [],
+                        links: []
+                    });
+                    }
+            };
+
+            $scope.$on('INTERFACE_CHANGED', function(event, data) {
+                bdmBridgeDomainService.getOne($scope.selectedBd['topology-id'],
+                    function(bdData) {
+                        $scope.fillOverlayTopology(bdData);
+                    },
+                    function() {
+                        console.log('error getting vbd');
+                    });
             });
 
-    }]);
+            $scope.loadBridgeDomains(null, function() {});
+        }]);
 });

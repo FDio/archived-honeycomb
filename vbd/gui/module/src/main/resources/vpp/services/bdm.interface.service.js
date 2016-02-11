@@ -44,7 +44,15 @@ define(['app/vpp/vpp.module'], function(vpp) {
                 .one('topology').one(bridgeDomainId).one('node').one(vppId).one('termination-point').one(encodeURIComponent(interf['tp-id']));
 
             restObj.remove().then(function(data) {
-                successCallback(data);
+                bdmVppService.checkAndDeleteVpp(bridgeDomainId, vppId,
+                    function() {
+                        successCallback(data);
+                    },
+                    function() {
+
+                    }
+                );
+
             }, function(res) {
                 errorCallback(res.data, res.status);
             });

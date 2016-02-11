@@ -55,6 +55,16 @@ define(['app/vpp/vpp.module'], function(vpp) {
             });
         };
 
+        s.delete = function(bridgeDomainId, vppId, successCallback, errorCallback) {
+            var restObj = VPPRestangular.one('restconf').one('config').one('network-topology:network-topology').one('topology').one(bridgeDomainId).one('node').one(vppId);
+
+            return restObj.remove().then(function(data) {
+                successCallback(data);
+            }, function(res) {
+                errorCallback(res.data, res.status);
+            });
+        };
+
         s.checkAndWriteVpp = function(bridgeDomainId, vppId, successCallback, errorCallback) {
              s.getOne(bridgeDomainId, vppId,
                 function() {
@@ -69,9 +79,28 @@ define(['app/vpp/vpp.module'], function(vpp) {
                     });
                 }
             );
-
-            //getPromise.then
         };
+
+        s.checkAndDeleteVpp = function(bridgeDomainId, vppId, successCallback, errorCallback) {
+            s.getOne(bridgeDomainId, vppId,
+                function(data) {
+                    if(!data['termination-point']) {
+                        s.delete(bridgeDomainId, vppId,
+                            function(){
+                                successCallback();
+                            },
+                            function() {
+                                errorCallback();
+                            }
+                        );
+                    }
+                },
+                function() {
+                    errorCallback();
+                }
+            );
+        };
+
         return s;
     });
 });

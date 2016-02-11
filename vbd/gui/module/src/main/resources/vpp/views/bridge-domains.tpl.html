@@ -1,46 +1,56 @@
 <div ng-controller="BridgeDomainsController">
-    <div layout="row" layout-xs="column" style="height: 550px; width: 100%">
-        <div id="bridge-domains-next-app" style="height: 550px; width: 60%"></div>
-        <div class="md-sidenav-left md-whiteframe-z2" style="height: 550px; background-color: #414042; overflow-y: scroll" flex>
-            <md-content layout-padding ng-controller="TableController as TableCtrl">
-                <md-input-container style="margin-right: 5px;" layout="row">
-                <md-select ng-model='selectedBd.name' placeholder="Select BD" ng-change="bdChanged()" style="width: 100%;">
-                    <md-option ng-repeat="bd in bridgedomains" value="{{bd['topology-id']}}">{{bd['topology-id']}}</md-option>
-                </md-select>
-                <md-button class="md-raised" md-no-ink ng-click="addBd()" style="width: 25%;">Add BD</md-button>
-                <md-button class="md-raised" md-no-ink ng-click="removeBd()" style="width: 35%;" ng-if="dataService.injectedInterfaces.length===0 && dataService.selectedBd.name && dataService.changedInterfaces.length===0">Remove BD</md-button>
-                    <md-button class="md-raised" md-no-ink ng-click="reload()" style="width: 25%;">Reload</md-button>
+    <div layout="row" style="height: 1000px; width: 100%">
+        <div layout="column" style="height:100%; width:60%">
+            <div ng-show="showOverlay" style="height: 100%; width: 100%">
+                <h3>Overlay topology</h3>
+                <md-button class="md-raised" md-no-ink ng-click="toggleUnderlay()" style="width: 25%;" ng-disabled="!selectedBd['topology-id']">Show Underlay</md-button>
+                <div id="overlay-next-app" style="height: 50%; width: 100%"></div>
+            </div>
+            <div ng-show="!showOverlay" style="height: 100%; width: 100%">
+                <h3>Underlay topology</h3>
+                <md-button class="md-raised" md-no-ink ng-click="toggleUnderlay()" style="width: 25%;" ng-disabled="!selectedBd['topology-id']">Show Overlay</md-button>
+                <div id="underlay-next-app" style="height: 50%; width: 100%"></div>
+            </div>
+        </div>
+        <div class="md-sidenav-left md-whiteframe-z2" style="height: 100%; width: 40%; background-color: #414042;">
 
-                </md-input-container>
-                <table st-table="TableCtrl.displayedCollection" class="table" st-safe-src="TableCtrl.rowCollection">
+            <md-input-container style="margin-right: 5px;" layout="row">
+
+                <md-select ng-model='selectedBd' placeholder="Select BD" ng-change="bdChanged()" style="width: 100%;">
+                    <md-option ng-repeat="bd in bridgeDomainList" ng-value="bd">{{bd['topology-id']}}</md-option>
+                </md-select>
+
+                <md-button class="md-raised" md-no-ink ng-click="addBd()" style="width: 25%;">Add BD</md-button>
+                <md-button class="md-raised" md-no-ink ng-click="removeBd()" style="width: 35%;" ng-if="selectedBd['topology-id'] && !selectedBd.node">Remove BD</md-button>
+                <!--<md-button class="md-raised" md-no-ink ng-click="reload()" style="width: 25%;">Reload</md-button>-->
+
+            </md-input-container>
+
+            <div ng-controller="TableController as TableCtrl">
+                <table st-table="interfaceDisplayList" class="table" st-safe-src="interfaceList">
                     <thead>
                     <tr>
-                        <th>Assigned</th>
-                        <th st-sort="vppName" st-sort-default="true">Vpp</th>
-                        <th st-sort="name" st-sort-default="true">Interface Name</th>
-                        <!--<th st-sort="description">Description</th>-->
-                        <th st-sort="bridge-domain">Bridge Domain</th>
+                        <th st-sort="assigned" class="interactive">Assigned</th>
+                        <th st-sort="vppName" st-sort-default="true" class="interactive">Vpp</th>
+                        <th st-sort="'tp-id'" class="interactive">Interface Name</th>
+                        <th st-sort="vbdName" class="interactive">Bridge Domain</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="row in TableCtrl.displayedCollection | filter: filterRemoveVxlanIf">
+                    <tr ng-repeat="row in interfaceDisplayList | filter: filterRemoveVxlanIf">
                         <div ng-hide="row.hidden">
                             <td>
                                 <md-switch ng-model="row.assigned" aria-label="Assign Switch" ng-change="TableCtrl.updateAssignment(row);">
                                 </md-switch>
                             </td>
                             <td>{{row.vppName}}</td>
-                            <td>{{row.name}}</td>
-                            <!--<td>{{row.description}}</td>-->
-                            <td>{{row.vbd}}</td>
+                            <td>{{row['tp-id']}}</td>
+                            <td>{{row.vbdName}}</td>
                         </div>
                     </tr>
                     </tbody>
                 </table>
-                <!--<md-input-container style="bottom: 10px">-->
-                    <md-button class="md-raised" md-no-ink ng-click="deploy()" style="width: 94%;" ng-if="dataService.changedInterfaces.length">Deploy</md-button>
-                <!--</md-input-container>-->
-            </md-content>
+            </div>
         </div>
     </div>
 </div>
