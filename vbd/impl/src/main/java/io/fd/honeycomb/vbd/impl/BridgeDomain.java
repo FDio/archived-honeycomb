@@ -295,7 +295,7 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
         wTx.submit();
     }
 
-    private Link prepareLinkData(final NodeId newVpp, final NodeId oldVpp, final LinkId linkId,
+    private static Link prepareLinkData(final NodeId newVpp, final NodeId oldVpp, final LinkId linkId,
                                  final int srcVxlanTunnelId, final int dstVxlanTunnelId) {
         final LinkBuilder linkBuilder = new LinkBuilder();
         linkBuilder.setLinkId(linkId);
@@ -332,9 +332,9 @@ final class BridgeDomain implements DataTreeChangeListener<Topology> {
     }
 
     private void addSupportingBridgeDomain(final ListenableFuture<Void> addVppToBridgeDomainFuture, final Node node) {
-        Futures.addCallback(addVppToBridgeDomainFuture, new FutureCallback() {
+        Futures.addCallback(addVppToBridgeDomainFuture, new FutureCallback<Void>() {
             @Override
-            public void onSuccess(Object result) {
+            public void onSuccess(Void result) {
                 LOG.debug("Storing bridge member to operational DS....");
                 final BridgeMemberBuilder bridgeMemberBuilder = new BridgeMemberBuilder();
                 bridgeMemberBuilder.setSupportingBridgeDomain(new ExternalReference(iiBridgeDomainOnVPPRest));

@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
 /**
  *  Class which is used for manipulation with VPP
  */
-public class VppModifier {
+final class VppModifier {
     private static final Long DEFAULT_ENCAP_VRF_ID = 0L;
 
     private static final Logger LOG = LoggerFactory.getLogger(BridgeDomain.class);
@@ -69,21 +69,23 @@ public class VppModifier {
     private final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain> iiBridgeDomainOnVPP;
 
 
-    public VppModifier(final MountPointService mountService, final String bridgeDomainName) {
+    VppModifier(final MountPointService mountService, final String bridgeDomainName) {
         this.mountService = mountService;
         this.bridgeDomainName = bridgeDomainName;
         this.iiBridgeDomainOnVPP = InstanceIdentifier.create(Vpp.class)
                 .child(BridgeDomains.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain.class, new BridgeDomainKey(bridgeDomainName));
     }
+
     /**
      * Tryies to read ipv4 addresses from all specified {@code iiToVpps } vpps.
      *
      * @param iiToVpps collection of instance identifiers which points to concrete mount points.
      * @return future which contains list of ip addreases in the same order as was specified in {@code iiToVpps}
      */
-    ListenableFuture<List<Optional<Ipv4AddressNoZone>>> readIpAddressesFromVpps(final KeyedInstanceIdentifier<Node, NodeKey>... iiToVpps) {
-        final List<ListenableFuture<Optional<Ipv4AddressNoZone>>> ipv4Futures = new ArrayList<>();
+    @SafeVarargs
+    final ListenableFuture<List<Optional<Ipv4AddressNoZone>>> readIpAddressesFromVpps(final KeyedInstanceIdentifier<Node, NodeKey>... iiToVpps) {
+        final List<ListenableFuture<Optional<Ipv4AddressNoZone>>> ipv4Futures = new ArrayList<>(iiToVpps.length);
         for (final KeyedInstanceIdentifier<Node, NodeKey> iiToVpp : iiToVpps) {
             ipv4Futures.add(readIpAddressFromVpp(iiToVpp));
         }
@@ -166,7 +168,7 @@ public class VppModifier {
 
                 @Override
                 public void onFailure(Throwable t) {
-                    LOG.debug("Writing super virtual interface to {} failed.", iiToVpp.getKey().getNodeId());
+                    LOG.debug("Writing super virtual interface to {} failed.", iiToVpp.getKey().getNodeId(), t);
                 }
             });
         } else {
@@ -174,7 +176,7 @@ public class VppModifier {
         }
     }
 
-    private Interface prepareVirtualInterfaceData(final Vxlan vxlan, Integer vxlanTunnelId) {
+    private static Interface prepareVirtualInterfaceData(final Vxlan vxlan, Integer vxlanTunnelId) {
         final InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
         //TODO implement tunnel counter
         interfaceBuilder.setName(VbdUtil.provideVxlanId(vxlanTunnelId));
