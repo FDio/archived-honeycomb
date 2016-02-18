@@ -212,7 +212,7 @@ public class VppModifier {
             InstanceIdentifier<L2> iiToV3poL2 = iiToVpp.augmentation(VppInterfaceAugmentation.class).child(L2.class);
             LOG.debug("Writing L2 data to configuration DS to concrete interface.");
             final WriteTransaction wTx = vppDataBroker.newWriteOnlyTransaction();
-            wTx.put(LogicalDatastoreType.CONFIGURATION, iiToV3poL2, prepareL2Data());
+            wTx.put(LogicalDatastoreType.CONFIGURATION, iiToV3poL2, prepareL2Data(), true);
             wTx.submit();
         }
     }
@@ -221,7 +221,7 @@ public class VppModifier {
         final DataBroker vppDataBroker = VbdUtil.resolveDataBrokerForMountPoint(iiToVpp, mountService);
         if (vppDataBroker != null) {
             final WriteTransaction wTx = vppDataBroker.newWriteOnlyTransaction();
-            wTx.put(LogicalDatastoreType.CONFIGURATION, iiBridgeDomainOnVPP, prepareNewBridgeDomainData());
+            wTx.put(LogicalDatastoreType.CONFIGURATION, iiBridgeDomainOnVPP, prepareNewBridgeDomainData(), true);
             return wTx.submit();
         }
         return Futures.immediateFailedFuture(new IllegalStateException("Data broker for vpp is missing"));
