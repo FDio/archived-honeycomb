@@ -98,7 +98,7 @@ apt-get install -y linux-image-extra-`uname -r`
 echo "---"
 echo "  Installing openjdk"
 echo "---"
-apt-get install -y openjdk-7-jdk
+apt-get install -y openjdk-8-jdk
 mkdir -p $APACHE_MAVEN_INSTALL_DIR
 if [ -d "$KARAF_PACKAGES_MOUNT" ] ; then
   APACHE_MAVEN_TARBALL="$KARAF_PACKAGES_MOUNT/$APACHE_MAVEN_TAR_GZ"
@@ -135,7 +135,7 @@ if [ "$(grep M2_HOME $VAGRANT_BASH_ALIASES)" = "" ] ; then
 # Maven Environment variables
 export M2_HOME=/usr/local/apache-maven/apache-maven-3.3.9
 export MAVEN_OPTS="-Xms256m -Xmx512m" # Very important to put the "m" on the end
-export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 EOF
     chown vagrant:vagrant $VAGRANT_BASH_ALIASES
 fi
