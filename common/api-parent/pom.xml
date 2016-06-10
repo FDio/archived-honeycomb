@@ -30,20 +30,79 @@
   <artifactId>api-parent</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+
   <build>
-    <plugins>
+      <pluginManagement>
+        <plugins>
+          <plugin>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <configuration>
+              <!-- Override checkstyle configuration to fit Honeycomb coding style-->
+              <configLocation>honeycomb-checkstyle.xml</configLocation>
+              <includeTestResources>true</includeTestResources>
+              <!--TODO enable fail on violation after issues are resolved + set in as errors in checkstyle xml-->
+            </configuration>
+            <executions>
+
+              <!-- Override license check configuration to fit Honeycomb coding style-->
+              <execution>
+                <id>check-license</id>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+                <phase>process-sources</phase>
+                <configuration>
+                  <headerLocation>HONEYCOMB_LICENSE.txt</headerLocation>
+                  <failOnViolation>true</failOnViolation>
+                  <failsOnError>true</failsOnError>
+                  <outputFile>${project.build.directory}/checkstyle-license-result.xml</outputFile>
+                </configuration>
+              </execution>
+
+              <!-- Add logging checks from yangtools -->
+              <execution>
+                <id>check-logging</id>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+                <phase>process-sources</phase>
+                <configuration>
+                  <failOnViolation>true</failOnViolation>
+                  <configLocation>honeycomb-checkstyle-logging.xml</configLocation>
+                  <consoleOutput>true</consoleOutput>
+                  <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                  <sourceDirectory>${project.basedir}</sourceDirectory>
+                  <includes>**\/*.java,**\/*.xml,**\/*.ini,**\/*.sh,**\/*.bat,**\/*.yang</includes>
+                  <excludes>**\/target\/,**\/bin\/,**\/target-ide\/,**\/src/main/yang-gen-config\/,**\/src/main/yang-gen-sal\/,**\/src/main/xtend-gen\/,**\/src/main/yang\/</excludes>
+                  <outputFile>${project.build.directory}/checkstyle-logging-result.xml</outputFile>
+                </configuration>
+              </execution>
+              <execution>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+                <phase>process-sources</phase>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>io.fd.honeycomb.common</groupId>
+                <artifactId>honeycomb-checkstyle</artifactId>
+                <version>${project.version}</version>
+              </dependency>
+              <!-- Necessary for logging checks -->
+              <dependency>
+                <groupId>org.opendaylight.yangtools</groupId>
+                <artifactId>checkstyle-logging</artifactId>
+                <version>${yangtools.version}</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+      </pluginManagement>
+      <plugins>
       <plugin>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>${checkstyle.version}</version>
-        <executions>
-          <execution>
-            <id>check-license</id>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <phase>none</phase>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
