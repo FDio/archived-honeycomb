@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (c) 2016 Cisco Systems, Inc. All rights reserved.
+  ~
+  -->
+
+<!DOCTYPE module PUBLIC
+        "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+        "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+
+<module name="Checker">
+
+    <property name="severity" value="error"/>
+
+    <module name="RegexpMultiline">
+        <property name="format" value="System\.(out)|(err)\.print(ln)?\("/>
+        <property name="message" value="Line contains console output."/>
+    </module>
+
+    <module name="RegexpMultiline">
+        <property name="format" value="\.printStackTrace?\("/>
+        <property name="message" value="Line contains printStacktrace()."/>
+    </module>
+
+    <module name="TreeWalker">
+        <module name="org.opendaylight.yangtools.checkstyle.LoggerVariableNameCheck" />
+    </module>
+
+    <module name="TreeWalker">
+        <module name="org.opendaylight.yangtools.checkstyle.LoggerVariableModifiersCheck" />
+    </module>
+
+    <module name="TreeWalker">
+        <module name="org.opendaylight.yangtools.checkstyle.LoggerMustBeSlf4jCheck" />
+    </module>
+
+    <module name="TreeWalker">
+        <module name="org.opendaylight.yangtools.checkstyle.LoggerFactoryClassParameterCheck" />
+    </module>
+
+    <module name="TreeWalker">
+        <module name="org.opendaylight.yangtools.checkstyle.LogMessageConcatenationCheck" />
+    </module>
+
+    <module name="TreeWalker">
+        <module name="org.opendaylight.yangtools.checkstyle.LogMessagePlaceholderCountCheck" />
+    </module>
+
+    <module name="TreeWalker">
+        <module name="org.opendaylight.yangtools.checkstyle.LoggerDeclarationsCountCheck"/>
+    </module>
+
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
+
+    <module name="RegexpSingleline">
+        <property name="format" value="\s+$"/>
+        <property name="message" value="Line has trailing spaces."/>
+    </module>
+
+    <module name="RegexpMultiline">
+        <property name="format" value="(\r\n|\r)"/>
+        <property name="message" value="Line has Windows line delimiter."/>
+    </module>
+
+</module>

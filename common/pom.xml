@@ -25,6 +25,7 @@
     <maven>3.1.1</maven>
   </prerequisites>
   <modules>
+    <module>checkstyle</module>
     <module>api-parent</module>
     <module>features-parent</module>
     <module>impl-parent</module>
