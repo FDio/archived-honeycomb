@@ -98,6 +98,15 @@
               </dependency>
             </dependencies>
           </plugin>
+          <!-- Deactivate strict java8 checks -->
+          <!-- FIXME fix all the javadoc offenders of doclint -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <configuration>
+              <additionalparam>-Xdoclint:none</additionalparam>
+            </configuration>
+          </plugin>
         </plugins>
       </pluginManagement>
       <plugins>

@@ -4,7 +4,7 @@
           "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
 
 <!--
-    Checkstyle configuration for VCMTS, based on google java coding style
+    Checkstyle configuration for Honeycomb, based on google java coding style
  -->
 
 <module name = "Checker">
