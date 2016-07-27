@@ -37,117 +37,22 @@
     <dlux.version>0.3.2-Beryllium-SR2</dlux.version>
     <configfile.directory>etc/opendaylight/karaf</configfile.directory>
   </properties>
-  <dependencyManagement>
-    <dependencies>
-      <!-- project specific dependencies -->
-      <dependency>
-        <groupId>org.opendaylight.controller</groupId>
-        <artifactId>mdsal-artifacts</artifactId>
-        <version>${mdsal.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.opendaylight.netconf</groupId>
-        <artifactId>restconf-artifacts</artifactId>
-        <version>${restconf.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.opendaylight.netconf</groupId>
-        <artifactId>netconf-artifacts</artifactId>
-        <version>${netconf.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
   <dependencies>
     <dependency>
-      <groupId>org.opendaylight.yangtools</groupId>
-      <artifactId>features-yangtools</artifactId>
+      <groupId>io.fd.honeycomb</groupId>
+      <artifactId>honeycomb-features</artifactId>
       <classifier>features</classifier>
-      <version>${yangtools.version}</version>
+      <version>${project.version}</version>
       <type>xml</type>
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.mdsal.model</groupId>
-      <artifactId>features-mdsal-model</artifactId>
-      <version>${mdsal.model.version}</version>
+      <groupId>io.fd.honeycomb.vpp</groupId>
+      <artifactId>vpp-common-features</artifactId>
       <classifier>features</classifier>
+      <version>${project.version}</version>
       <type>xml</type>
       <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.controller</groupId>
-      <artifactId>features-mdsal</artifactId>
-      <classifier>features</classifier>
-      <type>xml</type>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.netconf</groupId>
-      <artifactId>features-restconf</artifactId>
-      <classifier>features</classifier>
-      <type>xml</type>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.netconf</groupId>
-      <artifactId>features-netconf-connector</artifactId>
-      <classifier>features</classifier>
-      <type>xml</type>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.dlux</groupId>
-      <artifactId>features-dlux</artifactId>
-      <classifier>features</classifier>
-      <version>${dlux.version}</version>
-      <type>xml</type>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>v3po-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>v3po-impl</artifactId>
-      <version>${project.version}</version>
-      <type>xml</type>
-      <classifier>config</classifier>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>v3po-impl</artifactId>
-      <version>${project.version}</version>
-      <type>xml</type>
-      <classifier>netconf</classifier>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>v3po-impl</artifactId>
-      <version>${project.version}</version>
-      <type>xml</type>
-      <classifier>init</classifier>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>v3po-impl</artifactId>
-      <version>${project.version}</version>
-      <type>xml</type>
-      <classifier>context</classifier>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>v3po-impl</artifactId>
-      <version>${project.version}</version>
-      <type>xml</type>
-      <classifier>restconf</classifier>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -156,87 +61,6 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>data-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>data-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>notification-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>notification-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>notification-impl</artifactId>
-      <version>${project.version}</version>
-      <type>xml</type>
-      <classifier>config</classifier>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>notification-impl</artifactId>
-      <version>${project.version}</version>
-      <type>xml</type>
-      <classifier>notification2netconf</classifier>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>vpp-jvpp-cfg</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>vpp-jvpp-cfg</artifactId>
-      <version>${project.version}</version>
-      <type>xml</type>
-      <classifier>config</classifier>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>vpp-cfg-init</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>translate-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>translate-spi</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>translate-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>translate-utils</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jgrapht</groupId>
-      <artifactId>jgrapht-core</artifactId>
-      <version>0.9.2</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>vpp-translate-utils</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>v3po2vpp</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -246,11 +70,6 @@
       <version>${project.version}</version>
       <type>xml</type>
       <classifier>config</classifier>
-    </dependency>
-    <dependency>
-      <groupId>io.fd.vpp</groupId>
-      <artifactId>jvpp</artifactId>
-      <version>16.09-SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>

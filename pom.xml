@@ -32,6 +32,8 @@
 
   <modules>
     <module>common</module>
+    <module>infra</module>
+    <module>vpp-common</module>
     <module>v3po</module>
   </modules>
 

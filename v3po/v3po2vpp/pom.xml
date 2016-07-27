@@ -30,22 +30,22 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>io.fd.honeycomb</groupId>
             <artifactId>translate-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>io.fd.honeycomb</groupId>
             <artifactId>notification-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>io.fd.honeycomb</groupId>
             <artifactId>translate-utils</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>io.fd.honeycomb.vpp</groupId>
             <artifactId>vpp-translate-utils</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -69,18 +69,18 @@
         <!---->
 
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>io.fd.honeycomb</groupId>
             <artifactId>translate-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>io.fd.honeycomb.vpp</groupId>
             <artifactId>vpp-jvpp-cfg</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>vpp-cfg-init</artifactId>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>cfg-init</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

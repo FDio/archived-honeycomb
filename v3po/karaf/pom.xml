@@ -29,19 +29,9 @@
     <maven>3.1.1</maven>
   </prerequisites>
   <properties>
-    <karaf.localFeature>odl-v3po-ui</karaf.localFeature>
+    <karaf.localFeature>odl-honeycomb-v3po-rest</karaf.localFeature>
   </properties>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>v3po-artifacts</artifactId>
-        <version>${project.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <!-- scope is compile so all features (there is only one) are installed
@@ -52,8 +42,18 @@
     </dependency>
 
     <dependency>
+      <groupId>io.fd.honeycomb</groupId>
+      <artifactId>honeycomb-features</artifactId>
+      <version>${project.version}</version>
+      <classifier>features</classifier>
+      <type>xml</type>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>v3po-features</artifactId>
+      <version>${project.version}</version>
       <classifier>features</classifier>
       <type>xml</type>
       <scope>runtime</scope>

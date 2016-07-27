@@ -33,22 +33,9 @@
   </prerequisites>
   <modules>
     <module>api</module>
-    <module>data-api</module>
-    <module>data-impl</module>
-    <module>translate-spi</module>
-    <module>translate-api</module>
-    <module>translate-impl</module>
-    <module>translate-utils</module>
-    <module>notification</module>
-    <module>vpp-translate-utils</module>
-    <module>vpp-jvpp-cfg</module>
     <module>v3po2vpp</module>
-    <module>vpp-cfg-init</module>
-    <module>impl</module>
-    <module>karaf</module>
     <module>features</module>
-    <module>artifacts</module>
-    <module>it</module>
+    <module>karaf</module>
   </modules>
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
   <build>
