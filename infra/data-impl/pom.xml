@@ -95,7 +95,7 @@
                     <instructions>
                         <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            io.fd.honeycomb.v3po.data.impl.*
+                            io.fd.honeycomb.data.impl.*
                         </Export-Package>
                     </instructions>
                 </configuration>

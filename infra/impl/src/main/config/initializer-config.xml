@@ -19,9 +19,9 @@
 
 <snapshot>
   <required-capabilities>
-      <capability>urn:opendaylight:params:xml:ns:yang:v3po:impl?module=v3po-impl&amp;revision=2014-12-10</capability>
+      <capability>urn:opendaylight:params:xml:ns:yang:honeycomb:impl?module=honeycomb-impl&amp;revision=2014-12-10</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:translate:utils?module=translate-utils&amp;revision=2016-04-06</capability>
-      <capability>urn:honeycomb:params:xml:ns:yang:vpp:data:init?module=vpp-cfg-init&amp;revision=2016-04-07</capability>
+      <capability>urn:honeycomb:params:xml:ns:yang:data:init?module=cfg-init&amp;revision=2016-04-07</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:data:api?module=data-api&amp;revision=2016-04-11</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:data:impl?module=data-impl&amp;revision=2016-04-11</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
@@ -60,7 +60,7 @@
         </module>
         <!-- DOM data broker for config initialization -->
         <module>
-          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:v3po:impl">prefix:honeycomb-dom-data-broker</type>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:honeycomb:impl">prefix:honeycomb-dom-data-broker</type>
           <name>cfg-init-dom-data-broker</name>
           <config-data-tree>
             <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:honeycomb-modifiable-data-tree</type>
@@ -92,7 +92,7 @@
         </module>
 
         <module>
-          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:persisted-file-initializer</type>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:init">prefix:persisted-file-initializer</type>
           <name>persisted-context-initializer</name>
           <dom-data-broker>
             <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:dom-async-data-broker</type>
@@ -107,7 +107,7 @@
           <datastore-type>oper</datastore-type>
         </module>
         <module>
-          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:persisted-file-initializer</type>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:init">prefix:persisted-file-initializer</type>
           <name>persisted-config-initializer</name>
           <dom-data-broker>
             <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">prefix:dom-async-data-broker</type>
@@ -123,14 +123,14 @@
         </module>
 
         <module>
-          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:cfg-initializer-registry</type>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:init">prefix:cfg-initializer-registry</type>
           <name>initializer-registry</name>
           <persisted-context-initializer>
-            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:cfg-initializer</type>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:init">prefix:cfg-initializer</type>
             <name>persisted-context-initializer</name>
           </persisted-context-initializer>
           <persisted-config-initializer>
-            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:cfg-initializer</type>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:init">prefix:cfg-initializer</type>
             <name>persisted-config-initializer</name>
           </persisted-config-initializer>
         </module>
@@ -170,7 +170,7 @@
         </service>
 
         <service>
-          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:cfg-initializer</type>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:init">prefix:cfg-initializer</type>
           <instance>
             <name>persisted-context-initializer</name>
             <provider>/modules/module[type='persisted-file-initializer'][name='persisted-context-initializer']

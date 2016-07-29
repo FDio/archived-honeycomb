@@ -29,13 +29,13 @@
           <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:netconf:northbound:notification">
             prefix:netconf-notification-registry
           </type>
-          <name>vpp-netconf-notification-manager</name>
+          <name>honeycomb-netconf-notification-manager</name>
         </netconf-notification-registry>
         <netconf-notification-collector>
           <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:netconf:northbound:notification">
             prefix:netconf-notification-collector
           </type>
-          <name>vpp-netconf-notification-manager</name>
+          <name>honeycomb-netconf-notification-manager</name>
         </netconf-notification-collector>
         <schema-service>
           <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:schema-service</type>

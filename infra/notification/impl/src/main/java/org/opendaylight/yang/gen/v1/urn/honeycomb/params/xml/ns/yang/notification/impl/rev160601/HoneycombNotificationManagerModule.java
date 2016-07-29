@@ -1,10 +1,10 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.notification.impl.rev160601;
 
-import io.fd.honeycomb.v3po.notification.NotificationCollector;
-import io.fd.honeycomb.v3po.notification.NotificationProducer;
-import io.fd.honeycomb.v3po.notification.impl.HoneycombNotificationCollector;
-import io.fd.honeycomb.v3po.notification.impl.NotificationProducerRegistry;
-import io.fd.honeycomb.v3po.notification.impl.NotificationProducerTracker;
+import io.fd.honeycomb.notification.NotificationCollector;
+import io.fd.honeycomb.notification.NotificationProducer;
+import io.fd.honeycomb.notification.impl.HoneycombNotificationCollector;
+import io.fd.honeycomb.notification.impl.NotificationProducerRegistry;
+import io.fd.honeycomb.notification.impl.NotificationProducerTracker;
 import java.util.Collection;
 import org.opendaylight.controller.md.sal.binding.impl.BindingDOMNotificationPublishServiceAdapter;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;

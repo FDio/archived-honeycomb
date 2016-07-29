@@ -29,7 +29,7 @@ public class PersistingDataTreeAdapterModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        return new io.fd.honeycomb.v3po.data.impl.PersistingDataTreeAdapter(
+        return new io.fd.honeycomb.data.impl.PersistingDataTreeAdapter(
             getDelegateDependency(),
             getSchemaServiceDependency(),
             Paths.get(getPersistFilePath()));

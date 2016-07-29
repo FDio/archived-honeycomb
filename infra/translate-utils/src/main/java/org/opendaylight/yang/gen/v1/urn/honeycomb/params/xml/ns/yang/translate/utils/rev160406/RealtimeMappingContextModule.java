@@ -1,7 +1,7 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.translate.utils.rev160406;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.translate.MappingContext;
+import io.fd.honeycomb.translate.MappingContext;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;

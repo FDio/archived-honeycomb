@@ -19,9 +19,9 @@
 
 <snapshot>
   <required-capabilities>
-      <capability>urn:opendaylight:params:xml:ns:yang:v3po:impl?module=v3po-impl&amp;revision=2014-12-10</capability>
+      <capability>urn:opendaylight:params:xml:ns:yang:honeycomb:impl?module=honeycomb-impl&amp;revision=2014-12-10</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:translate:utils?module=translate-utils&amp;revision=2016-04-06</capability>
-      <capability>urn:honeycomb:params:xml:ns:yang:vpp:data:init?module=vpp-cfg-init&amp;revision=2016-04-07</capability>
+      <capability>urn:honeycomb:params:xml:ns:yang:data:init?module=cfg-init&amp;revision=2016-04-07</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:data:api?module=data-api&amp;revision=2016-04-11</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:data:impl?module=data-impl&amp;revision=2016-04-11</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
@@ -60,7 +60,7 @@
 
         <!-- DOM Data Broker for context data -->
         <module>
-          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:v3po:impl">prefix:honeycomb-context-dom-data-broker</type>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:honeycomb:impl">prefix:honeycomb-context-dom-data-broker</type>
           <name>honeycomb-context-data-broker</name>
           <!-- With persistence -->
           <context-data-tree>

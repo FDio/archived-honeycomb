@@ -71,7 +71,7 @@
                     <instructions>
                         <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            io.fd.honeycomb.v3po.translate.impl.*
+                            io.fd.honeycomb.translate.impl.*
                         </Export-Package>
                     </instructions>
                 </configuration>

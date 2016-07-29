@@ -1,8 +1,8 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.notification.impl.rev160601;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.fd.honeycomb.v3po.notification.NotificationCollector;
-import io.fd.honeycomb.v3po.notification.impl.NotificationProducerRegistry;
+import io.fd.honeycomb.notification.NotificationCollector;
+import io.fd.honeycomb.notification.impl.NotificationProducerRegistry;
 import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;

@@ -15,7 +15,7 @@ module notification-api {
 
     identity honeycomb-notification-collector {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.notification.NotificationCollector;
+        config:java-class io.fd.honeycomb.notification.NotificationCollector;
     }
 
     identity dom-notification-service {
@@ -25,7 +25,7 @@ module notification-api {
 
     identity honeycomb-notification-producer {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.notification.ManagedNotificationProducer;
+        config:java-class io.fd.honeycomb.notification.ManagedNotificationProducer;
     }
 
 }

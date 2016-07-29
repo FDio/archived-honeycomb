@@ -1,6 +1,6 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.translate.utils.rev160406;
 
-import io.fd.honeycomb.v3po.translate.util.write.registry.FlatWriterRegistryBuilder;
+import io.fd.honeycomb.translate.util.write.registry.FlatWriterRegistryBuilder;
 
 public class DelegatingWriterRegistryModule extends org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.translate.utils.rev160406.AbstractDelegatingWriterRegistryModule {
     public DelegatingWriterRegistryModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {

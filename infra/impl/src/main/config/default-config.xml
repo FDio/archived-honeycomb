@@ -16,7 +16,7 @@
 -->
 <snapshot>
   <required-capabilities>
-      <capability>urn:opendaylight:params:xml:ns:yang:v3po:impl?module=v3po-impl&amp;revision=2014-12-10</capability>
+      <capability>urn:opendaylight:params:xml:ns:yang:honeycomb:impl?module=honeycomb-impl&amp;revision=2014-12-10</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:translate:utils?module=translate-utils&amp;revision=2016-04-06</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:data:api?module=data-api&amp;revision=2016-04-11</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:data:impl?module=data-impl&amp;revision=2016-04-11</capability>
@@ -116,7 +116,7 @@
 
         <!-- DOM data broker which provides transaction functionality for HC using BI format-->
         <module>
-          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:v3po:impl">prefix:honeycomb-dom-data-broker</type>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:honeycomb:impl">prefix:honeycomb-dom-data-broker</type>
           <name>honeycomb-dom-data-broker</name>
           <config-data-tree>
             <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:honeycomb-modifiable-data-tree</type>
@@ -150,8 +150,8 @@
         </module>
 
         <module>
-          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:v3po:impl">prefix:v3po</type>
-          <name>v3po-default</name>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:honeycomb:impl">prefix:honeycomb</type>
+          <name>honeycomb-default</name>
           <dom-broker>
             <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">prefix:dom-broker-osgi-registry</type>
             <name>dom-broker</name>
@@ -242,8 +242,8 @@
             dom:dom-broker-osgi-registry
           </type>
           <instance>
-            <name>vpp-dom-broker</name>
-            <provider>/modules/module[type='v3po'][name='v3po-default']</provider>
+            <name>honeycomb-dom-broker</name>
+            <provider>/modules/module[type='honeycomb'][name='honeycomb-default']</provider>
           </instance>
         </service>
 

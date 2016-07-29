@@ -2,9 +2,9 @@ package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.data.impl.
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.data.DataModification;
-import io.fd.honeycomb.v3po.data.ModifiableDataManager;
-import io.fd.honeycomb.v3po.data.impl.ModifiableDataTreeDelegator;
+import io.fd.honeycomb.data.DataModification;
+import io.fd.honeycomb.data.ModifiableDataManager;
+import io.fd.honeycomb.data.impl.ModifiableDataTreeDelegator;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;

@@ -16,37 +16,37 @@ module translate-api {
 
     identity honeycomb-reader-factory {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.read.ReaderFactory;
+        config:java-class io.fd.honeycomb.translate.read.ReaderFactory;
     }
 
     identity honeycomb-reader-registry {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.read.registry.ModifiableReaderRegistryBuilder;
+        config:java-class io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
     }
 
     identity honeycomb-reader-registry-builder {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.read.registry.ReaderRegistryBuilder;
+        config:java-class io.fd.honeycomb.translate.read.registry.ReaderRegistryBuilder;
     }
 
     identity honeycomb-writer-factory {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.write.WriterFactory;
+        config:java-class io.fd.honeycomb.translate.write.WriterFactory;
     }
 
     identity honeycomb-writer-registry {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.write.registry.ModifiableWriterRegistryBuilder;
+        config:java-class io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
     }
 
     identity honeycomb-writer-registry-builder {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.write.registry.WriterRegistryBuilder;
+        config:java-class io.fd.honeycomb.translate.write.registry.WriterRegistryBuilder;
     }
 
     identity honeycomb-mapping-context {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.MappingContext;
+        config:java-class io.fd.honeycomb.translate.MappingContext;
     }
 
 }
