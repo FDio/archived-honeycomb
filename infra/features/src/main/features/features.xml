@@ -14,7 +14,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<features name="odl-honeycomb-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
+<features name="honeycomb-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
   <repository>mvn:org.opendaylight.yangtools/features-yangtools/${yangtools.version}/xml/features</repository>
@@ -24,13 +24,13 @@
   <repository>mvn:org.opendaylight.netconf/features-netconf-connector/${netconf.version}/xml/features</repository>
   <repository>mvn:org.opendaylight.dlux/features-dlux/${dlux.version}/xml/features</repository>
 
-  <feature name='odl-honeycomb-api' version='${project.version}' description='OpenDaylight :: honeycomb :: api'>
+  <feature name='honeycomb-api' version='${project.version}' description='OpenDaylight :: honeycomb :: api'>
     <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
   </feature>
 
-  <feature name='odl-honeycomb' version='${project.version}' description='OpenDaylight :: honeycomb'>
+  <feature name='honeycomb' version='${project.version}' description='OpenDaylight :: honeycomb'>
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
-    <feature version='${project.version}'>odl-honeycomb-api</feature>
+    <feature version='${project.version}'>honeycomb-api</feature>
     <!-- FIXME remove netconf-connector-ssh from features, only netconf northbound is needed -->
     <feature version='${netconf.version}'>odl-netconf-connector-ssh</feature>
     <feature version='${mdsal.version}'>odl-netconf-mdsal</feature>
@@ -51,20 +51,13 @@
     <configfile finalname="${configfile.directory}/honeycomb-init.xml">mvn:io.fd.honeycomb/honeycomb-impl/{{VERSION}}/xml/init</configfile>
   </feature>
 
-  <feature name='odl-honeycomb-rest' version='${project.version}' description='OpenDaylight :: honeycomb :: REST'>
-    <feature version="${project.version}">odl-honeycomb</feature>
+  <feature name='honeycomb-rest' version='${project.version}' description='OpenDaylight :: honeycomb :: REST'>
+    <feature version="${project.version}">honeycomb</feature>
     <feature version="${restconf.version}">odl-restconf</feature>
     <!-- Northbound interfaces configuration -->
     <configfile finalname="${configfile.directory}/honeycomb-netconf.xml">mvn:io.fd.honeycomb/honeycomb-impl/{{VERSION}}/xml/netconf</configfile>
     <configfile finalname="${configfile.directory}/honeycomb-notification2netconf.xml">mvn:io.fd.honeycomb/notification-impl/{{VERSION}}/xml/notification2netconf</configfile>
     <configfile finalname="${configfile.directory}/honeycomb-restconf.xml">mvn:io.fd.honeycomb/honeycomb-impl/{{VERSION}}/xml/restconf</configfile>
-  </feature>
-
-  <feature name='odl-honeycomb-ui' version='${project.version}' description='OpenDaylight :: honeycomb :: UI'>
-    <feature version="${project.version}">odl-honeycomb-rest</feature>
-    <feature version="${restconf.version}">odl-mdsal-apidocs</feature>
-    <feature version="${mdsal.version}">odl-mdsal-xsql</feature>
-    <feature version="${dlux.version}">odl-dlux-yangui</feature>
   </feature>
 
 </features>

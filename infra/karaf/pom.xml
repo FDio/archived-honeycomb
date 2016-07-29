@@ -29,7 +29,7 @@
     <maven>3.1.1</maven>
   </prerequisites>
   <properties>
-    <karaf.localFeature>odl-honeycomb-ui</karaf.localFeature>
+    <karaf.localFeature>honeycomb-rest</karaf.localFeature>
   </properties>
   <dependencyManagement>
     <dependencies>
