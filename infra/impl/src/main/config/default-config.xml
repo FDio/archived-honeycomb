@@ -59,7 +59,7 @@
             <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:schema-service</type>
             <name>yang-schema-service</name>
           </schema-service>
-          <persist-file-path>etc/opendaylight/honeycomb/config.json</persist-file-path>
+          <persist-file-path>data/persistence/honeycomb/config.json</persist-file-path>
         </module>
 
 
