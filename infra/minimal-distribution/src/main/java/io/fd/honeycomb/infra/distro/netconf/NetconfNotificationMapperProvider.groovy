@@ -50,10 +50,10 @@ class NetconfNotificationMapperProvider extends ProviderTrait<NetconfOperationSe
     @Inject
     NetconfNotificationRegistry notificationRegistry
     @Inject
-    @Named(NetconfModule.NETCONF)
+    @Named("netconf")
     BindingAwareBroker bindingAwareBroker
     @Inject
-    @Named(NetconfModule.NETCONF)
+    @Named("netconf")
     DataBroker dataBroker
     @Inject
     NetconfOperationServiceFactoryListener aggregator

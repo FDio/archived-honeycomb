@@ -20,8 +20,8 @@ import com.google.inject.Inject
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
 import io.fd.honeycomb.data.init.RestoringInitializer
-import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration
 import io.fd.honeycomb.infra.distro.ProviderTrait
+import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker
 import org.opendaylight.controller.sal.core.api.model.SchemaService

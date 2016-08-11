@@ -35,7 +35,7 @@ import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactoryListen
 class NetconfMonitoringMapperProvider extends ProviderTrait<NetconfOperationServiceFactory> {
 
     @Inject
-    @Named(NetconfModule.NETCONF)
+    @Named("netconf")
     BindingAwareBroker bindingAwareBroker
     @Inject
     NetconfOperationServiceFactoryListener aggregator

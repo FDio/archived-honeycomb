@@ -33,7 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.honeycom
 class NetconfBindingBrokerProvider extends ProviderTrait<BindingAwareBroker> {
 
     @Inject
-    @Named(NetconfModule.NETCONF)
+    @Named("netconf")
     DataBroker dataBroker
 
     @Override

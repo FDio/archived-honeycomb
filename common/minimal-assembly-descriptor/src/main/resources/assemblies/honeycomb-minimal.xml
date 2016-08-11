@@ -21,6 +21,7 @@
     <formats>
         <format>tar.gz</format>
         <format>zip</format>
+        <format>dir</format>
     </formats>
     <fileSets>
         <fileSet>
@@ -33,9 +34,6 @@
         <fileSet>
             <directory>${project.build.directory}/lib</directory>
             <outputDirectory>lib</outputDirectory>
-            <includes>
-                <include>*.jar</include>
-            </includes>
         </fileSet>
         <fileSet>
             <directory>${project.build.outputDirectory}/honeycomb-minimal-resources</directory>

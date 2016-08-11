@@ -17,13 +17,12 @@
 package io.fd.honeycomb.infra.distro.data
 
 import com.google.inject.Inject
-import com.google.inject.name.Named
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
 import io.fd.honeycomb.impl.NorthboundFacadeHoneycombDOMBroker
 import io.fd.honeycomb.infra.distro.ProviderTrait
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker
-import org.opendaylight.controller.md.sal.dom.api.DOMNotificationService
+import org.opendaylight.controller.md.sal.dom.broker.impl.DOMNotificationRouter
 import org.opendaylight.controller.sal.core.api.Broker
 import org.opendaylight.controller.sal.core.api.model.SchemaService
 
@@ -32,13 +31,12 @@ import org.opendaylight.controller.sal.core.api.model.SchemaService
 class HoneycombDOMBrokerProvider extends ProviderTrait<Broker> {
 
     @Inject
-    @Named("honeycomb-config")
+//    @Named("honeycomb-config")
     DOMDataBroker domDataBroker
     @Inject
     SchemaService schemaService
     @Inject
-    @Named("honeycomb")
-    DOMNotificationService domNotificationService
+    DOMNotificationRouter domNotificationService
 
     def create() { new NorthboundFacadeHoneycombDOMBroker(domDataBroker, schemaService, domNotificationService) }
 }

@@ -83,6 +83,8 @@
                                 <mainClass>${main.class}</mainClass>
                                 <addClasspath>true</addClasspath>
                                 <classpathPrefix>lib/</classpathPrefix>
+                                <useUniqueVersions>false</useUniqueVersions>
+                                <classpathMavenRepositoryLayout>true</classpathMavenRepositoryLayout>
                             </manifest>
                             <manifestEntries>
                                 <Class-Path>config/</Class-Path>
@@ -105,6 +107,8 @@
                             </goals>
                             <configuration>
                                 <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                                <useBaseVersion>true</useBaseVersion>
+                                <useRepositoryLayout>true</useRepositoryLayout>
                             </configuration>
                         </execution>
                         <execution>
@@ -133,13 +137,14 @@
                                 <goal>execute</goal>
                             </goals>
                             <configuration>
+                                <!-- TODO add remote debug option -->
                                 <source>
                                     import java.nio.file.Paths
 
                                     log.info "Generating shell exec script"
                                     def args = properties.getOrDefault("exec.parameters", "")
                                     log.debug "Additional shell exec script properties: ${args}"
-                                    def scriptContent = "java ${args} -jar ${project.artifactId}-${project.version}.jar"
+                                    def scriptContent = "java ${args} -jar \$(dirname \$0)/${project.artifactId}-${project.version}.jar"
                                     log.info "Generating shell exec script as ${scriptContent}"
                                     def scriptParent = Paths.get(project.build.outputDirectory, "honeycomb-minimal-resources")
                                     scriptParent.toFile().mkdirs()

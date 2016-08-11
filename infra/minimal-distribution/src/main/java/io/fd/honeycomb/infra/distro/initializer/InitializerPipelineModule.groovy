@@ -24,9 +24,6 @@ import io.fd.honeycomb.data.ModifiableDataManager
 import io.fd.honeycomb.data.init.InitializerRegistry
 import io.fd.honeycomb.infra.distro.data.BindingDataBrokerProvider
 import io.fd.honeycomb.infra.distro.data.HoneycombDOMDataBrokerProvider
-import io.fd.honeycomb.infra.distro.data.ModifiableDTDelegProvider
-import io.fd.honeycomb.translate.util.write.NoopWriterRegistry
-import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder
 import org.opendaylight.controller.md.sal.binding.api.DataBroker
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker
 
@@ -34,19 +31,11 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker
 class InitializerPipelineModule extends PrivateModule {
 
     protected void configure() {
-        // Initializer hierarchy uses fake writer registry to not send restored configuration from plugins back to plugins
-        def registry = new NoopWriterRegistry()
-        bind(ModifiableWriterRegistryBuilder)
-                .annotatedWith(Names.named("honeycomb-initializer"))
-                .toInstance([build: { registry }])
-
-        // Then just build data tree delegator and DataBrokers on top of it
-        bind(ModifiableDataManager).toProvider(ModifiableDTDelegProvider).in(Singleton)
+        bind(ModifiableDataManager).toProvider(ModifiableDTDelegInitProvider).in(Singleton)
         bind(DOMDataBroker).toProvider(HoneycombDOMDataBrokerProvider).in(Singleton)
         bind(DataBroker).annotatedWith(Names.named("honeycomb-initializer")).toProvider(BindingDataBrokerProvider).in(Singleton)
         expose(DataBroker).annotatedWith(Names.named("honeycomb-initializer"))
 
-        // NOW do initializer registry
         bind(InitializerRegistry)
                 .annotatedWith(Names.named("honeycomb-initializer"))
                 .toProvider(InitializerRegistryProvider)

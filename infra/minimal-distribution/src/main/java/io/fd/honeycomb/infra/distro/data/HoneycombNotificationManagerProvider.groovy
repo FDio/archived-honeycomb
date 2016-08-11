@@ -17,7 +17,6 @@
 package io.fd.honeycomb.infra.distro.data
 
 import com.google.inject.Inject
-import com.google.inject.name.Named
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
 import io.fd.honeycomb.infra.distro.ProviderTrait
@@ -29,7 +28,6 @@ import io.fd.honeycomb.notification.impl.NotificationProducerTracker
 import org.opendaylight.controller.md.sal.binding.impl.BindingDOMNotificationPublishServiceAdapter
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec
 import org.opendaylight.controller.md.sal.dom.broker.impl.DOMNotificationRouter
-
 /**
  * Mirror of org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.notification.impl.rev160601.HoneycombNotificationManagerModule
  */
@@ -38,7 +36,6 @@ import org.opendaylight.controller.md.sal.dom.broker.impl.DOMNotificationRouter
 class HoneycombNotificationManagerProvider extends ProviderTrait<NotificationCollector> {
 
     @Inject
-    @Named("honeycomb")
     DOMNotificationRouter notificationRouter
     @Inject(optional = true)
     Set<ManagedNotificationProducer> notificationProducers = []

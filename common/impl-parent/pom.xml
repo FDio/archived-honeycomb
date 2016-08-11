@@ -32,6 +32,8 @@
   <properties>
     <checkstyle.header.file>APACHE_HEADER.txt</checkstyle.header.file>
     <nexusproxy>http://nexus.fd.io/content</nexusproxy>
+    <guice.version>4.1.0</guice.version>
+    <guice.config.version>1.2.0</guice.config.version>
   </properties>
 
   <build>

@@ -18,6 +18,7 @@ package io.fd.honeycomb.infra.distro.schema
 
 import com.google.common.base.Charsets
 import com.google.inject.AbstractModule
+import com.google.inject.Singleton
 import com.google.inject.multibindings.Multibinder
 import groovy.util.logging.Slf4j
 import org.opendaylight.yangtools.yang.binding.YangModelBindingProvider
@@ -41,7 +42,7 @@ class YangBindingProviderModule extends AbstractModule {
                         .collect { this.getClass().forName(it) }
                         .forEach {
                     log.debug "ModuleProvider found for {}", it
-                    addBinding().to(it)
+                    addBinding().to(it).in(Singleton)
                 }
             }
         }

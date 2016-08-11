@@ -43,7 +43,7 @@ class NetconfServerDispatcherProvider extends ProviderTrait<NetconfServerDispatc
     private static final long CONNECTION_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(20)
 
     @Inject
-    @Named(NetconfModule.NETCONF_MAPPER_AGGREGATOR)
+    @Named("netconf-mapper-aggregator")
     NetconfOperationServiceFactory aggregator
     @Inject
     NetconfMonitoringService monitoringService

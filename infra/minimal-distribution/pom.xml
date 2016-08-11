@@ -19,7 +19,7 @@
         <groupId>io.fd.honeycomb.common</groupId>
         <artifactId>minimal-distribution-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../../common/minimal-distro-parent</relativePath>
+        <relativePath>../../common/minimal-distribution-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>

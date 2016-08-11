@@ -23,7 +23,9 @@ import io.fd.honeycomb.data.ModifiableDataManager
 import io.fd.honeycomb.data.init.DataTreeInitializer
 import io.fd.honeycomb.infra.distro.data.BindingDataBrokerProvider
 import io.fd.honeycomb.infra.distro.data.DataTreeProvider
+import io.fd.honeycomb.infra.distro.data.PersistingDataTreeProvider
 import io.fd.honeycomb.infra.distro.initializer.PersistedFileInitializerProvider
+import io.fd.honeycomb.translate.MappingContext
 import org.opendaylight.controller.md.sal.binding.api.DataBroker
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree
@@ -32,18 +34,27 @@ class ContextPipelineModule extends PrivateModule {
 
     protected void configure() {
         // Bind also without annotation for easy private injection
-        def dataTreeProvider = new DataTreeProvider.ContextDataTreeProvider()
+
+        // Non persisting data tree
+        def noPersistDataTreeProvider = new DataTreeProvider.ContextDataTreeProvider()
+        bind(DataTree)
+                .annotatedWith(Names.named("honeycomb-context-nopersist"))
+                .toProvider(noPersistDataTreeProvider)
+                .in(Singleton)
+        expose(DataTree).annotatedWith(Names.named("honeycomb-context-nopersist"))
+        // Persisting data tree wrapper
+        def dataTreeProvider = new PersistingDataTreeProvider.ContextPersistingDataTreeProvider()
         bind(DataTree).toProvider(dataTreeProvider).in(Singleton)
-        bind(DataTree).annotatedWith(Names.named("honeycomb-context")).toProvider(dataTreeProvider).in(Singleton)
-        expose(DataTree).annotatedWith(Names.named("honeycomb-context"))
+//        bind(DataTree).annotatedWith(Names.named("honeycomb-context")).toProvider(dataTreeProvider).in(Singleton)
+//        expose(DataTree).annotatedWith(Names.named("honeycomb-context"))
 
         bind(ModifiableDataManager).toProvider(ModifiableDTMgrProvider).in(Singleton)
 
         def domBrokerProvider = new HoneycombContextDOMDataBrokerProvider()
-        bind(DOMDataBroker).annotatedWith(Names.named("honeycomb-context")).toProvider(domBrokerProvider).in(Singleton)
+//        bind(DOMDataBroker).annotatedWith(Names.named("honeycomb-context")).toProvider(domBrokerProvider).in(Singleton)
         // Bind also without annotation for easy private injection
         bind(DOMDataBroker).toProvider(domBrokerProvider).in(Singleton)
-        expose(DOMDataBroker).annotatedWith(Names.named("honeycomb-context"))
+//        expose(DOMDataBroker).annotatedWith(Names.named("honeycomb-context"))
 
         bind(DataBroker).annotatedWith(Names.named("honeycomb-context")).toProvider(BindingDataBrokerProvider).in(Singleton)
         expose(DataBroker).annotatedWith(Names.named("honeycomb-context"))
@@ -53,6 +64,12 @@ class ContextPipelineModule extends PrivateModule {
                 .toProvider(PersistedFileInitializerProvider.PersistedContextInitializerProvider)
                 .in(Singleton)
         expose(DataTreeInitializer).annotatedWith(Names.named("honeycomb-context"))
+
+        bind(MappingContext)
+                .annotatedWith(Names.named("honeycomb-context"))
+                .toProvider(RealtimeMappingContextProvider)
+                .in(Singleton.class)
+        expose(MappingContext).annotatedWith(Names.named("honeycomb-context"))
     }
 
 }

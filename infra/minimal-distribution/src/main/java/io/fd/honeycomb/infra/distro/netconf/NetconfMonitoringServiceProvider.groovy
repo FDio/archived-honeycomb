@@ -32,7 +32,7 @@ import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory
 class NetconfMonitoringServiceProvider extends ProviderTrait<NetconfMonitoringService> {
 
     @Inject
-    @Named(NetconfModule.NETCONF_MAPPER_AGGREGATOR)
+    @Named("netconf-mapper-aggregator")
     NetconfOperationServiceFactory aggregator
 
     @Override

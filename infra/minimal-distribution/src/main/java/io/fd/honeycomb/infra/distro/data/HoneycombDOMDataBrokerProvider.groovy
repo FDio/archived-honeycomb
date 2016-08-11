@@ -17,7 +17,6 @@
 package io.fd.honeycomb.infra.distro.data
 
 import com.google.inject.Inject
-import com.google.inject.name.Named
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
 import io.fd.honeycomb.data.ModifiableDataManager
@@ -34,7 +33,6 @@ class HoneycombDOMDataBrokerProvider extends ProviderTrait<DOMDataBroker> {
     ModifiableDataManager modDataManager
 
     @Inject
-    @Named("honeycomb-operational")
     ReadableDataManager readDataManager
 
     def create() {

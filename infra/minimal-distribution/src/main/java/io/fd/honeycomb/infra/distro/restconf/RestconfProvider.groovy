@@ -17,11 +17,10 @@
 package io.fd.honeycomb.infra.distro.restconf
 
 import com.google.inject.Inject
-import com.google.inject.name.Named
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
-import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration
 import io.fd.honeycomb.infra.distro.ProviderTrait
+import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.webapp.WebAppContext
 import org.opendaylight.controller.sal.core.api.Broker
@@ -37,7 +36,6 @@ class RestconfProvider extends ProviderTrait<RestConnector> {
     HoneycombConfiguration cfg
 
     @Inject
-    @Named("honeycomb")
     Broker domBroker
 
     def create() {

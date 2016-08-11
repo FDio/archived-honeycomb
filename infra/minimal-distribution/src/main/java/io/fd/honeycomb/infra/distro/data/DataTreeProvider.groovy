@@ -19,15 +19,12 @@ package io.fd.honeycomb.infra.distro.data
 import com.google.inject.Inject
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
-import io.fd.honeycomb.data.impl.PersistingDataTreeAdapter
-import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration
 import io.fd.honeycomb.infra.distro.ProviderTrait
+import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration
 import org.opendaylight.controller.sal.core.api.model.SchemaService
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree
 import org.opendaylight.yangtools.yang.data.api.schema.tree.TreeType
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.InMemoryDataTreeFactory
-
-import java.nio.file.Paths
 
 @Slf4j
 @ToString
@@ -41,19 +38,20 @@ abstract class DataTreeProvider extends ProviderTrait<DataTree> {
     def create() {
         def delegate = InMemoryDataTreeFactory.getInstance().create(getType())
         delegate.setSchemaContext(schemaService.getGlobalContext())
-        new PersistingDataTreeAdapter(delegate, schemaService, Paths.get(getPath()))
+        delegate
     }
 
-    abstract String getPath()
     abstract TreeType getType()
 
+    @Slf4j
+    @ToString
     static class ConfigDataTreeProvider extends DataTreeProvider {
-        String getPath() { config.peristConfigPath }
         TreeType getType() { TreeType.CONFIGURATION }
     }
 
+    @Slf4j
+    @ToString
     static class ContextDataTreeProvider extends DataTreeProvider {
-        String getPath() { config.peristContextPath }
         TreeType getType() { TreeType.OPERATIONAL }
     }
 }

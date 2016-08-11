@@ -38,7 +38,6 @@ import io.fd.honeycomb.infra.distro.netconf.NetconfTcpServerProvider;
 import io.fd.honeycomb.infra.distro.restconf.RestconfModule;
 import io.fd.honeycomb.infra.distro.schema.SchemaModule;
 import io.fd.honeycomb.infra.distro.schema.YangBindingProviderModule;
-import io.fd.honeycomb.infra.distro.data.NotificationModule;
 import java.util.List;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory;
 import org.opendaylight.netconf.sal.rest.api.RestConnector;
@@ -54,7 +53,6 @@ public final class Main {
             // Infra
             new YangBindingProviderModule(),
             new SchemaModule(),
-            new NotificationModule(),
             new ConfigAndOperationalPipelineModule(),
             new ContextPipelineModule(),
             new InitializerPipelineModule(),
@@ -69,7 +67,7 @@ public final class Main {
         init(BASE_MODULES);
     }
 
-    public static void init(final List<? extends Module> modules) {
+    public static Injector init(final List<? extends Module> modules) {
         LOG.info("Starting honeycomb");
 
         Injector injector = Guice.createInjector(modules);
@@ -88,11 +86,11 @@ public final class Main {
 
         LOG.info("Starting NETCONF");
         injector.getInstance(
-                Key.get(NetconfOperationServiceFactory.class, Names.named(NetconfModule.NETCONF_MAPPER_HONEYCOMB)));
+                Key.get(NetconfOperationServiceFactory.class, Names.named("netconf-mapper-honeycomb")));
         injector.getInstance(
-                Key.get(NetconfOperationServiceFactory.class, Names.named(NetconfModule.NETCONF_MAPPER_NOTIFICATION)));
+                Key.get(NetconfOperationServiceFactory.class, Names.named("netconf-mapper-notification")));
         injector.getInstance(
-                Key.get(NetconfOperationServiceFactory.class, Names.named(NetconfModule.NETCONF_MAPPER_MONITORING)));
+                Key.get(NetconfOperationServiceFactory.class, Names.named("netconf-mapper-monitoring")));
 
         if (cfgAttributes.isNetconfTcpServerEnabled()) {
             injector.getInstance(NetconfTcpServerProvider.NetconfTcpServer.class);
@@ -112,5 +110,7 @@ public final class Main {
         }
 
         LOG.info("Honeycomb started successfully!");
+
+        return injector;
     }
 }

@@ -30,7 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.honeycom
 class NetconfMonitoringReaderFactoryProvider extends ProviderTrait<ReaderFactory> {
 
     @Inject
-    @Named(NetconfModule.NETCONF)
+    @Named("netconf")
     DataBroker netconfDataBroker
 
     def create() { new NetconfMonitoringReaderModule.NetconfMonitoringReaderFactory(netconfDataBroker) }

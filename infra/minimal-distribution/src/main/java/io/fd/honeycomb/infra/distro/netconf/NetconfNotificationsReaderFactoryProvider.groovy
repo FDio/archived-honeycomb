@@ -38,7 +38,7 @@ import javax.annotation.Nonnull
 class NetconfNotificationsReaderFactoryProvider extends ProviderTrait<ReaderFactory> {
 
     @Inject
-    @Named(NetconfModule.NETCONF)
+    @Named("netconf")
     DataBroker netconfDataBroker
 
     def create() {

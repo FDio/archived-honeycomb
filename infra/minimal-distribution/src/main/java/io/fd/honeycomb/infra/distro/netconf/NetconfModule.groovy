@@ -46,12 +46,6 @@ import static InmemoryDOMDataBrokerProvider.OPERATIONAL
 
 class NetconfModule extends PrivateModule {
 
-    public static final String NETCONF = "netconf"
-    public static final String NETCONF_MAPPER_AGGREGATOR = "netconf-mapper-aggregator"
-    public static final String NETCONF_MAPPER_NOTIFICATION = "netconf-mapper-notification"
-    public static final String NETCONF_MAPPER_MONITORING = "netconf-mapper-monitoring"
-    public static final String NETCONF_MAPPER_HONEYCOMB = "netconf-mapper-honeycomb"
-
     @Override
     protected void configure() {
         bind(InMemoryDOMDataStore)
@@ -65,19 +59,19 @@ class NetconfModule extends PrivateModule {
         bind(DOMDataBroker).toProvider(InmemoryDOMDataBrokerProvider).in(Singleton)
 
         bind(DataBroker)
-                .annotatedWith(Names.named(NETCONF))
+                .annotatedWith(Names.named("netconf"))
                 .toProvider(BindingDataBrokerProvider)
                 .in(Singleton)
-        expose(DataBroker).annotatedWith(Names.named(NETCONF))
+        expose(DataBroker).annotatedWith(Names.named("netconf"))
         bind(BindingAwareBroker)
-                .annotatedWith(Names.named(NETCONF))
+                .annotatedWith(Names.named("netconf"))
                 .toProvider(NetconfBindingBrokerProvider)
                 .in(Singleton)
 
         // Mirror of org.opendaylight.controller.config.yang.config.netconf.northbound.impl.NetconfMapperAggregatorModule
         def factory = new AggregatedNetconfOperationServiceFactory()
         bind(NetconfOperationServiceFactory)
-                .annotatedWith(Names.named(NETCONF_MAPPER_AGGREGATOR))
+                .annotatedWith(Names.named("netconf-mapper-aggregator"))
                 .toInstance(factory)
         bind(NetconfOperationServiceFactoryListener).toInstance(factory)
 
@@ -89,25 +83,25 @@ class NetconfModule extends PrivateModule {
 
         // Netconf notification part
         bind(NetconfOperationServiceFactory)
-                .annotatedWith(Names.named(NETCONF_MAPPER_NOTIFICATION))
+                .annotatedWith(Names.named("netconf-mapper-notification"))
                 .toProvider(NetconfNotificationMapperProvider)
                 .in(Singleton)
-        expose(NetconfOperationServiceFactory).annotatedWith(Names.named(NETCONF_MAPPER_NOTIFICATION))
+        expose(NetconfOperationServiceFactory).annotatedWith(Names.named("netconf-mapper-notification"))
 
         // Netconf core part - mapping between Honeycomb and Netconf
         bind(NetconfOperationServiceFactory)
-                .annotatedWith(Names.named(NETCONF_MAPPER_HONEYCOMB))
+                .annotatedWith(Names.named("netconf-mapper-honeycomb"))
                 .toProvider(NetconfMdsalMapperProvider)
                 .in(Singleton)
-        expose(NetconfOperationServiceFactory).annotatedWith(Names.named(NETCONF_MAPPER_HONEYCOMB))
+        expose(NetconfOperationServiceFactory).annotatedWith(Names.named("netconf-mapper-honeycomb"))
 
         // Netconf monitoring part
         bind(NetconfMonitoringService).toProvider(NetconfMonitoringServiceProvider).in(Singleton)
         bind(NetconfOperationServiceFactory)
-                .annotatedWith(Names.named(NETCONF_MAPPER_MONITORING))
+                .annotatedWith(Names.named("netconf-mapper-monitoring"))
                 .toProvider(NetconfMonitoringMapperProvider)
                 .in(Singleton)
-        expose(NetconfOperationServiceFactory).annotatedWith(Names.named(NETCONF_MAPPER_MONITORING))
+        expose(NetconfOperationServiceFactory).annotatedWith(Names.named("netconf-mapper-monitoring"))
 
         bind(NotificationCollector).toProvider(HoneycombNotificationManagerProvider).in(Singleton)
         bind(HoneycombNotification2NetconfProvider.HoneycombNotification2Netconf)

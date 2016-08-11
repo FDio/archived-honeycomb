@@ -17,11 +17,10 @@
 package io.fd.honeycomb.infra.distro.netconf
 
 import com.google.inject.Inject
-import com.google.inject.name.Named
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
-import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration
 import io.fd.honeycomb.infra.distro.ProviderTrait
+import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration
 import io.fd.honeycomb.notification.NotificationCollector
 import io.fd.honeycomb.notification.impl.NotificationProducerRegistry
 import org.opendaylight.controller.md.sal.dom.broker.impl.DOMNotificationRouter
@@ -39,7 +38,6 @@ import org.opendaylight.yangtools.yang.model.api.SchemaPath
 class HoneycombNotification2NetconfProvider extends ProviderTrait<HoneycombNotification2Netconf> {
 
     @Inject
-    @Named("honeycomb")
     DOMNotificationRouter notificationRouter
     @Inject
     SchemaService schemaService

@@ -17,7 +17,6 @@
 package io.fd.honeycomb.infra.distro.netconf
 
 import com.google.inject.Inject
-import com.google.inject.name.Named
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
 import io.fd.honeycomb.infra.distro.ProviderTrait
@@ -42,7 +41,6 @@ class NetconfMdsalMapperProvider extends ProviderTrait<NetconfOperationServiceFa
     ModuleInfoBackedContext moduleInfoBackedContext
 
     @Inject
-    @Named("honeycomb")
     Broker domBroker
 
     def create() {
