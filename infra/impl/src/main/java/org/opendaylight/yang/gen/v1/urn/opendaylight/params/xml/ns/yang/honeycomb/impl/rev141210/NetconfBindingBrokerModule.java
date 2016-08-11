@@ -31,7 +31,7 @@ public class NetconfBindingBrokerModule extends AbstractNetconfBindingBrokerModu
         return new FakeBindingAwareBroker(getNetconfBindingBrokerDependency());
     }
 
-    private static class FakeBindingAwareBroker implements BindingAwareBroker, AutoCloseable {
+    public static final class FakeBindingAwareBroker implements BindingAwareBroker, AutoCloseable {
 
         private DataBroker netconfBindingBrokerDependency;
 

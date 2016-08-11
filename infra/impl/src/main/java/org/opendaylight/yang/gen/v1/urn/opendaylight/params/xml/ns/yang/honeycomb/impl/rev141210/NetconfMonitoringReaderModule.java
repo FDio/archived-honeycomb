@@ -24,15 +24,14 @@ public class NetconfMonitoringReaderModule extends AbstractNetconfMonitoringRead
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        return new ReaderFactory(getNetconfMonitoringBindingBrokerDependency());
+        return new NetconfMonitoringReaderFactory(getNetconfMonitoringBindingBrokerDependency());
     }
 
-
-    private static final class ReaderFactory implements AutoCloseable, io.fd.honeycomb.translate.read.ReaderFactory {
+    public static final class NetconfMonitoringReaderFactory implements AutoCloseable, io.fd.honeycomb.translate.read.ReaderFactory {
 
         private final DataBroker netconfMonitoringBindingBrokerDependency;
 
-        public ReaderFactory(final DataBroker netconfMonitoringBindingBrokerDependency) {
+        public NetconfMonitoringReaderFactory(final DataBroker netconfMonitoringBindingBrokerDependency) {
             this.netconfMonitoringBindingBrokerDependency = netconfMonitoringBindingBrokerDependency;
         }
 

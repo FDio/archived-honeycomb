@@ -1,6 +1,5 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.notification.impl.rev160601;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.fd.honeycomb.notification.NotificationCollector;
 import io.fd.honeycomb.notification.impl.NotificationProducerRegistry;
 import java.io.IOException;
@@ -96,8 +95,7 @@ public class HoneycombNotificationToNetconfTranslatorModule extends org.opendayl
         };
     }
 
-    @VisibleForTesting
-    static NetconfNotification notificationToXml(final DOMNotification domNotification, final SchemaContext ctx) {
+    public static NetconfNotification notificationToXml(final DOMNotification domNotification, final SchemaContext ctx) {
         LOG.trace("Transforming notification: {} into XML", domNotification.getType());
 
         final SchemaPath type = domNotification.getType();

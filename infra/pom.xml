@@ -41,6 +41,7 @@
     <module>notification</module>
     <module>cfg-init</module>
     <module>impl</module>
+    <module>minimal-distribution</module>
     <module>karaf</module>
     <module>features</module>
     <module>artifacts</module>
