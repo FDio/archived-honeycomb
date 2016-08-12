@@ -17,10 +17,13 @@
 package io.fd.honeycomb.infra.distro;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.ConfigurationException;
+import com.google.inject.CreationException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.ProvisionException;
 import com.google.inject.name.Names;
 import groovy.util.logging.Slf4j;
 import io.fd.honeycomb.data.init.DataTreeInitializer;
@@ -68,49 +71,57 @@ public final class Main {
     }
 
     public static Injector init(final List<? extends Module> modules) {
-        LOG.info("Starting honeycomb");
-
-        Injector injector = Guice.createInjector(modules);
-        LOG.info("Honeycomb configuration: " + injector.getInstance(HoneycombConfiguration.class));
-
-        // Log all bindings
-        injector.getAllBindings().entrySet().stream()
-                .forEach(e -> LOG.trace("Component available under: {} is {}", e.getKey(), e.getValue()));
-
-        final HoneycombConfiguration cfgAttributes = injector.getInstance(HoneycombConfiguration.class);
-
-        // Now get instances for all dependency roots
-
-        LOG.info("Starting RESTCONF");
-        injector.getInstance(RestConnector.class);
-
-        LOG.info("Starting NETCONF");
-        injector.getInstance(
-                Key.get(NetconfOperationServiceFactory.class, Names.named("netconf-mapper-honeycomb")));
-        injector.getInstance(
-                Key.get(NetconfOperationServiceFactory.class, Names.named("netconf-mapper-notification")));
-        injector.getInstance(
-                Key.get(NetconfOperationServiceFactory.class, Names.named("netconf-mapper-monitoring")));
-
-        if (cfgAttributes.isNetconfTcpServerEnabled()) {
-            injector.getInstance(NetconfTcpServerProvider.NetconfTcpServer.class);
-        }
-
-        injector.getInstance(NetconfSshServerProvider.NetconfSshServer.class);
-        injector.getInstance(HoneycombNotification2NetconfProvider.HoneycombNotification2Netconf.class);
-
-        LOG.info("Honeycomb started successfully!");
-
         try {
-            LOG.info("Initializing configuration");
-            injector.getInstance(Key.get(InitializerRegistry.class, Names.named("honeycomb-initializer"))).initialize();
-            LOG.info("Configuration initialized successfully");
-        } catch (DataTreeInitializer.InitializeException e) {
-            LOG.error("Unable to initialize configuration", e);
+            LOG.info("Starting honeycomb");
+
+            Injector injector = Guice.createInjector(modules);
+            LOG.info("Honeycomb configuration: " + injector.getInstance(HoneycombConfiguration.class));
+
+            // Log all bindings
+            injector.getAllBindings().entrySet().stream()
+                    .forEach(e -> LOG.trace("Component available under: {} is {}", e.getKey(), e.getValue()));
+
+            final HoneycombConfiguration cfgAttributes = injector.getInstance(HoneycombConfiguration.class);
+
+            // Now get instances for all dependency roots
+
+            LOG.info("Starting RESTCONF");
+            injector.getInstance(RestConnector.class);
+
+            LOG.info("Starting NETCONF");
+            injector.getInstance(
+                    Key.get(NetconfOperationServiceFactory.class, Names.named("netconf-mapper-honeycomb")));
+            injector.getInstance(
+                    Key.get(NetconfOperationServiceFactory.class, Names.named("netconf-mapper-notification")));
+            injector.getInstance(
+                    Key.get(NetconfOperationServiceFactory.class, Names.named("netconf-mapper-monitoring")));
+
+            if (cfgAttributes.isNetconfTcpServerEnabled()) {
+                injector.getInstance(NetconfTcpServerProvider.NetconfTcpServer.class);
+            }
+
+            injector.getInstance(NetconfSshServerProvider.NetconfSshServer.class);
+            injector.getInstance(HoneycombNotification2NetconfProvider.HoneycombNotification2Netconf.class);
+
+            LOG.info("Honeycomb started successfully!");
+
+            try {
+                LOG.info("Initializing configuration");
+                injector.getInstance(Key.get(InitializerRegistry.class, Names.named("honeycomb-initializer"))).initialize();
+                LOG.info("Configuration initialized successfully");
+            } catch (DataTreeInitializer.InitializeException e) {
+                LOG.error("Unable to initialize configuration", e);
+            }
+
+            LOG.info("Honeycomb started successfully!");
+
+            return injector;
+        } catch (CreationException | ProvisionException | ConfigurationException e) {
+            LOG.error("Failed to initialize Honeycomb components", e);
+            throw e;
+        } catch (RuntimeException e) {
+            LOG.error("Unexpected initialization failure", e);
+            throw e;
         }
-
-        LOG.info("Honeycomb started successfully!");
-
-        return injector;
     }
 }

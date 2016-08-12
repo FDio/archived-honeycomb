@@ -144,13 +144,16 @@
                                     log.info "Generating shell exec script"
                                     def args = properties.getOrDefault("exec.parameters", "")
                                     log.debug "Additional shell exec script properties: ${args}"
-                                    def scriptContent = "java ${args} -jar \$(dirname \$0)/${project.artifactId}-${project.version}.jar"
+                                    def scriptContent = "java ${args} -jar \$(dirname \$0)/${project.artifactId}-${project.version}.jar &amp;"
                                     log.info "Generating shell exec script as ${scriptContent}"
                                     def scriptParent = Paths.get(project.build.outputDirectory, "honeycomb-minimal-resources")
                                     scriptParent.toFile().mkdirs()
-                                    def scriptPath = Paths.get(scriptParent.toString(), "honeycomb.sh")
+                                    def scriptPath = Paths.get(scriptParent.toString(), "honeycomb")
                                     log.info "Writing shell exec script to ${scriptPath}"
-                                    scriptPath.toFile().text = scriptContent
+                                    scriptPath.toFile().text = "#!/bin/sh -"
+                                    scriptPath.toFile().text += "\n"
+                                    scriptPath.toFile().text += scriptContent
+                                    scriptPath.toFile().setExecutable(true)
                                 </source>
                             </configuration>
                         </execution>
