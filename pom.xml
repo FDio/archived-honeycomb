@@ -36,6 +36,7 @@
     <module>vpp-common</module>
     <module>v3po</module>
     <module>vpp-integration</module>
+    <module>lisp</module>
   </modules>
 
   <distributionManagement>
