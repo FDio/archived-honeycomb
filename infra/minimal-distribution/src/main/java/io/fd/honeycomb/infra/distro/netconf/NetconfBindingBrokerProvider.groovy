@@ -23,7 +23,7 @@ import groovy.util.logging.Slf4j
 import io.fd.honeycomb.infra.distro.ProviderTrait
 import org.opendaylight.controller.md.sal.binding.api.DataBroker
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.honeycomb.impl.rev141210.NetconfBindingBrokerModule
+import io.fd.honeycomb.impl.FakeBindingAwareBroker
 
 /**
  * Mirror of {@link org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.honeycomb.impl.rev141210.NetconfBindingBrokerModule}
@@ -37,5 +37,5 @@ class NetconfBindingBrokerProvider extends ProviderTrait<BindingAwareBroker> {
     DataBroker dataBroker
 
     @Override
-    def create() { new NetconfBindingBrokerModule.FakeBindingAwareBroker(dataBroker) }
+    def create() { new FakeBindingAwareBroker(dataBroker) }
 }

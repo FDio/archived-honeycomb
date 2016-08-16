@@ -27,9 +27,7 @@
   <modules>
     <module>checkstyle</module>
     <module>api-parent</module>
-    <module>features-parent</module>
     <module>impl-parent</module>
-    <module>karaf-parent</module>
     <module>minimal-assembly-descriptor</module>
     <module>minimal-distribution-parent</module>
 

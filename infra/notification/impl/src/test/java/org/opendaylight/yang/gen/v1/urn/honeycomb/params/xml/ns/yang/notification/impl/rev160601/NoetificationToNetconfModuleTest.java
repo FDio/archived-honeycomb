@@ -15,6 +15,7 @@
  */
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.notification.impl.rev160601;
 
+import io.fd.honeycomb.notification.impl.TranslationUtil;
 import javax.annotation.Nonnull;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -61,7 +62,7 @@ public class NoetificationToNetconfModuleTest {
     public void notificationToXml() throws Exception {
         final ModuleInfoBackedContext moduleInfoBackedContext = getModuleInfoBackedCOntext();
 
-        final NetconfNotification netconfNotification = HoneycombNotificationToNetconfTranslatorModule
+        final NetconfNotification netconfNotification = TranslationUtil
             .notificationToXml(notification, moduleInfoBackedContext.getSchemaContext());
 
         final String notificationString = netconfNotification.toString();

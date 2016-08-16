@@ -19,13 +19,13 @@ package io.fd.honeycomb.infra.distro.initializer
 import com.google.inject.Inject
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
+import io.fd.honeycomb.data.init.RestorationType
 import io.fd.honeycomb.data.init.RestoringInitializer
 import io.fd.honeycomb.infra.distro.ProviderTrait
 import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker
 import org.opendaylight.controller.sal.core.api.model.SchemaService
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.data.init.rev160407.RestorationType
 
 import java.nio.file.Paths
 /**

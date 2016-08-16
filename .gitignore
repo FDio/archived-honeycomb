@@ -13,3 +13,4 @@ target
 .DS_Store
 META-INF
 maven-metadata-local.xml
+*.log

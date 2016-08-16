@@ -23,7 +23,7 @@ import groovy.util.logging.Slf4j
 import io.fd.honeycomb.infra.distro.ProviderTrait
 import io.fd.honeycomb.translate.read.ReaderFactory
 import org.opendaylight.controller.md.sal.binding.api.DataBroker
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.honeycomb.impl.rev141210.NetconfMonitoringReaderModule
+import io.fd.honeycomb.impl.NetconfMonitoringReaderFactory
 
 @Slf4j
 @ToString
@@ -33,5 +33,5 @@ class NetconfMonitoringReaderFactoryProvider extends ProviderTrait<ReaderFactory
     @Named("netconf")
     DataBroker netconfDataBroker
 
-    def create() { new NetconfMonitoringReaderModule.NetconfMonitoringReaderFactory(netconfDataBroker) }
+    def create() { new NetconfMonitoringReaderFactory(netconfDataBroker) }
 }

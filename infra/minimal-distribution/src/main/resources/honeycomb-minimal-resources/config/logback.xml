@@ -6,10 +6,10 @@
     </encoder>
   </appender>
   <appender name="honeycomb.log" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>~/honeycomb/logs/honeycomb.log</file>
+    <file>/var/log/honeycomb/honeycomb.log</file>
 
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>~/honeycomb/logs/honeycomb.%d.log.zip</fileNamePattern>
+      <fileNamePattern>/var/log/honeycomb/logs/honeycomb.%d.log.zip</fileNamePattern>
       <maxHistory>1</maxHistory>
     </rollingPolicy>
 

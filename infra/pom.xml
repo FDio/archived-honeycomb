@@ -42,9 +42,6 @@
     <module>cfg-init</module>
     <module>impl</module>
     <module>minimal-distribution</module>
-    <!--Will be deleted-->
-    <!--<module>karaf</module>-->
-    <!--<module>features</module>-->
     <module>artifacts</module>
     <module>it</module>
   </modules>

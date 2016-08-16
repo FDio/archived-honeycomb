@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.cfgattrs;
+package io.fd.honeycomb.data.init;
 
-import net.jmob.guice.conf.core.BindConfig;
-import net.jmob.guice.conf.core.Syntax;
-
-@BindConfig(value = "v3po", syntax = Syntax.JSON)
-public class V3poConfiguration {
+/**
+ * Type of operation to use when writing restored data
+ */
+public enum RestorationType {
+    Put, Merge
 }

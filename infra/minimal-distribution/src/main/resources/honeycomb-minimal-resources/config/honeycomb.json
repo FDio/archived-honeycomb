@@ -1,7 +1,7 @@
-{
-  "persisted-context-path": "~/honeycomb/persist/context/data.json",
+  {
+  "persisted-context-path": "/var/lib/honeycomb/persist/context/data.json",
   "persisted-context-restoration-type": "Merge",
-  "persisted-config-path": "~/honeycomb/persist/config/data.json",
+  "persisted-config-path": "/var/lib/honeycomb/persist/config/data.json",
   "persisted-config-restoration-type": "Merge",
 
   "notification-service-queue-depth": 1,

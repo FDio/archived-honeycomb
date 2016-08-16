@@ -26,7 +26,7 @@ import io.fd.honeycomb.notification.impl.NotificationProducerRegistry
 import org.opendaylight.controller.md.sal.dom.broker.impl.DOMNotificationRouter
 import org.opendaylight.controller.sal.core.api.model.SchemaService
 import org.opendaylight.netconf.notifications.NetconfNotificationCollector
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.notification.impl.rev160601.HoneycombNotificationToNetconfTranslatorModule as Mirror
+import io.fd.honeycomb.notification.impl.TranslationUtil
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.netconf.notification._1._0.rev080714.StreamNameType
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.netmod.notification.rev080714.netconf.streams.StreamBuilder
 import org.opendaylight.yangtools.yang.model.api.SchemaPath
@@ -63,7 +63,7 @@ class HoneycombNotification2NetconfProvider extends ProviderTrait<HoneycombNotif
         // Notification Translator, get notification from HC producers and put into NETCONF notification collector
         def domNotificationListener = { notif ->
                 log.debug "Propagating notification: {} into NETCONF", notif.type
-                netconfNotifReg.onNotification(streamType, Mirror.notificationToXml(notif, schemaService.globalContext))
+                netconfNotifReg.onNotification(streamType, TranslationUtil.notificationToXml(notif, schemaService.globalContext))
         }
 
         // NotificationManager is used to provide list of available notifications (which are all of the notifications registered)
