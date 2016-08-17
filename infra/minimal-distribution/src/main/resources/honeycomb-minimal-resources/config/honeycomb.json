@@ -7,7 +7,10 @@
   "notification-service-queue-depth": 1,
 
   "restconf-root-path": "/restconf",
+  "restconf-binding-address": "127.0.0.1",
   "restconf-port": 8181,
+  "restconf-https-binding-address": "0.0.0.0",
+  "restconf-https-port": 8443,
   "restconf-websocket-port": 7779,
 
   "netconf-netty-threads": 2,

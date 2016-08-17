@@ -87,7 +87,7 @@
                                 <classpathMavenRepositoryLayout>true</classpathMavenRepositoryLayout>
                             </manifest>
                             <manifestEntries>
-                                <Class-Path>config/</Class-Path>
+                                <Class-Path>config/ cert/</Class-Path>
                             </manifestEntries>
                         </archive>
                     </configuration>

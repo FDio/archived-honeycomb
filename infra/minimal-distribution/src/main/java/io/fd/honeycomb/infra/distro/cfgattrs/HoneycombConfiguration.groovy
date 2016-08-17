@@ -41,10 +41,16 @@ class HoneycombConfiguration {
     int notificationServiceQueueDepth
 
     // RESTCONF
-    @InjectConfig("restconf-websocket-port")
-    int restconfWebsocketPort
+    @InjectConfig("restconf-binding-address")
+    String restconfBindingAddress
     @InjectConfig("restconf-port")
     int restconfPort
+    @InjectConfig("restconf-https-binding-address")
+    String restconfHttpsBindingAddress
+    @InjectConfig("restconf-https-port")
+    int restconfHttpsPort
+    @InjectConfig("restconf-websocket-port")
+    int restconfWebsocketPort
     @InjectConfig("restconf-root-path")
     String restconfRootPath
 

@@ -22,14 +22,11 @@
     </encoder>
   </appender>
 
-  <root level="error">
+  <root level="warn">
     <appender-ref ref="STDOUT" />
     <appender-ref ref="honeycomb.log" />
   </root>
 
   <logger name="org.opendaylight" level="INFO"/>
   <logger name="io.fd" level="INFO"/>
-
-  <!-- Netty -->
-  <logger name="io.netty" level="WARN"/>
 </configuration>
