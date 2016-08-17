@@ -16,13 +16,13 @@
 
 package io.fd.honeycomb.infra.distro.netconf
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.google.inject.Inject
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
-import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration
 import io.fd.honeycomb.infra.distro.ProviderTrait
+import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration
 import io.netty.channel.nio.NioEventLoopGroup
-
 /**
  * Mirror of org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModule
  */
@@ -35,8 +35,7 @@ class NettyThreadGroupProvider extends ProviderTrait<NioEventLoopGroup> {
 
     @Override
     def create() {
-        cfgAttributes.netconfNettyThreads.isPresent() ?
-                new NioEventLoopGroup(cfgAttributes.netconfNettyThreads.get()) :
-                new NioEventLoopGroup()
+        new NioEventLoopGroup(cfgAttributes.netconfNettyThreads,
+            new ThreadFactoryBuilder().setNameFormat("netconf-netty-%d").build())
     }
 }

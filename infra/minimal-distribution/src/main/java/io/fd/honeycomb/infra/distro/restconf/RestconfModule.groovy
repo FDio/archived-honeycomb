@@ -18,13 +18,19 @@ package io.fd.honeycomb.infra.distro.restconf
 
 import com.google.inject.AbstractModule
 import com.google.inject.Singleton
+import com.google.inject.name.Names
 import groovy.util.logging.Slf4j
+import org.eclipse.jetty.server.Server
+import org.eclipse.jetty.server.ServerConnector
 import org.opendaylight.netconf.sal.rest.api.RestConnector
 
 @Slf4j
 class RestconfModule extends AbstractModule {
 
     protected void configure() {
+        bind(Server).toProvider(JettyServerProvider).in(Singleton)
+        bind(ServerConnector).annotatedWith(Names.named("restconf-http")).toProvider(HttpConnectorProvider).in(Singleton)
+        bind(ServerConnector).annotatedWith(Names.named("restconf-https")).toProvider(HttpsConnectorProvider).in(Singleton)
         bind(RestConnector).toProvider(RestconfProvider).in(Singleton)
     }
 }

@@ -20,7 +20,7 @@
     <properties>
         <nexusproxy>http://nexus.fd.io/content</nexusproxy>
         <!--<main.class>Main</main.class>-->
-        <exec.parameters>-Xms128m -Xmx256m</exec.parameters>
+        <exec.parameters>-XX:+PrintFlagsFinal -client -Xms64m -Xmx64m -XX:MaxMetaspaceSize=64m -Xss512k -XX:+UseSerialGC -Djava.compiler=NONE -Xverify:none -noverify</exec.parameters>
 
         <guice.version>4.1.0</guice.version>
         <guice.config.version>1.2.0</guice.config.version>
@@ -109,6 +109,7 @@
                                 <outputDirectory>${project.build.directory}/lib</outputDirectory>
                                 <useBaseVersion>true</useBaseVersion>
                                 <useRepositoryLayout>true</useRepositoryLayout>
+                                <excludeArtifactIds>yang-jmx-generator</excludeArtifactIds>
                             </configuration>
                         </execution>
                         <execution>

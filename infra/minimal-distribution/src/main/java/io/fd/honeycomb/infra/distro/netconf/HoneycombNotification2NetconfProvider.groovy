@@ -52,13 +52,13 @@ class HoneycombNotification2NetconfProvider extends ProviderTrait<HoneycombNotif
 
     @Override
     def create() {
-        def streamType = new StreamNameType(cfgAttributes.netconfNotificationStreamName);
+        def streamType = new StreamNameType(cfgAttributes.netconfNotificationStreamName.get());
 
         // Register as NETCONF notification publisher under configured name
         def netconfNotifReg = netconfNotificationCollector.registerNotificationPublisher(new StreamBuilder()
                         .setName(streamType)
                         .setReplaySupport(false)
-                        .setDescription(cfgAttributes.netconfNotificationStreamName).build());
+                        .setDescription(cfgAttributes.netconfNotificationStreamName.get()).build());
 
         // Notification Translator, get notification from HC producers and put into NETCONF notification collector
         def domNotificationListener = { notif ->

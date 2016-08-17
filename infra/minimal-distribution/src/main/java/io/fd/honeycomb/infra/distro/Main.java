@@ -16,6 +16,7 @@
 
 package io.fd.honeycomb.infra.distro;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.ConfigurationException;
 import com.google.inject.CreationException;
@@ -42,6 +43,8 @@ import io.fd.honeycomb.infra.distro.restconf.RestconfModule;
 import io.fd.honeycomb.infra.distro.schema.SchemaModule;
 import io.fd.honeycomb.infra.distro.schema.YangBindingProviderModule;
 import java.util.List;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory;
 import org.opendaylight.netconf.sal.rest.api.RestConnector;
 import org.slf4j.Logger;
@@ -70,6 +73,9 @@ public final class Main {
         init(BASE_MODULES);
     }
 
+    /**
+     * Initialize the Honeycomb infrastructure + all wired plugins.
+     */
     public static Injector init(final List<? extends Module> modules) {
         try {
             LOG.info("Starting honeycomb");
@@ -82,26 +88,50 @@ public final class Main {
                     .forEach(e -> LOG.trace("Component available under: {} is {}", e.getKey(), e.getValue()));
 
             final HoneycombConfiguration cfgAttributes = injector.getInstance(HoneycombConfiguration.class);
-
+            Preconditions.checkArgument(cfgAttributes.isRestconfEnabled() || cfgAttributes.isNetconfEnabled(),
+                    "At least one interface(Restconf|Netconf) has to be enabled for Honeycomb");
             // Now get instances for all dependency roots
 
-            LOG.info("Starting RESTCONF");
-            injector.getInstance(RestConnector.class);
+            if (cfgAttributes.isRestconfEnabled()) {
+                LOG.info("Starting RESTCONF");
+                final Server server = injector.getInstance(Server.class);
+                final RestConnector instance = injector.getInstance(RestConnector.class);
 
-            LOG.info("Starting NETCONF");
-            injector.getInstance(
-                    Key.get(NetconfOperationServiceFactory.class, Names.named("netconf-mapper-honeycomb")));
-            injector.getInstance(
-                    Key.get(NetconfOperationServiceFactory.class, Names.named("netconf-mapper-notification")));
-            injector.getInstance(
-                    Key.get(NetconfOperationServiceFactory.class, Names.named("netconf-mapper-monitoring")));
+                if (cfgAttributes.isRestconfHttpEnabled()) {
+                    injector.getInstance(Key.get(ServerConnector.class, Names.named("restconf-http")));
+                }
+                if (cfgAttributes.isRestconfHttpsEnabled()) {
+                    injector.getInstance(Key.get(ServerConnector.class, Names.named("restconf-https")));
+                }
 
-            if (cfgAttributes.isNetconfTcpServerEnabled()) {
-                injector.getInstance(NetconfTcpServerProvider.NetconfTcpServer.class);
+                try {
+                    server.start();
+                } catch (Exception e) {
+                    LOG.error("Unable to start Restconf", e);
+                    throw new RuntimeException("Unable to start Restconf", e);
+                }
             }
 
-            injector.getInstance(NetconfSshServerProvider.NetconfSshServer.class);
-            injector.getInstance(HoneycombNotification2NetconfProvider.HoneycombNotification2Netconf.class);
+            if (cfgAttributes.isNetconfEnabled()) {
+                LOG.info("Starting NETCONF");
+                injector.getInstance(
+                        Key.get(NetconfOperationServiceFactory.class, Names.named("netconf-mapper-honeycomb")));
+                injector.getInstance(
+                        Key.get(NetconfOperationServiceFactory.class, Names.named("netconf-mapper-notification")));
+                injector.getInstance(
+                        Key.get(NetconfOperationServiceFactory.class, Names.named("netconf-mapper-monitoring")));
+
+                if (cfgAttributes.isNetconfTcpEnabled()) {
+                    LOG.info("Starting NETCONF TCP");
+                    injector.getInstance(NetconfTcpServerProvider.NetconfTcpServer.class);
+                }
+
+                if (cfgAttributes.isNetconfSshEnabled()) {
+                    LOG.info("Starting NETCONF SSH");
+                    injector.getInstance(NetconfSshServerProvider.NetconfSshServer.class);
+                }
+                injector.getInstance(HoneycombNotification2NetconfProvider.HoneycombNotification2Netconf.class);
+            }
 
             LOG.info("Honeycomb started successfully!");
 

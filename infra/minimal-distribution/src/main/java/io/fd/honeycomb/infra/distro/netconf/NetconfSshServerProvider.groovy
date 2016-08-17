@@ -16,6 +16,7 @@
 
 package io.fd.honeycomb.infra.distro.netconf
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.google.inject.Inject
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
@@ -48,12 +49,13 @@ class NetconfSshServerProvider extends ProviderTrait<NetconfSshServer> {
     NioEventLoopGroup nettyThreadgroup
 
     // TODO merge with other executors .. one of the brokers creates also 2 internal executors
-    private ScheduledExecutorService pool = Executors.newScheduledThreadPool(1)
+    private ScheduledExecutorService pool =
+            Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("netconf-ssh-%d").build())
 
     @Override
     def create() {
-        def name = InetAddress.getByName(cfgAttributes.netconfSshBindingAddress)
-        def bindingAddress = new InetSocketAddress(name, cfgAttributes.netconfSshBindingPort)
+        def name = InetAddress.getByName(cfgAttributes.netconfSshBindingAddress.get())
+        def bindingAddress = new InetSocketAddress(name, cfgAttributes.netconfSshBindingPort.get())
 
         def localAddress = new LocalAddress(cfgAttributes.netconfSshBindingPort.toString())
         def localServer = dispatcher.createLocalServer(localAddress)

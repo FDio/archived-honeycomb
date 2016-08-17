@@ -41,37 +41,72 @@ class HoneycombConfiguration {
     int notificationServiceQueueDepth
 
     // RESTCONF
+    // HTTP
+    @InjectConfig("restconf-http-enabled")
+    String restconfHttp
+
     @InjectConfig("restconf-binding-address")
-    String restconfBindingAddress
+    Optional<String> restconfBindingAddress
     @InjectConfig("restconf-port")
-    int restconfPort
+    Optional<Integer> restconfPort
+    // HTTPS
+    @InjectConfig("restconf-https-enabled")
+    String restconfHttps
     @InjectConfig("restconf-https-binding-address")
-    String restconfHttpsBindingAddress
+    Optional<String> restconfHttpsBindingAddress
     @InjectConfig("restconf-https-port")
-    int restconfHttpsPort
+    Optional<Integer> restconfHttpsPort
+
     @InjectConfig("restconf-websocket-port")
-    int restconfWebsocketPort
+    Optional<Integer> restconfWebsocketPort = Optional.of(7779)
+
     @InjectConfig("restconf-root-path")
-    String restconfRootPath
+    Optional<String> restconfRootPath = Optional.of("/restconf")
+    @InjectConfig("restconf-pool-max-size")
+    Optional<Integer> restPoolMaxSize = Optional.of(10)
+    @InjectConfig("restconf-pool-min-size")
+    Optional<Integer> restPoolMinSize = Optional.of(1)
+
+    @InjectConfig("restconf-acceptors-size")
+    Optional<Integer> acceptorsSize = Optional.of(1)
+    @InjectConfig("restconf-selectors-size")
+    Optional<Integer> selectorsSize = Optional.of(1)
+    @InjectConfig("restconf-https-acceptors-size")
+    Optional<Integer> httpsAcceptorsSize = Optional.of(1)
+    @InjectConfig("restconf-https-selectors-size")
+    Optional<Integer> httpsSelectorsSize = Optional.of(1)
+
+    // Booleans not supported
+    boolean isRestconfHttpEnabled() { Boolean.valueOf(restconfHttp) }
+    boolean isRestconfHttpsEnabled() { Boolean.valueOf(restconfHttps) }
+    boolean isRestconfEnabled() { isRestconfHttpEnabled() || isRestconfHttpsEnabled() }
 
     // NETCONF
     @InjectConfig("netconf-netty-threads")
-    Optional<Integer> netconfNettyThreads
-    // NETCONF TCP optional
+    Integer netconfNettyThreads
+
+    // NETCONF TCP
+    @InjectConfig("netconf-tcp-enabled")
+    String netconfTcp
     @InjectConfig("netconf-tcp-binding-address")
     Optional<String> netconfTcpBindingAddress
     @InjectConfig("netconf-tcp-binding-port")
     Optional<Integer> netconfTcpBindingPort
+
     // NETCONF SSH
+    @InjectConfig("netconf-ssh-enabled")
+    String netconfSsh
     @InjectConfig("netconf-ssh-binding-address")
-    String netconfSshBindingAddress
+    Optional<String> netconfSshBindingAddress
     @InjectConfig("netconf-ssh-binding-port")
-    Integer netconfSshBindingPort
+    Optional<Integer> netconfSshBindingPort
 
     @InjectConfig("netconf-notification-stream-name")
-    String netconfNotificationStreamName
+    Optional<String> netconfNotificationStreamName = Optional.of("honeycomb")
 
-    boolean isNetconfTcpServerEnabled() { netconfTcpBindingAddress.isPresent() && netconfTcpBindingPort.isPresent() }
+    boolean isNetconfTcpEnabled() { Boolean.valueOf(netconfTcp) }
+    boolean isNetconfSshEnabled() { Boolean.valueOf(netconfSsh) }
+    boolean isNetconfEnabled() { isNetconfTcpEnabled() || isNetconfSshEnabled() }
 
     @InjectConfig("username")
     String username
