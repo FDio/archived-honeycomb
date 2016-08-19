@@ -25,15 +25,12 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker
 import io.fd.honeycomb.impl.FakeBindingAwareBroker
 
-/**
- * Mirror of {@link org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.honeycomb.impl.rev141210.NetconfBindingBrokerModule}
- */
 @Slf4j
 @ToString
 class NetconfBindingBrokerProvider extends ProviderTrait<BindingAwareBroker> {
 
     @Inject
-    @Named("netconf")
+    @Named(NetconfModule.HONEYCOMB_NETCONF)
     DataBroker dataBroker
 
     @Override

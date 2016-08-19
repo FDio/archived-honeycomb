@@ -27,10 +27,13 @@ import org.opendaylight.netconf.sal.rest.api.RestConnector
 @Slf4j
 class RestconfModule extends AbstractModule {
 
+    public static final String RESTCONF_HTTP = "restconf-http"
+    public static final String RESTCONF_HTTPS = "restconf-https"
+
     protected void configure() {
         bind(Server).toProvider(JettyServerProvider).in(Singleton)
-        bind(ServerConnector).annotatedWith(Names.named("restconf-http")).toProvider(HttpConnectorProvider).in(Singleton)
-        bind(ServerConnector).annotatedWith(Names.named("restconf-https")).toProvider(HttpsConnectorProvider).in(Singleton)
+        bind(ServerConnector).annotatedWith(Names.named(RESTCONF_HTTP)).toProvider(HttpConnectorProvider).in(Singleton)
+        bind(ServerConnector).annotatedWith(Names.named(RESTCONF_HTTPS)).toProvider(HttpsConnectorProvider).in(Singleton)
         bind(RestConnector).toProvider(RestconfProvider).in(Singleton)
     }
 }

@@ -24,16 +24,18 @@ import io.fd.honeycomb.data.init.DataTreeInitializer
 import io.fd.honeycomb.data.init.InitializerRegistry
 import io.fd.honeycomb.data.init.InitializerRegistryImpl
 import io.fd.honeycomb.infra.distro.ProviderTrait
+import io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule
+import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule
 
 @Slf4j
 @ToString
 class InitializerRegistryProvider extends ProviderTrait<InitializerRegistry> {
 
     @Inject
-    @Named("honeycomb-context")
+    @Named(ContextPipelineModule.HONEYCOMB_CONTEXT)
     DataTreeInitializer contextInitializer
     @Inject
-    @Named("honeycomb-config")
+    @Named(ConfigAndOperationalPipelineModule.HONEYCOMB_CONFIG)
     DataTreeInitializer configInitializer
     @Inject(optional = true)
     Set<DataTreeInitializer> pluginInitializers = []

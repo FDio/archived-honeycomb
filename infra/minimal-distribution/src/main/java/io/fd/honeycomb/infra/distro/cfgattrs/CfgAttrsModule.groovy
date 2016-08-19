@@ -20,6 +20,9 @@ import com.google.inject.AbstractModule
 import groovy.util.logging.Slf4j
 import net.jmob.guice.conf.core.ConfigurationModule
 
+/**
+ * Load the configuration from json into HoneycombConfiguration and make it available.
+ */
 @Slf4j
 class CfgAttrsModule extends AbstractModule {
 

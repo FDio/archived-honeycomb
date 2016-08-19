@@ -21,6 +21,12 @@ import net.jmob.guice.conf.core.BindConfig
 import net.jmob.guice.conf.core.InjectConfig
 import net.jmob.guice.conf.core.Syntax
 
+/**
+ * This is the Java equivalent for honeyconb.json file.
+ * We use guice-config library to load all the config attributes into this class instance.
+ *
+ * The BindConfig annotation tells that honeycomb.json file should be looked up on classpath root.
+ */
 @ToString(includeNames = true)
 @BindConfig(value = "honeycomb", syntax = Syntax.JSON)
 class HoneycombConfiguration {
@@ -56,7 +62,26 @@ class HoneycombConfiguration {
     Optional<String> restconfHttpsBindingAddress
     @InjectConfig("restconf-https-port")
     Optional<Integer> restconfHttpsPort
+    /**
+     * Restconf keystore file name.
+     * It will be loaded from the classpath so must be present in one of the folders packaged with the distribution e.g. cert/
+     */
+    @InjectConfig("restconf-keystore")
+    Optional<String> restconfKeystore = Optional.of("/honeycomb-keystore")
+    @InjectConfig("restconf-keystore-password")
+    Optional<String> keystorePassword
+    @InjectConfig("restconf-keystore-manager-password")
+    Optional<String> keystoreManagerPassword
+    /**
+     * Restconf truststore file name.
+     * It will be loaded from the classpath so must be present in one of the folders packaged with the distribution e.g. cert/
+     */
+    @InjectConfig("restconf-truststore")
+    Optional<String> restconfTruststore
+    @InjectConfig("restconf-truststore-password")
+    Optional<String> truststorePassword
 
+    // This is the way for optional attributes with default values to work
     @InjectConfig("restconf-websocket-port")
     Optional<Integer> restconfWebsocketPort = Optional.of(7779)
 
@@ -81,11 +106,11 @@ class HoneycombConfiguration {
     boolean isRestconfHttpsEnabled() { Boolean.valueOf(restconfHttps) }
     boolean isRestconfEnabled() { isRestconfHttpEnabled() || isRestconfHttpsEnabled() }
 
-    // NETCONF
+    // HONEYCOMB_NETCONF
     @InjectConfig("netconf-netty-threads")
     Integer netconfNettyThreads
 
-    // NETCONF TCP
+    // HONEYCOMB_NETCONF TCP
     @InjectConfig("netconf-tcp-enabled")
     String netconfTcp
     @InjectConfig("netconf-tcp-binding-address")
@@ -93,7 +118,7 @@ class HoneycombConfiguration {
     @InjectConfig("netconf-tcp-binding-port")
     Optional<Integer> netconfTcpBindingPort
 
-    // NETCONF SSH
+    // HONEYCOMB_NETCONF SSH
     @InjectConfig("netconf-ssh-enabled")
     String netconfSsh
     @InjectConfig("netconf-ssh-binding-address")

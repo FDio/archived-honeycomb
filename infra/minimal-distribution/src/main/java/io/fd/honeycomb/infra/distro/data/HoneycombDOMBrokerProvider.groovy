@@ -31,7 +31,6 @@ import org.opendaylight.controller.sal.core.api.model.SchemaService
 class HoneycombDOMBrokerProvider extends ProviderTrait<Broker> {
 
     @Inject
-//    @Named("honeycomb-config")
     DOMDataBroker domDataBroker
     @Inject
     SchemaService schemaService

@@ -38,6 +38,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree
 @Slf4j
 class ConfigAndOperationalPipelineModule extends PrivateModule {
 
+    public static final String HONEYCOMB_CONFIG_NONPERSIST = "honeycomb-config-nopersist"
+    public static final String HONEYCOMB_CONFIG = "honeycomb-config"
+
     protected void configure() {
         // Expose registries for plugin reader/writer factories
         bind(ModifiableWriterRegistryBuilder).toProvider(WriterRegistryProvider).in(Singleton)
@@ -45,43 +48,48 @@ class ConfigAndOperationalPipelineModule extends PrivateModule {
         bind(ModifiableReaderRegistryBuilder).toProvider(ReaderRegistryProvider).in(Singleton)
         expose(ModifiableReaderRegistryBuilder)
 
-        // Non persisting data tree
+        // Non persisting data tree for config
         bind(DataTree)
-                .annotatedWith(Names.named("honeycomb-config-nopersist"))
+                .annotatedWith(Names.named(HONEYCOMB_CONFIG_NONPERSIST))
                 .toProvider(DataTreeProvider.ConfigDataTreeProvider)
                 .in(Singleton)
-        expose(DataTree).annotatedWith(Names.named("honeycomb-config-nopersist"))
-        // Persisting data tree wrapper
+        expose(DataTree).annotatedWith(Names.named(HONEYCOMB_CONFIG_NONPERSIST))
+        // Persisting data tree wrapper for config
         bind(DataTree)
-                .annotatedWith(Names.named("honeycomb-config"))
+                .annotatedWith(Names.named(HONEYCOMB_CONFIG))
                 .toProvider(PersistingDataTreeProvider.ConfigPersistingDataTreeProvider)
                 .in(Singleton)
-        expose(DataTree).annotatedWith(Names.named("honeycomb-config"))
+        expose(DataTree).annotatedWith(Names.named(HONEYCOMB_CONFIG))
 
+        // Config Data Tree manager working on top of config data tree + writer registry
         bind(ModifiableDataManager).toProvider(ModifiableDTDelegProvider).in(Singleton)
+        // Operational Data Tree manager working on top of reader registry
         bind(ReadableDataManager).toProvider(ReadableDTDelegProvider).in(Singleton)
         expose(ReadableDataManager)
 
+        // DOMDataBroker wrapper on top of data tree managers
         def domBrokerProvider = new HoneycombDOMDataBrokerProvider()
-//        bind(DOMDataBroker).annotatedWith(Names.named("honeycomb-config")).toProvider(domBrokerProvider).in(Singleton)
-        // Bind also without annotation for easy private injection
         bind(DOMDataBroker).toProvider(domBrokerProvider).in(Singleton)
 
-        bind(DataBroker).annotatedWith(Names.named("honeycomb-config")).toProvider(BindingDataBrokerProvider).in(Singleton)
-        expose(DataBroker).annotatedWith(Names.named("honeycomb-config"))
+        // BA version of data broker
+        bind(DataBroker).annotatedWith(Names.named(HONEYCOMB_CONFIG)).toProvider(BindingDataBrokerProvider).in(Singleton)
+        expose(DataBroker).annotatedWith(Names.named(HONEYCOMB_CONFIG))
 
+        // Create initializer to init persisted config data
         bind(DataTreeInitializer)
-                .annotatedWith(Names.named("honeycomb-config"))
+                .annotatedWith(Names.named(HONEYCOMB_CONFIG))
                 .toProvider(PersistedFileInitializerProvider.PersistedConfigInitializerProvider)
                 .in(Singleton)
-        expose(DataTreeInitializer).annotatedWith(Names.named("honeycomb-config"))
+        expose(DataTreeInitializer).annotatedWith(Names.named(HONEYCOMB_CONFIG))
 
         configureNotifications()
     }
 
     protected void configureNotifications() {
+        // Create notification service
         bind(DOMNotificationRouter).toProvider(DOMNotificationServiceProvider).in(Singleton)
         expose(DOMNotificationRouter)
+        // Wrap notification service, data broker and schema service in a Broker MD-SAL API
         bind(Broker).toProvider(HoneycombDOMBrokerProvider).in(Singleton)
         expose(Broker)
     }

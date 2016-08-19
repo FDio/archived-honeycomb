@@ -27,15 +27,13 @@ import org.opendaylight.controller.sal.binding.api.BindingAwareBroker
 import org.opendaylight.netconf.api.monitoring.NetconfMonitoringService
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactoryListener
-/**
- * Mirror of org.opendaylight.controller.config.yang.netconf.mdsal.monitoring.NetconfMdsalMonitoringMapperModule
- */
+
 @Slf4j
 @ToString
 class NetconfMonitoringMapperProvider extends ProviderTrait<NetconfOperationServiceFactory> {
 
     @Inject
-    @Named("netconf")
+    @Named(NetconfModule.HONEYCOMB_NETCONF)
     BindingAwareBroker bindingAwareBroker
     @Inject
     NetconfOperationServiceFactoryListener aggregator

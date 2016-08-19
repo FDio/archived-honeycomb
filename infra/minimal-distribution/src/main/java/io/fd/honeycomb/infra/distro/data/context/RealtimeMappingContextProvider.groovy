@@ -30,7 +30,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker
 class RealtimeMappingContextProvider extends ProviderTrait<MappingContext> {
 
     @Inject
-    @Named("honeycomb-context")
+    @Named(ContextPipelineModule.HONEYCOMB_CONTEXT)
     DataBroker contextDataBroker
 
     @Override

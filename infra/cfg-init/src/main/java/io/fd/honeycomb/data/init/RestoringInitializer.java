@@ -108,4 +108,11 @@ public class RestoringInitializer implements DataTreeInitializer {
 
     @Override
     public void close() {}
+
+    /**
+     * Type of operation to use when writing restored data
+     */
+    public static enum RestorationType {
+        Put, Merge
+    }
 }

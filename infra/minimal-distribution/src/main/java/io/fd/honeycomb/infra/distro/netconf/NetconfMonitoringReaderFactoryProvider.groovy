@@ -30,7 +30,7 @@ import io.fd.honeycomb.impl.NetconfMonitoringReaderFactory
 class NetconfMonitoringReaderFactoryProvider extends ProviderTrait<ReaderFactory> {
 
     @Inject
-    @Named("netconf")
+    @Named(NetconfModule.HONEYCOMB_NETCONF)
     DataBroker netconfDataBroker
 
     def create() { new NetconfMonitoringReaderFactory(netconfDataBroker) }

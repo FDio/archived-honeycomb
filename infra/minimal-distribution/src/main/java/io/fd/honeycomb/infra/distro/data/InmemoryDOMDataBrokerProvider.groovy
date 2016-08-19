@@ -28,9 +28,7 @@ import org.opendaylight.controller.md.sal.dom.broker.impl.SerializedDOMDataBroke
 import org.opendaylight.controller.md.sal.dom.store.impl.InMemoryDOMDataStore
 import org.opendaylight.yangtools.util.concurrent.DeadlockDetectingListeningExecutorService
 import org.opendaylight.yangtools.util.concurrent.SpecialExecutors
-/**
- * Mirror of org.opendaylight.controller.config.yang.md.sal.dom.impl.DomInmemoryDataBrokerModule
- */
+
 @Slf4j
 @ToString
 class InmemoryDOMDataBrokerProvider extends ProviderTrait<DOMDataBroker> {

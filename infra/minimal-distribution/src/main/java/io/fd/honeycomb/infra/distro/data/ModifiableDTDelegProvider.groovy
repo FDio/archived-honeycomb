@@ -23,6 +23,7 @@ import groovy.util.logging.Slf4j
 import io.fd.honeycomb.data.ModifiableDataManager
 import io.fd.honeycomb.data.impl.ModifiableDataTreeDelegator
 import io.fd.honeycomb.infra.distro.ProviderTrait
+import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder
 import org.opendaylight.controller.md.sal.binding.api.DataBroker
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec
@@ -35,12 +36,12 @@ class ModifiableDTDelegProvider extends ProviderTrait<ModifiableDataManager> {
     @Inject
     BindingToNormalizedNodeCodec serializer
     @Inject
-    @Named("honeycomb-config")
+    @Named(ConfigAndOperationalPipelineModule.HONEYCOMB_CONFIG)
     DataTree dataTree
     @Inject
     ModifiableWriterRegistryBuilder registry
     @Inject
-    @Named("honeycomb-context")
+    @Named(ContextPipelineModule.HONEYCOMB_CONTEXT)
     DataBroker contextBroker
 
     @Override

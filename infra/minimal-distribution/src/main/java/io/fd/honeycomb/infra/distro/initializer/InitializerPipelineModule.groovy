@@ -30,17 +30,24 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker
 @Slf4j
 class InitializerPipelineModule extends PrivateModule {
 
-    protected void configure() {
-        bind(ModifiableDataManager).toProvider(ModifiableDTDelegInitProvider).in(Singleton)
-        bind(DOMDataBroker).toProvider(HoneycombDOMDataBrokerProvider).in(Singleton)
-        bind(DataBroker).annotatedWith(Names.named("honeycomb-initializer")).toProvider(BindingDataBrokerProvider).in(Singleton)
-        expose(DataBroker).annotatedWith(Names.named("honeycomb-initializer"))
 
+    public static final String HONEYCOMB_INITIALIZER = "honeycomb-initializer"
+
+    protected void configure() {
+        // Create data tree manager on top of non-persisting config data tree
+        bind(ModifiableDataManager).toProvider(ModifiableDTDelegInitProvider).in(Singleton)
+        // Wrap as DOMDataBroker
+        bind(DOMDataBroker).toProvider(HoneycombDOMDataBrokerProvider).in(Singleton)
+        // Wrap as BA data broker
+        bind(DataBroker).annotatedWith(Names.named(HONEYCOMB_INITIALIZER)).toProvider(BindingDataBrokerProvider).in(Singleton)
+        expose(DataBroker).annotatedWith(Names.named(HONEYCOMB_INITIALIZER))
+
+        // Create initializer registry so that plugins can provide their initializers
         bind(InitializerRegistry)
-                .annotatedWith(Names.named("honeycomb-initializer"))
+                .annotatedWith(Names.named(HONEYCOMB_INITIALIZER))
                 .toProvider(InitializerRegistryProvider)
                 .in(Singleton)
         expose(InitializerRegistry)
-                .annotatedWith(Names.named("honeycomb-initializer"))
+                .annotatedWith(Names.named(HONEYCOMB_INITIALIZER))
     }
 }

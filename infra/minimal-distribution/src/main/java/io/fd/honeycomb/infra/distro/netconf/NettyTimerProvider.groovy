@@ -23,9 +23,7 @@ import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration
 import io.fd.honeycomb.infra.distro.ProviderTrait
 import io.netty.util.HashedWheelTimer
 import io.netty.util.Timer
-/**
- * Mirror of org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModule
- */
+
 @Slf4j
 @ToString
 class NettyTimerProvider extends ProviderTrait<Timer> {

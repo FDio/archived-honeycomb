@@ -23,6 +23,7 @@ import groovy.util.logging.Slf4j
 import io.fd.honeycomb.data.ReadableDataManager
 import io.fd.honeycomb.data.impl.ReadableDataTreeDelegator
 import io.fd.honeycomb.infra.distro.ProviderTrait
+import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder
 import org.opendaylight.controller.md.sal.binding.api.DataBroker
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec
@@ -39,7 +40,7 @@ class ReadableDTDelegProvider extends ProviderTrait<ReadableDataManager> {
     @Inject
     ModifiableReaderRegistryBuilder registry
     @Inject
-    @Named("honeycomb-context")
+    @Named(ContextPipelineModule.HONEYCOMB_CONTEXT)
     DataBroker contextBroker
 
     def create() {

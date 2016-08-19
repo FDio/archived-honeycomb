@@ -34,9 +34,7 @@ import org.opendaylight.netconf.ssh.SshProxyServerConfigurationBuilder
 
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
-/**
- * Mirror of org.opendaylight.controller.config.yang.netconf.northbound.ssh.NetconfNorthboundSshModule
- */
+
 @Slf4j
 @ToString
 class NetconfSshServerProvider extends ProviderTrait<NetconfSshServer> {
@@ -48,7 +46,6 @@ class NetconfSshServerProvider extends ProviderTrait<NetconfSshServer> {
     @Inject
     NioEventLoopGroup nettyThreadgroup
 
-    // TODO merge with other executors .. one of the brokers creates also 2 internal executors
     private ScheduledExecutorService pool =
             Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("netconf-ssh-%d").build())
 

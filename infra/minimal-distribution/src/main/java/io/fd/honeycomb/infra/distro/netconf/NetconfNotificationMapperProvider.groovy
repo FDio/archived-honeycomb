@@ -35,9 +35,7 @@ import org.opendaylight.netconf.notifications.NetconfNotificationRegistry
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.NetconfState
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.netconf.state.Capabilities
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier
-/**
- * Mirror of org.opendaylight.controller.config.yang.netconf.mdsal.notification.NetconfMdsalNotificationMapperModule
- */
+
 @Slf4j
 @ToString
 class NetconfNotificationMapperProvider extends ProviderTrait<NetconfOperationServiceFactory> {
@@ -50,10 +48,10 @@ class NetconfNotificationMapperProvider extends ProviderTrait<NetconfOperationSe
     @Inject
     NetconfNotificationRegistry notificationRegistry
     @Inject
-    @Named("netconf")
+    @Named(NetconfModule.HONEYCOMB_NETCONF)
     BindingAwareBroker bindingAwareBroker
     @Inject
-    @Named("netconf")
+    @Named(NetconfModule.HONEYCOMB_NETCONF)
     DataBroker dataBroker
     @Inject
     NetconfOperationServiceFactoryListener aggregator

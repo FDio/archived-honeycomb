@@ -24,9 +24,7 @@ import io.fd.honeycomb.infra.distro.ProviderTrait
 import io.netty.channel.ChannelFuture
 import io.netty.util.concurrent.GenericFutureListener
 import org.opendaylight.netconf.api.NetconfServerDispatcher
-/**
- * Mirror of org.opendaylight.controller.config.yang.netconf.northbound.tcp.NetconfNorthboundTcpModule
- */
+
 @Slf4j
 @ToString
 class NetconfTcpServerProvider extends ProviderTrait<NetconfTcpServer> {

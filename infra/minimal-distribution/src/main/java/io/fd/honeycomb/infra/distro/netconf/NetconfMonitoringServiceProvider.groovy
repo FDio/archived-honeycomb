@@ -24,15 +24,13 @@ import io.fd.honeycomb.infra.distro.ProviderTrait
 import org.opendaylight.netconf.api.monitoring.NetconfMonitoringService
 import org.opendaylight.netconf.impl.osgi.NetconfMonitoringServiceImpl
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory
-/**
- * Mirror of org.opendaylight.controller.config.yang.config.netconf.northbound.impl.NetconfServerMonitoringModule
- */
+
 @Slf4j
 @ToString
 class NetconfMonitoringServiceProvider extends ProviderTrait<NetconfMonitoringService> {
 
     @Inject
-    @Named("netconf-mapper-aggregator")
+    @Named(NetconfModule.HONEYCOMB_NETCONF_MAPPER_AGGR)
     NetconfOperationServiceFactory aggregator
 
     @Override

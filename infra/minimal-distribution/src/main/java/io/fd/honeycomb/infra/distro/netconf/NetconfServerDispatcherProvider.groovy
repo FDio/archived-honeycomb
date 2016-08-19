@@ -32,9 +32,7 @@ import org.opendaylight.netconf.impl.osgi.AggregatedNetconfOperationServiceFacto
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory
 
 import java.util.concurrent.TimeUnit
-/**
- * Mirror of org.opendaylight.controller.config.yang.config.netconf.northbound.impl.NetconfServerDispatcherModule
- */
+
 @Slf4j
 @ToString
 class NetconfServerDispatcherProvider extends ProviderTrait<NetconfServerDispatcher> {
@@ -43,7 +41,7 @@ class NetconfServerDispatcherProvider extends ProviderTrait<NetconfServerDispatc
     private static final long CONNECTION_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(20)
 
     @Inject
-    @Named("netconf-mapper-aggregator")
+    @Named(NetconfModule.HONEYCOMB_NETCONF_MAPPER_AGGR)
     NetconfOperationServiceFactory aggregator
     @Inject
     NetconfMonitoringService monitoringService

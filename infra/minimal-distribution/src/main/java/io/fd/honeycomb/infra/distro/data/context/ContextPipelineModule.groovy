@@ -32,44 +32,45 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree
 
 class ContextPipelineModule extends PrivateModule {
 
-    protected void configure() {
-        // Bind also without annotation for easy private injection
+    public static final String HONEYCOMB_CONTEXT_NOPERSIST = "honeycomb-context-nopersist"
+    public static final String HONEYCOMB_CONTEXT = "honeycomb-context"
 
-        // Non persisting data tree
+    protected void configure() {
+        // Non persisting data tree for context
         def noPersistDataTreeProvider = new DataTreeProvider.ContextDataTreeProvider()
         bind(DataTree)
-                .annotatedWith(Names.named("honeycomb-context-nopersist"))
+                .annotatedWith(Names.named(HONEYCOMB_CONTEXT_NOPERSIST))
                 .toProvider(noPersistDataTreeProvider)
                 .in(Singleton)
-        expose(DataTree).annotatedWith(Names.named("honeycomb-context-nopersist"))
-        // Persisting data tree wrapper
+        expose(DataTree).annotatedWith(Names.named(HONEYCOMB_CONTEXT_NOPERSIST))
+        // Persisting data tree wrapper for context
         def dataTreeProvider = new PersistingDataTreeProvider.ContextPersistingDataTreeProvider()
         bind(DataTree).toProvider(dataTreeProvider).in(Singleton)
-//        bind(DataTree).annotatedWith(Names.named("honeycomb-context")).toProvider(dataTreeProvider).in(Singleton)
-//        expose(DataTree).annotatedWith(Names.named("honeycomb-context"))
 
+        // Data Tree manager (without any delegation) on top of context data tree
         bind(ModifiableDataManager).toProvider(ModifiableDTMgrProvider).in(Singleton)
 
+        // DOMDataBroker interface on top of data tree manager
         def domBrokerProvider = new HoneycombContextDOMDataBrokerProvider()
-//        bind(DOMDataBroker).annotatedWith(Names.named("honeycomb-context")).toProvider(domBrokerProvider).in(Singleton)
-        // Bind also without annotation for easy private injection
         bind(DOMDataBroker).toProvider(domBrokerProvider).in(Singleton)
-//        expose(DOMDataBroker).annotatedWith(Names.named("honeycomb-context"))
 
-        bind(DataBroker).annotatedWith(Names.named("honeycomb-context")).toProvider(BindingDataBrokerProvider).in(Singleton)
-        expose(DataBroker).annotatedWith(Names.named("honeycomb-context"))
+        // BA version of data broker for context
+        bind(DataBroker).annotatedWith(Names.named(HONEYCOMB_CONTEXT)).toProvider(BindingDataBrokerProvider).in(Singleton)
+        expose(DataBroker).annotatedWith(Names.named(HONEYCOMB_CONTEXT))
 
+        // Create initializer to init persisted config data
         bind(DataTreeInitializer)
-                .annotatedWith(Names.named("honeycomb-context"))
+                .annotatedWith(Names.named(HONEYCOMB_CONTEXT))
                 .toProvider(PersistedFileInitializerProvider.PersistedContextInitializerProvider)
                 .in(Singleton)
-        expose(DataTreeInitializer).annotatedWith(Names.named("honeycomb-context"))
+        expose(DataTreeInitializer).annotatedWith(Names.named(HONEYCOMB_CONTEXT))
 
+        // Mapping context is just a small adapter on top of BA data broker to simplify CRUD of context data
         bind(MappingContext)
-                .annotatedWith(Names.named("honeycomb-context"))
+                .annotatedWith(Names.named(HONEYCOMB_CONTEXT))
                 .toProvider(RealtimeMappingContextProvider)
                 .in(Singleton.class)
-        expose(MappingContext).annotatedWith(Names.named("honeycomb-context"))
+        expose(MappingContext).annotatedWith(Names.named(HONEYCOMB_CONTEXT))
     }
 
 }

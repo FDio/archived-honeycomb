@@ -23,6 +23,7 @@ import groovy.util.logging.Slf4j
 import io.fd.honeycomb.data.impl.PersistingDataTreeAdapter
 import io.fd.honeycomb.infra.distro.ProviderTrait
 import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration
+import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule
 import org.opendaylight.controller.sal.core.api.model.SchemaService
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree
 import org.opendaylight.yangtools.yang.data.api.schema.tree.TreeType
@@ -49,7 +50,7 @@ abstract class PersistingDataTreeProvider extends ProviderTrait<DataTree> {
     static class ConfigPersistingDataTreeProvider extends PersistingDataTreeProvider {
 
         @Inject
-        @Named("honeycomb-config-nopersist")
+        @Named(ConfigAndOperationalPipelineModule.HONEYCOMB_CONFIG_NONPERSIST)
         DataTree delegate
 
         String getPath() { config.peristConfigPath }
@@ -60,7 +61,7 @@ abstract class PersistingDataTreeProvider extends ProviderTrait<DataTree> {
     static class ContextPersistingDataTreeProvider extends PersistingDataTreeProvider {
 
         @Inject
-        @Named("honeycomb-context-nopersist")
+        @Named(ContextPipelineModule.HONEYCOMB_CONTEXT_NOPERSIST)
         DataTree delegate
 
         String getPath() { config.peristContextPath }

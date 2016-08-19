@@ -22,6 +22,7 @@ import com.google.inject.Singleton
 import com.google.inject.multibindings.Multibinder
 import groovy.util.logging.Slf4j
 import org.opendaylight.yangtools.yang.binding.YangModelBindingProvider
+
 /**
  * Load all YangModelBindingProvider classes from classpath.
  * <p/>

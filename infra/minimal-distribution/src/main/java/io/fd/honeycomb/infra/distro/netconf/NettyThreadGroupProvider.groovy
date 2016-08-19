@@ -23,9 +23,7 @@ import groovy.util.logging.Slf4j
 import io.fd.honeycomb.infra.distro.ProviderTrait
 import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration
 import io.netty.channel.nio.NioEventLoopGroup
-/**
- * Mirror of org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModule
- */
+
 @Slf4j
 @ToString
 class NettyThreadGroupProvider extends ProviderTrait<NioEventLoopGroup> {

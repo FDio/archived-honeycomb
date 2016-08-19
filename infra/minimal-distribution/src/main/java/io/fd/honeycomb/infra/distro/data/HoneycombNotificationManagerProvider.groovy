@@ -28,9 +28,7 @@ import io.fd.honeycomb.notification.impl.NotificationProducerTracker
 import org.opendaylight.controller.md.sal.binding.impl.BindingDOMNotificationPublishServiceAdapter
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec
 import org.opendaylight.controller.md.sal.dom.broker.impl.DOMNotificationRouter
-/**
- * Mirror of org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.notification.impl.rev160601.HoneycombNotificationManagerModule
- */
+
 @Slf4j
 @ToString
 class HoneycombNotificationManagerProvider extends ProviderTrait<NotificationCollector> {

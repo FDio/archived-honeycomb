@@ -26,9 +26,7 @@ import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactoryListener
 import org.opendaylight.netconf.mdsal.connector.MdsalNetconfOperationServiceFactory
 import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext
-/**
- * Mirror of org.opendaylight.controller.config.yang.netconf.mdsal.mapper.NetconfMdsalMapperModule
- */
+
 @Slf4j
 @ToString
 class NetconfMdsalMapperProvider extends ProviderTrait<NetconfOperationServiceFactory> {

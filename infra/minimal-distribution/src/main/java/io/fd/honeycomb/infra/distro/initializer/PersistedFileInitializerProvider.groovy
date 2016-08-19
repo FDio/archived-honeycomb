@@ -19,7 +19,7 @@ package io.fd.honeycomb.infra.distro.initializer
 import com.google.inject.Inject
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
-import io.fd.honeycomb.data.init.RestorationType
+
 import io.fd.honeycomb.data.init.RestoringInitializer
 import io.fd.honeycomb.infra.distro.ProviderTrait
 import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration
@@ -28,9 +28,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker
 import org.opendaylight.controller.sal.core.api.model.SchemaService
 
 import java.nio.file.Paths
-/**
- * Mirror of org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.data.initializer.rev160407.PersistedFileInitializerModule
- */
+
 @Slf4j
 @ToString
 abstract class PersistedFileInitializerProvider extends ProviderTrait<RestoringInitializer> {
@@ -46,7 +44,7 @@ abstract class PersistedFileInitializerProvider extends ProviderTrait<RestoringI
     @Override
     def create() {
         new RestoringInitializer(schemaService, Paths.get(getPersistPath()),
-                domDataBroker, RestorationType.valueOf(restorationType), getDataStoreType())
+                domDataBroker, RestoringInitializer.RestorationType.valueOf(restorationType), getDataStoreType())
     }
 
     abstract String getPersistPath()

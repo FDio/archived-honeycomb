@@ -46,7 +46,6 @@ class JettyServerProvider extends ProviderTrait<Server> {
         // Load Realm for basic auth
         def service = new HashLoginService(REALM)
         // Reusing the name as role
-        // TODO make this more configurable
         service.putUser(cfg.username, new Password(cfg.password), cfg.username)
         server.addBean(service)
 

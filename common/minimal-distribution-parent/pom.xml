@@ -20,7 +20,8 @@
     <properties>
         <nexusproxy>http://nexus.fd.io/content</nexusproxy>
         <!--<main.class>Main</main.class>-->
-        <exec.parameters>-XX:+PrintFlagsFinal -client -Xms64m -Xmx64m -XX:MaxMetaspaceSize=64m -Xss512k -XX:+UseSerialGC -Djava.compiler=NONE -Xverify:none -noverify</exec.parameters>
+        <exec.parameters>-Xms64m -Xmx128m -XX:MaxMetaspaceSize=128m</exec.parameters>
+        <exec.parameters.minimal>-client -Xms64m -Xmx64m -XX:MaxMetaspaceSize=64m -Xss512k -XX:+UseSerialGC -Djava.compiler=NONE -Xverify:none -noverify</exec.parameters.minimal>
 
         <guice.version>4.1.0</guice.version>
         <guice.config.version>1.2.0</guice.config.version>

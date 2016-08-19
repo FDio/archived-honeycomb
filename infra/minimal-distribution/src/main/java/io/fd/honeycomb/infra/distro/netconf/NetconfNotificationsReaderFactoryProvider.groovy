@@ -32,13 +32,12 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier
 
 import javax.annotation.Nonnull
 
-// TODO backport to karaf distro
 @Slf4j
 @ToString
 class NetconfNotificationsReaderFactoryProvider extends ProviderTrait<ReaderFactory> {
 
     @Inject
-    @Named("netconf")
+    @Named(NetconfModule.HONEYCOMB_NETCONF)
     DataBroker netconfDataBroker
 
     def create() {

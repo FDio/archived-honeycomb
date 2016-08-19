@@ -28,6 +28,7 @@ class NetconfReadersModule extends AbstractModule {
     protected void configure() {
         // This should be part of NetconfModule, but that one is Private and Multibinders + private BASE_MODULES
         // do not work together, that's why there's a dedicated module here
+        // https://github.com/google/guice/issues/906
         Multibinder.newSetBinder(binder(), ReaderFactory.class).with {
             addBinding().toProvider(NetconfMonitoringReaderFactoryProvider).in(Singleton)
             addBinding().toProvider(NetconfNotificationsReaderFactoryProvider).in(Singleton)
