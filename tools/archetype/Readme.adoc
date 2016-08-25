@@ -1,0 +1,13 @@
+Honeycomb Plugin Archetype
+
+    This is archetype for creating plugins for Honeycomb platform
+
+How to use it :
+
+    archetype:generate -DarchetypeGroupId=io.fd.honeycomb.tools -DarchetypeArtifactId=honeycomb-plugin-archetype -DarchetypeVersion=1.0.0-SNAPSHOT
+
+This will generate main aggregator project containing two sub-projects
+
+    -api  - project that should contain yang model files for restconf/netconf DTO classes
+    -impl - implementation project that should contain plugin translation code + wiring
+

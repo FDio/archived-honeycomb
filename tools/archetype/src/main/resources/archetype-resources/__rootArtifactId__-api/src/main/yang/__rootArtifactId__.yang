@@ -1,0 +1,49 @@
+module ${rootArtifactId} {
+
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:${rootArtifactId}";
+    prefix "${rootArtifactId}";
+
+    description
+        "This YANG module defines the generic configuration and
+        operational data for ${rootArtifactId} in VPP";
+
+    revision "2016-09-18" {
+        description "Initial revision of ${rootArtifactId} model";
+    }
+
+    container ${rootArtifactId} {
+        uses ${rootArtifactId}-params;
+        description "Configuration data of ${rootArtifactId} in Honeycomb";
+
+        // READ
+        // curl -u admin:admin http://localhost:8181/restconf/config/${rootArtifactId}:${rootArtifactId}
+
+        // WRITE
+        // curl http://localhost:8181/restconf/operational/${rootArtifactId}:${rootArtifactId}
+
+    }
+
+    container ${rootArtifactId}-state {
+        config false;
+        uses ${rootArtifactId}-params;
+        description "Operational data of ${rootArtifactId} persisted in VPP";
+
+        // READ
+        // curl -u admin:admin  http://localhost:8181/restconf/operational/${rootArtifactId}:${rootArtifactId}-state
+    }
+
+    grouping ${rootArtifactId}-params {
+        list element {
+
+            key id;
+            leaf id {
+                type uint32;
+            }
+
+            leaf description {
+                type string;
+            }
+        }
+    }
+}

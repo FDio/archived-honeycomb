@@ -39,6 +39,7 @@
     <module>vpp-integration</module>
     <module>lisp</module>
     <module>samples</module>
+    <module>tools</module>
   </modules>
 
   <distributionManagement>

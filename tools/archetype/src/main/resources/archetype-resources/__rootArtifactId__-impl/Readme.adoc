@@ -1,0 +1,3 @@
+--Documentation for ${rootArtifactId} --
+
+TODO Replace with general description whats the purpose of ${rootArtifactId} and how it works
