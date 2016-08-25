@@ -26,7 +26,6 @@ import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.ProvisionException;
 import com.google.inject.name.Names;
-import groovy.util.logging.Slf4j;
 import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.data.init.InitializerRegistry;
 import io.fd.honeycomb.infra.distro.cfgattrs.CfgAttrsModule;
@@ -50,7 +49,6 @@ import org.opendaylight.netconf.sal.rest.api.RestConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Slf4j
 public final class Main {
 
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
@@ -79,7 +77,6 @@ public final class Main {
     public static Injector init(final List<? extends Module> modules) {
         try {
             LOG.info("Starting honeycomb");
-
             Injector injector = Guice.createInjector(modules);
             LOG.info("Honeycomb configuration: " + injector.getInstance(HoneycombConfiguration.class));
 
@@ -98,9 +95,11 @@ public final class Main {
                 final RestConnector instance = injector.getInstance(RestConnector.class);
 
                 if (cfgAttributes.isRestconfHttpEnabled()) {
+                    LOG.info("Starting Restconf on http");
                     injector.getInstance(Key.get(ServerConnector.class, Names.named(RestconfModule.RESTCONF_HTTP)));
                 }
                 if (cfgAttributes.isRestconfHttpsEnabled()) {
+                    LOG.info("Starting Restconf on https");
                     injector.getInstance(Key.get(ServerConnector.class, Names.named(RestconfModule.RESTCONF_HTTPS)));
                 }
 
@@ -153,6 +152,9 @@ public final class Main {
         } catch (RuntimeException e) {
             LOG.error("Unexpected initialization failure", e);
             throw e;
+        } finally {
+            // Trigger gc to force collect initial garbage + dedicated classloader
+            System.gc();
         }
     }
 }
