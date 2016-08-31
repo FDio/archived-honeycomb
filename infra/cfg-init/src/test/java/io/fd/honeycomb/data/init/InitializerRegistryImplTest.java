@@ -54,13 +54,4 @@ public class InitializerRegistryImplTest {
         verify(dti2).initialize();
         verify(dti3).initialize();
     }
-
-    @Test
-    public void testClose() throws Exception {
-        initializerRegistry.close();
-
-        verify(dti1).close();
-        verify(dti2).close();
-        verify(dti3).close();
-    }
 }

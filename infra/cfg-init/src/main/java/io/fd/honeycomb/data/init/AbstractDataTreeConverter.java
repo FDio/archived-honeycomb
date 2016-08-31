@@ -55,13 +55,6 @@ public abstract class AbstractDataTreeConverter<O extends DataObject, C extends 
     }
 
     @Override
-    public void close() throws Exception {
-        LOG.debug("AbstractDataTreeConverter.close()");
-        // Not removing initialized data, since this works in cooperation with persistence, it could remove
-        // data restored by persistence or remove user configured data when shutting down HC
-    }
-
-    @Override
     public final void initialize() throws InitializeException {
         LOG.debug("AbstractDataTreeConverter.initialize() from(oper): {}, to(cfg): {}", idOper, idConfig);
         final Optional<O> data = readData();

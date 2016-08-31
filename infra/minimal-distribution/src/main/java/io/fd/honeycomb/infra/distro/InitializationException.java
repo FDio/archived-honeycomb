@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.data.init;
-
-import com.google.common.annotations.Beta;
+package io.fd.honeycomb.infra.distro;
 
 /**
- * Data tree initializer suitable as a holder for all other root initializers, providing initializeAll feature.
+ * Exception thrown when a failure occurs during HC initialization.
  */
-@Beta
-public interface InitializerRegistry extends DataTreeInitializer {
+public class InitializationException extends RuntimeException {
 
-    /**
-     * Performs initialize on all registered root intializers.
-     *
-     * @throws InitializeException if initialization failed
-     */
-    @Override
-    void initialize() throws InitializeException;
+    public InitializationException(final String s) {
+        super(s);
+    }
+
+    public InitializationException(final String s, final Throwable throwable) {
+        super(s, throwable);
+    }
 }

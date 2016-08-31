@@ -34,14 +34,6 @@ public class InitializerRegistryImpl implements InitializerRegistry {
     }
 
     @Override
-    public void close() throws Exception {
-        LOG.debug("InitializerRegistryImpl.close()");
-        for (DataTreeInitializer initializer : initializers) {
-            initializer.close();
-        }
-    }
-
-    @Override
     public void initialize() throws InitializeException {
         // TODO check if readers are there
         LOG.debug("InitializerRegistryImpl.initialize()");

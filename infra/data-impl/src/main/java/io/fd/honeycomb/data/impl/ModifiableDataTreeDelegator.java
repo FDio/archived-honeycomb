@@ -83,10 +83,10 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
 
     @Override
     public DataModification newModification() {
-        return new ConfigSnapshot(super.newModification());
+        return new DelegatingConfigSnapshot(super.newModification());
     }
 
-    private final class ConfigSnapshot extends ModifiableDataTreeManager.ConfigSnapshot {
+    private final class DelegatingConfigSnapshot extends ModifiableDataTreeManager.ConfigSnapshot {
 
         private final DataModification untouchedModification;
 
@@ -96,7 +96,7 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
          *                              (state without current modifications).
          *                              It must be captured as close as possible to when current modification started.
          */
-        ConfigSnapshot(final DataModification untouchedModification) {
+        DelegatingConfigSnapshot(final DataModification untouchedModification) {
             this.untouchedModification = untouchedModification;
         }
 
@@ -188,7 +188,7 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
             final DataObjectUpdate dataObjectUpdate = toDataObjectUpdate(normalizedNodeUpdate, serializer);
             if (dataObjectUpdate != null) {
                 if (dataObjectUpdate instanceof DataObjectUpdate.DataObjectDelete) {
-                    dataObjectDeletes.put(unkeyedIid, ((DataObjectUpdate.DataObjectDelete) dataObjectUpdate));
+                    dataObjectDeletes.put(unkeyedIid, (DataObjectUpdate.DataObjectDelete) dataObjectUpdate);
                 } else {
                     dataObjectUpdates.put(unkeyedIid, dataObjectUpdate);
                 }

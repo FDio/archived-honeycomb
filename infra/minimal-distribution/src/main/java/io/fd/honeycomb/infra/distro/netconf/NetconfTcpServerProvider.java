@@ -17,6 +17,7 @@
 package io.fd.honeycomb.infra.distro.netconf;
 
 import com.google.inject.Inject;
+import io.fd.honeycomb.infra.distro.InitializationException;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
 import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import io.netty.channel.ChannelFuture;
@@ -78,7 +79,7 @@ public final class NetconfTcpServerProvider extends ProviderTrait<NetconfTcpServ
                 LOG.info("Netconf TCP endpoint started successfully at {}", unresolved);
             } else {
                 LOG.warn("Unable to start TCP netconf server at {}", unresolved, future.cause());
-                throw new RuntimeException("Unable to start TCP netconf server", future.cause());
+                throw new InitializationException("Unable to start TCP netconf server", future.cause());
             }
         }
     }

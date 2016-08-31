@@ -24,19 +24,13 @@ import com.google.common.annotations.Beta;
  * Initialization does not cause any change in VPP state, unlike ordinary writes to config.
  */
 @Beta
-public interface DataTreeInitializer extends AutoCloseable {
+public interface DataTreeInitializer {
 
     /**
      * Initializes config data tree for supported root node.
      * @throws InitializeException if initialization failed
      */
     void initialize() throws InitializeException;
-
-    /**
-     * Removes all data managed by the initializer.
-     */
-    @Override
-    void close() throws Exception;
 
     class InitializeException extends Exception {
 
