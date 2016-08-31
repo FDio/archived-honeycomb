@@ -16,18 +16,21 @@
 
 package io.fd.honeycomb.translate;
 
-import com.google.common.collect.Maps;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Simple context class that provides transient storage during one or more read/write operations
+ * Simple context class that provides transient storage during one or more read/write operations.
+ * Internally Thread-save.
  */
+@ThreadSafe
 public class ModificationCache implements AutoCloseable {
 
-    protected final HashMap<Object, Object> map;
+    protected final Map<Object, Object> map;
 
     public ModificationCache() {
-        map = Maps.newHashMap();
+        map = new ConcurrentHashMap<>();
     }
 
     public Object get(final Object o) {
