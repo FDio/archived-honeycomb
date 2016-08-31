@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.fd.honeycomb.impl;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -28,7 +29,7 @@ import org.opendaylight.yangtools.yang.binding.RpcService;
 import org.osgi.framework.BundleContext;
 
 /**
- * Binding aware broker wrapping just a DataBroker
+ * Binding aware broker wrapping just a DataBroker.
  */
 public final class FakeBindingAwareBroker implements BindingAwareBroker, AutoCloseable {
 
@@ -39,7 +40,6 @@ public final class FakeBindingAwareBroker implements BindingAwareBroker, AutoClo
         this.netconfBindingBrokerDependency = netconfBindingBrokerDependency;
     }
 
-    @Deprecated
     @Override
     public ConsumerContext registerConsumer(final BindingAwareConsumer bindingAwareConsumer,
                                             final BundleContext bundleContext) {
@@ -50,14 +50,14 @@ public final class FakeBindingAwareBroker implements BindingAwareBroker, AutoClo
     public ConsumerContext registerConsumer(final BindingAwareConsumer bindingAwareConsumer) {
         final ConsumerContext consumerContext = new ConsumerContext() {
             @Override
-            public <T extends BindingAwareService> T getSALService(final Class<T> aClass) {
-                return aClass.equals(DataBroker.class)
-                    ? (T) netconfBindingBrokerDependency
-                    : null;
+            public <T extends BindingAwareService> T getSALService(final Class<T> serviceClass) {
+                return serviceClass.equals(DataBroker.class)
+                        ? (T) netconfBindingBrokerDependency
+                        : null;
             }
 
             @Override
-            public <T extends RpcService> T getRpcService(final Class<T> aClass) {
+            public <T extends RpcService> T getRpcService(final Class<T> serviceClass) {
                 return null;
             }
         };
@@ -73,36 +73,7 @@ public final class FakeBindingAwareBroker implements BindingAwareBroker, AutoClo
 
     @Override
     public ProviderContext registerProvider(final BindingAwareProvider bindingAwareProvider) {
-        final ProviderContext context = new ProviderContext() {
-            @Override
-            public <L extends RouteChangeListener<RpcContextIdentifier, InstanceIdentifier<?>>> ListenerRegistration<L> registerRouteChangeListener(
-                final L l) {
-                throw new UnsupportedOperationException("Unsupported");
-            }
-
-            @Override
-            public <T extends RpcService> T getRpcService(final Class<T> aClass) {
-                throw new UnsupportedOperationException("Unsupported");
-            }
-
-            @Override
-            public <T extends RpcService> RpcRegistration<T> addRpcImplementation(final Class<T> aClass, final T t)
-                throws IllegalStateException {
-                throw new UnsupportedOperationException("Unsupported");
-            }
-
-            @Override
-            public <T extends RpcService> RoutedRpcRegistration<T> addRoutedRpcImplementation(
-                final Class<T> aClass, final T t) throws IllegalStateException {
-                throw new UnsupportedOperationException("Unsupported");
-            }
-
-            @Override
-            public <T extends BindingAwareService> T getSALService(final Class<T> aClass) {
-                return aClass.equals(DataBroker.class)
-                    ? (T) netconfBindingBrokerDependency
-                    : null;                }
-        };
+        final ProviderContext context = new FakeProviderContext(netconfBindingBrokerDependency);
         bindingAwareProvider.onSessionInitiated(context);
         return context;
     }
@@ -110,5 +81,44 @@ public final class FakeBindingAwareBroker implements BindingAwareBroker, AutoClo
     @Override
     public void close() throws Exception {
         netconfBindingBrokerDependency = null;
+    }
+
+    private static final class FakeProviderContext implements ProviderContext {
+
+        private Object netconfBindingBrokerDependency;
+
+        FakeProviderContext(final DataBroker netconfBindingBrokerDependency) {
+            this.netconfBindingBrokerDependency = netconfBindingBrokerDependency;
+        }
+
+        @Override
+        public <L extends RouteChangeListener<RpcContextIdentifier, InstanceIdentifier<?>>> ListenerRegistration<L> registerRouteChangeListener(
+                final L listener) {
+            throw new UnsupportedOperationException("Unsupported");
+        }
+
+        @Override
+        public <T extends RpcService> T getRpcService(final Class<T> serviceClass) {
+            throw new UnsupportedOperationException("Unsupported");
+        }
+
+        @Override
+        public <T extends RpcService> RpcRegistration<T> addRpcImplementation(final Class<T> rpcClass, final T t)
+                throws IllegalStateException {
+            throw new UnsupportedOperationException("Unsupported");
+        }
+
+        @Override
+        public <T extends RpcService> RoutedRpcRegistration<T> addRoutedRpcImplementation(
+                final Class<T> rpcClass, final T type) throws IllegalStateException {
+            throw new UnsupportedOperationException("Unsupported");
+        }
+
+        @Override
+        public <T extends BindingAwareService> T getSALService(final Class<T> serviceClass) {
+            return serviceClass.equals(DataBroker.class)
+                    ? (T) netconfBindingBrokerDependency
+                    : null;
+        }
     }
 }

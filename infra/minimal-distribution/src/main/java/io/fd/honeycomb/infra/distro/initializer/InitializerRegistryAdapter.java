@@ -45,7 +45,6 @@ final class InitializerRegistryAdapter implements InitializerRegistry {
         LOG.info("Config initialization started");
 
         final InitializerRegistry initializer = new InitializerRegistryImpl(pluginInitializers);
-
         try {
             // Initialize contexts first so that other initializers can find any relevant mapping before initializing
             // configuration to what is already in VPP
@@ -64,6 +63,4 @@ final class InitializerRegistryAdapter implements InitializerRegistry {
         LOG.info("Honeycomb initialized");
     }
 
-    @Override
-    public void close() throws Exception {}
 }

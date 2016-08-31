@@ -35,7 +35,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 /**
- * Transaction based WriteContext
+ * Transaction backed WriteContext.
  */
 public final class TransactionWriteContext implements WriteContext {
 
@@ -110,11 +110,12 @@ public final class TransactionWriteContext implements WriteContext {
     }
 
     /**
-     * Does not close the transactions
+     * Does not close the transactions.
      */
     @Override
     public void close() {
         ctx.close();
+        mappingContext.close();
         beforeTx.close();
         afterTx.close();
     }

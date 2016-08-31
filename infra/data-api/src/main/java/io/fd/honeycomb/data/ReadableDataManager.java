@@ -28,6 +28,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
  * Facade over data tree that allows reading tree nodes.
  */
 @Beta
+@FunctionalInterface
 public interface ReadableDataManager {
 
     /**

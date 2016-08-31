@@ -47,7 +47,7 @@ import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 import org.osgi.framework.BundleContext;
 
 /**
- * Implementation of dom broker to facade VPP pipeline for northbound APIs
+ * Implementation of dom broker to facade VPP pipeline for northbound APIs.
  */
 public class NorthboundFacadeHoneycombDOMBroker implements AutoCloseable, Broker {
 
@@ -82,7 +82,6 @@ public class NorthboundFacadeHoneycombDOMBroker implements AutoCloseable, Broker
         return session;
     }
 
-    @Deprecated
     @Override
     public ConsumerSession registerConsumer(final Consumer consumer, final BundleContext bundleContext) {
         throw new UnsupportedOperationException();
@@ -115,8 +114,8 @@ public class NorthboundFacadeHoneycombDOMBroker implements AutoCloseable, Broker
         }
 
         @Override
-        public <T extends BrokerService> T getService(final Class<T> aClass) {
-            return (T)services.get(aClass);
+        public <T extends BrokerService> T getService(final Class<T> serviceClass) {
+            return (T)services.get(serviceClass);
         }
 
         @Override
@@ -140,8 +139,8 @@ public class NorthboundFacadeHoneycombDOMBroker implements AutoCloseable, Broker
         }
 
         @Override
-        public <T extends BrokerService> T getService(final Class<T> aClass) {
-            return (T)services.get(aClass);
+        public <T extends BrokerService> T getService(final Class<T> serviceClass) {
+            return (T)services.get(serviceClass);
         }
 
         @Override

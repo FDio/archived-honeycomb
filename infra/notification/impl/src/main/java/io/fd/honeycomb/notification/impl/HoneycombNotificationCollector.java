@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.fd.honeycomb.notification.impl;
 
 import io.fd.honeycomb.notification.NotificationCollector;
@@ -54,7 +55,6 @@ public final class HoneycombNotificationCollector implements NotificationCollect
         } catch (InterruptedException e) {
             LOG.warn("Interrupted", e);
             Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
         }
     }
 

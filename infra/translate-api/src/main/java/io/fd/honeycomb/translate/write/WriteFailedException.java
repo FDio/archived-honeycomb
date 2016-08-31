@@ -97,11 +97,11 @@ public class WriteFailedException extends TranslationException {
     }
 
     /**
-     * Create specific write failed exception
+     * Create specific write failed exception.
      */
     public static class CreateFailedException extends WriteFailedException {
 
-        private final DataObject data;
+        private final transient DataObject data;
 
         public CreateFailedException(@Nonnull final InstanceIdentifier<?> failedId,
                                      @Nonnull final DataObject data,
@@ -126,12 +126,12 @@ public class WriteFailedException extends TranslationException {
     }
 
     /**
-     * Update specific write failed exception
+     * Update specific write failed exception.
      */
     public static class UpdateFailedException extends WriteFailedException {
 
-        private final DataObject dataBefore;
-        private final DataObject dataAfter;
+        private final transient DataObject dataBefore;
+        private final transient DataObject dataAfter;
 
         public UpdateFailedException(@Nonnull final InstanceIdentifier<?> failedId,
                                      @Nonnull final DataObject dataBefore,

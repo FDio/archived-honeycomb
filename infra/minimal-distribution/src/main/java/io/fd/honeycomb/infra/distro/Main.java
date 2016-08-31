@@ -66,6 +66,8 @@ public final class Main {
             // Json config attributes
             new CfgAttrsModule());
 
+    private Main() {}
+
     public static void main(String[] args) {
         // TODO add "clean" argument
         init(BASE_MODULES);
@@ -107,7 +109,7 @@ public final class Main {
                     server.start();
                 } catch (Exception e) {
                     LOG.error("Unable to start Restconf", e);
-                    throw new RuntimeException("Unable to start Restconf", e);
+                    throw new InitializationException("Unable to start Restconf", e);
                 }
             }
 
@@ -157,4 +159,5 @@ public final class Main {
             System.gc();
         }
     }
+
 }

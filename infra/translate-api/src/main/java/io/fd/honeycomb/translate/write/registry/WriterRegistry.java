@@ -133,7 +133,7 @@ public interface WriterRegistry {
     @Beta
     class BulkUpdateException extends TranslationException {
 
-        private final Reverter reverter;
+        private final transient Reverter reverter;
         private final Set<InstanceIdentifier<?>> failedIds;
 
         /**

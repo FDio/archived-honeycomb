@@ -24,7 +24,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Context providing information about current state of DataTree to writers
+ * Context providing information about current state of DataTree to writers.
  */
 @Beta
 public interface WriteContext extends ModificationContext {

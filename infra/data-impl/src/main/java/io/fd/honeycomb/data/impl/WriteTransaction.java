@@ -75,16 +75,18 @@ final class WriteTransaction implements DOMDataWriteTransaction {
     }
 
     private void handleOperation(final LogicalDatastoreType store,
-                                 final Consumer<DataModification> r) {
+                                 final Consumer<DataModification> modificationHandler) {
         switch (store) {
             case CONFIGURATION:
                 checkArgument(configModification != null, "Modification of %s is not supported", store);
-                r.accept(configModification);
+                modificationHandler.accept(configModification);
                 break;
             case OPERATIONAL:
                 checkArgument(operationalModification != null, "Modification of %s is not supported", store);
-                r.accept(operationalModification);
+                modificationHandler.accept(operationalModification);
                 break;
+            default:
+                throw new IllegalArgumentException("Unable to handle operation for type " + store);
         }
     }
 

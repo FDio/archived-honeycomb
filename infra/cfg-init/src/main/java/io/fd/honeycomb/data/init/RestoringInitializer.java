@@ -69,7 +69,7 @@ public class RestoringInitializer implements DataTreeInitializer {
     @Override
     public void initialize() throws InitializeException {
         LOG.debug("Starting restoration of {} from {} using {}", dataTree, path, restorationType);
-        if(!Files.exists(path)) {
+        if (!Files.exists(path)) {
             LOG.debug("Persist file {} does not exist. Skipping restoration", path);
             return;
         }
@@ -106,11 +106,8 @@ public class RestoringInitializer implements DataTreeInitializer {
         }
     }
 
-    @Override
-    public void close() {}
-
     /**
-     * Type of operation to use when writing restored data
+     * Type of operation to use when writing restored data.
      */
     public static enum RestorationType {
         Put, Merge

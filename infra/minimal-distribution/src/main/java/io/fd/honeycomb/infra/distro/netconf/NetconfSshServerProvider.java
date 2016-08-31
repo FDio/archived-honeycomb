@@ -18,6 +18,7 @@ package io.fd.honeycomb.infra.distro.netconf;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
+import io.fd.honeycomb.infra.distro.InitializationException;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
 import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import io.netty.channel.ChannelFuture;
@@ -137,12 +138,12 @@ public final class NetconfSshServerProvider extends ProviderTrait<NetconfSshServ
                     sshProxyServer.bind(sshConfigBuilder.createSshProxyServerConfiguration());
                     LOG.info("Netconf SSH endpoint started successfully at {}", bindingAddress);
                 } catch (final IOException e) {
-                    throw new RuntimeException("Unable to start SSH netconf server", e);
+                    throw new InitializationException("Unable to start SSH netconf server", e);
                 }
 
             } else {
                 LOG.warn("Unable to start SSH netconf server at {}", bindingAddress, future.cause());
-                throw new RuntimeException("Unable to start SSH netconf server", future.cause());
+                throw new InitializationException("Unable to start SSH netconf server", future.cause());
             }
 
         }

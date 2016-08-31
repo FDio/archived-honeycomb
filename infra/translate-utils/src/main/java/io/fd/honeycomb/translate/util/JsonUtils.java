@@ -40,13 +40,17 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNormalizedNodeS
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class JsonUtils {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JsonUtils.class);
 
     private JsonUtils() {}
 
     /**
-     * Serialize normalized node root structure into provided output stream
+     * Serialize normalized node root structure into provided output stream.
      *
      * @throws IOException if serialized data cannot be written into provided output stream
      */
@@ -79,15 +83,18 @@ public final class JsonUtils {
             Builders.containerBuilder().withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(schemaContext.getQName()));
         final NormalizedNodeStreamWriter writer = ImmutableNormalizedNodeStreamWriter.from(builder);
 
-        final JsonParserStream jsonParser = JsonParserStream.create(writer, schemaContext);
-        final JsonReader reader = new JsonReader(new InputStreamReader(stream, Charsets.UTF_8));
-        jsonParser.parse(reader);
+        try (final JsonParserStream jsonParser = JsonParserStream.create(writer, schemaContext)) {
+            final JsonReader reader = new JsonReader(new InputStreamReader(stream, Charsets.UTF_8));
+            jsonParser.parse(reader);
+        } catch (IOException e) {
+            LOG.warn("Unable to close json parser. Ignoring exception", e);
+        }
 
         return builder.build();
     }
 
     private static void writeChildren(final NormalizedNodeWriter nnWriter, final ContainerNode data) throws IOException {
-        for(final DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?> child : data.getValue()) {
+        for (final DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?> child : data.getValue()) {
             nnWriter.write(child);
         }
     }
