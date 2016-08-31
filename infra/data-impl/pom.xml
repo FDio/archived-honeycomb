@@ -19,14 +19,14 @@
     <parent>
         <artifactId>impl-parent</artifactId>
         <groupId>io.fd.honeycomb.common</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.16.12-SNAPSHOT</version>
         <relativePath>../../common/impl-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.honeycomb</groupId>
     <artifactId>data-impl</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.16.12-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <dependencies>

@@ -26,7 +26,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.fd.honeycomb.common</groupId>
   <artifactId>impl-parent</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.16.12-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <properties>
@@ -94,7 +94,7 @@
               <groupId>io.fd.honeycomb.common</groupId>
               <artifactId>honeycomb-checkstyle</artifactId>
               <!-- Hardcoded version to prevent archetype generated projects to use their own project version -->
-              <version>1.0.0-SNAPSHOT</version>
+              <version>1.16.12-SNAPSHOT</version>
             </dependency>
             <!-- Necessary for logging checks -->
             <dependency>
