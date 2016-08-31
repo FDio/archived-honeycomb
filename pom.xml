@@ -35,8 +35,8 @@
     <module>infra</module>
     <module>nsh</module>
     <module>vpp-common</module>
-    <module>v3po</module>
     <module>vpp-integration</module>
+    <module>v3po</module>
     <module>lisp</module>
     <module>samples</module>
     <module>tools</module>
