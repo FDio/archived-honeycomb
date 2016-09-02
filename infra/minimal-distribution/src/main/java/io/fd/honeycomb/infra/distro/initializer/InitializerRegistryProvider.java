@@ -39,6 +39,6 @@ public final class InitializerRegistryProvider extends ProviderTrait<Initializer
 
     @Override
     protected InitializerRegistryAdapter create() {
-        return new InitializerRegistryAdapter(contextInitializer, configInitializer, pluginInitializers);
+        return new InitializerRegistryAdapter(configInitializer, contextInitializer, pluginInitializers);
     }
 }
