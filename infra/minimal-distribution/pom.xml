@@ -61,123 +61,111 @@
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>${guice.version}</version>
         </dependency>
         <dependency>
             <groupId>net.jmob</groupId>
             <artifactId>guice.conf</artifactId>
-            <version>${guice.config.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-multibindings</artifactId>
-            <version>${guice.version}</version>
         </dependency>
         <!-- ODL -->
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-data-impl</artifactId>
-            <version>${yangtools.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-core-api</artifactId>
-            <version>${mdsal.version}</version>
         </dependency>
         <!-- ODL-Restconf -->
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>
             <artifactId>sal-rest-connector</artifactId>
-            <version>${restconf.version}</version>
         </dependency>
         <!-- ODL-Netconf -->
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>
             <artifactId>netconf-impl</artifactId>
-            <version>${netconf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>
             <artifactId>netconf-ssh</artifactId>
-            <version>${netconf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>
             <artifactId>mdsal-netconf-notification</artifactId>
-            <version>${netconf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>
             <artifactId>mdsal-netconf-monitoring</artifactId>
-            <version>${netconf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>
             <artifactId>mdsal-netconf-connector</artifactId>
-            <version>${netconf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.netconf</groupId>
+            <artifactId>ietf-netconf-monitoring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.netconf</groupId>
+            <artifactId>ietf-netconf-monitoring-extension</artifactId>
         </dependency>
 
         <!-- Jersey + Jetty for RESTCONF -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>${servlet.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
-            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlets</artifactId>
-            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-server</artifactId>
-            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-core</artifactId>
-            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-servlet</artifactId>
-            <version>${jersey.version}</version>
-        </dependency>
-
-        <!-- HC -->
-        <dependency>
-            <groupId>io.fd.honeycomb</groupId>
-            <artifactId>data-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fd.honeycomb</groupId>
-            <artifactId>honeycomb-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fd.honeycomb</groupId>
-            <artifactId>notification-impl</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <!-- OSGI Even tough not running in OSGI, dependency needs to be here since some deprecated MD-SAL APIs rely on osgi core -->
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
-            <version>${osgi.core.version}</version>
             <scope>compile</scope>
         </dependency>
-    </dependencies>
 
+        <!-- HC -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>data-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>honeycomb-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>notification-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

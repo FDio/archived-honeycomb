@@ -183,7 +183,7 @@ public interface WriterRegistry {
         @Beta
         class RevertFailedException extends TranslationException {
 
-            // TODO change to list of VppDataModifications to make debugging easier
+            // TODO HONEYCOMB-170 change to list of VppDataModifications to make debugging easier
             private final Set<InstanceIdentifier<?>> notRevertedChanges;
 
             /**

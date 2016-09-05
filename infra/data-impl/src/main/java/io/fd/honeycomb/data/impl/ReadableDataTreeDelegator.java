@@ -91,7 +91,7 @@ public final class ReadableDataTreeDelegator implements ReadableDataManager {
             org.opendaylight.controller.md.sal.common.api.data.ReadFailedException> read(
             @Nonnull final YangInstanceIdentifier yangInstanceIdentifier) {
 
-        try(TransactionMappingContext mappingContext = new TransactionMappingContext(contextBroker.newReadWriteTransaction());
+        try (TransactionMappingContext mappingContext = new TransactionMappingContext(contextBroker.newReadWriteTransaction());
             ReadContext ctx = new ReadContextImpl(mappingContext)) {
 
             final Optional<NormalizedNode<?, ?>> value;
@@ -113,7 +113,8 @@ public final class ReadableDataTreeDelegator implements ReadableDataManager {
             return Futures.immediateFailedCheckedFuture(
                 new org.opendaylight.controller.md.sal.common.api.data.ReadFailedException("Failed to read data", e));
         } catch (TransactionCommitFailedException e) {
-            // FIXME revert should probably occur when context is not written successfully
+            // Context write failed. This should not happen, but if it does, there's not much that can be done here
+            // ... try to read again
             final String msg = "Error while updating mapping context data";
             LOG.error(msg, e);
             return Futures.immediateFailedCheckedFuture(

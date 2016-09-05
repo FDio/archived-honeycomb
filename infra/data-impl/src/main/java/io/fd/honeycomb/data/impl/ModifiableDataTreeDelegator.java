@@ -60,7 +60,7 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
 
     private final WriterRegistry writerRegistry;
     private final org.opendaylight.controller.md.sal.binding.api.DataBroker contextBroker;
-    // TODO what to use instead of deprecated BindingNormalizedNodeSerializer ?
+    // TODO HONEYCOMB-161 what to use instead of deprecated BindingNormalizedNodeSerializer ?
     private final BindingNormalizedNodeSerializer serializer;
 
     /**
@@ -145,7 +145,7 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
 
                 throw e; // fail with success revert
             } catch (TransactionCommitFailedException e) {
-                // FIXME revert should probably occur when context is not written successfully
+                // TODO HONEYCOMB-162 revert should probably occur when context is not written successfully
                 final String msg = "Error while updating mapping context data";
                 LOG.error(msg, e);
                 throw new TranslationException(msg, e);

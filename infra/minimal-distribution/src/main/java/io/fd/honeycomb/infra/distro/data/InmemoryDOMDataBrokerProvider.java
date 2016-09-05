@@ -49,7 +49,7 @@ public final class InmemoryDOMDataBrokerProvider extends ProviderTrait<DOMDataBr
         ExecutorService listenableFutureExecutor =
                 SpecialExecutors.newBlockingBoundedCachedThreadPool(1, 100, "commits");
         ExecutorService commitExecutor = SpecialExecutors.newBoundedSingleThreadExecutor(100, "WriteTxCommit");
-        // TODO try to provide more lightweight implementation of DataBroker, maybe a single executor would be enough
+        // TODO HONEYCOMB-164 try to provide more lightweight implementation of DataBroker
 
         Map<LogicalDatastoreType, DOMStore> map = new LinkedHashMap<>();
         map.put(LogicalDatastoreType.CONFIGURATION, cfgDataStore);

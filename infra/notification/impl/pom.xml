@@ -29,7 +29,6 @@
     <packaging>bundle</packaging>
 
     <dependencies>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>notification-api</artifactId>
@@ -38,14 +37,12 @@
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-config</artifactId>
-            <version>1.3.2-Beryllium-SR2</version>
         </dependency>
-
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>
             <artifactId>netconf-notifications-api</artifactId>
-            <version>1.0.2-Beryllium-SR2</version>
         </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

@@ -19,7 +19,6 @@ package io.fd.honeycomb.translate.util.read.registry;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import io.fd.honeycomb.translate.read.ListReader;
 import io.fd.honeycomb.translate.read.ReadContext;
@@ -34,7 +33,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
@@ -143,7 +141,6 @@ class SubtreeReader<D extends DataObject, B extends Builder<D>> implements Reade
     private static Optional<? extends DataObject> findNextParent(@Nonnull final DataObject parent,
                                                                  @Nonnull final InstanceIdentifier.PathArgument nextId,
                                                                  @Nonnull final Class<?> managedType) {
-        // TODO is there a better way than reflection ? e.g. convert into NN and filter out with a utility
         Optional<Method> method = ReflectionUtils.findMethodReflex(managedType, "get",
                 Collections.emptyList(), nextId.getType());
 
@@ -172,19 +169,13 @@ class SubtreeReader<D extends DataObject, B extends Builder<D>> implements Reade
         checkArgument(nextId instanceof InstanceIdentifier.IdentifiableItem<?, ?>,
                 "Unable to perform wildcarded read for %s", nextId);
         final Identifier key = ((InstanceIdentifier.IdentifiableItem) nextId).getKey();
-        // TODO replace with stream().filter().findFirst() when we switch to using java's Optional instead of Guava's
-        // because now we would have to do awkward Optional transformation since findFirstReturns guava's optional
-        return Iterables.tryFind(invoke, new Predicate<DataObject>() {
 
-            @Override
-            public boolean apply(@Nullable final DataObject input) {
-                final Optional<Method> keyGetter = ReflectionUtils.findMethodReflex(nextId.getType(), "get",
-                                Collections.emptyList(), key.getClass());
-                final Object actualKey;
-                actualKey = invoke(keyGetter.get(), nextId, input);
-                return key.equals(actualKey);
-            }
-        });
+        final Method keyGetter = ReflectionUtils.findMethodReflex(nextId.getType(), "get",
+                        Collections.emptyList(), key.getClass()).get();
+
+        return Optional.fromNullable(invoke.stream()
+                .filter(item -> key.equals(invoke(keyGetter, nextId, item)))
+                .findFirst().orElse(null));
     }
 
     private static DataObject filterSingle(final DataObject parent,

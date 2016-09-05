@@ -139,13 +139,11 @@ final class FlatWriterRegistry implements WriterRegistry {
     }
 
     private Writer<?> getSubtreeWriterResponsible(final InstanceIdentifier<?> singleType) {
-        final Writer<?> writer;// This is slow ( minor TODO-perf )
-        writer = writers.values().stream()
+        return writers.values().stream()
                 .filter(w -> w instanceof SubtreeWriter)
                 .filter(w -> ((SubtreeWriter<?>) w).getHandledChildTypes().contains(singleType))
                 .findFirst()
                 .get();
-        return writer;
     }
 
     private Collection<DataObjectUpdate> getParentDataObjectUpdate(final WriteContext ctx,
@@ -255,7 +253,6 @@ final class FlatWriterRegistry implements WriterRegistry {
         return writers.get(singleType);
     }
 
-    // FIXME unit test
     private final class ReverterImpl implements Reverter {
 
         private final Collection<InstanceIdentifier<?>> processedNodes;

@@ -169,7 +169,7 @@ public class HoneycombWriteInfraTest extends AbstractInfraTest {
 
     private void verifyOrderedWrites(final Writer<?>[] orderedWriters, final InOrder inOrder)
             throws WriteFailedException {
-        // TODO Modifications are not produced for nodes that do not contain any actual leaves (except when choice is a child) do we need those triggers ?
+        // Modifications are not produced for nodes that do not contain any actual leaves (except when choice is a child)
         // Unordered
         // verify(complexAugmentWriter).update(eq(COMPLEX_AUGMENT_ID), eq(null), eq(getComplexAugment()), any(WriteContext.class));
         // 1

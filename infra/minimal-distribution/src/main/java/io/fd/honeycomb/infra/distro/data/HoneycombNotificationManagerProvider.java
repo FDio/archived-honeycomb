@@ -59,9 +59,9 @@ public final class HoneycombNotificationManagerProvider extends ProviderTrait<No
                 new NotificationProducerTracker(notificationProducerRegistry, honeycombNotificationCollector,
                         notificationRouter);
 
-        // TODO wire with restconf
         // DOMNotificationService is already provided by DOMBroker injected into RESTCONF, however RESTCONF
-        // only supports data-change notification, nothing else. So currently its impossible.
+        // only supports data-change notification, nothing else. So currently (Beryllium-SR2) honeycomb notifications
+        // won't be available over RESTCONF.
 
         return honeycombNotificationCollector;
     }

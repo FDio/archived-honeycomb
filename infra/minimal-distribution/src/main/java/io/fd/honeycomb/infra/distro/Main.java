@@ -69,7 +69,6 @@ public final class Main {
     private Main() {}
 
     public static void main(String[] args) {
-        // TODO add "clean" argument
         init(BASE_MODULES);
     }
 

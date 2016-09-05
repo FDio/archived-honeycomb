@@ -17,6 +17,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.fd.honeycomb.common</groupId>
+    <artifactId>minimal-distribution-parent</artifactId>
+    <version>1.16.12-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
     <properties>
         <nexusproxy>http://nexus.fd.io/content</nexusproxy>
         <!--<main.class>Main</main.class>-->
@@ -31,16 +37,109 @@
         <jetty.version>9.3.11.v20160721</jetty.version>
         <servlet.version>3.1.0</servlet.version>
         <yangtools.version>0.8.2-Beryllium-SR2</yangtools.version>
-        <mdsal.version>1.3.2-Beryllium-SR2</mdsal.version>
+        <mdsal.controller.version>1.3.2-Beryllium-SR2</mdsal.controller.version>
+        <mdsal.version>2.0.2-Beryllium-SR2</mdsal.version>
         <!-- Used by mdsal as provided/runtime dependency-->
         <osgi.core.version>5.0.0</osgi.core.version>
     </properties>
 
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>io.fd.honeycomb.common</groupId>
-    <artifactId>minimal-distribution-parent</artifactId>
-    <version>1.16.12-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.opendaylight.controller</groupId>
+                <artifactId>mdsal-artifacts</artifactId>
+                <version>${mdsal.controller.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.mdsal</groupId>
+                <artifactId>mdsal-artifacts</artifactId>
+                <version>${mdsal.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.netconf</groupId>
+                <artifactId>netconf-artifacts</artifactId>
+                <version>${netconf.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.netconf</groupId>
+                <artifactId>restconf-artifacts</artifactId>
+                <version>${restconf.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.yangtools</groupId>
+                <artifactId>yangtools-artifacts</artifactId>
+                <version>${yangtools.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- DI -->
+            <dependency>
+                <groupId>com.google.inject</groupId>
+                <artifactId>guice</artifactId>
+                <version>${guice.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.jmob</groupId>
+                <artifactId>guice.conf</artifactId>
+                <version>${guice.config.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.inject.extensions</groupId>
+                <artifactId>guice-multibindings</artifactId>
+                <version>${guice.version}</version>
+            </dependency>
+            <!-- Jersey + Jetty for RESTCONF -->
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${servlet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-webapp</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlets</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.jersey</groupId>
+                <artifactId>jersey-server</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.jersey</groupId>
+                <artifactId>jersey-core</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.jersey</groupId>
+                <artifactId>jersey-servlet</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <!-- OSGI Even tough not running in OSGI, dependency needs to be here since some deprecated MD-SAL APIs rely on osgi core -->
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.core</artifactId>
+                <version>${osgi.core.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <!-- Generate executable shell script -->
     <build>
@@ -138,11 +237,7 @@
                                 <goal>execute</goal>
                             </goals>
                             <configuration>
-                                <!-- TODO add remote debug option -->
-                                <!-- TODO add clean option -->
-                                <!-- TODO add shutdown script -->
-                                <!-- TODO add restart script -->
-                                <!-- TODO pass options to JVM? -->
+                                <!-- TODO HONEYCOMB-157 Make scripts more robust -->
                                 <source>
                                     import java.nio.file.Paths
 

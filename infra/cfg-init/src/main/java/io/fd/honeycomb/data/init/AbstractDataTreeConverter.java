@@ -97,9 +97,10 @@ public abstract class AbstractDataTreeConverter<O extends DataObject, C extends 
         writeTx.submit().checkedGet();
     }
 
-    // TODO make this class concrete and use function dependency instead of abstract method
+    // TODO HONEYCOMB-158 make this class concrete and use function dependency instead of abstract method
     /**
-     * Converts operational data to config data for given root node
+     * Converts operational data to config data for given root node.
+     *
      * @param operationalData data object representing operational data
      * @return data object representing config data
      */

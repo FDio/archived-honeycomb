@@ -61,13 +61,12 @@ public class NorthboundFacadeHoneycombDOMBroker implements AutoCloseable, Broker
                                               @Nonnull final DOMNotificationService domNotificatioNService) {
         services = Maps.newHashMap();
         services.put(DOMDataBroker.class, domDataBrokerDependency);
-        // All services below are required to be present by Restconf northbound
         services.put(SchemaService.class, schemaBiService);
+        services.put(DOMNotificationService.class, domNotificatioNService);
+        services.put(DOMNotificationPublishService.class, domNotificatioNService);
+        // All services below are required to be present by Restconf northbound even if not used
         services.put(DOMRpcService.class, EMPTY_DOM_RPC_SERVICE);
         services.put(DOMMountPointService.class, EMPTY_DOM_MOUNT_SERVICE);
-        services.put(DOMNotificationService.class, domNotificatioNService);
-        // TODO do both notification service types have to be registered ?
-        services.put(DOMNotificationPublishService.class, domNotificatioNService);
     }
 
     @Override

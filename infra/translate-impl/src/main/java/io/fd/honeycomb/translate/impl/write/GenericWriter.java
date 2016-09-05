@@ -40,15 +40,21 @@ public final class GenericWriter<D extends DataObject> extends AbstractGenericWr
     @Override
     protected void writeCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D data,
                                           @Nonnull final WriteContext ctx) throws WriteFailedException {
-        // TODO wrap all customizer invocations in try catch, and wrap runtime exceptions in ReadFailed
-        // TODO same for readers
-        customizer.writeCurrentAttributes(id, data, ctx);
+        try {
+            customizer.writeCurrentAttributes(id, data, ctx);
+        } catch (RuntimeException e) {
+            throw new WriteFailedException.CreateFailedException(id, data, e);
+        }
     }
 
     @Override
     protected void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataBefore,
                                            @Nonnull final WriteContext ctx) throws WriteFailedException {
-        customizer.deleteCurrentAttributes(id, dataBefore, ctx);
+        try {
+            customizer.deleteCurrentAttributes(id, dataBefore, ctx);
+        } catch (RuntimeException e) {
+            throw new WriteFailedException.DeleteFailedException(id, e);
+        }
     }
 
     @Override
@@ -56,6 +62,10 @@ public final class GenericWriter<D extends DataObject> extends AbstractGenericWr
                                            @Nonnull final D dataBefore,
                                            @Nonnull final D dataAfter,
                                            @Nonnull final WriteContext ctx) throws WriteFailedException {
-        customizer.updateCurrentAttributes(id, dataBefore, dataAfter, ctx);
+        try {
+            customizer.updateCurrentAttributes(id, dataBefore, dataAfter, ctx);
+        } catch (RuntimeException e) {
+            throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
+        }
     }
 }

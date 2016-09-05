@@ -42,7 +42,7 @@
             <param-value>application/xml,application/yang.data+xml,xml,application/json,application/yang.data+json</param-value>
         </init-param>
     </filter>
-    <!-- FIXME gzip filter is deprecated -->
+    <!-- TODO HONEYCOMB-168 gzip filter is deprecated -->
     <filter-mapping>
         <filter-name>GzipFilter</filter-name>
         <url-pattern>/*</url-pattern>

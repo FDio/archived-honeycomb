@@ -46,20 +46,32 @@ public final class GenericListWriter<D extends DataObject & Identifiable<K>, K e
     @Override
     protected void writeCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D data,
                                           @Nonnull final WriteContext ctx) throws WriteFailedException {
-        customizer.writeCurrentAttributes(id, data, ctx);
+        try {
+            customizer.writeCurrentAttributes(id, data, ctx);
+        } catch (RuntimeException e) {
+            throw new WriteFailedException.CreateFailedException(id, data, e);
+        }
     }
 
     @Override
     protected void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataBefore,
                                            @Nonnull final WriteContext ctx) throws WriteFailedException {
-        customizer.deleteCurrentAttributes(id, dataBefore, ctx);
+        try {
+            customizer.deleteCurrentAttributes(id, dataBefore, ctx);
+        } catch (RuntimeException e) {
+            throw new WriteFailedException.DeleteFailedException(id, e);
+        }
     }
 
     @Override
     protected void updateCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataBefore,
                                            @Nonnull final D dataAfter, @Nonnull final WriteContext ctx)
         throws WriteFailedException {
-        customizer.updateCurrentAttributes(id, dataBefore, dataAfter, ctx);
+        try {
+            customizer.updateCurrentAttributes(id, dataBefore, dataAfter, ctx);
+        } catch (RuntimeException e) {
+            throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
+        }
     }
 
     @Override

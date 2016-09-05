@@ -49,30 +49,16 @@
       <artifactId>cfg-init</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- TODO used by NetconfMonitoringReaderModule, get it out of here-->
-    <dependency>
-      <groupId>org.opendaylight.netconf</groupId>
-      <artifactId>ietf-netconf-monitoring</artifactId>
-      <version>1.0.2-Beryllium-SR2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.netconf</groupId>
-      <artifactId>ietf-netconf-monitoring-extension</artifactId>
-      <version>1.0.2-Beryllium-SR2</version>
-    </dependency>
-
     <dependency>
       <groupId>org.opendaylight.mdsal.model</groupId>
       <artifactId>ietf-topology</artifactId>
     </dependency>
 
-    <!-- Testing Dependencies -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>

@@ -39,6 +39,7 @@
             <artifactId>data-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <!-- Testing Dependencies -->
         <dependency>
             <groupId>junit</groupId>

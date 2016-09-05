@@ -38,10 +38,12 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class RWUtils {
 
+    // TODO HONEYCOMB-172 update the utils methods considering Java8. Make sure they still work by wiring a detailed unit test first
+
     private RWUtils() {}
 
     /**
-     * Collector expecting only a single resulting item from a stream
+     * Collector expecting only a single resulting item from a stream.
      */
     public static<T> Collector<T,?,T> singleItemCollector() {
         return Collectors.collectingAndThen(
@@ -56,12 +58,11 @@ public final class RWUtils {
     }
 
     /**
-     * Find next item in ID after provided type
+     * Find next item in ID after provided type.
      */
     @Nonnull
     public static InstanceIdentifier.PathArgument getNextId(@Nonnull final InstanceIdentifier<? extends DataObject> id,
                                                             @Nonnull final InstanceIdentifier<? extends DataObject> type) {
-        // TODO this is inefficient(maybe, depending on actual Iterable type)
         final Iterable<InstanceIdentifier.PathArgument> pathArguments = id.getPathArguments();
         final int i = Iterables.indexOf(pathArguments, new Predicate<InstanceIdentifier.PathArgument>() {
             @Override
@@ -74,7 +75,7 @@ public final class RWUtils {
     }
 
     /**
-     * Replace last item in ID with a provided IdentifiableItem of the same type
+     * Replace last item in ID with a provided IdentifiableItem of the same type.
      */
     @SuppressWarnings("unchecked")
     @Nonnull
@@ -90,7 +91,7 @@ public final class RWUtils {
     }
 
     /**
-     * Create IdentifiableItem from target type of provided ID with provided key
+     * Create IdentifiableItem from target type of provided ID with provided key.
      */
     @Nonnull
     public static <D extends DataObject & Identifiable<K>, K extends Identifier<D>> InstanceIdentifier.IdentifiableItem<D, K> getCurrentIdItem(
@@ -99,7 +100,7 @@ public final class RWUtils {
     }
 
     /**
-     * Trim InstanceIdentifier at indexOf(type)
+     * Trim InstanceIdentifier at indexOf(type).
      */
     @SuppressWarnings("unchecked")
     @Nonnull

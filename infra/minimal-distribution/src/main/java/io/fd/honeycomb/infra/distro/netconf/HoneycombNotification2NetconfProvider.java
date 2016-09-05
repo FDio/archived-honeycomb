@@ -68,7 +68,7 @@ public final class HoneycombNotification2NetconfProvider
                 new TranslatingNotificationListener(netconfNotifReg, streamType, schemaService);
 
         // NotificationManager is used to provide list of available notifications (which are all of the notifications registered)
-        // TODO make available notifications configurable here so that any number of notification streams for HONEYCOMB_NETCONF
+        // TODO HONEYCOMB-165 make available notifications configurable here so that any number of notification streams for netconf
         // can be configured on top of a single notification manager
         LOG.debug("Current notifications to be exposed over HONEYCOMB_NETCONF: {}",
                 hcNotificationCollector.getNotificationTypes());
@@ -77,7 +77,7 @@ public final class HoneycombNotification2NetconfProvider
                 .collect(Collectors.toList());
 
         // Register as listener to HC'OPERATIONAL DOM notification service
-        // TODO This should only be triggered when HONEYCOMB_NETCONF notifications are activated
+        // TODO HONEYCOMB-166 This should only be triggered when HONEYCOMB_NETCONF notifications are activated
         // Because this way we actually start all notification producers
         // final Collection<QName> notificationQNames =
         ListenerRegistration<DOMNotificationListener> domNotifListenerReg = notificationRouter

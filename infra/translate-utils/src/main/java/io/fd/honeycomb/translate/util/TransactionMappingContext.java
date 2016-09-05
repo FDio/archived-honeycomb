@@ -34,7 +34,7 @@ public class TransactionMappingContext implements MappingContext {
 
     private final ReadWriteTransaction readWriteTransaction;
 
-    // TODO make async
+    // TODO HONEYCOMB-169 make async
 
     public TransactionMappingContext(final ReadWriteTransaction readWriteTransaction) {
         this.readWriteTransaction = readWriteTransaction;

@@ -31,7 +31,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public interface ModifiableReaderRegistryBuilder
         extends ModifiableSubtreeManagerRegistryBuilder<Reader<? extends DataObject, ? extends Builder<?>>> {
 
-    // TODO we should be able to add structural/reflexive readers automatically in the registry builder, we just need builder class
+    // TODO HONEYCOMB-179 we should be able to add structural/reflexive readers automatically in the registry builder, we just need builder class
     // We would need generated class loading strategy instance and then load builder classes relying on naming + package conventions of Binding spec
     /**
      * Add a structural reader that performs no read operation on its own, just fills in the hierarchy.

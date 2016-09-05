@@ -114,7 +114,7 @@ final class ModificationDiff {
         // Check if there are any modified leaves and if so, consider current node as modified
         final Boolean directLeavesModified = currentCandidate.getChildNodes().stream()
                 .filter(ModificationDiff::isLeaf)
-                // For some reason, we get modifications on unmodified list keys TODO debug and report ODL bug
+                // For some reason, we get modifications on unmodified list keys
                 // and that messes up our modifications collection here, so we need to skip
                 .filter(ModificationDiff::isBeforeAndAfterDifferent)
                 .filter(child -> LEAF_MODIFICATIONS.contains(child.getModificationType()))

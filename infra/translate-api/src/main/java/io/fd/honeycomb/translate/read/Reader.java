@@ -32,7 +32,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 @Beta
 public interface Reader<D extends DataObject, B extends Builder<D>> extends SubtreeManager<D> {
 
-    // TODO make async
+    // TODO HONEYCOMB-169 make async
 
     /**
      * Reads data identified by id

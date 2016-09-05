@@ -106,7 +106,11 @@ public final class GenericListReader<C extends DataObject & Identifiable<K>, K e
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder,
                                       @Nonnull final ReadContext ctx)
             throws ReadFailedException {
-        customizer.readCurrentAttributes(id, builder, ctx);
+        try {
+            customizer.readCurrentAttributes(id, builder, ctx);
+        } catch (RuntimeException e) {
+            throw new ReadFailedException(id, e);
+        }
     }
 
     @Override

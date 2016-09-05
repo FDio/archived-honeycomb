@@ -103,17 +103,17 @@ public class PersistingDataTreeAdapter implements DataTree, AutoCloseable {
         delegateDependency.commit(dataTreeCandidate);
         LOG.debug("Delegate commit successful. Persisting data");
 
-        // FIXME doing full read and full write might not be the fastest way of persisting data here
+        // TODO HONEYCOMB-163 doing full read and full write might not be the fastest way of persisting data here
         final DataTreeSnapshot dataTreeSnapshot = delegateDependency.takeSnapshot();
 
-        // TODO this can be handled in background by a dedicated thread + a limited blocking queue
-        // TODO enable configurable granularity for persists. Maybe doing write on every modification is too much
+        // TODO HONEYCOMB-163 this can be handled in background by a dedicated thread + a limited blocking queue
+        // TODO HONEYCOMB-163 enable configurable granularity for persists. Maybe doing write on every modification is too much
         // and we could do bulk persist
         persistCurrentData(dataTreeSnapshot.readNode(YangInstanceIdentifier.EMPTY));
     }
 
     private void persistCurrentData(final Optional<NormalizedNode<?, ?>> currentRoot) {
-        if(currentRoot.isPresent()) {
+        if (currentRoot.isPresent()) {
             try {
                 LOG.trace("Persisting current data: {} into: {}", currentRoot.get(), path);
                 JsonUtils.writeJsonRoot(currentRoot.get(), schemaServiceDependency.getGlobalContext(),

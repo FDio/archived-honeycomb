@@ -31,6 +31,7 @@
   <prerequisites>
     <maven>3.1.1</maven>
   </prerequisites>
+
   <modules>
     <module>data-api</module>
     <module>data-impl</module>
@@ -42,9 +43,9 @@
     <module>cfg-init</module>
     <module>impl</module>
     <module>minimal-distribution</module>
-    <module>artifacts</module>
     <module>it</module>
   </modules>
+
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
   <build>
     <plugins>

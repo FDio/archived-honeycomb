@@ -13,6 +13,7 @@
     <artifactId>honeycomb-tools</artifactId>
     <packaging>pom</packaging>
     <version>1.16.12-SNAPSHOT</version>
+
     <modules>
         <module>archetype</module>
     </modules>

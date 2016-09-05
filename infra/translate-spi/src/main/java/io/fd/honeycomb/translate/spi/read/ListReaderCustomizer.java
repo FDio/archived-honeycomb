@@ -49,7 +49,6 @@ public interface ListReaderCustomizer<C extends DataObject & Identifiable<K>, K 
     @Nonnull
     List<K> getAllIds(@Nonnull final InstanceIdentifier<C> id, @Nonnull final ReadContext context) throws
             ReadFailedException;
-    // TODO does it make sense with vpp APIs ? Should we replace it with a simple readAll ?
 
     /**
      * Merge read data into provided parent builder.

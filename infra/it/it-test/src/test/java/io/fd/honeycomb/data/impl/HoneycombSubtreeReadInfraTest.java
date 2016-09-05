@@ -68,7 +68,7 @@ public class HoneycombSubtreeReadInfraTest extends AbstractInfraTest {
                         public List<ListInContainerKey> getAllIds(@Nonnull final InstanceIdentifier<ListInContainer> id,
                                                                   @Nonnull final ReadContext context)
                                 throws ReadFailedException {
-                            // FIXME this is the only way of extending subtree reader via its list child
+                            // This is the only way of extending subtree reader's list child
                             // Reflexive list reader has to be used in place of the list(managed by subtree reader perent)
                             // to enable further children readers. However, it will not work out of the box, because
                             // reflexive list reader has no way to tell what are the IDs to correctly invoke its children.
@@ -89,7 +89,7 @@ public class HoneycombSubtreeReadInfraTest extends AbstractInfraTest {
     private Reader<ContainerInList, ContainerInListBuilder> containerInListReader =
             HoneycombReadInfraTest.mockReader(Ids.CONTAINER_IN_LIST_ID, this::readContainerInList, ContainerInListBuilder.class);
 
-    // TODO Test subtree readers especially composite structure where readers are under subtree reader
+    // TODO HONEYCOMB-178 Test subtree readers especially composite structure where readers are under subtree reader
 
     @Override
     void postSetup() {

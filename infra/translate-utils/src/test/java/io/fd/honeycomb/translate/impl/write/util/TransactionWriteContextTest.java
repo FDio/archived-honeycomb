@@ -29,10 +29,10 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.util.DataObjects;
 import io.fd.honeycomb.translate.util.write.TransactionWriteContext;
-import io.fd.honeycomb.translate.MappingContext;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
@@ -125,7 +125,10 @@ public class TransactionWriteContextTest {
     @Test
     public void testClose() throws Exception {
         final ModificationCache context = transactionWriteContext.getModificationCache();
+        final Object o = new Object();
+        context.put(o, o);
+        assertTrue(context.containsKey(o));
         transactionWriteContext.close();
-        // TODO verify context was closed
+        assertFalse(context.containsKey(o));
     }
 }

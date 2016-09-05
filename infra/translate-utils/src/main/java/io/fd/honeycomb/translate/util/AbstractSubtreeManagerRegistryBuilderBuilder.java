@@ -192,10 +192,10 @@ public abstract class AbstractSubtreeManagerRegistryBuilderBuilder<S extends Sub
                     }
                 });
 
-        // TODO we could optimize subtree handlers, if there is a dedicated handler for a node managed by a subtree
+        // TODO HONEYCOMB-171 we could optimize subtree handlers, if there is a dedicated handler for a node managed by a subtree
         // handler, recreate the subtree handler with a subset of handled child nodes
         // This way it is not necessary to change the configuration of subtree writer, just to add a dedicated child
-        // writer. This will be needed if we ever switch to annotations for reader/writer hierarchy initialization
+        // writer
 
         return builder.build();
     }

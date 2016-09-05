@@ -75,7 +75,7 @@ public final class NetconfSshServerProvider extends ProviderTrait<NetconfSshServ
         final SshProxyServerConfigurationBuilder sshConfigBuilder = new SshProxyServerConfigurationBuilder();
         sshConfigBuilder.setBindingAddress(bindingAddress);
         sshConfigBuilder.setLocalAddress(localAddress);
-        // TODO only simple authProvider checking ConfigAttributes
+        // Only simple authProvider checking ConfigAttributes, checking the config file
         sshConfigBuilder.setAuthenticator(new SimplelAuthProvider(cfgAttributes));
         sshConfigBuilder.setIdleTimeout(Integer.MAX_VALUE);
         sshConfigBuilder.setKeyPairProvider(new PEMGeneratorHostKeyProvider());

@@ -44,15 +44,12 @@ public interface ReaderCustomizer<C extends DataObject, B extends Builder<C>> {
      *
      * @param id      id of current data object
      * @param builder builder for creating read value
-     * @param ctx
+     * @param ctx     context for current read
      * @throws ReadFailedException if read was unsuccessful
      */
     void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id,
                                @Nonnull final B builder,
                                @Nonnull final ReadContext ctx) throws ReadFailedException;
-
-    // FIXME need to capture parent builder type, but that's inconvenient at best, is it ok to leave it Builder<?> and
-    // cast in specific customizers ? ... probably better than adding another type parameter
 
     /**
      * Merge read data into provided parent builder.

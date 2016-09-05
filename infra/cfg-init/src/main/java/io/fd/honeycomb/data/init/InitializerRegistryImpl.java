@@ -35,7 +35,7 @@ public class InitializerRegistryImpl implements InitializerRegistry {
 
     @Override
     public void initialize() throws InitializeException {
-        // TODO check if readers are there
+        // TODO HONEYCOMB-159 check if readers are there
         LOG.debug("InitializerRegistryImpl.initialize()");
         for (DataTreeInitializer initializer : initializers) {
             initializer.initialize();

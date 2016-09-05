@@ -29,6 +29,7 @@ import io.fd.honeycomb.infra.distro.data.HoneycombNotificationManagerProvider;
 import io.fd.honeycomb.infra.distro.data.InmemoryDOMDataBrokerProvider;
 import io.fd.honeycomb.notification.NotificationCollector;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -118,7 +119,7 @@ public class NetconfModule extends PrivateModule {
      */
     private AnnotatedElementBuilder configureServer() {
         bind(NioEventLoopGroup.class).toProvider(NettyThreadGroupProvider.class).in(Singleton.class);
-        bind(Timer.class).toProvider(NettyTimerProvider.class).in(Singleton.class);
+        bind(Timer.class).toInstance(new HashedWheelTimer());
         bind(NetconfServerDispatcher.class).toProvider(NetconfServerDispatcherProvider.class).in(Singleton.class);
         bind(NetconfTcpServerProvider.NetconfTcpServer.class).toProvider(NetconfTcpServerProvider.class)
                 .in(Singleton.class);

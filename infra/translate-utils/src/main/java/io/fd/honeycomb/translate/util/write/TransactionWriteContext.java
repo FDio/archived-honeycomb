@@ -50,14 +50,13 @@ public final class TransactionWriteContext implements WriteContext {
                                    final DOMDataReadOnlyTransaction afterTx,
                                    final MappingContext mappingContext) {
         this.serializer = serializer;
-        // TODO do we have a BA transaction adapter ? If so, use it here and don't pass serializer
         this.beforeTx = beforeTx;
         this.afterTx = afterTx;
         this.mappingContext = mappingContext;
         this.ctx = new ModificationCache();
     }
 
-    // TODO make this asynchronous
+    // TODO HONEYCOMB-169 make this asynchronous
 
     @Override
     public <T extends DataObject> Optional<T> readBefore(@Nonnull final InstanceIdentifier<T> currentId) {
@@ -78,7 +77,7 @@ public final class TransactionWriteContext implements WriteContext {
                 tx.read(LogicalDatastoreType.CONFIGURATION, path);
 
         try {
-            // TODO once the APIs are asynchronous use just Futures.transform
+            // TODO HONEYCOMB-169 once the APIs are asynchronous use just Futures.transform
             final Optional<NormalizedNode<?, ?>> optional = read.checkedGet();
 
             if (!optional.isPresent()) {

@@ -40,7 +40,7 @@
               <!-- Override checkstyle configuration to fit Honeycomb coding style-->
               <configLocation>honeycomb-checkstyle.xml</configLocation>
               <includeTestResources>true</includeTestResources>
-              <!--TODO enable fail on violation after issues are resolved + set in as errors in checkstyle xml-->
+              <!--TODO HONEYCOMB-155 enable fail on violation after issues are resolved + set in as errors in checkstyle xml-->
             </configuration>
             <executions>
 
@@ -100,7 +100,7 @@
             </dependencies>
           </plugin>
           <!-- Deactivate strict java8 checks -->
-          <!-- FIXME fix all the javadoc offenders of doclint -->
+          <!-- TODO HONEYCOMB-156 fix all the javadoc offenders of doclint -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>

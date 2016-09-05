@@ -28,6 +28,10 @@
     <artifactId>honeycomb-it-test</artifactId>
     <version>1.16.12-SNAPSHOT</version>
 
+    <properties>
+        <skinny.logback.version>1.0.8</skinny.logback.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -40,9 +44,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <!-- We want logs from these tests -->
             <groupId>org.skinny-framework</groupId>
             <artifactId>skinny-logback</artifactId>
-            <version>1.0.8</version>
+            <version>${skinny.logback.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -61,6 +66,4 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
-
 </project>

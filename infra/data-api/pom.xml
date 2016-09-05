@@ -46,10 +46,7 @@
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-common-api</artifactId>
-            <!-- FIXME use dependency management -->
-            <version>1.3.2-Beryllium-SR2</version>
         </dependency>
-
     </dependencies>
 
 </project>

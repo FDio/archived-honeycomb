@@ -18,10 +18,15 @@ package io.fd.honeycomb.infra.distro.netconf;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import io.fd.honeycomb.impl.NetconfMonitoringReaderFactory;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
 import io.fd.honeycomb.translate.read.ReaderFactory;
+import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
+import io.fd.honeycomb.translate.util.read.BindingBrokerReader;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.NetconfState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.NetconfStateBuilder;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
 public final class NetconfMonitoringReaderFactoryProvider extends ProviderTrait<ReaderFactory> {
@@ -33,5 +38,25 @@ public final class NetconfMonitoringReaderFactoryProvider extends ProviderTrait<
     @Override
     protected NetconfMonitoringReaderFactory create() {
         return new NetconfMonitoringReaderFactory(netconfDataBroker);
+    }
+
+    /**
+     * {@link io.fd.honeycomb.translate.read.ReaderFactory} initiating reader into NETCONF's dedicated data store.
+     * Making NETCONF operational data available over NETCONF/RESTCONF
+     */
+    private static final class NetconfMonitoringReaderFactory implements ReaderFactory {
+
+        private final DataBroker netconfMonitoringBindingBrokerDependency;
+
+        NetconfMonitoringReaderFactory(final DataBroker netconfMonitoringBindingBrokerDependency) {
+            this.netconfMonitoringBindingBrokerDependency = netconfMonitoringBindingBrokerDependency;
+        }
+
+        @Override
+        public void init(final ModifiableReaderRegistryBuilder registry) {
+            registry.add(new BindingBrokerReader<>(InstanceIdentifier.create(NetconfState.class),
+                    netconfMonitoringBindingBrokerDependency,
+                    LogicalDatastoreType.OPERATIONAL, NetconfStateBuilder.class));
+        }
     }
 }
