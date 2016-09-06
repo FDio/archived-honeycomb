@@ -19,7 +19,21 @@
 
     <properties>
         <nexusproxy>http://nexus.fd.io/content</nexusproxy>
-        <!--<main.class>Main</main.class>-->
+        <start.script.template>
+#!/bin/sh -
+STATUS=100
+
+while [ $STATUS -eq 100 ]
+do
+  %s
+  STATUS=$?
+  echo "Honeycomb exited with status: $STATUS"
+  if [ $STATUS -eq 100 ]
+  then
+    echo "Restarting..."
+  fi
+done
+        </start.script.template>
         <exec.parameters>-Xms32m -Xmx128m -XX:MetaspaceSize=32m -XX:MaxMetaspaceSize=128m</exec.parameters>
         <exec.parameters.minimal>-client -Xms20m -Xmx32m -XX:MetaspaceSize=5m -XX:MaxMetaspaceSize=32m -XX:MaxMetaspaceExpansion=1m -Xss512k -XX:+UseSerialGC -Djava.compiler=NONE -Xverify:none -noverify</exec.parameters.minimal>
         <debug.parameters>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</debug.parameters>
@@ -147,29 +161,30 @@
                                     import java.nio.file.Paths
 
                                     log.info "Generating shell exec script"
+                                    def scriptTemplate = properties.getOrDefault("start.script.template", "")
                                     def args = properties.getOrDefault("exec.parameters", "")
                                     log.debug "Additional shell exec script properties: ${args}"
                                     def javaArgs = "${args} -jar \$(dirname \$0)/${project.artifactId}-${project.version}.jar"
                                     def scriptParent = Paths.get(project.build.outputDirectory, "honeycomb-minimal-resources")
                                     scriptParent.toFile().mkdirs()
-                                    def scriptContent = "#!/bin/sh -\njava " + javaArgs
+                                    def scriptContent = "java " + javaArgs
                                     log.info "Generating shell exec script as ${scriptContent}"
                                     def scriptPath = Paths.get(scriptParent.toString(), "honeycomb")
                                     log.info "Writing shell exec script to ${scriptPath}"
-                                    scriptPath.toFile().text = scriptContent
+                                    scriptPath.toFile().text = String.format(scriptTemplate, scriptContent)
                                     scriptPath.toFile().setExecutable(true)
 
                                     scriptPath = Paths.get(scriptParent.toString(), "honeycomb-start")
                                     log.info "Writing shell exec script to ${scriptPath}"
-                                    scriptPath.toFile().text = scriptContent + " &amp;"
+                                    scriptPath.toFile().text = "\$(dirname \$0)/honeycomb &amp;"
                                     scriptPath.toFile().setExecutable(true)
 
                                     def debug_args = properties.getOrDefault("debug.parameters", "")
-                                    def debugScriptContent = "#!/bin/sh -\njava" + " ${debug_args} " + javaArgs
+                                    def debugScriptContent = "java" + " ${debug_args} " + javaArgs
                                     log.info "Generating shell debug script as ${debugScriptContent}"
                                     scriptPath = Paths.get(scriptParent.toString(), "honeycomb-debug")
                                     log.info "Writing shell debug script to ${scriptPath}"
-                                    scriptPath.toFile().text = debugScriptContent
+                                    scriptPath.toFile().text = String.format(scriptTemplate, debugScriptContent)
                                     scriptPath.toFile().setExecutable(true)
                                 </source>
                             </configuration>
