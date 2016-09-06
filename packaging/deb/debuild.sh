@@ -8,9 +8,9 @@ PACKAGING_ROOT=${DIR}/honeycomb-${VERSION}
 
 # Copy and unpack the archive with vpp-integration distribution
 ARCHIVE_DIR=${DIR}/../../vpp-integration/minimal-distribution/target/
-ARCHIVE=${ARCHIVE_DIR}/vpp-integration-distribution-1.16.9-SNAPSHOT-hc.tar.gz
+ARCHIVE=${ARCHIVE_DIR}/vpp-integration-distribution-1.16.9-RC1-hc.tar.gz
 cp ${ARCHIVE} ${DIR}
-ARCHIVE=${DIR}/vpp-integration-distribution-${VERSION}-SNAPSHOT-hc.tar.gz
+ARCHIVE=${DIR}/vpp-integration-distribution-${VERSION}-RC1-hc.tar.gz
 tar -xf ${ARCHIVE} -C ${DIR}/
 
 # Create packaging root
@@ -18,7 +18,7 @@ rm -rf ${PACKAGING_ROOT}
 mkdir ${PACKAGING_ROOT}
 
 # Copy contents of tar.gz
-mv ${DIR}/vpp-integration-distribution-${VERSION}-SNAPSHOT/ ${PACKAGING_ROOT}/
+mv ${DIR}/vpp-integration-distribution-${VERSION}-RC1/ ${PACKAGING_ROOT}/
 cp -r ${DIR}/debian/ ${PACKAGING_ROOT}
 
 # Upstart configuration
@@ -35,7 +35,7 @@ EOT
 
 # Install instructions
 cat <<EOT >> ${PACKAGING_ROOT}/debian/install
-vpp-integration-distribution-${VERSION}-SNAPSHOT/* /opt/honeycomb/
+vpp-integration-distribution-${VERSION}-RC1/* /opt/honeycomb/
 honeycomb.conf /etc/init/
 EOT
 
