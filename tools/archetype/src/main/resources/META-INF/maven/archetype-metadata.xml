@@ -6,7 +6,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <requiredProperties>
         <requiredProperty key="version">
-            <defaultValue>1.16.9-SNAPSHOT</defaultValue>
+            <defaultValue>1.16.9-RC0</defaultValue>
         </requiredProperty>
     </requiredProperties>
 
