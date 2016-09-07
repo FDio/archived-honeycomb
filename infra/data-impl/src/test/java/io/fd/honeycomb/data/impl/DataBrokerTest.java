@@ -107,5 +107,74 @@ public class DataBrokerTest {
         assertTrue(supportedExtensions.isEmpty());
     }
 
+    public static class DataBrokerForContextTest {
 
+        @Mock
+        private ModifiableDataManager contextDataTree;
+        @Mock
+        private DataModification contextSnapshot;
+        private DataBroker broker;
+
+        @Before
+        public void setUp() {
+            initMocks(this);
+            when(contextDataTree.newModification()).thenReturn(contextSnapshot);
+            broker = DataBroker.create(contextDataTree);
+        }
+
+        @Test
+        public void testNewReadWriteTransaction() {
+            final DOMDataReadWriteTransaction readWriteTx = broker.newReadWriteTransaction();
+            final YangInstanceIdentifier path = mock(YangInstanceIdentifier.class);
+            readWriteTx.read(LogicalDatastoreType.OPERATIONAL, path);
+
+            verify(contextSnapshot).read(path);
+            verify(contextDataTree).newModification();
+        }
+
+        @Test
+        public void testNewWriteOnlyTransaction() {
+            broker.newWriteOnlyTransaction();
+            verify(contextDataTree).newModification();
+        }
+
+        @Test
+        public void testNewReadOnlyTransaction() {
+            final DOMDataReadOnlyTransaction readTx = broker.newReadOnlyTransaction();
+            final YangInstanceIdentifier path = mock(YangInstanceIdentifier.class);
+            readTx.read(LogicalDatastoreType.OPERATIONAL, path);
+
+            // operational data are read directly from data tree
+            verify(contextDataTree).read(path);
+        }
+
+        @Test(expected = IllegalArgumentException.class)
+        public void testReadConfig() {
+            final DOMDataReadOnlyTransaction readTx = broker.newReadOnlyTransaction();
+
+            final YangInstanceIdentifier path = mock(YangInstanceIdentifier.class);
+            readTx.read(LogicalDatastoreType.CONFIGURATION, path);
+        }
+
+        @Test(expected = UnsupportedOperationException.class)
+        public void testRegisterDataChangeListener() {
+            final YangInstanceIdentifier path = mock(YangInstanceIdentifier.class);
+            final DOMDataChangeListener listener = mock(DOMDataChangeListener.class);
+            broker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, path, listener,
+                    AsyncDataBroker.DataChangeScope.BASE);
+        }
+
+        @Test(expected = UnsupportedOperationException.class)
+        public void testCreateTransactionChain() {
+            final TransactionChainListener listener = mock(TransactionChainListener.class);
+            broker.createTransactionChain(listener);
+        }
+
+        @Test
+        public void testGetSupportedExtensions() {
+            final Map<Class<? extends DOMDataBrokerExtension>, DOMDataBrokerExtension> supportedExtensions =
+                    broker.getSupportedExtensions();
+            assertTrue(supportedExtensions.isEmpty());
+        }
+    }
 }

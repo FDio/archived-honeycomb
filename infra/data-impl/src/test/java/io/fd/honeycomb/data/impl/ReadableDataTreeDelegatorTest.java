@@ -16,6 +16,7 @@
 
 package io.fd.honeycomb.data.impl;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -32,13 +33,16 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -48,6 +52,7 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.yangtools.util.UnmodifiableCollection;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -55,7 +60,9 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.model.api.DataSchemaNode;
+import org.opendaylight.yangtools.yang.model.api.ListSchemaNode;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 public class ReadableDataTreeDelegatorTest {
@@ -188,5 +195,25 @@ public class ReadableDataTreeDelegatorTest {
         final ContainerNode rootNode = (ContainerNode) result.get();
         assertEquals(SchemaContext.NAME, rootNode.getIdentifier().getNodeType());
         assertEquals(vppStateContainer, Iterables.getOnlyElement(rootNode.getValue()));
+    }
+
+
+    @Test
+    public void testWrapMixin() throws Exception {
+        final QName nodeQName = QName.create("namespace", "node");
+        final QName keyQName = QName.create("namespace", "key");
+        final List<NormalizedNode<?, ?>> mapNodes = Lists.newArrayList("one", "two", "three").stream()
+                .map(value -> ImmutableNodes.mapEntry(nodeQName, keyQName, value))
+                .collect(Collectors.toList());
+        final ListSchemaNode listSchema = mock(ListSchemaNode.class);
+        doReturn(Collections.singletonList(keyQName)).when(listSchema).getKeyDefinition();
+        doReturn(true).when(listSchema).isUserOrdered();
+        doReturn(nodeQName).when(listSchema).getQName();
+
+        final DataContainerChild<?, ?> dataContainerChild =
+                ReadableDataTreeDelegator.wrapListIntoMixinNode(mapNodes, listSchema);
+
+        // asserting as arrays, since UnmodifiableCollection has no equals
+        assertArrayEquals(mapNodes.toArray(), ((UnmodifiableCollection) dataContainerChild.getValue()).toArray());
     }
 }

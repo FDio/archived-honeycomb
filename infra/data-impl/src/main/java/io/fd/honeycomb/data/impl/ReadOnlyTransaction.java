@@ -72,10 +72,10 @@ final class ReadOnlyTransaction implements DOMDataReadOnlyTransaction {
         checkState(!closed, "Transaction has been closed");
 
         if (store == LogicalDatastoreType.OPERATIONAL) {
-            checkArgument(operationalData != null, "{} reads not supported", store);
+            checkArgument(operationalData != null, "%s reads not supported", store);
             return operationalData.read(path);
         } else {
-            checkArgument(configSnapshot != null, "{} reads not supported", store);
+            checkArgument(configSnapshot != null, "%s reads not supported", store);
             return configSnapshot.read(path);
         }
     }

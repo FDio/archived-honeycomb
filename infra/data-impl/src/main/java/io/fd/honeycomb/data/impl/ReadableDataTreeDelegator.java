@@ -19,6 +19,7 @@ package io.fd.honeycomb.data.impl;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.getOnlyElement;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -178,11 +179,14 @@ public final class ReadableDataTreeDelegator implements ReadableDataManager {
         }
     }
 
-    private static DataContainerChild<?, ?> wrapListIntoMixinNode(
+    @VisibleForTesting
+    static DataContainerChild<?, ?> wrapListIntoMixinNode(
             final Collection<NormalizedNode<?, ?>> normalizedRootElements, final ListSchemaNode listSchema) {
         if (listSchema.getKeyDefinition().isEmpty()) {
             final CollectionNodeBuilder<UnkeyedListEntryNode, UnkeyedListNode> listBuilder =
                     Builders.unkeyedListBuilder();
+            listBuilder.withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(listSchema.getQName()));
+
             for (NormalizedNode<?, ?> normalizedRootElement : normalizedRootElements) {
                 listBuilder.withChild((UnkeyedListEntryNode) normalizedRootElement);
             }
@@ -192,6 +196,7 @@ public final class ReadableDataTreeDelegator implements ReadableDataManager {
                     listSchema.isUserOrdered()
                             ? Builders.orderedMapBuilder()
                             : Builders.mapBuilder();
+            listBuilder.withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(listSchema.getQName()));
 
             for (NormalizedNode<?, ?> normalizedRootElement : normalizedRootElements) {
                 listBuilder.withChild((MapEntryNode) normalizedRootElement);

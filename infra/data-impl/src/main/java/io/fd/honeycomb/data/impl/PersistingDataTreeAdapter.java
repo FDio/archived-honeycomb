@@ -19,6 +19,8 @@ package io.fd.honeycomb.data.impl;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.util.JsonUtils;
 import java.io.IOException;
@@ -42,13 +44,12 @@ import org.slf4j.LoggerFactory;
  * Adapter for a DataTree that stores current state of data in backing DataTree on each successful commit.
  * Uses JSON format.
  */
-public class PersistingDataTreeAdapter implements DataTree, AutoCloseable {
+public class PersistingDataTreeAdapter implements DataTree {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersistingDataTreeAdapter.class);
 
     private final DataTree delegateDependency;
-    private final SchemaService schemaServiceDependency;
-    private final Path path;
+    private final JsonPersister persister;
 
     /**
      * Create new Persisting DataTree adapter
@@ -61,30 +62,13 @@ public class PersistingDataTreeAdapter implements DataTree, AutoCloseable {
     public PersistingDataTreeAdapter(@Nonnull final DataTree delegate,
                                      @Nonnull final SchemaService schemaService,
                                      @Nonnull final Path persistPath) {
-        this.path = testPersistPath(checkNotNull(persistPath, "persistPath is null"));
-        this.delegateDependency = checkNotNull(delegate, "delegate is null");
-        this.schemaServiceDependency = checkNotNull(schemaService, "schemaService is null");
+        this(delegate, new JsonPersister(persistPath, schemaService));
     }
 
-    /**
-     * Test whether file at persistPath exists and is readable or create it along with its parent structure
-     */
-    private Path testPersistPath(final Path persistPath) {
-        try {
-            checkArgument(!Files.isDirectory(persistPath), "Path %s points to a directory", persistPath);
-            if(Files.exists(persistPath)) {
-                checkArgument(Files.isReadable(persistPath),
-                    "Provided path %s points to existing, but non-readable file", persistPath);
-                return persistPath;
-            }
-            Files.createDirectories(persistPath.getParent());
-            Files.write(persistPath, new byte[]{}, StandardOpenOption.CREATE);
-        } catch (IOException | UnsupportedOperationException e) {
-            LOG.warn("Provided path for persistence: {} is not usable", persistPath, e);
-            throw new IllegalArgumentException("Path " + persistPath + " cannot be used as ");
-        }
-
-        return persistPath;
+    public PersistingDataTreeAdapter(final DataTree delegate,
+                                     final JsonPersister persister) {
+        this.delegateDependency = checkNotNull(delegate, "delegate is null");
+        this.persister = persister;
     }
 
     @Override
@@ -103,27 +87,68 @@ public class PersistingDataTreeAdapter implements DataTree, AutoCloseable {
         delegateDependency.commit(dataTreeCandidate);
         LOG.debug("Delegate commit successful. Persisting data");
 
-        // TODO HONEYCOMB-163 doing full read and full write might not be the fastest way of persisting data here
+        // FIXME doing full read and full write might not be the fastest way of persisting data here
         final DataTreeSnapshot dataTreeSnapshot = delegateDependency.takeSnapshot();
 
-        // TODO HONEYCOMB-163 this can be handled in background by a dedicated thread + a limited blocking queue
-        // TODO HONEYCOMB-163 enable configurable granularity for persists. Maybe doing write on every modification is too much
+        // TODO this can be handled in background by a dedicated thread + a limited blocking queue
+        // TODO enable configurable granularity for persists. Maybe doing write on every modification is too much
         // and we could do bulk persist
-        persistCurrentData(dataTreeSnapshot.readNode(YangInstanceIdentifier.EMPTY));
+        persister.persistCurrentData(dataTreeSnapshot.readNode(YangInstanceIdentifier.EMPTY));
     }
 
-    private void persistCurrentData(final Optional<NormalizedNode<?, ?>> currentRoot) {
-        if (currentRoot.isPresent()) {
-            try {
-                LOG.trace("Persisting current data: {} into: {}", currentRoot.get(), path);
-                JsonUtils.writeJsonRoot(currentRoot.get(), schemaServiceDependency.getGlobalContext(),
-                    Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING));
-                LOG.trace("Data persisted successfully in {}", path);
-            } catch (IOException e) {
-                throw new IllegalStateException("Unable to persist current data", e);
+    @VisibleForTesting
+    static class JsonPersister {
+
+        private final Path path;
+        private final SchemaService schemaServiceDependency;
+
+        JsonPersister(final Path persistPath, final SchemaService schemaService) {
+            this.path = testPersistPath(checkNotNull(persistPath, "persistPath is null"));
+            this.schemaServiceDependency = checkNotNull(schemaService, "schemaService is null");
+        }
+
+        void persistCurrentData(final Optional<NormalizedNode<?, ?>> currentRoot) {
+            if (currentRoot.isPresent()) {
+                try {
+                    LOG.trace("Persisting current data: {} into: {}", currentRoot.get(), path);
+                    JsonUtils.writeJsonRoot(currentRoot.get(), schemaServiceDependency.getGlobalContext(),
+                            Files.newOutputStream(path, StandardOpenOption.CREATE,
+                                    StandardOpenOption.TRUNCATE_EXISTING));
+                    LOG.trace("Data persisted successfully in {}", path);
+                } catch (IOException e) {
+                    throw new IllegalStateException("Unable to persist current data", e);
+                }
+            } else {
+                LOG.debug("Skipping persistence, since there's no data to persist");
             }
-        } else {
-            LOG.debug("Skipping persistence, since there's no data to persist");
+        }
+
+        /**
+         * Test whether file at persistPath exists and is readable or create it along with its parent structure.
+         */
+        private static Path testPersistPath(final Path persistPath) {
+            try {
+                checkArgument(!Files.isDirectory(persistPath), "Path %s points to a directory", persistPath);
+                if (Files.exists(persistPath)) {
+                    checkArgument(Files.isReadable(persistPath),
+                            "Provided path %s points to existing, but non-readable file", persistPath);
+                    return persistPath;
+                }
+                Files.createDirectories(persistPath.getParent());
+                Files.write(persistPath, new byte[]{}, StandardOpenOption.CREATE);
+            } catch (IOException | UnsupportedOperationException e) {
+                LOG.warn("Provided path for persistence: {} is not usable", persistPath, e);
+                throw new IllegalArgumentException("Path " + persistPath + " cannot be used as ");
+            }
+
+            return persistPath;
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(this)
+                    .add("path", path)
+                    .toString();
         }
     }
 
@@ -143,9 +168,4 @@ public class PersistingDataTreeAdapter implements DataTree, AutoCloseable {
         return delegateDependency.prepare(dataTreeModification);
     }
 
-    @Override
-    public void close() throws Exception {
-        LOG.trace("Closing {} for {}", getClass().getSimpleName(), path);
-        // NOOP
-    }
 }

@@ -166,7 +166,7 @@ public class DataBroker implements DOMDataBroker, Closeable {
     }
 
     /**
-     * Transaction factory specific for Honeycomb's context pipeline (config: none, operational: read+write)
+     * Transaction factory specific for Honeycomb's context pipeline (config: none, operational: read+write.
      */
     private static class ContextPipelineTxFactory implements TransactionFactory {
         private final ModifiableDataManager operationalDataTree;

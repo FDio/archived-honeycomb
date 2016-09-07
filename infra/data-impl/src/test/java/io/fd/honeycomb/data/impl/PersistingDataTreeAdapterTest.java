@@ -16,12 +16,17 @@
 
 package io.fd.honeycomb.data.impl;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.google.common.base.Optional;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.Before;
@@ -29,9 +34,11 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot;
+import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
 public class PersistingDataTreeAdapterTest {
 
@@ -41,6 +48,8 @@ public class PersistingDataTreeAdapterTest {
     private SchemaService schemaService;
     @Mock
     private DataTreeSnapshot snapshot;
+    @Mock
+    private PersistingDataTreeAdapter.JsonPersister persister;
 
     private Path tmpPersistFile;
 
@@ -49,6 +58,8 @@ public class PersistingDataTreeAdapterTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        doReturn(snapshot).when(delegatingDataTree).takeSnapshot();
+        doNothing().when(persister).persistCurrentData(any(Optional.class));
         tmpPersistFile = Files.createTempFile("testing-hc-persistence", "json");
         persistingDataTreeAdapter = new PersistingDataTreeAdapter(delegatingDataTree, schemaService, tmpPersistFile);
     }
@@ -66,4 +77,61 @@ public class PersistingDataTreeAdapterTest {
         }
     }
 
+    @Test
+    public void testPersist() throws Exception {
+        persistingDataTreeAdapter = new PersistingDataTreeAdapter(delegatingDataTree, persister);
+        persistingDataTreeAdapter.commit(null);
+        verify(delegatingDataTree).takeSnapshot();
+        verify(persister).persistCurrentData(any(Optional.class));
+    }
+
+    @Test
+    public void testTakeSnapshot() throws Exception {
+        persistingDataTreeAdapter.takeSnapshot();
+        verify(delegatingDataTree).takeSnapshot();
+    }
+
+    @Test
+    public void testSetSchema() throws Exception {
+        persistingDataTreeAdapter.setSchemaContext(null);
+        verify(delegatingDataTree).setSchemaContext(null);
+    }
+
+    @Test
+    public void testValidate() throws Exception {
+        persistingDataTreeAdapter.validate(null);
+        verify(delegatingDataTree).validate(null);
+    }
+
+    @Test
+    public void testPrepare() throws Exception {
+        persistingDataTreeAdapter.prepare(null);
+        verify(delegatingDataTree).prepare(null);
+    }
+
+    @Test
+    public void testGetRootPath() throws Exception {
+        persistingDataTreeAdapter.getRootPath();
+        verify(delegatingDataTree).getRootPath();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testPersistFailure() throws Exception {
+        doThrow(IOException.class).when(schemaService).getGlobalContext();
+        final PersistingDataTreeAdapter.JsonPersister jsonPersister =
+                new PersistingDataTreeAdapter.JsonPersister(tmpPersistFile, schemaService);
+        // Nothing
+        jsonPersister.persistCurrentData(Optional.absent());
+        // Exception
+        jsonPersister.persistCurrentData(Optional.of(ImmutableNodes.leafNode(QName.create("namespace", "leaf"), "value")));
+    }
+
+    @Test
+    public void testPersisterCreateFile() throws Exception {
+        // Delete to test file creation
+        Files.delete(tmpPersistFile);
+        final PersistingDataTreeAdapter.JsonPersister jsonPersister =
+                new PersistingDataTreeAdapter.JsonPersister(tmpPersistFile, schemaService);
+        assertTrue(Files.exists(tmpPersistFile));
+   }
 }
