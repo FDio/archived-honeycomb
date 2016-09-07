@@ -14,6 +14,10 @@
     <packaging>pom</packaging>
     <version>1.16.12-SNAPSHOT</version>
 
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
     <modules>
         <module>archetype</module>
     </modules>

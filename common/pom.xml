@@ -24,14 +24,19 @@
   <prerequisites>
     <maven>3.1.1</maven>
   </prerequisites>
+
+  <properties>
+    <sonar.skip>true</sonar.skip>
+  </properties>
+
   <modules>
     <module>checkstyle</module>
     <module>api-parent</module>
     <module>impl-parent</module>
     <module>minimal-assembly-descriptor</module>
     <module>minimal-distribution-parent</module>
-
   </modules>
+
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
   <build>
     <plugins>
