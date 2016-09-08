@@ -79,7 +79,7 @@ public final class Main {
         try {
             LOG.info("Starting honeycomb");
             Injector injector = Guice.createInjector(modules);
-            LOG.info("Honeycomb configuration: " + injector.getInstance(HoneycombConfiguration.class));
+            LOG.info("Honeycomb configuration: {}", injector.getInstance(HoneycombConfiguration.class));
 
             // Log all bindings
             injector.getAllBindings().entrySet().stream()

@@ -17,6 +17,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+    <parent>
+        <groupId>org.opendaylight.odlparent</groupId>
+        <artifactId>odlparent</artifactId>
+        <version>1.6.2-Beryllium-SR2</version>
+        <relativePath/>
+    </parent>
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>minimal-distribution-parent</artifactId>
@@ -172,6 +179,80 @@ done
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <configuration>
+                        <!-- Override checkstyle configuration to fit Honeycomb coding style-->
+                        <configLocation>honeycomb-checkstyle.xml</configLocation>
+                        <includeTestResources>true</includeTestResources>
+                        <!--TODO HONEYCOMB-155 enable fail on violation after issues are resolved + set in as errors in checkstyle xml-->
+                    </configuration>
+                    <executions>
+
+                        <!-- Override license check configuration to fit Honeycomb coding style-->
+                        <execution>
+                            <id>check-license</id>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <phase>process-sources</phase>
+                            <configuration>
+                                <headerLocation>HONEYCOMB_LICENSE.txt</headerLocation>
+                                <failOnViolation>true</failOnViolation>
+                                <failsOnError>true</failsOnError>
+                                <outputFile>${project.build.directory}/checkstyle-license-result.xml</outputFile>
+                            </configuration>
+                        </execution>
+
+                        <!-- Add logging checks from yangtools -->
+                        <execution>
+                            <id>check-logging</id>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <phase>process-sources</phase>
+                            <configuration>
+                                <failOnViolation>true</failOnViolation>
+                                <configLocation>honeycomb-checkstyle-logging.xml</configLocation>
+                                <consoleOutput>true</consoleOutput>
+                                <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                                <sourceDirectory>${project.basedir}</sourceDirectory>
+                                <includes>**\/*.java,**\/*.xml,**\/*.ini,**\/*.sh,**\/*.bat,**\/*.yang</includes>
+                                <excludes>**\/target\/,**\/bin\/,**\/target-ide\/,**\/src/main/yang-gen-config\/,**\/src/main/yang-gen-sal\/,**\/src/main/xtend-gen\/,**\/src/main/yang\/</excludes>
+                                <outputFile>${project.build.directory}/checkstyle-logging-result.xml</outputFile>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <phase>process-sources</phase>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>io.fd.honeycomb.common</groupId>
+                            <artifactId>honeycomb-checkstyle</artifactId>
+                            <!-- Hardcoded version to prevent archetype generated projects to use their own project version -->
+                            <version>1.16.12-SNAPSHOT</version>
+                        </dependency>
+                        <!-- Necessary for logging checks -->
+                        <dependency>
+                            <groupId>org.opendaylight.yangtools</groupId>
+                            <artifactId>checkstyle-logging</artifactId>
+                            <version>${yangtools.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+                <!-- Deactivate strict java8 checks -->
+                <!-- TODO HONEYCOMB-156 fix all the javadoc offenders of doclint -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <configuration>
+                        <additionalparam>-Xdoclint:none</additionalparam>
+                    </configuration>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -330,11 +411,55 @@ done
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <configuration>
-                        <argLine>-Djava.security.egd=file:${random.seed.file}</argLine>
+                        <!--http://stackoverflow.com/questions/18107375/getting-skipping-jacoco-execution-due-to-missing-execution-data-file-upon-exec-->
+                        <argLine>${argLine} -Djava.security.egd=file:${random.seed.file}</argLine>
                     </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <id>unpack-license</id>
+                        <phase>none</phase>
+                        <goals><goal>unpack</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <!-- Use google's error-prone static analysis-->
+                    <compilerId>javac-with-errorprone</compilerId>
+                    <forceJavacCompilerUse>true</forceJavacCompilerUse>
+                    <showWarnings>true</showWarnings>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-compiler-javac-errorprone</artifactId>
+                        <version>2.5</version>
+                    </dependency>
+                    <!-- override plexus-compiler-javac-errorprone's dependency on
+                         Error Prone with the latest version -->
+                    <dependency>
+                        <groupId>com.google.errorprone</groupId>
+                        <artifactId>error_prone_core</artifactId>
+                        <version>2.0.9</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
     </build>
 
     <distributionManagement>
