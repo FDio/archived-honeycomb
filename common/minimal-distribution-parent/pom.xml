@@ -55,6 +55,11 @@ done
         <mdsal.version>2.0.2-Beryllium-SR2</mdsal.version>
         <!-- Used by mdsal as provided/runtime dependency-->
         <osgi.core.version>5.0.0</osgi.core.version>
+        <junit.version>4.11</junit.version>
+        <!-- Use /dev/urandom instead of /dev/random during tests to speed up execution
+            http://stackoverflow.com/questions/137212/how-to-solve-performance-problem-with-java-securerandom
+        -->
+        <random.seed.file>/dev/./urandom</random.seed.file>
     </properties>
 
     <dependencyManagement>
@@ -151,6 +156,14 @@ done
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.core</artifactId>
                 <version>${osgi.core.version}</version>
+            </dependency>
+
+            <!-- Junit for test -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -312,6 +325,13 @@ done
                             </configuration>
                         </execution>
                     </executions>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <argLine>-Djava.security.egd=file:${random.seed.file}</argLine>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
