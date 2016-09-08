@@ -53,7 +53,7 @@ done
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>minimal-distribution-parent</artifactId>
-    <version>1.16.9-RC1</version>
+    <version>1.16.9-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <!-- Generate executable shell script -->
@@ -200,7 +200,7 @@ done
                         <dependency>
                             <groupId>io.fd.honeycomb.common</groupId>
                             <artifactId>minimal-assembly-descriptor</artifactId>
-                            <version>1.16.9-RC1</version>
+                            <version>1.16.9-SNAPSHOT</version>
                         </dependency>
                     </dependencies>
                     <executions>
