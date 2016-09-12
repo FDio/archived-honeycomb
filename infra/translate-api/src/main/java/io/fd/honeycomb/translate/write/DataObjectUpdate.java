@@ -57,8 +57,8 @@ public class DataObjectUpdate {
     }
 
     public static DataObjectUpdate create(@Nonnull final InstanceIdentifier<?> id,
-                                    @Nullable final DataObject dataBefore,
-                                    @Nullable final DataObject dataAfter) {
+                                          @Nullable final DataObject dataBefore,
+                                          @Nullable final DataObject dataAfter) {
         checkArgument(!(dataBefore == null && dataAfter == null), "Both before and after data are null");
         if (dataBefore != null) {
             checkArgument(id.getTargetType().isAssignableFrom(dataBefore.getClass()));
@@ -84,7 +84,6 @@ public class DataObjectUpdate {
         final DataObjectUpdate that = (DataObjectUpdate) o;
 
         return id.equals(that.id);
-
     }
 
     @Override

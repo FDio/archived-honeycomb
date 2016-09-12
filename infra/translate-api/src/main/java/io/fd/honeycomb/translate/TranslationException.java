@@ -19,17 +19,17 @@ package io.fd.honeycomb.translate;
 import com.google.common.annotations.Beta;
 
 /**
- * Base exception for the translation layer
+ * Base exception for the translation layer.
  */
 @Beta
 public class TranslationException extends Exception {
 
-    public TranslationException(final String s) {
-        super(s);
+    public TranslationException(final String message) {
+        super(message);
     }
 
-    public TranslationException(final String s, final Throwable cause) {
-        super(s, cause);
+    public TranslationException(final String message, final Throwable cause) {
+        super(message, cause);
     }
 
     public TranslationException(final Throwable cause) {
