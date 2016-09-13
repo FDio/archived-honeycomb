@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.util.cache;
+package io.fd.honeycomb.translate.util.read.cache;
 
-import io.fd.honeycomb.translate.v3po.util.cache.exceptions.execution.DumpExecutionFailedException;
+import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**

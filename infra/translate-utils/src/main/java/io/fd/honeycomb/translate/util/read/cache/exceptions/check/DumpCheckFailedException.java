@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.util.cache.exceptions.check;
+package io.fd.honeycomb.translate.util.read.cache.exceptions.check;
 
 /**
  * Abstract parent of exceptions thrown while checking if dump is not empty

@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.util.cache;
+package io.fd.honeycomb.translate.util.read.cache.noop;
 
-import java.util.function.Function;
+import io.fd.honeycomb.translate.util.read.cache.EntityDumpPostProcessingFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Generic interface for class that are post-processing data dumped from vpp
- */
-@FunctionalInterface
-public interface EntityDumpPostProcessingFunction<T> extends Function<T, T> {
+public class NoopDumpPostProcessingFunction<T> implements EntityDumpPostProcessingFunction<T> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(NoopDumpPostProcessingFunction.class);
 
-    /**
-     * Performs postprocessing on dumped data
-     *
-     * @return Post-processed data
-     */
     @Override
-    T apply(T t);
+    public T apply(final T t) {
+        LOG.debug("Default post processing function called for {}", t);
+        return t;
+    }
 }

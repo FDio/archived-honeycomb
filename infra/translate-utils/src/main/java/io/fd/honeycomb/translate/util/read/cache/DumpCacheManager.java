@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.util.cache;
+package io.fd.honeycomb.translate.util.read.cache;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.ModificationCache;
-import io.fd.honeycomb.translate.v3po.util.cache.exceptions.check.DumpCheckFailedException;
-import io.fd.honeycomb.translate.v3po.util.cache.exceptions.execution.DumpExecutionFailedException;
-import io.fd.honeycomb.translate.v3po.util.cache.noop.NoopDumpPostProcessingFunction;
+import io.fd.honeycomb.translate.util.read.cache.exceptions.check.DumpCheckFailedException;
+import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
+import io.fd.honeycomb.translate.util.read.cache.noop.NoopDumpPostProcessingFunction;
 import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

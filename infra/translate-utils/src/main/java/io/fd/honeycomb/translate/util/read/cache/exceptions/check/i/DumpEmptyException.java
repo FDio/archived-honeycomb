@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.util.cache.exceptions.check.i;
+package io.fd.honeycomb.translate.util.read.cache.exceptions.check.i;
 
-import io.fd.honeycomb.translate.v3po.util.cache.EntityDumpNonEmptyCheck;
-import io.fd.honeycomb.translate.v3po.util.cache.exceptions.check.DumpCheckFailedException;
+import io.fd.honeycomb.translate.util.read.cache.EntityDumpNonEmptyCheck;
+import io.fd.honeycomb.translate.util.read.cache.exceptions.check.DumpCheckFailedException;
 
 /**
  * This exception occurs when dump is resolved as empty by {@link EntityDumpNonEmptyCheck}

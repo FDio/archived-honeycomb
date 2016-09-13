@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.util.cache.exceptions.execution.i;
+package io.fd.honeycomb.translate.util.read.cache;
 
-import io.fd.honeycomb.translate.v3po.util.cache.exceptions.execution.DumpExecutionFailedException;
-import java.util.concurrent.TimeoutException;
+import io.fd.honeycomb.translate.util.read.cache.exceptions.check.DumpCheckFailedException;
+import io.fd.honeycomb.translate.util.read.cache.exceptions.check.i.DumpEmptyException;
 
 /**
- * Exception thrown when dump call ends in timeout
+ * Generic interface for classes that verifies if dump of data object is non-empty
  */
-public class DumpTimeoutException extends DumpExecutionFailedException {
+public interface EntityDumpNonEmptyCheck<T> {
 
-    public DumpTimeoutException(String message, TimeoutException cause) {
-        super(message, cause);
-
-    }
-
-    public static final DumpTimeoutException wrapTimeoutException(String message, TimeoutException cause) {
-        return new DumpTimeoutException(message, cause);
-    }
+    /**
+     * Verifies if data are non-empty,if not throws {@link DumpEmptyException}
+     */
+    public void assertNotEmpty(T data) throws DumpCheckFailedException;
 }

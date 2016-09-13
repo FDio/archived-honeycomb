@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.util.cache.exceptions.execution.i;
-
-import io.fd.honeycomb.translate.v3po.util.cache.exceptions.execution.DumpExecutionFailedException;
-import org.openvpp.jvpp.VppBaseCallException;
+package io.fd.honeycomb.translate.util.read.cache.exceptions.execution;
 
 /**
- * Wrapper exception for {@link org.openvpp.jvpp.VppBaseCallException} during dumping
+ * Default parent for all exceptions connected to dumping of data
  */
-public class DumpCallFailedException extends DumpExecutionFailedException {
+public abstract class DumpExecutionFailedException extends Exception {
 
-    public DumpCallFailedException(String message, VppBaseCallException cause) {
+    public DumpExecutionFailedException(String message, Exception cause) {
         super(message, cause);
-    }
-
-    public static final DumpCallFailedException wrapFailedCallException(String message, VppBaseCallException cause) {
-        return new DumpCallFailedException(message, cause);
     }
 }
