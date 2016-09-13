@@ -39,7 +39,8 @@ import org.slf4j.LoggerFactory;
  * Reader wrapper that periodically invokes a read to determine whether reads are still fully functional.
  * In case a specific error occurs, Keep-alive failure listener gets notified.
  */
-public final class KeepaliveReaderWrapper<D extends DataObject, B extends Builder<D>> implements Reader<D, B>, Runnable, Closeable {
+public final class KeepaliveReaderWrapper<D extends DataObject, B extends Builder<D>>
+        implements Reader<D, B>, Runnable, Closeable {
 
     private static final Logger LOG = LoggerFactory.getLogger(KeepaliveReaderWrapper.class);
 
@@ -51,7 +52,7 @@ public final class KeepaliveReaderWrapper<D extends DataObject, B extends Builde
     private final ScheduledFuture<?> scheduledFuture;
 
     /**
-     * Create new Keepalive wrapper
+     * Create new Keepalive wrapper.
      *
      * @param delegate underlying reader performing actual reads
      * @param executor scheduled executor service to schedule keepalive calls
@@ -123,7 +124,7 @@ public final class KeepaliveReaderWrapper<D extends DataObject, B extends Builde
     }
 
     /**
-     * Listener that gets called whenever keepalive fails as expected
+     * Listener that gets called whenever keepalive fails as expected.
      */
     public interface KeepaliveFailureListener {
 
@@ -145,7 +146,6 @@ public final class KeepaliveReaderWrapper<D extends DataObject, B extends Builde
         @Override
         public <T extends DataObject> void put(final InstanceIdentifier<T> path, final T data) {}
 
-        @Override
         public void close() {}
     }
 

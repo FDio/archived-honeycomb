@@ -33,7 +33,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  * Simple DataBroker backed reader allowing to delegate reads to different brokers.
  */
 public final class BindingBrokerReader<D extends DataObject, B extends Builder<D>>
-        implements Reader<D, B>, AutoCloseable {
+        implements Reader<D, B> {
 
     private final InstanceIdentifier<D> instanceIdentifier;
     private final DataBroker dataBroker;
@@ -87,10 +87,5 @@ public final class BindingBrokerReader<D extends DataObject, B extends Builder<D
     @Override
     public InstanceIdentifier<D> getManagedDataObjectType() {
         return instanceIdentifier;
-    }
-
-    @Override
-    public void close() throws Exception {
-        // Noop
     }
 }

@@ -38,7 +38,7 @@ public final class RealtimeMappingContext implements MappingContext {
 
     @Override
     public <T extends DataObject> Optional<T> read(@Nonnull final InstanceIdentifier<T> currentId) {
-        try(ReadOnlyTransaction tx = contextBindingBrokerDependency.newReadOnlyTransaction()) {
+        try (ReadOnlyTransaction tx = contextBindingBrokerDependency.newReadOnlyTransaction()) {
             try {
                 return tx.read(LogicalDatastoreType.OPERATIONAL, currentId).checkedGet();
             } catch (ReadFailedException e) {

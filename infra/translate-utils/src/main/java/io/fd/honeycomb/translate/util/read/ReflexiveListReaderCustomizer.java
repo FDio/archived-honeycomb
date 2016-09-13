@@ -32,7 +32,7 @@ import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 
 /**
- * Might be slow !
+ * Might be slow.
  */
 public abstract class ReflexiveListReaderCustomizer<C extends DataObject & Identifiable<K>, K extends Identifier<C>, B extends Builder<C>>
         extends ReflexiveReaderCustomizer<C, B>

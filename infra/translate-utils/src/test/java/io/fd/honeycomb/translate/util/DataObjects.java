@@ -18,6 +18,8 @@ package io.fd.honeycomb.translate.util;
 
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class DataObjects {
@@ -49,4 +51,14 @@ public class DataObjects {
             InstanceIdentifier<DataObject42> IID = DataObject4.IID.child(DataObject42.class);
         }
     }
+
+    public interface DataObjectK extends DataObject, Identifiable<DataObjectKey> {
+        InstanceIdentifier<DataObjectK> IID = InstanceIdentifier.create(DataObjectK.class);
+
+        interface DataObjectK1 extends DataObject, ChildOf<DataObjectK> {
+            InstanceIdentifier<DataObjectK1> IID = DataObjectK.IID.child(DataObjectK1.class);
+        }
+    }
+
+    public static class DataObjectKey implements Identifier<DataObjectK> {}
 }

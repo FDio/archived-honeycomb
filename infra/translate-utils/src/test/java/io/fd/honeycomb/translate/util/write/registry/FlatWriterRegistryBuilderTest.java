@@ -7,22 +7,28 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import io.fd.honeycomb.translate.util.DataObjects;
+import io.fd.honeycomb.translate.write.DataObjectUpdate;
+import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.Writer;
+import io.fd.honeycomb.translate.write.registry.WriterRegistry;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class FlatWriterRegistryBuilderTest {
-
 
     @Test
     public void testRelationsBefore() throws Exception {
@@ -47,6 +53,38 @@ public class FlatWriterRegistryBuilderTest {
     }
 
     @Test
+    public void testBuild() throws Exception {
+        final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder();
+        final Writer<? extends DataObject> writer = mockWriter(DataObjects.DataObject3.class);
+        flatWriterRegistryBuilder.add(writer);
+        final WriterRegistry build = flatWriterRegistryBuilder.build();
+        final InstanceIdentifier<DataObjects.DataObject3> id = InstanceIdentifier.create(DataObjects.DataObject3.class);
+        final DataObjectUpdate update = mock(DataObjectUpdate.class);
+        WriterRegistry.DataObjectUpdates updates = new WriterRegistry.DataObjectUpdates(
+                Multimaps.forMap(Collections.singletonMap(id, update)),
+                Multimaps.forMap(Collections.emptyMap()));
+        build.update(updates, mock(WriteContext.class));
+
+        verify(writer)
+                .update(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuildUnknownWriter() throws Exception {
+        final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder();
+        final Writer<? extends DataObject> writer = mockWriter(DataObjects.DataObject3.class);
+        flatWriterRegistryBuilder.add(writer);
+        final WriterRegistry build = flatWriterRegistryBuilder.build();
+
+        final InstanceIdentifier<DataObjects.DataObject1> id2 = InstanceIdentifier.create(DataObjects.DataObject1.class);
+        final DataObjectUpdate update2 = mock(DataObjectUpdate.class);
+        final WriterRegistry.DataObjectUpdates updates = new WriterRegistry.DataObjectUpdates(
+                Multimaps.forMap(Collections.singletonMap(id2, update2)),
+                Multimaps.forMap(Collections.emptyMap()));
+        build.update(updates, mock(WriteContext.class));
+    }
+
+    @Test
     public void testRelationsAfter() throws Exception {
         final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder();
         /*
@@ -56,7 +94,8 @@ public class FlatWriterRegistryBuilderTest {
         flatWriterRegistryBuilder.add(mockWriter(DataObjects.DataObject1.class));
         flatWriterRegistryBuilder.addAfter(mockWriter(DataObjects.DataObject2.class), DataObjects.DataObject1.IID);
         flatWriterRegistryBuilder.addAfter(mockWriter(DataObjects.DataObject3.class), DataObjects.DataObject2.IID);
-        flatWriterRegistryBuilder.addAfter(mockWriter(DataObjects.DataObject4.class), DataObjects.DataObject2.IID);
+        flatWriterRegistryBuilder.addAfter(mockWriter(DataObjects.DataObject4.class),
+                Lists.newArrayList(DataObjects.DataObject2.IID, DataObjects.DataObject3.IID));
         final ImmutableMap<InstanceIdentifier<?>, Writer<?>> mappedWriters =
                 flatWriterRegistryBuilder.getMappedHandlers();
 
