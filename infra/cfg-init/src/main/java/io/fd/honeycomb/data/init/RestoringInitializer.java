@@ -18,6 +18,7 @@ package io.fd.honeycomb.data.init;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.fd.honeycomb.translate.util.JsonUtils;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,6 +33,7 @@ import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
+import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,17 +46,28 @@ public class RestoringInitializer implements DataTreeInitializer {
     private final DOMDataBroker dataTree;
     private final RestorationType restorationType;
     private final LogicalDatastoreType datastoreType;
+    private final JsonReader jsonReader;
+
+    public RestoringInitializer(@Nonnull final SchemaService schemaService,
+                                @Nonnull final Path path,
+                                @Nonnull final DOMDataBroker dataTree,
+                                @Nonnull final RestorationType restorationType,
+                                @Nonnull final LogicalDatastoreType datastoreType,
+                                @Nonnull final JsonReader jsonReader) {
+        this.schemaService = schemaService;
+        this.datastoreType = datastoreType;
+        this.path = checkStorage(path);
+        this.dataTree = dataTree;
+        this.restorationType = restorationType;
+        this.jsonReader = jsonReader;
+    }
 
     public RestoringInitializer(@Nonnull final SchemaService schemaService,
                                 @Nonnull final Path path,
                                 @Nonnull final DOMDataBroker dataTree,
                                 @Nonnull final RestorationType restorationType,
                                 @Nonnull final LogicalDatastoreType datastoreType) {
-        this.schemaService = schemaService;
-        this.datastoreType = datastoreType;
-        this.path = checkStorage(path);
-        this.dataTree = dataTree;
-        this.restorationType = restorationType;
+        this(schemaService, path, dataTree, restorationType, datastoreType, new JsonReader());
     }
 
     private Path checkStorage(final Path path) {
@@ -75,8 +88,7 @@ public class RestoringInitializer implements DataTreeInitializer {
         }
 
         try {
-            final ContainerNode containerNode = JsonUtils
-                .readJsonRoot(schemaService.getGlobalContext(), Files.newInputStream(path, StandardOpenOption.READ));
+            final ContainerNode containerNode = jsonReader.readData(schemaService.getGlobalContext(), path);
 
             final DOMDataWriteTransaction domDataWriteTransaction = dataTree.newWriteOnlyTransaction();
             for (DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?> dataContainerChild : containerNode
@@ -109,7 +121,15 @@ public class RestoringInitializer implements DataTreeInitializer {
     /**
      * Type of operation to use when writing restored data.
      */
-    public static enum RestorationType {
+    public enum RestorationType {
         Put, Merge
+    }
+
+    @VisibleForTesting
+    static class JsonReader {
+
+        public ContainerNode readData(final SchemaContext globalContext, final Path path) throws IOException {
+            return JsonUtils.readJsonRoot(globalContext, Files.newInputStream(path, StandardOpenOption.READ));
+        }
     }
 }
