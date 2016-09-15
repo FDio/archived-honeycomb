@@ -1,2 +1,2 @@
 #!/bin/bash
-echo $BUILD_NUMBER
+echo RC2

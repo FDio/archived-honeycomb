@@ -17,7 +17,7 @@
 
   <groupId>io.fd.honeycomb.common</groupId>
   <artifactId>minimal-assembly-descriptor</artifactId>
-  <version>1.16.9-SNAPSHOT</version>
+  <version>1.16.9-RC2</version>
   <name>${project.artifactId}</name>
   <modelVersion>4.0.0</modelVersion>
 

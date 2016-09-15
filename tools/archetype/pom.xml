@@ -5,13 +5,13 @@
     <parent>
         <artifactId>honeycomb-tools</artifactId>
         <groupId>io.fd.honeycomb.tools</groupId>
-        <version>1.16.9-SNAPSHOT</version>
+        <version>1.16.9-RC2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fd.honeycomb.tools</groupId>
     <artifactId>honeycomb-plugin-archetype</artifactId>
-    <version>1.16.9-SNAPSHOT</version>
+    <version>1.16.9-RC2</version>
     <packaging>jar</packaging>
 
 </project>

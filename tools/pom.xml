@@ -5,14 +5,14 @@
     <parent>
         <artifactId>honeycomb-aggregator</artifactId>
         <groupId>io.fd.honeycomb</groupId>
-        <version>1.16.9-SNAPSHOT</version>
+        <version>1.16.9-RC2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fd.honeycomb.tools</groupId>
     <artifactId>honeycomb-tools</artifactId>
     <packaging>pom</packaging>
-    <version>1.16.9-SNAPSHOT</version>
+    <version>1.16.9-RC2</version>
     <modules>
         <module>archetype</module>
     </modules>

@@ -18,14 +18,14 @@
     <parent>
         <groupId>io.fd.honeycomb.common</groupId>
         <artifactId>impl-parent</artifactId>
-        <version>1.16.9-SNAPSHOT</version>
+        <version>1.16.9-RC2</version>
         <relativePath>../../common/impl-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.honeycomb.lisp</groupId>
     <artifactId>lisp2vpp</artifactId>
-    <version>1.16.9-SNAPSHOT</version>
+    <version>1.16.9-RC2</version>
     <packaging>bundle</packaging>
 
     <properties>
@@ -62,7 +62,7 @@
         <dependency>
             <groupId>io.fd.vpp</groupId>
             <artifactId>jvpp-core</artifactId>
-            <version>16.09-SNAPSHOT</version>
+            <version>16.09</version>
         </dependency>
 
         <!-- DI -->
