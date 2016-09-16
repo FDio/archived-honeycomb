@@ -30,6 +30,7 @@
   <properties>
     <guice.version>4.1.0</guice.version>
     <guice.config.version>1.2.0</guice.config.version>
+    <jvpp.registry.version>16.09</jvpp.registry.version>
   </properties>
 
   <dependencies>
@@ -78,12 +79,18 @@
     <dependency>
         <groupId>io.fd.vpp</groupId>
         <artifactId>jvpp-registry</artifactId>
-        <version>16.09-SNAPSHOT</version>
+        <version>${jvpp.registry.version}</version>
     </dependency>
     <dependency>
         <groupId>io.fd.nsh_sfc</groupId>
         <artifactId>nsh-sfc</artifactId>
         <version>16.09-SNAPSHOT</version>
+        <exclusions>
+          <exclusion>
+            <groupId>io.fd.vpp</groupId>
+            <artifactId>jvpp-registry</artifactId>
+          </exclusion>
+        </exclusions>
     </dependency>
     <dependency>
       <groupId>io.fd.honeycomb.vpp</groupId>
