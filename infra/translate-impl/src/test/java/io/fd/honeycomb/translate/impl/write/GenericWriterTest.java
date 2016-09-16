@@ -17,11 +17,12 @@
 package io.fd.honeycomb.translate.impl.write;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
+import io.fd.honeycomb.translate.write.WriteFailedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -32,33 +33,56 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class GenericWriterTest {
 
     private static final InstanceIdentifier<DataObject>
-            DATA_OBJECT_INSTANCE_IDENTIFIER = InstanceIdentifier.create(DataObject.class);
+            DATA_OBJECT_ID = InstanceIdentifier.create(DataObject.class);
     @Mock
     private WriterCustomizer<DataObject> customizer;
     @Mock
     private WriteContext ctx;
+    private GenericWriter<DataObject> writer;
+    @Mock
+    private DataObject before;
+    @Mock
+    private DataObject after;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        writer = new GenericWriter<>(DATA_OBJECT_ID, customizer);
     }
 
     @Test
     public void testUpdate() throws Exception {
-        final GenericWriter<DataObject> writer =
-                new GenericWriter<>(DATA_OBJECT_INSTANCE_IDENTIFIER, customizer);
+        assertEquals(DATA_OBJECT_ID, writer.getManagedDataObjectType());
+        writer.update(DATA_OBJECT_ID, before, after, ctx);
+        verify(customizer).updateCurrentAttributes(DATA_OBJECT_ID, before, after, ctx);
 
-        final DataObject before = mock(DataObject.class);
-        final DataObject after = mock(DataObject.class);
+        writer.update(DATA_OBJECT_ID, before, null, ctx);
+        verify(customizer).deleteCurrentAttributes(DATA_OBJECT_ID, before, ctx);
 
-        assertEquals(DATA_OBJECT_INSTANCE_IDENTIFIER, writer.getManagedDataObjectType());
-        writer.update(DATA_OBJECT_INSTANCE_IDENTIFIER, before, after, ctx);
-        verify(customizer).updateCurrentAttributes(DATA_OBJECT_INSTANCE_IDENTIFIER, before, after, ctx);
+        writer.update(DATA_OBJECT_ID, null, after, ctx);
+        verify(customizer).writeCurrentAttributes(DATA_OBJECT_ID, after, ctx);
+    }
 
-        writer.update(DATA_OBJECT_INSTANCE_IDENTIFIER, before, null, ctx);
-        verify(customizer).deleteCurrentAttributes(DATA_OBJECT_INSTANCE_IDENTIFIER, before, ctx);
+    @Test(expected = WriteFailedException.CreateFailedException.class)
+    public void testWriteFail() throws Exception {
+        doThrow(new IllegalStateException("test")).when(customizer).writeCurrentAttributes(DATA_OBJECT_ID, after, ctx);
+        writer = new GenericWriter<>(DATA_OBJECT_ID, customizer);
+        writer.writeCurrentAttributes(DATA_OBJECT_ID, after, ctx);
+    }
 
-        writer.update(DATA_OBJECT_INSTANCE_IDENTIFIER, null, after, ctx);
-        verify(customizer).writeCurrentAttributes(DATA_OBJECT_INSTANCE_IDENTIFIER, after, ctx);
+    @Test(expected = WriteFailedException.UpdateFailedException.class)
+    public void testUpdateFail() throws Exception {
+        doThrow(new IllegalStateException("test")).when(customizer)
+                .updateCurrentAttributes(DATA_OBJECT_ID, before, after, ctx);
+        writer = new GenericWriter<>(DATA_OBJECT_ID, customizer);
+        writer.updateCurrentAttributes(DATA_OBJECT_ID, before, after, ctx);
+    }
+
+    @Test(expected = WriteFailedException.DeleteFailedException.class)
+    public void testDeleteFail() throws Exception {
+        doThrow(new IllegalStateException("test")).when(customizer)
+                .deleteCurrentAttributes(DATA_OBJECT_ID, before, ctx);
+        writer = new GenericWriter<>(DATA_OBJECT_ID, customizer);
+        writer.deleteCurrentAttributes(DATA_OBJECT_ID, before, ctx);
     }
 }
