@@ -18,7 +18,7 @@
   <groupId>io.fd.honeycomb.common</groupId>
   <artifactId>honeycomb-it-aggregator</artifactId>
   <version>1.16.9-SNAPSHOT</version>
-  <name>honeycomb</name>
+  <name>honeycomb-it</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
   <prerequisites>
