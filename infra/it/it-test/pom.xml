@@ -40,6 +40,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-binding-broker-impl</artifactId>
+        </dependency>
+        <dependency>
             <!-- We want logs from these tests -->
             <groupId>org.skinny-framework</groupId>
             <artifactId>skinny-logback</artifactId>

@@ -18,20 +18,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>org.opendaylight.odlparent</groupId>
-        <artifactId>odlparent</artifactId>
-        <version>1.6.2-Beryllium-SR2</version>
-        <relativePath/>
+        <groupId>io.fd.honeycomb.common</groupId>
+        <artifactId>impl-parent</artifactId>
+        <version>1.16.12-SNAPSHOT</version>
+        <relativePath>../impl-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>minimal-distribution-parent</artifactId>
     <version>1.16.12-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
-        <nexusproxy>http://nexus.fd.io/content</nexusproxy>
         <start.script.template>
 #!/bin/sh -
 STATUS=100
@@ -50,19 +48,13 @@ done
         <exec.parameters>-Xms32m -Xmx128m -XX:MetaspaceSize=32m -XX:MaxMetaspaceSize=128m</exec.parameters>
         <exec.parameters.minimal>-client -Xms20m -Xmx32m -XX:MetaspaceSize=5m -XX:MaxMetaspaceSize=32m -XX:MaxMetaspaceExpansion=1m -Xss512k -XX:+UseSerialGC -Djava.compiler=NONE -Xverify:none -noverify</exec.parameters.minimal>
         <debug.parameters>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</debug.parameters>
-        <guice.version>4.1.0</guice.version>
-        <guice.config.version>1.2.0</guice.config.version>
-        <restconf.version>1.3.2-Beryllium-SR2</restconf.version>
-        <netconf.version>1.0.2-Beryllium-SR2</netconf.version>
+
+        <!-- Jersey versions to run RESTCONF-->
         <jersey.version>1.19.1</jersey.version>
         <jetty.version>9.3.11.v20160721</jetty.version>
         <servlet.version>3.1.0</servlet.version>
-        <yangtools.version>0.8.2-Beryllium-SR2</yangtools.version>
-        <mdsal.controller.version>1.3.2-Beryllium-SR2</mdsal.controller.version>
-        <mdsal.version>2.0.2-Beryllium-SR2</mdsal.version>
         <!-- Used by mdsal as provided/runtime dependency-->
         <osgi.core.version>5.0.0</osgi.core.version>
-        <junit.version>4.11</junit.version>
         <!-- Use /dev/urandom instead of /dev/random during tests to speed up execution
             http://stackoverflow.com/questions/137212/how-to-solve-performance-problem-with-java-securerandom
         -->
@@ -71,57 +63,6 @@ done
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>mdsal-artifacts</artifactId>
-                <version>${mdsal.controller.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.mdsal</groupId>
-                <artifactId>mdsal-artifacts</artifactId>
-                <version>${mdsal.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.netconf</groupId>
-                <artifactId>netconf-artifacts</artifactId>
-                <version>${netconf.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.netconf</groupId>
-                <artifactId>restconf-artifacts</artifactId>
-                <version>${restconf.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>yangtools-artifacts</artifactId>
-                <version>${yangtools.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <!-- DI -->
-            <dependency>
-                <groupId>com.google.inject</groupId>
-                <artifactId>guice</artifactId>
-                <version>${guice.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.jmob</groupId>
-                <artifactId>guice.conf</artifactId>
-                <version>${guice.config.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.inject.extensions</groupId>
-                <artifactId>guice-multibindings</artifactId>
-                <version>${guice.version}</version>
-            </dependency>
             <!-- Jersey + Jetty for RESTCONF -->
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
@@ -164,14 +105,6 @@ done
                 <artifactId>org.osgi.core</artifactId>
                 <version>${osgi.core.version}</version>
             </dependency>
-
-            <!-- Junit for test -->
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
-                <scope>test</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -179,107 +112,6 @@ done
     <build>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <configuration>
-                        <!-- Override checkstyle configuration to fit Honeycomb coding style-->
-                        <configLocation>honeycomb-checkstyle.xml</configLocation>
-                        <includeTestResources>true</includeTestResources>
-                        <!--TODO HONEYCOMB-155 enable fail on violation after issues are resolved + set in as errors in checkstyle xml-->
-                    </configuration>
-                    <executions>
-
-                        <!-- Override license check configuration to fit Honeycomb coding style-->
-                        <execution>
-                            <id>check-license</id>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                            <phase>process-sources</phase>
-                            <configuration>
-                                <headerLocation>HONEYCOMB_LICENSE.txt</headerLocation>
-                                <failOnViolation>true</failOnViolation>
-                                <failsOnError>true</failsOnError>
-                                <outputFile>${project.build.directory}/checkstyle-license-result.xml</outputFile>
-                            </configuration>
-                        </execution>
-
-                        <!-- Add logging checks from yangtools -->
-                        <execution>
-                            <id>check-logging</id>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                            <phase>process-sources</phase>
-                            <configuration>
-                                <failOnViolation>true</failOnViolation>
-                                <configLocation>honeycomb-checkstyle-logging.xml</configLocation>
-                                <consoleOutput>true</consoleOutput>
-                                <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                                <sourceDirectory>${project.basedir}</sourceDirectory>
-                                <includes>**\/*.java,**\/*.xml,**\/*.ini,**\/*.sh,**\/*.bat,**\/*.yang</includes>
-                                <excludes>**\/target\/,**\/bin\/,**\/target-ide\/,**\/src/main/yang-gen-config\/,**\/src/main/yang-gen-sal\/,**\/src/main/xtend-gen\/,**\/src/main/yang\/</excludes>
-                                <outputFile>${project.build.directory}/checkstyle-logging-result.xml</outputFile>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                            <phase>process-sources</phase>
-                        </execution>
-                    </executions>
-                    <dependencies>
-                        <dependency>
-                            <groupId>io.fd.honeycomb.common</groupId>
-                            <artifactId>honeycomb-checkstyle</artifactId>
-                            <!-- Hardcoded version to prevent archetype generated projects to use their own project version -->
-                            <version>1.16.12-SNAPSHOT</version>
-                        </dependency>
-                        <!-- Necessary for logging checks -->
-                        <dependency>
-                            <groupId>org.opendaylight.yangtools</groupId>
-                            <artifactId>checkstyle-logging</artifactId>
-                            <version>${yangtools.version}</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-                <!-- Deactivate strict java8 checks -->
-                <!-- TODO HONEYCOMB-156 fix all the javadoc offenders of doclint -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <configuration>
-                        <additionalparam>-Xdoclint:none</additionalparam>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.3</version>
-                    <configuration>
-                        <!-- Use google's error-prone static analysis-->
-                        <compilerId>javac-with-errorprone</compilerId>
-                        <forceJavacCompilerUse>true</forceJavacCompilerUse>
-                        <showWarnings>true</showWarnings>
-                        <source>1.8</source>
-                        <target>1.8</target>
-                    </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.codehaus.plexus</groupId>
-                            <artifactId>plexus-compiler-javac-errorprone</artifactId>
-                            <version>2.5</version>
-                        </dependency>
-                        <!-- override plexus-compiler-javac-errorprone's dependency on
-                             Error Prone with the latest version -->
-                        <dependency>
-                            <groupId>com.google.errorprone</groupId>
-                            <artifactId>error_prone_core</artifactId>
-                            <version>2.0.9</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -419,57 +251,20 @@ done
         </pluginManagement>
         <plugins>
             <plugin>
-                <artifactId>maven-checkstyle-plugin</artifactId>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>groovy-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.10</version>
-                <executions>
-                    <execution>
-                        <id>unpack-license</id>
-                        <phase>none</phase>
-                        <goals><goal>unpack</goal></goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <!-- Use google's error-prone static analysis-->
-                    <compilerId>javac-with-errorprone</compilerId>
-                    <forceJavacCompilerUse>true</forceJavacCompilerUse>
-                    <showWarnings>true</showWarnings>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codehaus.plexus</groupId>
-                        <artifactId>plexus-compiler-javac-errorprone</artifactId>
-                        <version>2.5</version>
-                    </dependency>
-                    <!-- override plexus-compiler-javac-errorprone's dependency on
-                         Error Prone with the latest version -->
-                    <dependency>
-                        <groupId>com.google.errorprone</groupId>
-                        <artifactId>error_prone_core</artifactId>
-                        <version>2.0.9</version>
-                    </dependency>
-                </dependencies>
+                <artifactId>maven-assembly-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
-
-    <distributionManagement>
-        <repository>
-            <id>fdio-release</id>
-            <url>${nexusproxy}/repositories/fd.io.release/</url>
-        </repository>
-        <snapshotRepository>
-            <id>fdio-snapshot</id>
-            <url>${nexusproxy}/repositories/fd.io.snapshot/</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>

@@ -14,155 +14,107 @@
  limitations under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
   <parent>
-    <groupId>org.opendaylight.mdsal</groupId>
-    <artifactId>binding-parent</artifactId>
-    <version>0.8.2-Beryllium-SR2</version>
-    <relativePath/>
+    <groupId>io.fd.honeycomb.common</groupId>
+    <artifactId>honeycomb-parent</artifactId>
+    <version>1.16.12-SNAPSHOT</version>
+    <relativePath>../honeycomb-parent</relativePath>
   </parent>
 
-  <properties>
-    <nexusproxy>http://nexus.fd.io/content</nexusproxy>
-  </properties>
-
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.fd.honeycomb.common</groupId>
   <artifactId>api-parent</artifactId>
   <version>1.16.12-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <build>
-      <pluginManagement>
-        <plugins>
-          <plugin>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-            <configuration>
-              <!-- Override checkstyle configuration to fit Honeycomb coding style-->
-              <configLocation>honeycomb-checkstyle.xml</configLocation>
-              <includeTestResources>true</includeTestResources>
-              <!--TODO HONEYCOMB-155 enable fail on violation after issues are resolved + set in as errors in checkstyle xml-->
-            </configuration>
-            <executions>
-
-              <!-- Override license check configuration to fit Honeycomb coding style-->
-              <execution>
-                <id>check-license</id>
-                <goals>
-                  <goal>check</goal>
-                </goals>
-                <phase>process-sources</phase>
-                <configuration>
-                  <headerLocation>HONEYCOMB_LICENSE.txt</headerLocation>
-                  <failOnViolation>true</failOnViolation>
-                  <failsOnError>true</failsOnError>
-                  <outputFile>${project.build.directory}/checkstyle-license-result.xml</outputFile>
-                </configuration>
-              </execution>
-
-              <!-- Add logging checks from yangtools -->
-              <execution>
-                <id>check-logging</id>
-                <goals>
-                  <goal>check</goal>
-                </goals>
-                <phase>process-sources</phase>
-                <configuration>
-                  <failOnViolation>true</failOnViolation>
-                  <configLocation>honeycomb-checkstyle-logging.xml</configLocation>
-                  <consoleOutput>true</consoleOutput>
-                  <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                  <sourceDirectory>${project.basedir}</sourceDirectory>
-                  <includes>**\/*.java,**\/*.xml,**\/*.ini,**\/*.sh,**\/*.bat,**\/*.yang</includes>
-                  <excludes>**\/target\/,**\/bin\/,**\/target-ide\/,**\/src/main/yang-gen-config\/,**\/src/main/yang-gen-sal\/,**\/src/main/xtend-gen\/,**\/src/main/yang\/</excludes>
-                  <outputFile>${project.build.directory}/checkstyle-logging-result.xml</outputFile>
-                </configuration>
-              </execution>
-              <execution>
-                <goals>
-                  <goal>check</goal>
-                </goals>
-                <phase>process-sources</phase>
-              </execution>
-            </executions>
-            <dependencies>
-              <dependency>
-                <groupId>io.fd.honeycomb.common</groupId>
-                <artifactId>honeycomb-checkstyle</artifactId>
-                <!-- Hardcoded version to prevent archetype generated projects to use their own project version -->
-                <version>1.16.12-SNAPSHOT</version>
-              </dependency>
-              <!-- Necessary for logging checks -->
-              <dependency>
-                <groupId>org.opendaylight.yangtools</groupId>
-                <artifactId>checkstyle-logging</artifactId>
-                <version>${yangtools.version}</version>
-              </dependency>
-            </dependencies>
-          </plugin>
-          <!-- Deactivate strict java8 checks -->
-          <!-- TODO HONEYCOMB-156 fix all the javadoc offenders of doclint -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-              <additionalparam>-Xdoclint:none</additionalparam>
-            </configuration>
-          </plugin>
-        </plugins>
-      </pluginManagement>
+    <pluginManagement>
       <plugins>
-      <plugin>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.10</version>
-        <executions>
-          <execution>
-            <id>unpack-license</id>
-            <phase>none</phase>
-            <goals><goal>unpack</goal></goals>
-          </execution>
-        </executions>
-      </plugin>
+        <!-- Yangtools, generate yang -->
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <configuration>
-            <!-- Use google's error-prone static analysis-->
-            <compilerId>javac-with-errorprone</compilerId>
-            <forceJavacCompilerUse>true</forceJavacCompilerUse>
-            <showWarnings>true</showWarnings>
-            <source>1.8</source>
-            <target>1.8</target>
-          </configuration>
+          <groupId>org.opendaylight.yangtools</groupId>
+          <artifactId>yang-maven-plugin</artifactId>
+          <version>${yangtools.version}</version>
           <dependencies>
             <dependency>
-              <groupId>org.codehaus.plexus</groupId>
-              <artifactId>plexus-compiler-javac-errorprone</artifactId>
-              <version>2.5</version>
-            </dependency>
-            <!-- override plexus-compiler-javac-errorprone's dependency on
-                 Error Prone with the latest version -->
-            <dependency>
-              <groupId>com.google.errorprone</groupId>
-              <artifactId>error_prone_core</artifactId>
-              <version>2.0.9</version>
+              <groupId>org.opendaylight.mdsal</groupId>
+              <artifactId>maven-sal-api-gen-plugin</artifactId>
+              <version>0.8.2-Beryllium-SR2</version>
+              <type>jar</type>
             </dependency>
           </dependencies>
+          <executions>
+            <execution>
+              <id>binding</id>
+              <goals>
+                <goal>generate-sources</goal>
+              </goals>
+              <configuration>
+                <codeGenerators>
+                  <generator>
+                    <codeGeneratorClass>org.opendaylight.yangtools.maven.sal.api.gen.plugin.CodeGeneratorImpl</codeGeneratorClass>
+                    <outputBaseDir>${salGeneratorPath}</outputBaseDir>
+                  </generator>
+                </codeGenerators>
+                <inspectDependencies>true</inspectDependencies>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <configuration>
+            <filesets>
+              <fileset>
+                <directory>${salGeneratorPath}</directory>
+                <includes>
+                  <include>**</include>
+                </includes>
+              </fileset>
+            </filesets>
+          </configuration>
+        </plugin>
+        <!-- add generated yang classes to build -->
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>add-yang-sources</id>
+              <phase>generate-sources</phase>
+              <goals>
+                <goal>add-source</goal>
+              </goals>
+              <configuration>
+                <sources>
+                  <source>${salGeneratorPath}</source>
+                </sources>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.opendaylight.yangtools</groupId>
+        <artifactId>yang-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+      </plugin>
     </plugins>
   </build>
 
-  <distributionManagement>
-    <repository>
-      <id>fdio-release</id>
-      <url>${nexusproxy}/repositories/fd.io.release/</url>
-    </repository>
-    <snapshotRepository>
-      <id>fdio-snapshot</id>
-      <url>${nexusproxy}/repositories/fd.io.snapshot/</url>
-    </snapshotRepository>
-  </distributionManagement>
+  <dependencies>
+    <dependency>
+      <groupId>org.opendaylight.mdsal</groupId>
+      <artifactId>yang-binding</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.yangtools</groupId>
+      <artifactId>yang-common</artifactId>
+    </dependency>
+  </dependencies>
 </project>

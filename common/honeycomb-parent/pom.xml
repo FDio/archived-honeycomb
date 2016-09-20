@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2016 Cisco and/or its affiliates.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at:
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.fd.honeycomb.common</groupId>
+    <artifactId>honeycomb-parent</artifactId>
+    <version>1.16.12-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <properties>
+        <nexusproxy>http://nexus.fd.io/content</nexusproxy>
+        <odl.nexusproxy>https://nexus.opendaylight.org/content</odl.nexusproxy>
+
+        <!-- Default Sonar configuration -->
+        <sonar-jacoco-listeners.version>2.4</sonar-jacoco-listeners.version>
+        <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
+        <sonar.jacoco.reportPath>target/code-coverage/jacoco.exec</sonar.jacoco.reportPath>
+        <sonar.jacoco.itReportPath>target/code-coverage/jacoco-it.exec</sonar.jacoco.itReportPath>
+        <!-- Note: This list should match jacoco-maven-plugin's exclusion list below -->
+        <sonar.exclusions>**/gen/**,**/generated-sources/**,**/yang-gen**</sonar.exclusions>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- ODL dependencies -->
+        <yangtools.version>0.8.2-Beryllium-SR2</yangtools.version>
+        <mdsal.version>2.0.2-Beryllium-SR2</mdsal.version>
+        <mdsal.controller.version>1.3.2-Beryllium-SR2</mdsal.controller.version>
+        <mdsalmodel.version>0.8.2-Beryllium-SR2</mdsalmodel.version>
+        <netconf.version>1.0.2-Beryllium-SR2</netconf.version>
+        <restconf.version>1.3.2-Beryllium-SR2</restconf.version>
+        <salGeneratorPath>target/generated-sources/mdsal-binding</salGeneratorPath>
+
+        <!-- dependencies -->
+        <junit.version>4.11</junit.version>
+        <mockito.version>1.9.5</mockito.version>
+        <hamcrest.version>1.3</hamcrest.version>
+        <guava.version>18.0</guava.version>
+
+        <!-- plugins -->
+        <checkstyle.version>2.16</checkstyle.version>
+        <maven.javadoc.version>2.10.3</maven.javadoc.version>
+        <jacoco.version>0.7.2.201409121644</jacoco.version>
+        <enforcer.version>1.4</enforcer.version>
+        <maven.compile.plugin.version>3.3</maven.compile.plugin.version>
+        <maven.bundle.version>3.0.0</maven.bundle.version>
+
+        <!-- checkstyle -->
+        <checkstyle.header.file>APACHE_HEADER.txt</checkstyle.header.file>
+    </properties>
+
+    <organization>
+        <name>fd.io</name>
+        <url>https://fd.io</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>https://jira.fd.io/</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>Jenkins</system>
+        <url>https://jenkins.fd.io/</url>
+    </ciManagement>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- ODL -->
+            <dependency>
+                <groupId>org.opendaylight.yangtools</groupId>
+                <artifactId>yangtools-artifacts</artifactId>
+                <version>${yangtools.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.controller</groupId>
+                <artifactId>mdsal-artifacts</artifactId>
+                <version>${mdsal.controller.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.mdsal</groupId>
+                <artifactId>mdsal-artifacts</artifactId>
+                <version>${mdsal.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.netconf</groupId>
+                <artifactId>netconf-artifacts</artifactId>
+                <version>${netconf.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.netconf</groupId>
+                <artifactId>restconf-artifacts</artifactId>
+                <version>${restconf.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.mdsal.model</groupId>
+                <artifactId>mdsal-model-artifacts</artifactId>
+                <version>${mdsalmodel.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Utilities -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+
+            <!-- Testing Dependencies -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-all</artifactId>
+                <version>${hamcrest.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- checkstyle -->
+                <plugin>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${checkstyle.version}</version>
+                    <configuration>
+                        <!-- Override checkstyle configuration to fit Honeycomb coding style-->
+                        <configLocation>honeycomb-checkstyle.xml</configLocation>
+                        <includeTestResources>true</includeTestResources>
+                        <!--TODO HONEYCOMB-155 enable fail on violation after issues are resolved + set in as errors in checkstyle xml-->
+                        <excludes>
+                            org/opendaylight/yang/gen/**,
+                        </excludes>
+                    </configuration>
+                    <executions>
+
+                        <!-- Override license check configuration to fit Honeycomb coding style-->
+                        <execution>
+                            <id>check-license</id>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <phase>process-sources</phase>
+                            <configuration>
+                                <headerLocation>HONEYCOMB_LICENSE.txt</headerLocation>
+                                <failOnViolation>true</failOnViolation>
+                                <failsOnError>true</failsOnError>
+                                <outputFile>${project.build.directory}/checkstyle-license-result.xml</outputFile>
+                            </configuration>
+                        </execution>
+
+                        <!-- Add logging checks from yangtools -->
+                        <execution>
+                            <id>check-logging</id>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <phase>process-sources</phase>
+                            <configuration>
+                                <failOnViolation>true</failOnViolation>
+                                <configLocation>honeycomb-checkstyle-logging.xml</configLocation>
+                                <consoleOutput>true</consoleOutput>
+                                <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                                <sourceDirectory>${project.basedir}</sourceDirectory>
+                                <includes>**\/*.java,**\/*.xml,**\/*.ini,**\/*.sh,**\/*.bat,**\/*.yang</includes>
+                                <excludes>**\/target\/,**\/bin\/,**\/target-ide\/,**\/src/main/yang-gen-config\/,**\/src/main/yang-gen-sal\/,**\/src/main/xtend-gen\/,**\/src/main/yang\/</excludes>
+                                <outputFile>${project.build.directory}/checkstyle-logging-result.xml</outputFile>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <phase>process-sources</phase>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>io.fd.honeycomb.common</groupId>
+                            <artifactId>honeycomb-checkstyle</artifactId>
+                            <!-- Hardcoded version to prevent archetype generated projects to use their own project version -->
+                            <version>1.16.12-SNAPSHOT</version>
+                        </dependency>
+                        <!-- Necessary for logging checks -->
+                        <dependency>
+                            <groupId>org.opendaylight.yangtools</groupId>
+                            <artifactId>checkstyle-logging</artifactId>
+                            <version>${yangtools.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+                <!-- Deactivate strict java8 checks -->
+                <!-- TODO HONEYCOMB-156 fix all the javadoc offenders of doclint -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${maven.javadoc.version}</version>
+                    <configuration>
+                        <additionalparam>-Xdoclint:none</additionalparam>
+                    </configuration>
+                </plugin>
+                <!-- jacoco test coverage for sonar -->
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco.version}</version>
+                    <executions>
+                        <execution>
+                            <id>pre-unit-test</id>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                            <configuration>
+                                <destFile>${sonar.jacoco.reportPath}</destFile>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>post-unit-test</id>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                            <configuration>
+                                <dataFile>${sonar.jacoco.reportPath}</dataFile>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <excludes>
+                            <exclude>**/gen/**</exclude>
+                            <exclude>**/generated-sources/**</exclude>
+                            <exclude>**/yang-gen/**</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+                <!-- Enforce maven version -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>${enforcer.version}</version>
+                    <executions>
+                        <execution>
+                            <id>enforce-maven</id>
+                            <configuration>
+                                <rules>
+                                    <requireMavenVersion>
+                                        <version>3.1.1</version>
+                                    </requireMavenVersion>
+                                </rules>
+                            </configuration>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <!-- Compile with google static analysis tool: error_prone -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven.compile.plugin.version}</version>
+                    <configuration>
+                        <!-- Use google's error-prone static analysis-->
+                        <compilerId>javac-with-errorprone</compilerId>
+                        <forceJavacCompilerUse>true</forceJavacCompilerUse>
+                        <showWarnings>true</showWarnings>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.codehaus.plexus</groupId>
+                            <artifactId>plexus-compiler-javac-errorprone</artifactId>
+                            <version>2.5</version>
+                        </dependency>
+                        <!-- override plexus-compiler-javac-errorprone's dependency on
+                             Error Prone with the latest version -->
+                        <dependency>
+                            <groupId>com.google.errorprone</groupId>
+                            <artifactId>error_prone_core</artifactId>
+                            <version>2.0.9</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>${maven.bundle.version}</version>
+                    <extensions>true</extensions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <distributionManagement>
+        <repository>
+            <id>fdio-release</id>
+            <url>${nexusproxy}/repositories/fd.io.release/</url>
+        </repository>
+        <snapshotRepository>
+            <id>fdio-snapshot</id>
+            <url>${nexusproxy}/repositories/fd.io.snapshot/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <repositories>
+        <!-- Using only ODL stable releases -->
+        <repository>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>opendaylight-mirror</id>
+            <name>opendaylight-mirror</name>
+            <url>${odl.nexusproxy}/repositories/public/</url>
+        </repository>
+    </repositories>
+</project>

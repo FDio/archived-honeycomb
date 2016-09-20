@@ -27,6 +27,7 @@
 
   <modules>
     <module>checkstyle</module>
+    <module>honeycomb-parent</module>
     <module>api-parent</module>
     <module>impl-parent</module>
     <module>minimal-assembly-descriptor</module>
