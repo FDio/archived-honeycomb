@@ -84,13 +84,7 @@
     <dependency>
         <groupId>io.fd.nsh_sfc</groupId>
         <artifactId>nsh-sfc</artifactId>
-        <version>16.09-SNAPSHOT</version>
-        <exclusions>
-          <exclusion>
-            <groupId>io.fd.vpp</groupId>
-            <artifactId>jvpp-registry</artifactId>
-          </exclusion>
-        </exclusions>
+        <version>16.09</version>
     </dependency>
     <dependency>
       <groupId>io.fd.honeycomb.vpp</groupId>
