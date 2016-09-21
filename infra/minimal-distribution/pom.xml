@@ -25,12 +25,8 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.honeycomb</groupId>
     <artifactId>minimal-distribution</artifactId>
-    <version>1.16.12-SNAPSHOT</version>
-
     <name>${project.artifactId}</name>
-    <prerequisites>
-        <maven>3.1.1</maven>
-    </prerequisites>
+    <version>1.16.12-SNAPSHOT</version>
 
     <properties>
         <main.class>io.fd.honeycomb.infra.distro.Main</main.class>

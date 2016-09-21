@@ -26,6 +26,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>minimal-distribution-parent</artifactId>
+    <name>${project.artifactId}</name>
     <version>1.16.12-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -169,7 +170,6 @@ done
                 <plugin>
                     <groupId>org.codehaus.gmaven</groupId>
                     <artifactId>groovy-maven-plugin</artifactId>
-                    <version>2.0</version>
                     <executions>
                         <execution>
                             <phase>package</phase>

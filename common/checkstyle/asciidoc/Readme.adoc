@@ -1,6 +1,6 @@
 = Honeycomb coding resources
 
 * intellij-java-coding-style.xml Can be imported into Intellij IDEA to ensure Honeycomb coding style during development
-* checkstyle.xml Checkstyle config ensuring above HOneycomb coding style
+* checkstyle.xml Checkstyle config ensuring above Honeycomb coding style
 * checkstyle-license.xml Checkstyle config ensuring Honeycomb license (in HONEYCOMB_LICENSE.txt) header presence
 * checkstyle-logging.xml Checkstyle config ensuring ODL logging standards

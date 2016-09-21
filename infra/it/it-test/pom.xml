@@ -24,20 +24,25 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.fd.honeycomb</groupId>
+    <groupId>io.fd.honeycomb.it</groupId>
     <artifactId>honeycomb-it-test</artifactId>
+    <name>${project.artifactId}</name>
     <version>1.16.12-SNAPSHOT</version>
+
+    <properties>
+        <hc.infra.version>1.16.12-SNAPSHOT</hc.infra.version>
+    </properties>
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>io.fd.honeycomb</groupId>
             <artifactId>data-impl</artifactId>
-            <version>${project.version}</version>
+            <version>${hc.infra.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>io.fd.honeycomb</groupId>
             <artifactId>translate-impl</artifactId>
-            <version>${project.version}</version>
+            <version>${hc.infra.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>

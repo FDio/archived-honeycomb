@@ -3,16 +3,19 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>honeycomb-aggregator</artifactId>
-        <groupId>io.fd.honeycomb</groupId>
+        <groupId>io.fd.honeycomb.common</groupId>
+        <artifactId>honeycomb-parent</artifactId>
         <version>1.16.12-SNAPSHOT</version>
+        <relativePath>../common/honeycomb-parent</relativePath>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fd.honeycomb.tools</groupId>
     <artifactId>honeycomb-tools</artifactId>
+    <name>${project.artifactId}</name>
     <packaging>pom</packaging>
     <version>1.16.12-SNAPSHOT</version>
+    <modelVersion>4.0.0</modelVersion>
+    <description>Aggregator for various Honeycomb tools</description>
 
     <properties>
         <sonar.skip>true</sonar.skip>

@@ -1,0 +1,3 @@
+= Common maven parents
+
+Modules under common provide common maven parents for Honeycomb modules.

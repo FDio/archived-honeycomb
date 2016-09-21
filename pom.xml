@@ -15,20 +15,25 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <properties>
-    <nexusproxy>http://nexus.fd.io/content</nexusproxy>
-  </properties>
+  <parent>
+    <groupId>io.fd.honeycomb.common</groupId>
+    <artifactId>honeycomb-parent</artifactId>
+    <version>1.16.12-SNAPSHOT</version>
+    <relativePath>common/honeycomb-parent</relativePath>
+  </parent>
 
-   <groupId>io.fd.honeycomb</groupId>
+  <groupId>io.fd.honeycomb</groupId>
   <artifactId>honeycomb-aggregator</artifactId>
   <version>1.16.12-SNAPSHOT</version>
   <name>honeycomb</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
 
-  <prerequisites>
-    <maven>3.1.1</maven>
-  </prerequisites>
+  <description>Honeycomb project root aggregator</description>
+
+  <scm>
+    <url>https://git.fd.io/cgit/honeycomb/tree/</url>
+  </scm>
 
   <modules>
     <module>common</module>
@@ -41,15 +46,4 @@
     <module>samples</module>
     <module>tools</module>
   </modules>
-
-  <distributionManagement>
-    <repository>
-      <id>fdio-release</id>
-      <url>${nexusproxy}/repositories/fd.io.release/</url>
-    </repository>
-    <snapshotRepository>
-      <id>fdio-snapshot</id>
-      <url>${nexusproxy}/repositories/fd.io.snapshot/</url>
-    </snapshotRepository>
-  </distributionManagement>
 </project>

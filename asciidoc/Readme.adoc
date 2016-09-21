@@ -1,0 +1,13 @@
+= Honeycomb
+
+A generic, model driven(YANG) management agent
+
+== Northbound interfaces:
+* RESTCONF
+* NETCONF
+
+=== Components
+Honeycomb consists of multiple components. Per component documentation can be found per component.
+
+=== Wiki
+Some additional information can be found on wiki: https://wiki.fd.io/view/Honeycomb

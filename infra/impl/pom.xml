@@ -25,6 +25,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.fd.honeycomb</groupId>
+  <name>${project.artifactId}</name>
   <artifactId>honeycomb-impl</artifactId>
   <version>1.16.12-SNAPSHOT</version>
   <packaging>bundle</packaging>

@@ -22,8 +22,9 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.fd.honeycomb</groupId>
+  <groupId>io.fd.honeycomb.it</groupId>
   <artifactId>honeycomb-test-model</artifactId>
+  <name>${project.artifactId}</name>
   <version>1.16.12-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
