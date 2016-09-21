@@ -154,11 +154,19 @@ public class LocalMappingCustomizer
             throws ReadFailedException {
 
         checkState(id.firstKeyOf(VniTable.class) != null, "Parent VNI table not specified");
+        final long vni = id.firstKeyOf(VniTable.class).getVirtualNetworkIdentifier();
+
+        if (vni == 0) {
+            // ignoring default vni mapping
+            // its not relevant for us and we also don't store mapping for such eid's
+            // such mapping is used to create helper local mappings to process remote ones
+            return Collections.emptyList();
+        }
 
         //request for all local mappings
         final MappingsDumpParams dumpParams = new MappingsDumpParamsBuilder()
-                .setVni(Long.valueOf(id.firstKeyOf(VniTable.class).getVirtualNetworkIdentifier()).intValue())
                 .setFilter(FilterType.LOCAL)
+
                 .setEidSet(QuantityType.ALL)
                 .build();
 
@@ -172,11 +180,14 @@ public class LocalMappingCustomizer
 
         if (replyOptional.isPresent()) {
             LOG.debug("Valid dump loaded");
-            return replyOptional.get().lispEidTableDetails.stream().map(a -> new LocalMappingKey(
-                    new MappingId(
-                            localMappingContext.getId(
-                                    getArrayAsEidLocal(valueOf(a.eidType), a.eid),
-                                    context.getMappingContext()))))
+            return replyOptional.get().lispEidTableDetails.stream()
+                    //filtering with vni to skip help local mappings that are created in vpp to handle remote mappings(vpp feature)
+                    .filter(a -> a.vni == vni)
+                    .map(a -> new LocalMappingKey(
+                            new MappingId(
+                                    localMappingContext.getId(
+                                            getArrayAsEidLocal(valueOf(a.eidType), a.eid),
+                                            context.getMappingContext()))))
                     .collect(Collectors.toList());
         } else {
             LOG.debug("No data dumped");
