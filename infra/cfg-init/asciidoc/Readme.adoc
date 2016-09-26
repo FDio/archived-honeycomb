@@ -1,3 +1,84 @@
-= cfg-init
+= Honeycomb persistence/reconciliation mechanism
 
-Overview of cfg-init
+Overview of Honeycomb's reconciliation and persistence mechanism.
+
+Honeycomb needs to support persistence in order to:
+
+* be able to restore its config data tree into "before restart state"
+* be able to forward all the persisted configuration into VPP
+** data not present in VPP should be created
+** data already present in VPP should be ignored
+** data already present in VPP, but persisted with different values
+should be updated in VPP
+** data present in VPP, but not present in persisted should be
+OPTIONALLY deleted
+
+== Involved components/concepts
+
+Short description for components and concepts used in the proposal.
+
+=== Components
+
+* Context - Context is a non-config storage for metadata related to Yang
+-> VPP translation. It is hidden from the user, but is necessary for
+non-trivial translations. This is plugin/model specific component.
+Example would be: interface name from v3po model to interface index in
+VPP mapping.
+* Initializer - Component responsible for reading initial state of VPP
+(right after Honeycomb connects to it) and transforming + storing the
+data in Honeycomb's config data tree. This synchronizes Honeycomb's data
+tree with whatever is already configured on VPP. Initializers are
+developed as part of Honeycomb's plugins (if required).
+
+=== Concepts
+
+* Soft write - Write that only goes to the config data tree but is not
+propagated to the translation layer and VPP itself. Useful for writes
+from Initializers.
+* Hard write - Write that is propagated to VPP and only if VPP
+configuration succeeds, is applied committed to config data tree.
+
+== Persistence process
+
+1.  On each successful commit, persist:
+1.  Entire config data tree
+2.  Entire cotnext data tree
+
+== Restoration process
+
+1.  Restore contexts
+2.  For each initializer initialize:
+1.  Dump whatever data are necessary from VPP
+2.  Transform the data
+1.  If context is required use it to transform non-derivable data
+3.  Soft write into config data tree
+3.  Restore persisted data
+4.  Hard write into config data tree (put or merge, depending on whether
+unpersisted data should be deleted or not from VPP, since put would
+remove everything that was not persisted by Honeycomb)
+
+== Persisted file format
+
+Persisted configuration is stored in JSON format only currently. It is stored
+as a dump of entire configuration + context data trees.
+
+== Honeycomb restarts
+
+Honeycomb is capable of handling following situations:
+
+=== Honeycomb is restarted
+
+Honeycomb connects to VPP and restores its config data tree from
+persisted data + current configuration in VPP. No updates should be
+triggered on VPP unless there were changes in VPP's configuration during
+Honeycomb downtime.
+
+=== VPP is restarted
+
+Honeycomb detects VPP's restart, then it reconnects to VPP and performs
+restoration process from step 2. Persisted configuration should be
+reapplied to VPP.
+
+=== Both VPP and Honeycomb are restarted
+
+Identical to Honeycomb restart only.
