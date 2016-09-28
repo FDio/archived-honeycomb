@@ -21,6 +21,9 @@ import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecut
 /**
  * Wrapper exception for any execution exception during dumping
  */
+/* TODO - https://jira.fd.io/browse/HONEYCOMB-227 - Make it extends ReadFailedException.
+   Pay attention to description in issue.
+  */
 public class DumpCallFailedException extends DumpExecutionFailedException {
 
     public DumpCallFailedException(String message, Exception cause) {

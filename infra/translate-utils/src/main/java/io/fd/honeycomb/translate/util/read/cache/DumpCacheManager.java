@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.ModificationCache;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.check.DumpCheckFailedException;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.util.read.cache.noop.NoopDumpPostProcessingFunction;
 import javax.annotation.Nonnull;
@@ -36,12 +35,10 @@ public final class DumpCacheManager<T, U> {
     private static final Logger LOG = LoggerFactory.getLogger(DumpCacheManager.class);
 
     private final EntityDumpExecutor<T, U> dumpExecutor;
-    private final EntityDumpNonEmptyCheck<T> dumpNonEmptyCheck;
     private final EntityDumpPostProcessingFunction<T> postProcessor;
 
     private DumpCacheManager(DumpCacheManagerBuilder<T, U> builder) {
         this.dumpExecutor = builder.dumpExecutor;
-        this.dumpNonEmptyCheck = builder.dumpNonEmptyCheck;
         this.postProcessor = builder.postProcessingFunction;
     }
 
@@ -60,24 +57,14 @@ public final class DumpCacheManager<T, U> {
         if (dump == null) {
             LOG.debug("Dump for KEY[{}] not present in cache,invoking dump executor", entityKey);
             // binds and execute dump to be thread-save
-            dump = dumpExecutor.executeDump(dumpParams);
-
-            // TODO (HONEYCOMB-210): remove empty check (empty dump is normal state, special handling is not needed)
-            try {
-                dumpNonEmptyCheck.assertNotEmpty(dump);
-            } catch (DumpCheckFailedException e) {
-                LOG.debug("Dump for KEY[{}] has been resolved as empty: {}", entityKey, e.getMessage());
-                return Optional.absent();
-            }
-
-            // no need to check if post processor active,if wasn't set,default no-op will be used
-            LOG.debug("Post-processing dump for KEY[{}]", entityKey);
-            dump = postProcessor.apply(dump);
-
+            dump = postProcessor.apply(dumpExecutor.executeDump(dumpParams));
+            // no need to check dump, if no data were dumped , DTO with empty list is returned
+            // no need to check if post processor is active,if it wasn't set,default no-op will be used
             LOG.debug("Caching dump for KEY[{}]", entityKey);
             cache.put(entityKey, dump);
             return Optional.of(dump);
         } else {
+            LOG.debug("Cached instance of dump was found for KEY[{}]", entityKey);
             return Optional.of(dump);
         }
     }
@@ -85,7 +72,6 @@ public final class DumpCacheManager<T, U> {
     public static final class DumpCacheManagerBuilder<T, U> {
 
         private EntityDumpExecutor<T, U> dumpExecutor;
-        private EntityDumpNonEmptyCheck<T> dumpNonEmptyCheck;
         private EntityDumpPostProcessingFunction<T> postProcessingFunction;
 
         public DumpCacheManagerBuilder() {
@@ -98,11 +84,6 @@ public final class DumpCacheManager<T, U> {
             return this;
         }
 
-        public DumpCacheManagerBuilder<T, U> withNonEmptyPredicate(@Nonnull EntityDumpNonEmptyCheck<T> check) {
-            this.dumpNonEmptyCheck = check;
-            return this;
-        }
-
         public DumpCacheManagerBuilder<T, U> withPostProcessingFunction(
                 EntityDumpPostProcessingFunction<T> postProcessingFunction) {
             this.postProcessingFunction = postProcessingFunction;
@@ -111,7 +92,6 @@ public final class DumpCacheManager<T, U> {
 
         public DumpCacheManager<T, U> build() {
             checkNotNull(dumpExecutor, "Dump executor cannot be null");
-            checkNotNull(dumpNonEmptyCheck, "Dump verifier cannot be null");
             checkNotNull(postProcessingFunction,
                     "Dump post-processor cannot be null cannot be null, default implementation is used if its not set");
 

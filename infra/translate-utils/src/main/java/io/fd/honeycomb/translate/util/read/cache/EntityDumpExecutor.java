@@ -17,22 +17,24 @@
 package io.fd.honeycomb.translate.util.read.cache;
 
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Generic interface for classes that return dumps for Data objects.
- * Must be implemented in Thread-save fashion.
+ * Must be implemented in Thread-safe fashion and return non-null data
  */
 @ThreadSafe
 public interface EntityDumpExecutor<T, U> {
 
-    static Void NO_PARAMS = null;
+    Void NO_PARAMS = null;
 
     /**
-     * Performs dump on {@link T} entity
+     * Performs dump on {@link T} entity.
      *
      * @return dump of specified {@link T} entity
      * @throws DumpExecutionFailedException when dump fails
      */
+    @Nonnull
     T executeDump(final U params) throws DumpExecutionFailedException;
 }
