@@ -38,7 +38,7 @@
   <modules>
     <module>common</module>
     <module>infra</module>
-    <module>nsh</module>
+    <!--<module>nsh</module> -->
     <module>vpp-common</module>
     <module>vpp-integration</module>
     <module>v3po</module>
