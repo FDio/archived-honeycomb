@@ -115,7 +115,7 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
                 rootPath, rootNode, rootNode.getDataBefore(), rootNode.getDataAfter());
 
             final ModificationDiff modificationDiff =
-                    ModificationDiff.recursivelyFromCandidate(YangInstanceIdentifier.EMPTY, rootNode);
+                    ModificationDiff.recursivelyFromCandidateRoot(rootNode);
             LOG.debug("ConfigDataTree.modify() diff: {}", modificationDiff);
 
             // Distinguish between updates (create + update) and deletes

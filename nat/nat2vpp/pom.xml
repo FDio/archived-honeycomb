@@ -12,18 +12,20 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
---><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>io.fd.honeycomb.common</groupId>
-        <artifactId>impl-parent</artifactId>
+        <groupId>io.fd.honeycomb.vpp</groupId>
+        <artifactId>vpp-impl-parent</artifactId>
+        <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
         <version>1.16.12-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>${groupId}</groupId>
-    <artifactId>${rootArtifactId}-impl</artifactId>
-    <name>${rootArtifactId}-impl</name>
-    <version>${version}</version>
+    <groupId>io.fd.honeycomb.nat</groupId>
+    <artifactId>nat2vpp</artifactId>
+    <name>${project.artifactId}</name>
+    <version>1.16.12-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <properties>
@@ -33,11 +35,34 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>${rootArtifactId}-api</artifactId>
+            <artifactId>nat-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
+        <!--VPP common-->
+        <dependency>
+            <groupId>io.fd.honeycomb.vpp</groupId>
+            <artifactId>vpp-translate-utils</artifactId>
+        </dependency>
+
+        <!-- JVPP -->
+        <dependency>
+            <groupId>io.fd.vpp</groupId>
+            <artifactId>jvpp-registry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.vpp</groupId>
+            <artifactId>jvpp-snat</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- Honeycomb infrastructure-->
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>minimal-distribution</artifactId>
+            <version>${honeycomb.infra.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
             <artifactId>translate-api</artifactId>
@@ -68,6 +93,27 @@
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-multibindings</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-testlib</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

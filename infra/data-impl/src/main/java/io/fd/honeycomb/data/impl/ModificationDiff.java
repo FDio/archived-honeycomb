@@ -41,7 +41,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 final class ModificationDiff {
 
     private static final ModificationDiff EMPTY_DIFF = new ModificationDiff(Collections.emptyMap());
-    private static final EnumSet LEAF_MODIFICATIONS = EnumSet.of(ModificationType.WRITE, ModificationType.DELETE);
+    private static final EnumSet VALID_MODIFICATIONS = EnumSet.of(ModificationType.WRITE, ModificationType.DELETE);
+    private static final EnumSet IGNORED_MODIFICATIONS = EnumSet.of(ModificationType.APPEARED, ModificationType.DISAPPEARED);
 
     private final Map<YangInstanceIdentifier, NormalizedNodeUpdate> updates;
 
@@ -98,12 +99,25 @@ final class ModificationDiff {
     }
 
     /**
+     * Same as {@link #recursivelyFromCandidate(YangInstanceIdentifier, DataTreeCandidateNode)} but does not process
+     * the root node for modifications, since it's the artificial data root, that has no child leaves but always is
+     * marked as SUBTREE_MODIFIED.
+     */
+    @Nonnull
+    static ModificationDiff recursivelyFromCandidateRoot(@Nonnull final DataTreeCandidateNode currentCandidate) {
+        return recursivelyChildrenFromCandidate(YangInstanceIdentifier.EMPTY, currentCandidate);
+    }
+
+    /**
      * Check whether current node was modified. {@link MixinNode}s are ignored
      * and only nodes which direct leaves(or choices) are modified are considered a modification.
      */
     private static Boolean isModification(@Nonnull final DataTreeCandidateNode currentCandidate) {
+        // Disappear is not a modification
+        if (IGNORED_MODIFICATIONS.contains(currentCandidate.getModificationType())) {
+            return false;
         // Mixin nodes are not considered modifications
-        if (isMixin(currentCandidate) && !isAugment(currentCandidate)) {
+        } else if (isMixin(currentCandidate) && !isAugment(currentCandidate)) {
             return false;
         } else {
             return isCurrentModified(currentCandidate);
@@ -111,13 +125,18 @@ final class ModificationDiff {
     }
 
     private static Boolean isCurrentModified(final @Nonnull DataTreeCandidateNode currentCandidate) {
+        // First check if it's an empty presence node
+        if (isEmptyPresenceNode(currentCandidate)) {
+            return true;
+        }
+
         // Check if there are any modified leaves and if so, consider current node as modified
         final Boolean directLeavesModified = currentCandidate.getChildNodes().stream()
                 .filter(ModificationDiff::isLeaf)
                 // For some reason, we get modifications on unmodified list keys
                 // and that messes up our modifications collection here, so we need to skip
                 .filter(ModificationDiff::isBeforeAndAfterDifferent)
-                .filter(child -> LEAF_MODIFICATIONS.contains(child.getModificationType()))
+                .filter(child -> VALID_MODIFICATIONS.contains(child.getModificationType()))
                 .findFirst()
                 .isPresent();
 
@@ -130,6 +149,15 @@ final class ModificationDiff {
                         .filter(ModificationDiff::isCurrentModified)
                         .findFirst()
                         .isPresent();
+    }
+
+    /**
+     * Check if new data are empty but still to be considered as a modification, meaning it's presence has a meaning
+     * e.g. containers with presence statement.
+     */
+    private static boolean isEmptyPresenceNode(final @Nonnull DataTreeCandidateNode currentCandidate) {
+        return currentCandidate.getChildNodes().isEmpty()
+                && VALID_MODIFICATIONS.contains(currentCandidate.getModificationType());
     }
 
     /**

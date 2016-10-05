@@ -7,6 +7,10 @@ module test-diff {
         description "Initial revision";
     }
 
+    container presence {
+        presence "testing presence";
+    }
+
     container top-container {
         leaf string {
             type string;

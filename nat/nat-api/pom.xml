@@ -16,15 +16,20 @@
   <parent>
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>api-parent</artifactId>
+    <relativePath>../../common/api-parent</relativePath>
     <version>1.16.12-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>${groupId}</groupId>
-  <artifactId>${rootArtifactId}-api</artifactId>
-  <name>${rootArtifactId}-api</name>
-  <version>${version}</version>
+  <groupId>io.fd.honeycomb.nat</groupId>
+  <artifactId>nat-api</artifactId>
+  <name>${project.artifactId}</name>
+  <version>1.16.12-SNAPSHOT</version>
   <packaging>bundle</packaging>
+
+  <properties>
+    <naming.context.version>1.16.12-SNAPSHOT</naming.context.version>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -46,6 +51,11 @@
     <dependency>
       <groupId>org.opendaylight.mdsal.model</groupId>
       <artifactId>yang-ext</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fd.honeycomb.vpp</groupId>
+      <artifactId>naming-context-api</artifactId>
+      <version>${naming.context.version}</version>
     </dependency>
   </dependencies>
 </project>

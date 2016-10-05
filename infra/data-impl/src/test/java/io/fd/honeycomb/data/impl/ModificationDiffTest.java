@@ -1,9 +1,12 @@
 package io.fd.honeycomb.data.impl;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
+import com.google.common.base.Optional;
 import java.util.Map;
 import org.junit.Test;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -45,9 +48,10 @@ public class ModificationDiffTest {
     static final QName IN_CASE1_LEAF_QNAME = QName.create(WITH_CHOICE_CONTAINER_QNAME, "in-case1");
     static final QName IN_CASE2_LEAF_QNAME = QName.create(WITH_CHOICE_CONTAINER_QNAME, "in-case2");
 
+    static final QName PRESENCE_CONTAINER_QNAME = QName.create(TOP_CONTAINER_QNAME, "presence");
+
     static final YangInstanceIdentifier TOP_CONTAINER_ID = YangInstanceIdentifier.of(TOP_CONTAINER_QNAME);
     static final YangInstanceIdentifier NESTED_LIST_ID = TOP_CONTAINER_ID.node(new YangInstanceIdentifier.NodeIdentifier(NESTED_LIST_QNAME));
-
 
     @Test
     public void testInitialWrite() throws Exception {
@@ -63,6 +67,30 @@ public class ModificationDiffTest {
         assertThat(modificationDiff.getUpdates().size(), is(1));
         assertThat(modificationDiff.getUpdates().values().size(), is(1));
         assertUpdate(modificationDiff.getUpdates().values().iterator().next(), TOP_CONTAINER_ID, null, topContainer);
+    }
+
+    @Test
+    public void testWritePresenceEmptyContainer() throws Exception {
+        final TipProducingDataTree dataTree = getDataTree();
+        final DataTreeModification dataTreeModification = getModification(dataTree);
+        final NormalizedNode<?, ?> presenceContainer = Builders.containerBuilder()
+                .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(PRESENCE_CONTAINER_QNAME))
+                .build();
+        final YangInstanceIdentifier PRESENCE_CONTAINER_ID = YangInstanceIdentifier.of(PRESENCE_CONTAINER_QNAME);
+        dataTreeModification.write(PRESENCE_CONTAINER_ID, presenceContainer);
+        final DataTreeCandidateTip prepare = prepareModification(dataTree, dataTreeModification);
+
+        final ModificationDiff modificationDiff = getModificationDiff(prepare);
+
+        dataTree.commit(prepare);
+
+        final Optional<NormalizedNode<?, ?>> presenceAfter = getModification(dataTree).readNode(PRESENCE_CONTAINER_ID);
+        assertTrue(presenceAfter.isPresent());
+        assertThat(presenceAfter.get(), equalTo(presenceContainer));
+
+        assertThat(modificationDiff.getUpdates().size(), is(1));
+        assertThat(modificationDiff.getUpdates().values().size(), is(1));
+        assertUpdate(modificationDiff.getUpdates().values().iterator().next(), PRESENCE_CONTAINER_ID, null, presenceContainer);
     }
 
     @Test
@@ -132,7 +160,7 @@ public class ModificationDiffTest {
     }
 
     private ModificationDiff getModificationDiff(final DataTreeCandidateTip prepare) {
-        return ModificationDiff.recursivelyFromCandidate(YangInstanceIdentifier.EMPTY, prepare.getRootNode());
+        return ModificationDiff.recursivelyFromCandidateRoot(prepare.getRootNode());
     }
 
     @Test
