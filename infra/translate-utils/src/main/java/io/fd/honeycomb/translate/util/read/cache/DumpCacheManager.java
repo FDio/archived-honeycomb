@@ -20,9 +20,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.ModificationCache;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.noop.NoopDumpPostProcessingFunction;
 import javax.annotation.Nonnull;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,9 +45,18 @@ public final class DumpCacheManager<T, U> {
 
     /**
      * Returns {@link Optional<T>} of dump
+     *
+     * @param identifier identifier for origin of dumping context
+     * @param entityKey  key that defines scope for caching
+     * @param cache      modification cache of current transaction
+     * @param dumpParams parameters to configure dump request
+     * @throws ReadFailedException if execution of dumping request failed
+     * @returns If present in cache ,returns cached instance, if not, tries to dump data using provided executor, otherwise
+     * Optional.absent()
      */
-    public Optional<T> getDump(@Nonnull String entityKey, @Nonnull ModificationCache cache, final U dumpParams)
-            throws DumpExecutionFailedException {
+    public Optional<T> getDump(@Nonnull final InstanceIdentifier<?> identifier, @Nonnull String entityKey,
+                               @Nonnull ModificationCache cache, final U dumpParams)
+            throws ReadFailedException {
 
         // this key binding to every log has its logic ,because every customizer have its own cache manager and if
         // there is need for debugging/fixing some complex call with a lot of data,you can get lost in those logs
@@ -57,7 +67,7 @@ public final class DumpCacheManager<T, U> {
         if (dump == null) {
             LOG.debug("Dump for KEY[{}] not present in cache,invoking dump executor", entityKey);
             // binds and execute dump to be thread-save
-            dump = postProcessor.apply(dumpExecutor.executeDump(dumpParams));
+            dump = postProcessor.apply(dumpExecutor.executeDump(identifier, dumpParams));
             // no need to check dump, if no data were dumped , DTO with empty list is returned
             // no need to check if post processor is active,if it wasn't set,default no-op will be used
             LOG.debug("Caching dump for KEY[{}]", entityKey);

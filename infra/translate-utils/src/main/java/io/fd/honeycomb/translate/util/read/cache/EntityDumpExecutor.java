@@ -16,9 +16,10 @@
 
 package io.fd.honeycomb.translate.util.read.cache;
 
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Generic interface for classes that return dumps for Data objects.
@@ -33,8 +34,8 @@ public interface EntityDumpExecutor<T, U> {
      * Performs dump on {@link T} entity.
      *
      * @return dump of specified {@link T} entity
-     * @throws DumpExecutionFailedException when dump fails
+     * @throws ReadFailedException when dump fails
      */
     @Nonnull
-    T executeDump(final U params) throws DumpExecutionFailedException;
+    T executeDump(final InstanceIdentifier<?> identifier, final U params) throws ReadFailedException;
 }
