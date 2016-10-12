@@ -24,9 +24,7 @@ import org.opendaylight.netconf.sal.rest.api.RestConnector;
 import org.opendaylight.netconf.sal.restconf.impl.RestconfProviderImpl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.PortNumber;
 
-
-
-public class RestconfProvider extends ProviderTrait<RestConnector> {
+final class RestconfProvider extends ProviderTrait<RestConnector> {
 
     @Inject
     private HoneycombConfiguration cfg;

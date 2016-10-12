@@ -23,7 +23,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.opendaylight.netconf.sal.rest.api.RestConnector;
 
-
 public class RestconfModule extends AbstractModule {
 
     public static final String RESTCONF_HTTP = "restconf-http";

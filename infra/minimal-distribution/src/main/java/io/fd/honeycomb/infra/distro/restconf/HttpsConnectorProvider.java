@@ -27,7 +27,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-public final class HttpsConnectorProvider extends ProviderTrait<ServerConnector> {
+final class HttpsConnectorProvider extends ProviderTrait<ServerConnector> {
 
     @Inject
     private HoneycombConfiguration cfg;

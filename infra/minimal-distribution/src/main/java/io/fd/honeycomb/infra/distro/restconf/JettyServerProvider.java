@@ -26,14 +26,21 @@ import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-public final class JettyServerProvider extends ProviderTrait<Server> {
+final class JettyServerProvider extends ProviderTrait<Server> {
 
-    public static final String REALM = "HCRealm";
+    private static final String REALM = "HCRealm";
+    // Mime types to be compressed when requested
+    private static final String[] GZIP_MIME_TYPES = {"application/xml",
+        "xml",
+        "application/yang.data+xml",
+        "application/json",
+        "application/yang.data+json"};
 
     @Inject
     private HoneycombConfiguration cfg;
@@ -41,7 +48,6 @@ public final class JettyServerProvider extends ProviderTrait<Server> {
     @Override
     protected Server create() {
         Server server = new Server(new QueuedThreadPool(cfg.restPoolMaxSize.get(), cfg.restPoolMinSize.get()));
-
 
         // Load Realm for basic auth
         HashLoginService service = new HashLoginService(REALM);
@@ -52,15 +58,18 @@ public final class JettyServerProvider extends ProviderTrait<Server> {
         final URL resource = getClass().getResource("/");
         WebAppContext webapp = new WebAppContext(resource.getPath(), cfg.restconfRootPath.get());
 
-        ConstraintSecurityHandler security = getBaseAuth(service, webapp);
-        server.setHandler(security);
-
+        server.setHandler(getGzip(service, webapp));
         return server;
     }
 
-    private ConstraintSecurityHandler getBaseAuth(HashLoginService service, WebAppContext webapp) {
-        ConstraintSecurityHandler security = new ConstraintSecurityHandler();
+    private GzipHandler getGzip(final HashLoginService service, final WebAppContext webapp) {
+        final GzipHandler gzipHandler = new GzipHandler();
+        gzipHandler.setIncludedMimeTypes(GZIP_MIME_TYPES);
+        gzipHandler.setHandler(getBaseAuth(service, webapp));
+        return gzipHandler;
+    }
 
+    private ConstraintSecurityHandler getBaseAuth(HashLoginService service, WebAppContext webapp) {
         Constraint constraint = new Constraint();
         constraint.setName("auth");
         constraint.setAuthenticate(true);
@@ -70,6 +79,7 @@ public final class JettyServerProvider extends ProviderTrait<Server> {
         mapping.setPathSpec("/*");
         mapping.setConstraint(constraint);
 
+        ConstraintSecurityHandler security = new ConstraintSecurityHandler();
         security.setConstraintMappings(Collections.singletonList(mapping));
         security.setAuthenticator(new BasicAuthenticator());
         security.setLoginService(service);

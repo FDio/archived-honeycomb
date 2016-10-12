@@ -22,7 +22,7 @@ import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 
-public final class HttpConnectorProvider extends ProviderTrait<ServerConnector> {
+final class HttpConnectorProvider extends ProviderTrait<ServerConnector> {
 
     @Inject
     private HoneycombConfiguration cfg;
