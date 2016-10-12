@@ -31,24 +31,8 @@
     <packaging>pom</packaging>
 
     <properties>
-        <start.script.template>
-#!/bin/sh -
-STATUS=100
-
-while [ $STATUS -eq 100 ]
-do
-  %s
-  STATUS=$?
-  echo "Honeycomb exited with status: $STATUS"
-  if [ $STATUS -eq 100 ]
-  then
-    echo "Restarting..."
-  fi
-done
-        </start.script.template>
         <exec.parameters>-Xms32m -Xmx128m -XX:MetaspaceSize=32m -XX:MaxMetaspaceSize=128m</exec.parameters>
         <exec.parameters.minimal>-client -Xms20m -Xmx32m -XX:MetaspaceSize=5m -XX:MaxMetaspaceSize=32m -XX:MaxMetaspaceExpansion=1m -Xss512k -XX:+UseSerialGC -Djava.compiler=NONE -Xverify:none -noverify</exec.parameters.minimal>
-        <debug.parameters>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</debug.parameters>
 
         <!-- Jersey versions to run RESTCONF-->
         <jersey.version>1.19.1</jersey.version>
@@ -60,12 +44,6 @@ done
             http://stackoverflow.com/questions/137212/how-to-solve-performance-problem-with-java-securerandom
         -->
         <random.seed.file>/dev/./urandom</random.seed.file>
-        <no.modules.defined.message>// This distribution does not define any own modules.
-// In order to do so either distribution.modules property must be defined in distribution pom.xml,
-// containing list of desired modules to start, or this file can be directly edited with same effect.
-//
-// Note : Modules should be referenced by full class name, for ex.: io.fd.test.SampleModule, and separated with comma.
-        </no.modules.defined.message>
     </properties>
 
     <dependencyManagement>
@@ -185,36 +163,8 @@ done
                                 <goal>execute</goal>
                             </goals>
                             <configuration>
-                                <!-- TODO HONEYCOMB-157 Make scripts more robust -->
                                 <source>
-                                    import java.nio.file.Paths
-
-                                    log.info "Generating shell exec script"
-                                    def scriptTemplate = properties.getOrDefault("start.script.template", "")
-                                    def args = properties.getOrDefault("exec.parameters", "")
-                                    log.debug "Additional shell exec script properties: ${args}"
-                                    def javaArgs = "${args} -jar \$(dirname \$0)/${project.artifactId}-${project.version}.jar"
-                                    def scriptParent = Paths.get(project.build.outputDirectory, "honeycomb-minimal-resources")
-                                    scriptParent.toFile().mkdirs()
-                                    def scriptContent = "java " + javaArgs
-                                    log.info "Generating shell exec script as ${scriptContent}"
-                                    def scriptPath = Paths.get(scriptParent.toString(), "honeycomb")
-                                    log.info "Writing shell exec script to ${scriptPath}"
-                                    scriptPath.toFile().text = String.format(scriptTemplate, scriptContent)
-                                    scriptPath.toFile().setExecutable(true)
-
-                                    scriptPath = Paths.get(scriptParent.toString(), "honeycomb-start")
-                                    log.info "Writing shell exec script to ${scriptPath}"
-                                    scriptPath.toFile().text = "\$(dirname \$0)/honeycomb &amp;"
-                                    scriptPath.toFile().setExecutable(true)
-
-                                    def debug_args = properties.getOrDefault("debug.parameters", "")
-                                    def debugScriptContent = "java" + " ${debug_args} " + javaArgs
-                                    log.info "Generating shell debug script as ${debugScriptContent}"
-                                    scriptPath = Paths.get(scriptParent.toString(), "honeycomb-debug")
-                                    log.info "Writing shell debug script to ${scriptPath}"
-                                    scriptPath.toFile().text = String.format(scriptTemplate, debugScriptContent)
-                                    scriptPath.toFile().setExecutable(true)
+                                    io.fd.honeycomb.common.scripts.StartupScriptGenerator.generate(project, properties, log)
                                 </source>
                             </configuration>
                         </execution>
@@ -227,40 +177,19 @@ done
                                 <goal>execute</goal>
                             </goals>
                             <configuration>
-                                <source>import java.nio.file.Paths
-                                import java.nio.file.Files
-
-                                // module configuration file extraction
-                                // builds project name from group,artifact and version to prevent overwriting
-                                // while building multiple distribution project
-                                def artifact = project.getArtifact()
-                                def projectName = "${artifact.getGroupId()}_${artifact.getArtifactId()}_${artifact.getVersion()}".replace(".","-")
-                                log.info "Generating list of modules started by distribution ${projectName}"
-
-                                def activeModules = properties.getProperty("distribution.modules", "")
-                                        .tokenize(",")
-                                        .collect { module -> module.trim() }
-
-                                log.info "Project ${projectName} : Found modules ${activeModules}"
-                                //creates folder modules
-
-                                def outputPath = Paths.get(project.build.outputDirectory, "honeycomb-minimal-resources", "modules")
-                                //creates module folder
-                                outputPath.toFile().mkdirs()
-
-                                def outputFile = Paths.get(outputPath.toString(), "${projectName}_module-config.txt").toFile()
-                                outputFile.createNewFile();
-                                log.info("Writing module configuration for distribution ${projectName} to ${outputPath}")
-
-                                if (activeModules.isEmpty()) {
-                                    outputFile.text = properties.getProperty("no.modules.defined.message")
-                                } else {
-                                    outputFile.text = activeModules.join(System.lineSeparator)
-                                }
+                                <source>
+                                    io.fd.honeycomb.common.scripts.ModulesListGenerator.generate(project, properties, log)
                                 </source>
                             </configuration>
                         </execution>
                     </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>io.fd.honeycomb.common</groupId>
+                            <artifactId>common-scripts</artifactId>
+                            <version>1.16.12-SNAPSHOT</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
 
                 <!-- Build archives -->

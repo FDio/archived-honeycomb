@@ -1,0 +1,13 @@
+#!/bin/sh -
+STATUS=100
+
+while [ \$STATUS -eq 100 ]
+do
+  ${exec}
+  STATUS=\$?
+  echo "Honeycomb exited with status: \$STATUS"
+  if [ \$STATUS -eq 100 ]
+  then
+    echo "Restarting..."
+  fi
+done

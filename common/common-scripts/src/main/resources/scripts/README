@@ -1,0 +1,26 @@
+= This is a Honeycomb distribution
+
+Built from: ${groupId}/${artifactId}
+Version: ${version}
+
+https://wiki.fd.io/view/Honeycomb
+
+== Structure
+
+Structure of the distribution:
+
+=== Config
+Folder config contains any configuration that's exposed by Honeycomb and its plugins
+
+=== Cert
+Keystore/Truststore for Restconf's HTTPS endpoint
+
+=== Modules
+Folder modules contains text files with list of modules to be installed into Honeycomb.
+Those modules bring up Honeycomb's infrastructure as well as modules.
+
+=== Shell scripts
+${startScript} - Start Honeycomb
+${debugScript} - Start Honeycomb with JVM remote debug capabilities
+${forkScript} - Start Honeycomb in background
+${killScript} - Kill all running Honeycomb instances

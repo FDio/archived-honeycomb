@@ -30,6 +30,7 @@
   <description>Aggregator for common maven parents providing base configuration for Honeycomb modules</description>
 
   <modules>
+    <module>common-scripts</module>
     <module>checkstyle</module>
     <module>honeycomb-parent</module>
     <module>api-parent</module>

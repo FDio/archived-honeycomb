@@ -77,12 +77,13 @@
         <!-- adoc -->
         <asciidoctor.maven.plugin.version>1.5.3</asciidoctor.maven.plugin.version>
         <asciidoctorj.diagram.version>1.3.1</asciidoctorj.diagram.version>
-        <maven.groovy.version>2.0</maven.groovy.version>
-        <readme.default>
-= ${project.artifactId}
 
-Overview of ${project.artifactId}
-        </readme.default>
+        <!-- groovy -->
+        <maven.groovy.version>2.0</maven.groovy.version>
+        <groovy.version>2.4.7</groovy.version>
+        <groovy.eclipse.compiler.version>2.9.2-01</groovy.eclipse.compiler.version>
+        <groovy.eclipse.batch.version>2.4.3-01</groovy.eclipse.batch.version>
+
         <docs.base.url>https://nexus.fd.io/content/sites/site</docs.base.url>
         <docs.hc.folder>io/fd/honeycomb</docs.hc.folder>
     </properties>
@@ -458,18 +459,7 @@ Overview of ${project.artifactId}
                             <configuration>
                                 <!-- Generate module adoc documentation -->
                                 <source>
-                                    import java.nio.file.Files
-                                    import java.nio.file.Paths
-
-                                    log.info "Checking asciidoc/Readme.adoc"
-                                    def asciidoc = Paths.get(project.getBasedir().toString(), "asciidoc")
-                                    def readme = Paths.get(asciidoc.toString(), "Readme.adoc")
-                                    if (!Files.exists(readme)) {
-                                        log.info "Generating ${readme}"
-                                        Files.createDirectories(asciidoc)
-                                        Files.createFile(readme)
-                                        readme.toFile().text = properties.getOrDefault("readme.default", "")
-                                    }
+                                    io.fd.honeycomb.common.scripts.ReadmeGenerator.checkReadme(project, properties, log)
                                 </source>
                             </configuration>
                         </execution>
@@ -483,20 +473,18 @@ Overview of ${project.artifactId}
                             <configuration>
                                 <!-- Site generates wrong link to Readme.html, trying to point to Readme.html at root -->
                                 <source>
-                                    import java.nio.file.Files
-                                    import java.nio.file.Paths
-
-                                    def index = Paths.get(project.build.directory.toString(), "site", "index.html")
-                                    if (Files.exists(index)) {
-                                        log.info "Fixing links in generated site"
-                                        def html = index.toFile().text
-                                        log.info "Fixing asciidoc Readme link"
-                                        index.toFile().text = html.replaceAll("[./]*Readme\\.html", "Readme.html")
-                                    }
+                                    io.fd.honeycomb.common.scripts.ReadmeGenerator.fixSite(project, properties, log)
                                 </source>
                             </configuration>
                         </execution>
                     </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>io.fd.honeycomb.common</groupId>
+                            <artifactId>common-scripts</artifactId>
+                            <version>1.16.12-SNAPSHOT</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
             </plugins>
         </pluginManagement>
