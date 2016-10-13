@@ -30,6 +30,17 @@
 
     <properties>
         <main.class>io.fd.honeycomb.infra.distro.Main</main.class>
+        <distribution.modules>
+            io.fd.honeycomb.infra.distro.schema.YangBindingProviderModule,
+            io.fd.honeycomb.infra.distro.schema.SchemaModule,
+            io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule,
+            io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule,
+            io.fd.honeycomb.infra.distro.initializer.InitializerPipelineModule,
+            io.fd.honeycomb.infra.distro.netconf.NetconfModule,
+            io.fd.honeycomb.infra.distro.netconf.NetconfReadersModule,
+            io.fd.honeycomb.infra.distro.restconf.RestconfModule,
+            io.fd.honeycomb.infra.distro.cfgattrs.CfgAttrsModule
+        </distribution.modules>
     </properties>
 
     <dependencies>
@@ -144,6 +155,12 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- Utilities -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -159,6 +176,16 @@
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
             <version>0.1.54</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

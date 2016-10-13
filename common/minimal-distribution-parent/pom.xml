@@ -60,6 +60,12 @@ done
             http://stackoverflow.com/questions/137212/how-to-solve-performance-problem-with-java-securerandom
         -->
         <random.seed.file>/dev/./urandom</random.seed.file>
+        <no.modules.defined.message>// This distribution does not define any own modules.
+// In order to do so either distribution.modules property must be defined in distribution pom.xml,
+// containing list of desired modules to start, or this file can be directly edited with same effect.
+//
+// Note : Modules should be referenced by full class name, for ex.: io.fd.test.SampleModule, and separated with comma.
+        </no.modules.defined.message>
     </properties>
 
     <dependencyManagement>
@@ -127,7 +133,7 @@ done
                                 <classpathMavenRepositoryLayout>true</classpathMavenRepositoryLayout>
                             </manifest>
                             <manifestEntries>
-                                <Class-Path>config/ cert/</Class-Path>
+                                <Class-Path>config/ cert/ modules/</Class-Path>
                             </manifestEntries>
                         </archive>
                     </configuration>
@@ -167,11 +173,13 @@ done
                 </plugin>
 
                 <!-- Generate shell script -->
+                <!-- Extract modules started by distribution -->
                 <plugin>
                     <groupId>org.codehaus.gmaven</groupId>
                     <artifactId>groovy-maven-plugin</artifactId>
                     <executions>
                         <execution>
+                            <id>start-scripts-generation</id>
                             <phase>package</phase>
                             <goals>
                                 <goal>execute</goal>
@@ -207,6 +215,48 @@ done
                                     log.info "Writing shell debug script to ${scriptPath}"
                                     scriptPath.toFile().text = String.format(scriptTemplate, debugScriptContent)
                                     scriptPath.toFile().setExecutable(true)
+                                </source>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>distribution-module-assembly</id>
+                            <!-- phase changed from package to earlier phase to generate module descriptor before distribution jar is created,
+                             to include descriptor in the jar,to be accessible to children distributions-->
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>execute</goal>
+                            </goals>
+                            <configuration>
+                                <source>import java.nio.file.Paths
+                                import java.nio.file.Files
+
+                                // module configuration file extraction
+                                // builds project name from group,artifact and version to prevent overwriting
+                                // while building multiple distribution project
+                                def artifact = project.getArtifact()
+                                def projectName = "${artifact.getGroupId()}_${artifact.getArtifactId()}_${artifact.getVersion()}".replace(".","-")
+                                log.info "Generating list of modules started by distribution ${projectName}"
+
+                                def activeModules = properties.getProperty("distribution.modules", "")
+                                        .tokenize(",")
+                                        .collect { module -> module.trim() }
+
+                                log.info "Project ${projectName} : Found modules ${activeModules}"
+                                //creates folder modules
+
+                                def outputPath = Paths.get(project.build.outputDirectory, "honeycomb-minimal-resources", "modules")
+                                //creates module folder
+                                outputPath.toFile().mkdirs()
+
+                                def outputFile = Paths.get(outputPath.toString(), "${projectName}_module-config.txt").toFile()
+                                outputFile.createNewFile();
+                                log.info("Writing module configuration for distribution ${projectName} to ${outputPath}")
+
+                                if (activeModules.isEmpty()) {
+                                    outputFile.text = properties.getProperty("no.modules.defined.message")
+                                } else {
+                                    outputFile.text = activeModules.join(System.lineSeparator)
+                                }
                                 </source>
                             </configuration>
                         </execution>

@@ -16,8 +16,11 @@
 
 package io.fd.honeycomb.infra.distro;
 
+import static io.fd.honeycomb.infra.distro.ActiveModuleProvider.STANDARD_MODULES_RELATIVE_PATH;
+import static io.fd.honeycomb.infra.distro.ActiveModuleProvider.aggregateResources;
+import static io.fd.honeycomb.infra.distro.ActiveModuleProvider.loadActiveModules;
+
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.ConfigurationException;
 import com.google.inject.CreationException;
 import com.google.inject.Guice;
@@ -28,20 +31,14 @@ import com.google.inject.ProvisionException;
 import com.google.inject.name.Names;
 import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.data.init.InitializerRegistry;
-import io.fd.honeycomb.infra.distro.cfgattrs.CfgAttrsModule;
 import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
-import io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule;
-import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule;
 import io.fd.honeycomb.infra.distro.initializer.InitializerPipelineModule;
 import io.fd.honeycomb.infra.distro.netconf.HoneycombNotification2NetconfProvider;
 import io.fd.honeycomb.infra.distro.netconf.NetconfModule;
-import io.fd.honeycomb.infra.distro.netconf.NetconfReadersModule;
 import io.fd.honeycomb.infra.distro.netconf.NetconfSshServerProvider;
 import io.fd.honeycomb.infra.distro.netconf.NetconfTcpServerProvider;
 import io.fd.honeycomb.infra.distro.restconf.RestconfModule;
-import io.fd.honeycomb.infra.distro.schema.SchemaModule;
-import io.fd.honeycomb.infra.distro.schema.YangBindingProviderModule;
-import java.util.List;
+import java.util.Set;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory;
@@ -53,29 +50,18 @@ public final class Main {
 
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-    public static final List<Module> BASE_MODULES = ImmutableList.of(
-            // Infra
-            new YangBindingProviderModule(),
-            new SchemaModule(),
-            new ConfigAndOperationalPipelineModule(),
-            new ContextPipelineModule(),
-            new InitializerPipelineModule(),
-            new NetconfModule(),
-            new NetconfReadersModule(),
-            new RestconfModule(),
-            // Json config attributes
-            new CfgAttrsModule());
-
-    private Main() {}
+    private Main() {
+    }
 
     public static void main(String[] args) {
-        init(BASE_MODULES);
+        final ClassLoader classLoader = Main.class.getClassLoader();
+        init(loadActiveModules(aggregateResources(STANDARD_MODULES_RELATIVE_PATH, classLoader)));
     }
 
     /**
-     * Initialize the Honeycomb infrastructure + all wired plugins.
+     * Initialize the Honeycomb with provided modules
      */
-    public static Injector init(final List<? extends Module> modules) {
+    public static Injector init(final Set<? extends Module> modules) {
         try {
             LOG.info("Starting honeycomb");
             Injector injector = Guice.createInjector(modules);
