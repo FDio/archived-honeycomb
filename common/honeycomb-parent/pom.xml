@@ -43,27 +43,28 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- ODL dependencies -->
-        <yangtools.version>0.8.2-Beryllium-SR2</yangtools.version>
-        <mdsal.version>2.0.2-Beryllium-SR2</mdsal.version>
-        <mdsal.controller.version>1.3.2-Beryllium-SR2</mdsal.controller.version>
-        <mdsalmodel.version>0.8.2-Beryllium-SR2</mdsalmodel.version>
-        <netconf.version>1.0.2-Beryllium-SR2</netconf.version>
-        <restconf.version>1.3.2-Beryllium-SR2</restconf.version>
+        <yangtools.version>1.0.0-Boron</yangtools.version>
+        <mdsal.version>2.1.0-Boron</mdsal.version>
+        <mdsal.controller.version>1.4.0-Boron</mdsal.controller.version>
+        <mdsalmodel.version>0.9.0-Boron</mdsalmodel.version>
+        <netconf.version>1.1.0-Boron</netconf.version>
+        <restconf.version>1.4.0-Boron</restconf.version>
         <salGeneratorPath>target/generated-sources/mdsal-binding</salGeneratorPath>
 
         <!-- dependencies -->
         <junit.version>4.11</junit.version>
-        <mockito.version>1.9.5</mockito.version>
+        <mockito.version>1.10.19</mockito.version>
         <hamcrest.version>1.3</hamcrest.version>
         <guava.version>18.0</guava.version>
 
         <!-- plugins -->
-        <checkstyle.version>2.16</checkstyle.version>
+        <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
+        <checkstyle.version>6.16</checkstyle.version>
         <maven.javadoc.version>2.10.3</maven.javadoc.version>
         <jacoco.version>0.7.2.201409121644</jacoco.version>
         <enforcer.version>1.4</enforcer.version>
-        <maven.compile.plugin.version>3.3</maven.compile.plugin.version>
-        <maven.bundle.version>3.0.0</maven.bundle.version>
+        <maven.compile.plugin.version>3.5.1</maven.compile.plugin.version>
+        <maven.bundle.version>3.0.1</maven.bundle.version>
 
         <!-- checkstyle -->
         <checkstyle.header.file>APACHE_HEADER.txt</checkstyle.header.file>
@@ -72,7 +73,7 @@
         <!-- skip location check = makes site exec faster -->
         <dependency.locations.enabled>false</dependency.locations.enabled>
         <project.info.report.version>2.9</project.info.report.version>
-        <maven.resources.version>2.6</maven.resources.version>
+        <maven.resources.version>3.0.1</maven.resources.version>
         <maven.site.version>3.4</maven.site.version>
         <!-- adoc -->
         <asciidoctor.maven.plugin.version>1.5.3</asciidoctor.maven.plugin.version>
@@ -202,7 +203,7 @@
                 <!-- checkstyle -->
                 <plugin>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>${checkstyle.version}</version>
+                    <version>${checkstyle.plugin.version}</version>
                     <configuration>
                         <!-- Override checkstyle configuration to fit Honeycomb coding style-->
                         <configLocation>honeycomb-checkstyle.xml</configLocation>
@@ -272,6 +273,12 @@
                             <groupId>org.opendaylight.yangtools</groupId>
                             <artifactId>checkstyle-logging</artifactId>
                             <version>${yangtools.version}</version>
+                        </dependency>
+                        <!-- Needed by ODL's checkstyle-logging -->
+                        <dependency>
+                            <groupId>com.puppycrawl.tools</groupId>
+                            <artifactId>checkstyle</artifactId>
+                            <version>${checkstyle.version}</version>
                         </dependency>
                     </dependencies>
                 </plugin>

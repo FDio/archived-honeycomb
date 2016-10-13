@@ -22,7 +22,7 @@ import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import org.opendaylight.controller.sal.core.api.Broker;
 import org.opendaylight.netconf.sal.rest.api.RestConnector;
 import org.opendaylight.netconf.sal.restconf.impl.RestconfProviderImpl;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.PortNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 
 final class RestconfProvider extends ProviderTrait<RestConnector> {
 
