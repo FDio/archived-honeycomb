@@ -55,14 +55,15 @@ class StartupScriptGenerator {
         def debugJvmParameters = properties.getOrDefault(JVM_DEBUG_PARAMS_KEY, DEFAULT_DEBUG_JVM_PARAMS)
         log.debug "Debug JVM properties: ${additionalJvmParameters}"
 
-        def jvmParameters = "${additionalJvmParameters} -jar \$(dirname \$0)/${project.artifactId}-${project.version}.jar"
+        def jarName = "${project.artifactId}-${project.version}.jar"
+        def jvmParameters = "${additionalJvmParameters} -jar \$(dirname \$0)/${jarName}"
         def scriptParent = Paths.get(project.build.outputDirectory, MINIMAL_RESOURCES_FOLDER)
         scriptParent.toFile().mkdirs()
 
         def startScriptPath = generateStartupScript(jvmParameters, log, scriptParent, scriptTemplate)
         def forkScriptPath = generateForkingStartupScript(scriptParent, log)
         def debugScriptPath = generateDebugStartupScript(debugJvmParameters, jvmParameters, log, scriptParent, scriptTemplate)
-        def killScriptPath = generateKillScript(log, scriptParent)
+        def killScriptPath = generateKillScript(jarName, log, scriptParent)
         generateReadme(scriptParent, log, startScriptPath, forkScriptPath, debugScriptPath, killScriptPath, project)
     }
 
@@ -111,9 +112,10 @@ class StartupScriptGenerator {
         flushScript(scriptPath, new SimpleTemplateEngine().createTemplate(scriptTemplate).make(["exec": exec]).toString())
     }
 
-    private static def generateKillScript(log, scriptParent) {
+    private static def generateKillScript(jarName, log, scriptParent) {
+        def pattern = "java.*${jarName}"
         def scriptPath = Paths.get(scriptParent.toString(), KILL_SCRIPT_NAME)
         log.info "Writing kill script to ${scriptPath}"
-        flushScript(scriptPath, new SimpleTemplateEngine().createTemplate(KILL_SCRIPT_TEMPLATE).make().toString())
+        flushScript(scriptPath, new SimpleTemplateEngine().createTemplate(KILL_SCRIPT_TEMPLATE).make(["pattern": pattern]).toString())
     }
 }

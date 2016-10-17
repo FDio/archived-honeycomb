@@ -1,2 +1,2 @@
 #!/bin/sh -
-kill `ps aux | grep 'java.*honeycomb' | awk '{print \$2}'
+kill `ps aux | grep '${pattern}' | grep -v grep | awk '{print \$2}'`
