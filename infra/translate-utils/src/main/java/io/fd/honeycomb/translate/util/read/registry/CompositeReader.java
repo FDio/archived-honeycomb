@@ -111,7 +111,10 @@ class CompositeReader<D extends DataObject, B extends Builder<D>> extends Abstra
             LOG.debug("{}: Reading child from: {}", this, child);
             if (child instanceof ListReader) {
                 final List<? extends DataObject> list = ((ListReader) child).readList(childId, ctx);
-                ((ListReader) child).merge(builder, list);
+                // Dont set empty lists
+                if (!list.isEmpty()) {
+                    ((ListReader) child).merge(builder, list);
+                }
             } else {
                 final Optional<? extends DataObject> read = child.read(childId, ctx);
                 if (read.isPresent()) {
