@@ -41,6 +41,8 @@ public class ModificationDiffTest {
     static final QName TEXT_LEAF_QNAME = QName.create(TOP_CONTAINER_QNAME, "text");
     static final QName NESTED_LIST_QNAME = QName.create(TOP_CONTAINER_QNAME, "nested-list");
     static final QName DEEP_LIST_QNAME = QName.create(TOP_CONTAINER_QNAME, "deep-list");
+    static final QName EMPTY_QNAME = QName.create(TOP_CONTAINER_QNAME, "empty");
+    static final QName IN_EMPTY_QNAME = QName.create(TOP_CONTAINER_QNAME, "in-empty");
 
     static final QName WITH_CHOICE_CONTAINER_QNAME =
             QName.create("urn:opendaylight:params:xml:ns:yang:test:diff", "2015-01-05", "with-choice");
@@ -133,6 +135,26 @@ public class ModificationDiffTest {
         assertThat(modificationDiff.getUpdates().size(), is(0));
     }
 
+    @Test
+    public void testWriteNonPresenceEmptyNestedContainer() throws Exception {
+        final TipProducingDataTree dataTree = getDataTree();
+        final DataTreeModification dataTreeModification = getModification(dataTree);
+        final NormalizedNode<?, ?> topContainer = Builders.containerBuilder()
+                .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
+                .withChild(ImmutableNodes.containerNode(EMPTY_QNAME))
+                .withChild(ImmutableNodes.leafNode(STRING_LEAF_QNAME, "1"))
+                .build();
+        dataTreeModification.write(TOP_CONTAINER_ID, topContainer);
+        final DataTreeCandidateTip prepare = prepareModification(dataTree, dataTreeModification);
+
+        final ModificationDiff modificationDiff = getModificationDiff(prepare);
+        dataTree.commit(prepare);
+
+        // Only the STRING_LEAF_QNAME is considered a modification, the EMPTY_QNAME container is ignored since it is
+        // not a presence container
+        assertThat(modificationDiff.getUpdates().size(), is(1));
+    }
+
     private DataTreeCandidateTip prepareModification(final TipProducingDataTree dataTree,
                                                      final DataTreeModification dataTreeModification)
             throws DataValidationFailedException {
@@ -159,8 +181,8 @@ public class ModificationDiffTest {
         assertUpdate(updates.values().iterator().next(), TOP_CONTAINER_ID, topContainer, topContainerAfter);
     }
 
-    private ModificationDiff getModificationDiff(final DataTreeCandidateTip prepare) {
-        return ModificationDiff.recursivelyFromCandidateRoot(prepare.getRootNode());
+    private ModificationDiff getModificationDiff(final DataTreeCandidateTip prepare) throws ReactorException {
+        return ModificationDiff.recursivelyFromCandidateRoot(prepare.getRootNode(), getSchemaCtx());
     }
 
     @Test
@@ -447,7 +469,7 @@ public class ModificationDiffTest {
                 .build();
     }
 
-    private static SchemaContext getSchemaCtx() throws ReactorException {
+    static SchemaContext getSchemaCtx() throws ReactorException {
         final CrossSourceStatementReactor.BuildAction buildAction = YangInferencePipeline.RFC6020_REACTOR.newBuild();
         buildAction.addSource(new YangStatementSourceImpl(ModificationDiffTest.class.getResourceAsStream("/test-diff.yang")));
         return buildAction.buildEffective();

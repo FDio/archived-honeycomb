@@ -46,6 +46,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +63,7 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
     private final org.opendaylight.controller.md.sal.binding.api.DataBroker contextBroker;
     // TODO HONEYCOMB-161 what to use instead of deprecated BindingNormalizedNodeSerializer ?
     private final BindingNormalizedNodeSerializer serializer;
+    private final SchemaContext schema;
 
     /**
      * Creates configuration data tree instance.
@@ -73,12 +75,14 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
      */
     public ModifiableDataTreeDelegator(@Nonnull final BindingNormalizedNodeSerializer serializer,
                                        @Nonnull final DataTree dataTree,
+                                       @Nonnull final SchemaContext schema,
                                        @Nonnull final WriterRegistry writerRegistry,
                                        @Nonnull final org.opendaylight.controller.md.sal.binding.api.DataBroker contextBroker) {
         super(dataTree);
         this.contextBroker = checkNotNull(contextBroker, "contextBroker should not be null");
         this.serializer = checkNotNull(serializer, "serializer should not be null");
         this.writerRegistry = checkNotNull(writerRegistry, "writerRegistry should not be null");
+        this.schema = checkNotNull(schema, "schema should not be null");
     }
 
     @Override
@@ -115,7 +119,7 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
                 rootPath, rootNode, rootNode.getDataBefore(), rootNode.getDataAfter());
 
             final ModificationDiff modificationDiff =
-                    ModificationDiff.recursivelyFromCandidateRoot(rootNode);
+                    ModificationDiff.recursivelyFromCandidateRoot(rootNode, schema);
             LOG.debug("ConfigDataTree.modify() diff: {}", modificationDiff);
 
             // Distinguish between updates (create + update) and deletes

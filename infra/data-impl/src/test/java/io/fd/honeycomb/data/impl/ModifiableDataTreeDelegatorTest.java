@@ -92,7 +92,7 @@ public class ModifiableDataTreeDelegatorTest {
         final Map.Entry<InstanceIdentifier<?>, DataObject> parsed = new AbstractMap.SimpleEntry<>(DEFAULT_ID, DEFAULT_DATA_OBJECT);
         when(serializer.fromNormalizedNode(any(YangInstanceIdentifier.class), any(NormalizedNode.class))).thenReturn(parsed);
 
-        configDataTree = new ModifiableDataTreeDelegator(serializer, dataTree, writer, contextBroker);
+        configDataTree = new ModifiableDataTreeDelegator(serializer, dataTree, ModificationDiffTest.getSchemaCtx(), writer, contextBroker);
     }
 
     @Test

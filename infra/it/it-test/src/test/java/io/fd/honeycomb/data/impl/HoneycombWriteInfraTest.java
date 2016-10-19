@@ -134,7 +134,7 @@ public class HoneycombWriteInfraTest extends AbstractInfraTest {
     @Test
     public void testWriteEmptyNonPresenceContainer() throws Exception {
         final ModifiableDataTreeDelegator modifiableDataTreeDelegator =
-                new ModifiableDataTreeDelegator(serializer, dataTree, writerRegistry, contextBroker);
+                new ModifiableDataTreeDelegator(serializer, dataTree, schemaContext, writerRegistry, contextBroker);
 
         final DataModification dataModification = modifiableDataTreeDelegator.newModification();
         final SimpleContainer data = new SimpleContainerBuilder()
@@ -153,7 +153,7 @@ public class HoneycombWriteInfraTest extends AbstractInfraTest {
     @Test
     public void testWriteEverything() throws Exception {
         final ModifiableDataTreeDelegator modifiableDataTreeDelegator =
-                new ModifiableDataTreeDelegator(serializer, dataTree, writerRegistry, contextBroker);
+                new ModifiableDataTreeDelegator(serializer, dataTree, schemaContext, writerRegistry, contextBroker);
 
         final DataModification dataModification = modifiableDataTreeDelegator.newModification();
         // Now write everything we can
@@ -245,7 +245,7 @@ public class HoneycombWriteInfraTest extends AbstractInfraTest {
     @Test
     public void testDeletes() throws Exception {
         final ModifiableDataTreeDelegator modifiableDataTreeDelegator =
-                new ModifiableDataTreeDelegator(serializer, dataTree, writerRegistry, contextBroker);
+                new ModifiableDataTreeDelegator(serializer, dataTree, schemaContext, writerRegistry, contextBroker);
 
         DataModification dataModification = modifiableDataTreeDelegator.newModification();
         // Now write everything we can
@@ -458,7 +458,7 @@ public class HoneycombWriteInfraTest extends AbstractInfraTest {
     @Test
     public void testWriteAndDeleteInTx() throws Exception {
         final ModifiableDataTreeDelegator modifiableDataTreeDelegator =
-                new ModifiableDataTreeDelegator(serializer, dataTree, writerRegistry, contextBroker);
+                new ModifiableDataTreeDelegator(serializer, dataTree, schemaContext, writerRegistry, contextBroker);
 
         final DataModification dataModification = modifiableDataTreeDelegator.newModification();
         // Now write everything we can
@@ -479,7 +479,7 @@ public class HoneycombWriteInfraTest extends AbstractInfraTest {
                 .build();
 
         final ModifiableDataTreeDelegator modifiableDataTreeDelegator =
-                new ModifiableDataTreeDelegator(serializer, dataTree, writerRegistry, contextBroker);
+                new ModifiableDataTreeDelegator(serializer, dataTree, schemaContext, writerRegistry, contextBroker);
 
         final ContainerWithChoice containerWithChoice =
                 new ContainerWithChoiceBuilder().setContainerFromGrouping(getContainerFromGrouping()).build();

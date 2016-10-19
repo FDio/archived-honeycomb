@@ -16,6 +16,12 @@ module test-diff {
             type string;
         }
 
+        container empty {
+            leaf in-empty {
+                type string;
+            }
+        }
+
         list nested-list {
             key "name";
 
