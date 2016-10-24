@@ -152,10 +152,12 @@ public interface WriterRegistry {
         /**
          * Reverts changes that were successfully applied during bulk update before failure occurred.
          *
+         * @param writeContext Non-closed {@code WriteContext} to be used by reverting logic.<br> <b>Do not use same
+         *                     write context as was used in previous write</b>
          * @throws Reverter.RevertFailedException if revert fails
          */
-        public void revertChanges() throws Reverter.RevertFailedException {
-            reverter.revert();
+        public void revertChanges(@Nonnull final WriteContext writeContext) throws Reverter.RevertFailedException {
+            reverter.revert(writeContext);
         }
 
         public Set<InstanceIdentifier<?>> getFailedIds() {
@@ -172,10 +174,13 @@ public interface WriterRegistry {
         /**
          * Reverts changes that were successfully applied during bulk update before failure occurred. Changes are
          * reverted in reverse order they were applied.
+         * Used {@code WriteContext} needs to be in non-closed state, creating fresh one for revert
+         * is recommended, same way as for write, to allow {@code Reverter} use same logic as write.
          *
+         * @param writeContext Non-closed {@code WriteContext} to be used by reverting logic
          * @throws RevertFailedException if not all of applied changes were successfully reverted
          */
-        void revert() throws RevertFailedException;
+        void revert(@Nonnull final WriteContext writeContext) throws RevertFailedException;
 
         /**
          * Thrown when some of the changes applied during bulk update were not reverted.
@@ -207,6 +212,30 @@ public interface WriterRegistry {
             @Nonnull
             public Set<InstanceIdentifier<?>> getNotRevertedChanges() {
                 return notRevertedChanges;
+            }
+        }
+
+        /**
+         * Thrown after bulk operation was successfully reverted,
+         * to maintain marking of transaction as failed,without double logging of
+         * cause of update fail(its logged before reverting in ModifiableDataTreeDelegator
+         */
+        @Beta
+        class RevertSuccessException extends TranslationException {
+            private final Set<InstanceIdentifier<?>> failedIds;
+
+            /**
+             * Constructs an RevertSuccessException.
+             *
+             * @param failedIds instance identifiers of the data objects that were not processed during bulk update.
+             */
+            public RevertSuccessException(@Nonnull final Set<InstanceIdentifier<?>> failedIds) {
+                super("Bulk update failed for: " + failedIds);
+                this.failedIds = failedIds;
+            }
+
+            public Set<InstanceIdentifier<?>> getFailedIds() {
+                return failedIds;
             }
         }
     }

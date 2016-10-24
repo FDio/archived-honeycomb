@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.Sets;
+import io.fd.honeycomb.translate.write.WriteContext;
 import java.util.HashSet;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +32,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class BulkUpdateExceptionTest {
 
     private InstanceIdentifier<?> id = InstanceIdentifier.create(DataObject.class);
+
+    @Mock
+    private WriteContext writeContext;
+
     @Mock
     private WriterRegistry.Reverter reverter;
 
@@ -47,7 +52,7 @@ public class BulkUpdateExceptionTest {
 
         assertEquals(failedIds, bulkUpdateException.getFailedIds());
 
-        bulkUpdateException.revertChanges();
-        verify(reverter).revert();
+        bulkUpdateException.revertChanges(writeContext);
+        verify(reverter).revert(writeContext);
     }
 }

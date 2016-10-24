@@ -49,6 +49,8 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -75,6 +77,9 @@ public class ModifiableDataTreeDelegatorTest {
     private DataBroker contextBroker;
     @Mock
     private org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction tx;
+
+    @Captor
+    private ArgumentCaptor<WriteContext> writeContextCaptor;
 
     private ModifiableDataTreeManager configDataTree;
 
@@ -149,12 +154,11 @@ public class ModifiableDataTreeDelegatorTest {
             dataModification.write(ModificationDiffTest.NESTED_LIST_ID, nestedList);
             dataModification.validate();
             dataModification.commit();
-            fail("WriterRegistry.BulkUpdateException was expected");
-        } catch (WriterRegistry.BulkUpdateException e) {
+            fail("WriterRegistry.RevertSuccessException was expected");
+        } catch (WriterRegistry.Reverter.RevertSuccessException e) {
             verify(writer).update(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
             assertThat(e.getFailedIds(), hasItem(DEFAULT_ID));
-            verify(reverter).revert();
-            assertEquals(failedOnUpdateException, e.getCause());
+            verify(reverter).revert(any(WriteContext.class));
         }
     }
 
@@ -171,7 +175,7 @@ public class ModifiableDataTreeDelegatorTest {
         // Fail on revert:
         final TranslationException failedOnRevertException = new TranslationException("revert failed");
         doThrow(new WriterRegistry.Reverter.RevertFailedException(Collections.emptySet(), failedOnRevertException))
-                .when(reverter).revert();
+                .when(reverter).revert(any(WriteContext.class));
 
         try {
             // Run the test
@@ -182,7 +186,7 @@ public class ModifiableDataTreeDelegatorTest {
             fail("WriterRegistry.Reverter.RevertFailedException was expected");
         } catch (WriterRegistry.Reverter.RevertFailedException e) {
             verify(writer).update(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
-            verify(reverter).revert();
+            verify(reverter).revert(any(WriteContext.class));
             assertEquals(failedOnRevertException, e.getCause());
         }
     }

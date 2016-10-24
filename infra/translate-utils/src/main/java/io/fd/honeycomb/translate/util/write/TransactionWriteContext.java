@@ -108,9 +108,6 @@ public final class TransactionWriteContext implements WriteContext {
         return mappingContext;
     }
 
-    /**
-     * Does not close the transactions.
-     */
     @Override
     public void close() {
         ctx.close();

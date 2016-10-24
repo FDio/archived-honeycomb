@@ -26,6 +26,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.CheckedFuture;
 import io.fd.honeycomb.data.DataModification;
 import io.fd.honeycomb.data.ReadableDataManager;
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.TranslationException;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.TransactionMappingContext;
@@ -126,7 +127,8 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
             final WriterRegistry.DataObjectUpdates baUpdates = toBindingAware(modificationDiff.getUpdates());
             LOG.debug("ConfigDataTree.modify() extracted updates={}", baUpdates);
 
-            try (final WriteContext ctx = getTransactionWriteContext()) {
+            WriteContext ctx = getTransactionWriteContext();
+            try {
                 writerRegistry.update(baUpdates, ctx);
 
                 final CheckedFuture<Void, TransactionCommitFailedException> contextUpdateResult =
@@ -139,15 +141,18 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
                 LOG.info("Trying to revert successful changes for current transaction");
 
                 try {
-                    e.revertChanges();
+                    // attempt revert with fresh context, to allow write logic used context-binded data
+                    e.revertChanges(getRevertTransactionContext(ctx.getMappingContext()));
                     LOG.info("Changes successfully reverted");
                 } catch (WriterRegistry.Reverter.RevertFailedException revertFailedException) {
                     // fail with failed revert
                     LOG.error("Failed to revert successful changes", revertFailedException);
                     throw revertFailedException;
                 }
-
-                throw e; // fail with success revert
+                // fail with success revert
+                // not passing the cause,its logged above and it would be logged after transaction
+                // ended again(prevent double logging of same error
+                throw new WriterRegistry.Reverter.RevertSuccessException(e.getFailedIds());
             } catch (TransactionCommitFailedException e) {
                 // TODO HONEYCOMB-162 revert should probably occur when context is not written successfully
                 final String msg = "Error while updating mapping context data";
@@ -156,7 +161,25 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
             } catch (TranslationException e) {
                 LOG.error("Error while processing data change (updates={})", baUpdates, e);
                 throw e;
+            } finally {
+                // Using finally instead of try-with-resources in order to leave ctx open for BulkUpdateException catch
+                // block. The context is needed there, but try-with-resources closes the resource before handling ex.
+                LOG.debug("Closing write context {}", ctx);
+                ctx.close();
             }
+        }
+
+        /**
+         * Creates inverted transaction context for reverting of proceeded changes.
+         * Invert before/after transaction and reuse affected mapping context created by previous updates
+         * to access all data created by previous updates
+         * */
+        private TransactionWriteContext getRevertTransactionContext(final MappingContext affectedMappingContext){
+            // Before Tx == after partial update
+            final DOMDataReadOnlyTransaction beforeTx = ReadOnlyTransaction.create(this, EMPTY_OPERATIONAL);
+            // After Tx == before partial update
+            final DOMDataReadOnlyTransaction afterTx = ReadOnlyTransaction.create(untouchedModification, EMPTY_OPERATIONAL);
+            return new TransactionWriteContext(serializer, beforeTx, afterTx, affectedMappingContext);
         }
 
         private TransactionWriteContext getTransactionWriteContext() {

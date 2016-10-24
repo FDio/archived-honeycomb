@@ -60,5 +60,17 @@ public class DataObjects {
         }
     }
 
-    public static class DataObjectKey implements Identifier<DataObjectK> {}
+    public interface DataObject1ChildK extends DataObject, ChildOf<DataObject1>, Identifiable<DataObject1ChildKey> {
+        // needs to be defined like this to have paths totally equal after cutting path for internally keyed id inside infra
+        InstanceIdentifier<DataObject1ChildK> IID =
+                RWUtils.makeIidWildcarded(InstanceIdentifier.create(DataObject1.class).child(DataObject1ChildK.class));
+        InstanceIdentifier<DataObject1ChildK> INTERNALLY_KEYED_IID = InstanceIdentifier.create(DataObject1.class)
+                .child(DataObject1ChildK.class, new DataObject1ChildKey());
+    }
+
+    public static class DataObject1ChildKey implements Identifier<DataObject1ChildK> {
+    }
+
+    public static class DataObjectKey implements Identifier<DataObjectK> {
+    }
 }

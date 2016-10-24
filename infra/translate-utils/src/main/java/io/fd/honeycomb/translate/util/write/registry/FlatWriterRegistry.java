@@ -17,6 +17,8 @@
 package io.fd.honeycomb.translate.util.write.registry;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static io.fd.honeycomb.translate.util.RWUtils.makeIidWildcarded;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
@@ -26,9 +28,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import io.fd.honeycomb.translate.TranslationException;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.write.DataObjectUpdate;
+import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.translate.write.Writer;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
@@ -211,11 +213,11 @@ final class FlatWriterRegistry implements WriterRegistry {
                     LOG.trace("Update successful for type: {}", writerType);
                     LOG.debug("Update successful for: {}", singleUpdate);
                 } catch (Exception e) {
-                    LOG.error("Error while processing data change of: {} (updates={})", writerType, writersData, e);
+                    // do not log this exception here,its logged in ModifiableDataTreeDelegator
 
                     final Reverter reverter = attemptRevert
-                            ? new ReverterImpl(processedNodes, updates, writersOrder, ctx)
-                            : () -> {}; // NOOP reverter
+                            ? new ReverterImpl(processedNodes, updates, writersOrder)
+                            : (final WriteContext writeContext) -> {};//NOOP reverter
 
                     // Find out which changes left unprocessed
                     final Set<InstanceIdentifier<?>> unprocessedChanges = updates.values().stream()
@@ -258,30 +260,29 @@ final class FlatWriterRegistry implements WriterRegistry {
         private final Collection<InstanceIdentifier<?>> processedNodes;
         private final Multimap<InstanceIdentifier<?>, ? extends DataObjectUpdate> updates;
         private final Set<InstanceIdentifier<?>> revertDeleteOrder;
-        private final WriteContext ctx;
 
         ReverterImpl(final Collection<InstanceIdentifier<?>> processedNodes,
                      final Multimap<InstanceIdentifier<?>, ? extends DataObjectUpdate> updates,
-                     final Set<InstanceIdentifier<?>> writersOrderOriginal,
-                     final WriteContext ctx) {
+                     final Set<InstanceIdentifier<?>> writersOrderOriginal) {
             this.processedNodes = processedNodes;
             this.updates = updates;
             // Use opposite ordering when executing revert
             this.revertDeleteOrder =  writersOrderOriginal == FlatWriterRegistry.this.writersOrder
                     ? FlatWriterRegistry.this.writersOrderReversed
                     : FlatWriterRegistry.this.writersOrder;
-            this.ctx = ctx;
         }
 
         @Override
-        public void revert() throws RevertFailedException {
+        public void revert(@Nonnull final WriteContext writeContext) throws RevertFailedException {
+            checkNotNull(writeContext, "Cannot revert changes for null context");
+
             Multimap<InstanceIdentifier<?>, DataObjectUpdate> updatesToRevert =
                     filterAndRevertProcessed(updates, processedNodes);
 
             LOG.info("Attempting revert for changes: {}", updatesToRevert);
             try {
                 // Perform reversed bulk update without revert attempt
-                bulkUpdate(updatesToRevert, ctx, true, revertDeleteOrder);
+                bulkUpdate(updatesToRevert, writeContext, true, revertDeleteOrder);
                 LOG.info("Revert successful");
             } catch (BulkUpdateException e) {
                 LOG.error("Revert failed", e);
@@ -298,11 +299,12 @@ final class FlatWriterRegistry implements WriterRegistry {
                 final Collection<InstanceIdentifier<?>> processedNodes) {
             final Multimap<InstanceIdentifier<?>, DataObjectUpdate> filtered = HashMultimap.create();
             for (InstanceIdentifier<?> processedNode : processedNodes) {
-                final InstanceIdentifier<?> wildcardedIid = RWUtils.makeIidWildcarded(processedNode);
+                final InstanceIdentifier<?> wildcardedIid = makeIidWildcarded(processedNode);
                 if (updates.containsKey(wildcardedIid)) {
                     updates.get(wildcardedIid).stream()
                             .filter(dataObjectUpdate -> processedNode.contains(dataObjectUpdate.getId()))
-                            .forEach(dataObjectUpdate -> filtered.put(processedNode, dataObjectUpdate.reverse()));
+                            // putting under unkeyed identifier, to prevent failing of checkAllTypesCanBeHandled
+                            .forEach(dataObjectUpdate -> filtered.put(wildcardedIid, dataObjectUpdate.reverse()));
                 }
             }
             return filtered;
