@@ -61,7 +61,7 @@ public final class RealtimeMappingContext implements MappingContext {
     @Override
     public <T extends DataObject> void merge(final InstanceIdentifier<T> path, final T data) {
         final WriteTransaction writeTx = contextBindingBrokerDependency.newWriteOnlyTransaction();
-        writeTx.merge(LogicalDatastoreType.OPERATIONAL, path, data);
+        writeTx.merge(LogicalDatastoreType.OPERATIONAL, path, data, true);
         try {
             writeTx.submit().checkedGet();
         } catch (TransactionCommitFailedException e) {
@@ -72,7 +72,7 @@ public final class RealtimeMappingContext implements MappingContext {
     @Override
     public <T extends DataObject> void put(final InstanceIdentifier<T> path, final T data) {
         final WriteTransaction writeTx = contextBindingBrokerDependency.newWriteOnlyTransaction();
-        writeTx.put(LogicalDatastoreType.OPERATIONAL, path, data);
+        writeTx.put(LogicalDatastoreType.OPERATIONAL, path, data, true);
         try {
             writeTx.submit().checkedGet();
         } catch (TransactionCommitFailedException e) {

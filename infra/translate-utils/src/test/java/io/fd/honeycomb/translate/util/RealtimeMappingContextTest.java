@@ -79,7 +79,7 @@ public class RealtimeMappingContextTest {
     public void testMerge() throws Exception {
         ctx.merge(id, data);
         verify(broker).newWriteOnlyTransaction();
-        verify(writeTx).merge(LogicalDatastoreType.OPERATIONAL, id, data);
+        verify(writeTx).merge(LogicalDatastoreType.OPERATIONAL, id, data, true);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -92,7 +92,7 @@ public class RealtimeMappingContextTest {
     public void testPut() throws Exception {
         ctx.put(id, data);
         verify(broker).newWriteOnlyTransaction();
-        verify(writeTx).put(LogicalDatastoreType.OPERATIONAL, id, data);
+        verify(writeTx).put(LogicalDatastoreType.OPERATIONAL, id, data, true);
     }
 
     @Test(expected = IllegalStateException.class)
