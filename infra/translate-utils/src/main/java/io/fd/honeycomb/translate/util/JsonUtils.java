@@ -39,6 +39,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNormalizedNodeStreamWriter;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
+import org.opendaylight.yangtools.yang.model.api.SchemaNode;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,11 +80,18 @@ public final class JsonUtils {
      */
     public static ContainerNode readJsonRoot(@Nonnull final SchemaContext schemaContext,
                                              @Nonnull final InputStream stream) {
+        // if root node, parent schema == schema context
+        return readJson(schemaContext, stream, schemaContext);
+    }
+
+    public static ContainerNode readJson(@Nonnull final SchemaContext schemaContext,
+                                         @Nonnull final InputStream stream,
+                                         @Nonnull final SchemaNode parentSchema) {
         final DataContainerNodeAttrBuilder<YangInstanceIdentifier.NodeIdentifier, ContainerNode> builder =
             Builders.containerBuilder().withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(schemaContext.getQName()));
         final NormalizedNodeStreamWriter writer = ImmutableNormalizedNodeStreamWriter.from(builder);
 
-        try (final JsonParserStream jsonParser = JsonParserStream.create(writer, schemaContext)) {
+        try (final JsonParserStream jsonParser = JsonParserStream.create(writer, schemaContext, parentSchema)) {
             final JsonReader reader = new JsonReader(new InputStreamReader(stream, Charsets.UTF_8));
             jsonParser.parse(reader);
         } catch (IOException e) {

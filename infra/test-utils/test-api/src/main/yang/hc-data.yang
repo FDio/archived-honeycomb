@@ -1,0 +1,71 @@
+module hc-data{
+
+      yang-version 1;
+      namespace "urn:opendaylight:params:xml:ns:yang:hc:data";
+      prefix "hc-d-i";
+
+      revision "2015-01-05" {
+        description "Testing HC model for test data injection";
+      }
+
+      import yang-ext {
+        prefix "ext";
+      }
+
+      container simple-container{
+         list simple-list{
+            key name;
+            leaf name{
+                type string;
+            }
+            container cont-under-list{
+                leaf nested-name{
+                    type string;
+                }
+            }
+        }
+
+        container nested-container{
+            leaf name{
+               type string;
+            }
+        }
+
+        container nested-container-with-list{
+            list nested-list{
+                key name;
+                leaf name{
+                    type string;
+                }
+            }
+        }
+
+        choice simple-choice{
+            case first-case{
+                leaf name{
+                    type string;
+                }
+            }
+
+            case second-case{
+                container case-container{
+                    leaf name{
+                        type string;
+                    }
+                }
+            }
+        }
+
+        container augmented-container{
+
+        }
+      }
+
+      augment /hc-d-i:simple-container/hc-d-i:augmented-container{
+        ext:augment-identifier "aug-container-augmentation";
+
+        leaf name-in-augment{
+            type string;
+        }
+      }
+}

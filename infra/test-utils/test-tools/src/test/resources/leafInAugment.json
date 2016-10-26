@@ -1,0 +1,7 @@
+{
+  "simple-container": {
+    "augmented-container":{
+      "name-in-augment": "nameInAugment"
+    }
+  }
+}
