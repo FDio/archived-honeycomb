@@ -49,10 +49,10 @@ class SubtreeReader<D extends DataObject, B extends Builder<D>> implements Reade
 
     private static final Logger LOG = LoggerFactory.getLogger(SubtreeReader.class);
 
-    private final Reader<D, B> delegate;
+    protected final Reader<D, B> delegate;
     private final Set<InstanceIdentifier<?>> handledChildTypes = new HashSet<>();
 
-    private SubtreeReader(final Reader<D, B> delegate, Set<InstanceIdentifier<?>> handledTypes) {
+    SubtreeReader(final Reader<D, B> delegate, Set<InstanceIdentifier<?>> handledTypes) {
         this.delegate = delegate;
         for (InstanceIdentifier<?> handledType : handledTypes) {
             // Iid has to start with Reader's handled root type
@@ -96,7 +96,7 @@ class SubtreeReader<D extends DataObject, B extends Builder<D>> implements Reade
             LOG.debug("{}: Subtree: {} read successfully. Result: {}", this, id, readSubtree);
             return readSubtree;
 
-        // Fallback solution, try delegate, maybe it can read the ID
+        // If child that's handled here is not requested, then delegate should be able to handle the read
         } else {
             return delegate.read(id, ctx);
         }
@@ -208,12 +208,12 @@ class SubtreeReader<D extends DataObject, B extends Builder<D>> implements Reade
                 : new SubtreeReader<>(reader, handledChildren);
     }
 
-    private static final class SubtreeListReader<D extends DataObject & Identifiable<K>, B extends Builder<D>, K extends Identifier<D>>
+    static class SubtreeListReader<D extends DataObject & Identifiable<K>, B extends Builder<D>, K extends Identifier<D>>
             extends SubtreeReader<D, B> implements ListReader<D, K, B> {
 
-        private final ListReader<D, K, B> delegate;
+        final ListReader<D, K, B> delegate;
 
-        private SubtreeListReader(final ListReader<D, K, B> delegate,
+        SubtreeListReader(final ListReader<D, K, B> delegate,
                                   final Set<InstanceIdentifier<?>> handledTypes) {
             super(delegate, handledTypes);
             this.delegate = delegate;

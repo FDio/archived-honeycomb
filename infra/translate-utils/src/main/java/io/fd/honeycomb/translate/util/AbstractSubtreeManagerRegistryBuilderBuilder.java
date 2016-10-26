@@ -185,10 +185,10 @@ public abstract class AbstractSubtreeManagerRegistryBuilderBuilder<S extends Sub
         final ImmutableMap.Builder<InstanceIdentifier<?>, S> builder = ImmutableMap.builder();
         // Iterate writer types according to their relationships from graph
         handlersRelations.iterator()
-                .forEachRemaining(writerType -> {
+                .forEachRemaining(handlerType -> {
                     // There might be types stored just for relationship sake, no real writer, ignoring those
-                    if (handlersMap.containsKey(writerType)) {
-                        builder.put(writerType, handlersMap.get(writerType));
+                    if (handlersMap.containsKey(handlerType)) {
+                        builder.put(handlerType, handlersMap.get(handlerType));
                     }
                 });
 

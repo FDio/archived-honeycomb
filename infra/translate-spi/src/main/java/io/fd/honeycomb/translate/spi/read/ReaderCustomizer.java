@@ -27,17 +27,17 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 /**
  * CompositeChildReader SPI to customize its behavior.
  *
- * @param <C> Specific DataObject derived type (Identifiable), that is handled by this customizer
+ * @param <O> Specific DataObject derived type (Identifiable), that is handled by this customizer
  * @param <B> Specific Builder for handled type (C)
  */
 @Beta
-public interface ReaderCustomizer<C extends DataObject, B extends Builder<C>> {
+public interface ReaderCustomizer<O extends DataObject, B extends Builder<O>> {
 
     /**
      * Creates new builder that will be used to build read value.
      */
     @Nonnull
-    B getBuilder(@Nonnull final InstanceIdentifier<C> id);
+    B getBuilder(@Nonnull final InstanceIdentifier<O> id);
 
     /**
      * Adds current data (identified by id) to the provided builder.
@@ -47,14 +47,14 @@ public interface ReaderCustomizer<C extends DataObject, B extends Builder<C>> {
      * @param ctx     context for current read
      * @throws ReadFailedException if read was unsuccessful
      */
-    void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id,
+    void readCurrentAttributes(@Nonnull final InstanceIdentifier<O> id,
                                @Nonnull final B builder,
                                @Nonnull final ReadContext ctx) throws ReadFailedException;
 
     /**
      * Merge read data into provided parent builder.
      */
-    void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final C readValue);
+    void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final O readValue);
 
 
 }

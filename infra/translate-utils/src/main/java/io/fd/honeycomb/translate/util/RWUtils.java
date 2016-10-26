@@ -118,6 +118,15 @@ public final class RWUtils {
     }
 
     /**
+     * Trim InstanceIdentifier at indexOf(type).
+     */
+    @Nonnull
+    public static <D extends DataObject> InstanceIdentifier<D> cutId(@Nonnull final InstanceIdentifier<? extends DataObject> id,
+                                                                     @Nonnull final Class<D> type) {
+        return cutId(id, InstanceIdentifier.create(type));
+    }
+
+    /**
      * Create an ordered map from a collection, checking for duplicity in the process.
      */
     @Nonnull

@@ -22,8 +22,7 @@ import io.fd.honeycomb.data.ReadableDataManager;
 import io.fd.honeycomb.data.impl.ReadableDataTreeDelegator;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
 import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule;
-import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
-import io.fd.honeycomb.translate.read.registry.ReaderRegistryBuilder;
+import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
@@ -35,7 +34,7 @@ public final class ReadableDTDelegProvider extends ProviderTrait<ReadableDataMan
     @Inject
     private SchemaService schemaService;
     @Inject
-    private ModifiableReaderRegistryBuilder registry;
+    private ReaderRegistry registry;
     @Inject
     @Named(ContextPipelineModule.HONEYCOMB_CONTEXT)
     private DataBroker contextBroker;
@@ -43,6 +42,6 @@ public final class ReadableDTDelegProvider extends ProviderTrait<ReadableDataMan
     @Override
     protected ReadableDataTreeDelegator create() {
         return new ReadableDataTreeDelegator(serializer, schemaService.getGlobalContext(),
-                ((ReaderRegistryBuilder) registry).build(), contextBroker);
+                registry, contextBroker);
     }
 }

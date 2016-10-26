@@ -29,7 +29,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  * Simple delegating reader suitable as a holder for all other root readers, providing readAll feature.
  */
 @Beta
-public interface ReaderRegistry {
+public interface ReaderRegistry extends InitRegistry {
 
     /**
      * Performs read on all registered root readers and merges the results into a Multimap. Keys represent identifiers

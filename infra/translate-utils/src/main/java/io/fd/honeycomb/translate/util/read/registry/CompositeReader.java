@@ -22,16 +22,20 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import io.fd.honeycomb.translate.read.InitFailedException;
+import io.fd.honeycomb.translate.read.InitListReader;
+import io.fd.honeycomb.translate.read.Initializer;
 import io.fd.honeycomb.translate.read.ListReader;
 import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.AbstractGenericReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
@@ -40,7 +44,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class CompositeReader<D extends DataObject, B extends Builder<D>> extends AbstractGenericReader<D, B> {
+class CompositeReader<D extends DataObject, B extends Builder<D>>
+        extends AbstractGenericReader<D, B>
+        implements Initializer<D> {
 
     private static final Logger LOG = LoggerFactory.getLogger(CompositeReader.class);
 
@@ -155,9 +161,27 @@ class CompositeReader<D extends DataObject, B extends Builder<D>> extends Abstra
                 : new CompositeReader<>(reader, childReaders);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public void init(final DataBroker broker, final InstanceIdentifier<D> id, final ReadContext ctx) throws InitFailedException {
+        if (delegate instanceof Initializer) {
+            LOG.trace("{}: Initializing current: {}", this, id);
+            ((Initializer<D>) delegate).init(broker, id, ctx);
+        }
+
+        for (Reader child : childReaders.values()) {
+            final InstanceIdentifier childId = appendTypeToId(id, child.getManagedDataObjectType());
+
+            if (child instanceof Initializer) {
+                LOG.trace("{}: Initializing child: {}", this, childId);
+                ((Initializer) child).init(broker, childId, ctx);
+            }
+        }
+    }
+
     private static class CompositeListReader<D extends DataObject & Identifiable<K>, B extends Builder<D>, K extends Identifier<D>>
             extends CompositeReader<D, B>
-            implements ListReader<D, K, B> {
+            implements InitListReader<D, K, B> {
 
         private final ListReader<D, K, B> delegate;
 
@@ -191,6 +215,19 @@ class CompositeReader<D extends DataObject, B extends Builder<D>> extends Abstra
         }
 
         @Override
+        public void init(final DataBroker broker, final InstanceIdentifier<D> id, final ReadContext ctx)
+                throws InitFailedException {
+            try {
+                final List<K> allIds = delegate.getAllIds(id, ctx);
+                for (K key : allIds) {
+                    super.init(broker, RWUtils.replaceLastInId(id, RWUtils.getCurrentIdItem(id, key)), ctx);
+                }
+            } catch (ReadFailedException e) {
+                throw new InitFailedException(id, e);
+            }
+        }
+
+        @Override
         public void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<D> readData) {
             delegate.merge(builder, readData);
         }
@@ -201,5 +238,4 @@ class CompositeReader<D extends DataObject, B extends Builder<D>> extends Abstra
             return delegate.getAllIds(id, ctx);
         }
     }
-
 }

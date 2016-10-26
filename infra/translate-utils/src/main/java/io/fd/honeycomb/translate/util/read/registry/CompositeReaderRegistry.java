@@ -23,17 +23,20 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
+import io.fd.honeycomb.translate.read.InitFailedException;
+import io.fd.honeycomb.translate.read.Initializer;
 import io.fd.honeycomb.translate.read.ListReader;
 import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.read.Reader;
-import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
+import io.fd.honeycomb.translate.util.RWUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -95,6 +98,16 @@ public final class CompositeReaderRegistry implements ReaderRegistry {
         return objects;
     }
 
+
+    @Override
+    public void initAll(@Nonnull final DataBroker broker, @Nonnull final ReadContext ctx) throws InitFailedException {
+        for (Reader<? extends DataObject, ? extends Builder<?>> rootReader : rootReaders.values()) {
+            if (rootReader instanceof Initializer<?>) {
+                ((Initializer) rootReader).init(broker, rootReader.getManagedDataObjectType(), ctx);
+            }
+        }
+    }
+
     @Nonnull
     @Override
     public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
@@ -114,4 +127,5 @@ public final class CompositeReaderRegistry implements ReaderRegistry {
         return getClass().getSimpleName()
                 + rootReaders.keySet().stream().map(Class::getSimpleName).collect(Collectors.toList());
     }
+
 }

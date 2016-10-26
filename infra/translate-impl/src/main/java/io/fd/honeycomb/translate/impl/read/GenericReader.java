@@ -18,9 +18,9 @@ package io.fd.honeycomb.translate.impl.read;
 
 import com.google.common.annotations.Beta;
 import io.fd.honeycomb.translate.read.ReadContext;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.AbstractGenericReader;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
@@ -33,15 +33,16 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 @Beta
 @ThreadSafe
-public final class GenericReader<C extends DataObject, B extends Builder<C>> extends AbstractGenericReader<C, B>
-    implements Reader<C, B> {
+public class GenericReader<C extends DataObject, B extends Builder<C>>
+        extends AbstractGenericReader<C, B>
+        implements Reader<C, B> {
 
-    private final ReaderCustomizer<C, B> customizer;
+    protected final ReaderCustomizer<C, B> customizer;
 
     /**
      * Create a new {@link GenericReader}.
      *
-     * @param id Instance identifier for managed data type
+     * @param id         Instance identifier for managed data type
      * @param customizer Customizer instance to customize this generic reader
      */
     public GenericReader(@Nonnull final InstanceIdentifier<C> id,
@@ -61,6 +62,7 @@ public final class GenericReader<C extends DataObject, B extends Builder<C>> ext
         }
     }
 
+    @Nonnull
     @Override
     public B getBuilder(@Nonnull final InstanceIdentifier<C> id) {
         return customizer.getBuilder(id);

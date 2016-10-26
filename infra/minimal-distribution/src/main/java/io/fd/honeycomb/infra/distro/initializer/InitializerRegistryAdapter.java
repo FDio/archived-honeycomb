@@ -16,12 +16,14 @@
 
 package io.fd.honeycomb.infra.distro.initializer;
 
-import com.google.common.collect.Lists;
 import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.data.init.InitializerRegistry;
-import io.fd.honeycomb.data.init.InitializerRegistryImpl;
-import java.util.List;
-import java.util.Set;
+import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.translate.ModificationCache;
+import io.fd.honeycomb.translate.read.ReadContext;
+import io.fd.honeycomb.translate.read.registry.InitRegistry;
+import javax.annotation.Nonnull;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,27 +33,33 @@ final class InitializerRegistryAdapter implements InitializerRegistry {
 
     private final DataTreeInitializer configInitializer;
     private final DataTreeInitializer contextInitializer;
-    private final List<DataTreeInitializer> pluginInitializers;
+    private final InitRegistry initRegistry;
+    private final DataBroker dataBroker;
+    private final MappingContext realtimeMappingContext;
 
-    InitializerRegistryAdapter(final DataTreeInitializer configInitializer, final DataTreeInitializer contextInitializer,
-                               final Set<DataTreeInitializer> pluginInitializers) {
+    InitializerRegistryAdapter(final DataTreeInitializer configInitializer,
+                               final DataTreeInitializer contextInitializer,
+                               final InitRegistry initRegistry,
+                               final DataBroker noopConfigDataBroker,
+                               final MappingContext realtimeMappingContext) {
         this.configInitializer = configInitializer;
         this.contextInitializer = contextInitializer;
-        this.pluginInitializers = Lists.newArrayList(pluginInitializers);
+        this.initRegistry = initRegistry;
+        this.dataBroker = noopConfigDataBroker;
+        this.realtimeMappingContext = realtimeMappingContext;
     }
 
     @Override
     public void initialize() throws DataTreeInitializer.InitializeException {
         LOG.info("Config initialization started");
 
-        final InitializerRegistry initializer = new InitializerRegistryImpl(pluginInitializers);
         try {
             // Initialize contexts first so that other initializers can find any relevant mapping before initializing
             // configuration to what is already in VPP
             contextInitializer.initialize();
             LOG.info("Persisted context restored successfully");
             // Initialize all registered initializers
-            initializer.initialize();
+            initRegistry.initAll(dataBroker, new InitReadContext(realtimeMappingContext));
             LOG.info("Configuration initialized successfully");
             // Initialize stored configuration on top
             configInitializer.initialize();
@@ -63,4 +71,31 @@ final class InitializerRegistryAdapter implements InitializerRegistry {
         LOG.info("Honeycomb initialized");
     }
 
+    private static final class InitReadContext implements ReadContext {
+
+        private final ModificationCache modificationCache;
+        private final MappingContext realtimeMappingContext;
+
+        InitReadContext(final MappingContext realtimeMappingContext) {
+            modificationCache = new ModificationCache();
+            this.realtimeMappingContext = realtimeMappingContext;
+        }
+
+        @Nonnull
+        @Override
+        public ModificationCache getModificationCache() {
+            return modificationCache;
+        }
+
+        @Nonnull
+        @Override
+        public MappingContext getMappingContext() {
+            return realtimeMappingContext;
+        }
+
+        @Override
+        public void close() {
+            modificationCache.close();
+        }
+    }
 }

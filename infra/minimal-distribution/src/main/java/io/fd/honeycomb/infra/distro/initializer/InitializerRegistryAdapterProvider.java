@@ -16,29 +16,39 @@
 
 package io.fd.honeycomb.infra.distro.initializer;
 
+import static io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule.HONEYCOMB_CONTEXT;
+import static io.fd.honeycomb.infra.distro.initializer.InitializerPipelineModule.HONEYCOMB_INITIALIZER;
+
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.data.init.InitializerRegistry;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
 import io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule;
-import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule;
-import java.util.HashSet;
-import java.util.Set;
+import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 
-public final class InitializerRegistryProvider extends ProviderTrait<InitializerRegistry> {
+public final class InitializerRegistryAdapterProvider extends ProviderTrait<InitializerRegistry> {
 
     @Inject
-    @Named(ContextPipelineModule.HONEYCOMB_CONTEXT)
+    @Named(HONEYCOMB_CONTEXT)
     private DataTreeInitializer contextInitializer;
     @Inject
     @Named(ConfigAndOperationalPipelineModule.HONEYCOMB_CONFIG)
     private DataTreeInitializer configInitializer;
-    @Inject(optional = true)
-    private Set<DataTreeInitializer> pluginInitializers = new HashSet<>();
+    @Inject
+    private ReaderRegistry initRegistry;
+    @Inject
+    @Named(HONEYCOMB_INITIALIZER)
+    private DataBroker noopConfigDataBroker;
+    @Inject
+    @Named(HONEYCOMB_CONTEXT)
+    private MappingContext realtimeMappingContext;
 
     @Override
     protected InitializerRegistryAdapter create() {
-        return new InitializerRegistryAdapter(configInitializer, contextInitializer, pluginInitializers);
+        return new InitializerRegistryAdapter(configInitializer, contextInitializer, initRegistry,
+                noopConfigDataBroker, realtimeMappingContext);
     }
 }

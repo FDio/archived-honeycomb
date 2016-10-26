@@ -17,12 +17,13 @@
 package io.fd.honeycomb.translate.util.read.registry;
 
 import com.google.common.collect.ImmutableMap;
+import io.fd.honeycomb.translate.read.InitReader;
 import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
-import io.fd.honeycomb.translate.read.registry.ReaderRegistryBuilder;
-import io.fd.honeycomb.translate.util.read.ReflexiveReader;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
+import io.fd.honeycomb.translate.read.registry.ReaderRegistryBuilder;
 import io.fd.honeycomb.translate.util.AbstractSubtreeManagerRegistryBuilderBuilder;
+import io.fd.honeycomb.translate.util.read.ReflexiveReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -45,7 +46,9 @@ public final class CompositeReaderRegistryBuilder
     @Override
     protected Reader<? extends DataObject, ? extends Builder<?>> getSubtreeHandler(@Nonnull final Set<InstanceIdentifier<?>> handledChildren,
                                                                                    @Nonnull final Reader<? extends DataObject, ? extends Builder<?>> reader) {
-        return SubtreeReader.createForReader(handledChildren, reader);
+        return reader instanceof InitReader
+                ? InitSubtreeReader.createForReader(handledChildren, reader)
+                : SubtreeReader.createForReader(handledChildren, reader);
     }
 
     @Override
@@ -53,6 +56,8 @@ public final class CompositeReaderRegistryBuilder
                                                            @Nonnull Class<? extends Builder<D>> builderType) {
         add(new ReflexiveReader<>(id, builderType));
     }
+
+
 
     /**
      * Create {@link CompositeReaderRegistry} with Readers ordered according to submitted relationships.

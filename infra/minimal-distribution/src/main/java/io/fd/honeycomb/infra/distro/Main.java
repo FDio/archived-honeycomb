@@ -119,8 +119,6 @@ public final class Main {
                 injector.getInstance(HoneycombNotification2NetconfProvider.HoneycombNotification2Netconf.class);
             }
 
-            LOG.info("Honeycomb started successfully!");
-
             try {
                 LOG.info("Initializing configuration");
                 injector.getInstance(Key.get(InitializerRegistry.class,

@@ -24,9 +24,11 @@ import io.fd.honeycomb.data.ReadableDataManager;
 import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.infra.distro.data.config.WriterRegistryProvider;
 import io.fd.honeycomb.infra.distro.data.oper.ReadableDTDelegProvider;
+import io.fd.honeycomb.infra.distro.data.oper.ReaderRegistryBuilderProvider;
 import io.fd.honeycomb.infra.distro.data.oper.ReaderRegistryProvider;
 import io.fd.honeycomb.infra.distro.initializer.PersistedFileInitializerProvider;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
+import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
@@ -43,8 +45,10 @@ public class ConfigAndOperationalPipelineModule extends PrivateModule {
         // Expose registries for plugin reader/writer factories
         bind(ModifiableWriterRegistryBuilder.class).toProvider(WriterRegistryProvider.class).in(Singleton.class);
         expose(ModifiableWriterRegistryBuilder.class);
-        bind(ModifiableReaderRegistryBuilder.class).toProvider(ReaderRegistryProvider.class).in(Singleton.class);
+        bind(ModifiableReaderRegistryBuilder.class).toProvider(ReaderRegistryBuilderProvider.class).in(Singleton.class);
         expose(ModifiableReaderRegistryBuilder.class);
+        bind(ReaderRegistry.class).toProvider(ReaderRegistryProvider.class).in(Singleton.class);
+        expose(ReaderRegistry.class);
 
         // Non persisting data tree for config
         bind(DataTree.class).annotatedWith(Names.named(HONEYCOMB_CONFIG_NONPERSIST))

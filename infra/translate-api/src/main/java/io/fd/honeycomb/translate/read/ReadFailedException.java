@@ -36,7 +36,13 @@ public class ReadFailedException extends TranslationException {
      * @param cause              the cause of read failure
      */
     public ReadFailedException(@Nonnull final InstanceIdentifier<?> failedId, final Throwable cause) {
-        super("Failed to read " + failedId, cause);
+        this("Failed to read: ", failedId, cause);
+    }
+
+    protected ReadFailedException(@Nonnull final String msgPrefix,
+                                  @Nonnull final InstanceIdentifier<?> failedId,
+                                  @Nonnull final Throwable cause) {
+        super(msgPrefix + failedId, cause);
         this.failedId = checkNotNull(failedId, "failedId should not be null");
     }
 

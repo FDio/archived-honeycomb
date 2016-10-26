@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) {today.year} Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,12 +47,12 @@ import org.slf4j.LoggerFactory;
  */
 @Beta
 @ThreadSafe
-public final class GenericListReader<C extends DataObject & Identifiable<K>, K extends Identifier<C>, B extends Builder<C>>
+public class GenericListReader<C extends DataObject & Identifiable<K>, K extends Identifier<C>, B extends Builder<C>>
         extends AbstractGenericReader<C, B> implements ListReader<C, K, B> {
 
     private static final Logger LOG = LoggerFactory.getLogger(GenericListReader.class);
 
-    private final ListReaderCustomizer<C, K, B> customizer;
+    protected final ListReaderCustomizer<C, K, B> customizer;
 
     /**
      * Create new {@link GenericListReader}
@@ -113,6 +113,7 @@ public final class GenericListReader<C extends DataObject & Identifiable<K>, K e
         }
     }
 
+    @Nonnull
     @Override
     public B getBuilder(@Nonnull final InstanceIdentifier<C> id) {
         return customizer.getBuilder(id);

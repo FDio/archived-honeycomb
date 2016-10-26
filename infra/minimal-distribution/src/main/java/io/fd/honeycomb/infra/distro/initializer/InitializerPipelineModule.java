@@ -42,7 +42,7 @@ public final class InitializerPipelineModule extends PrivateModule {
 
         // Create initializer registry so that plugins can provide their initializers
         bind(InitializerRegistry.class).annotatedWith(Names.named(HONEYCOMB_INITIALIZER))
-                .toProvider(InitializerRegistryProvider.class).in(Singleton.class);
+                .toProvider(InitializerRegistryAdapterProvider.class).in(Singleton.class);
         expose(InitializerRegistry.class).annotatedWith(Names.named(HONEYCOMB_INITIALIZER));
     }
 }
