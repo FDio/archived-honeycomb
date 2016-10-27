@@ -9,7 +9,7 @@
         "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
 
 <module name="Checker">
-
+    <property name="charset" value="UTF-8"/>
     <property name="severity" value="error"/>
 
     <module name="RegexpMultiline">

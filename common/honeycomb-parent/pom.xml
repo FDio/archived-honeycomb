@@ -59,7 +59,7 @@
 
         <!-- plugins -->
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
-        <checkstyle.version>6.16</checkstyle.version>
+        <checkstyle.version>7.1.2</checkstyle.version>
         <maven.javadoc.version>2.10.3</maven.javadoc.version>
         <jacoco.version>0.7.2.201409121644</jacoco.version>
         <enforcer.version>1.4</enforcer.version>
@@ -205,11 +205,12 @@
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <version>${checkstyle.plugin.version}</version>
                     <configuration>
-                        <!-- Override checkstyle configuration to fit Honeycomb coding style-->
-                        <configLocation>honeycomb-checkstyle.xml</configLocation>
-                        <includeTestResources>true</includeTestResources>
                         <!--TODO HONEYCOMB-155 enable fail on violation after issues are resolved + set in as errors in checkstyle xml-->
-
+                        <failOnViolation>false</failOnViolation>
+                        <failsOnError>true</failsOnError>
+                        <consoleOutput>true</consoleOutput>
+                        <includeTestResources>true</includeTestResources>
+                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
                         <includes>**\/*.java,**\/*.xml,**\/*.ini,**\/*.sh,**\/*.bat,**\/*.yang</includes>
                         <excludes>**\/target\/,
                             **\/bin\/,
@@ -222,7 +223,6 @@
                             **\/archetype-resources\/</excludes>
                     </configuration>
                     <executions>
-
                         <!-- Override license check configuration to fit Honeycomb coding style-->
                         <execution>
                             <id>check-license</id>
@@ -231,13 +231,10 @@
                             </goals>
                             <phase>process-sources</phase>
                             <configuration>
-                                <headerLocation>HONEYCOMB_LICENSE.txt</headerLocation>
-                                <failOnViolation>true</failOnViolation>
-                                <failsOnError>true</failsOnError>
+                                <configLocation>honeycomb-checkstyle-license.xml</configLocation>
                                 <outputFile>${project.build.directory}/checkstyle-license-result.xml</outputFile>
                             </configuration>
                         </execution>
-
                         <!-- Add logging checks from yangtools -->
                         <execution>
                             <id>check-logging</id>
@@ -246,19 +243,20 @@
                             </goals>
                             <phase>process-sources</phase>
                             <configuration>
-                                <failOnViolation>true</failOnViolation>
                                 <configLocation>honeycomb-checkstyle-logging.xml</configLocation>
-                                <consoleOutput>true</consoleOutput>
-                                <includeTestSourceDirectory>true</includeTestSourceDirectory>
                                 <sourceDirectory>${project.basedir}</sourceDirectory>
                                 <outputFile>${project.build.directory}/checkstyle-logging-result.xml</outputFile>
                             </configuration>
                         </execution>
+                        <!-- Check HC's coding style -->
                         <execution>
                             <goals>
                                 <goal>check</goal>
                             </goals>
                             <phase>process-sources</phase>
+                            <configuration>
+                                <configLocation>honeycomb-checkstyle.xml</configLocation>
+                            </configuration>
                         </execution>
                     </executions>
                     <dependencies>
