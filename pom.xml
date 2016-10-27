@@ -45,6 +45,7 @@
     <module>samples</module>
     <module>tools</module>
     <module>nat</module>
+    <module>ioam</module>
     <module>release-notes</module>
   </modules>
 </project>
