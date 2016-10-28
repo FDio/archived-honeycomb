@@ -23,7 +23,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -74,15 +74,22 @@ public class FlatWriterRegistryBuilderTest {
         final Writer<? extends DataObject> writer = mockWriter(DataObjects.DataObject3.class);
         flatWriterRegistryBuilder.add(writer);
         final WriterRegistry build = flatWriterRegistryBuilder.build();
+
         final InstanceIdentifier<DataObjects.DataObject3> id = InstanceIdentifier.create(DataObjects.DataObject3.class);
         final DataObjectUpdate update = mock(DataObjectUpdate.class);
+        doReturn(id).when(update).getId();
+        final DataObjects.DataObject3 before = mock(DataObjects.DataObject3.class);
+        final DataObjects.DataObject3 after = mock(DataObjects.DataObject3.class);
+        when(update.getDataBefore()).thenReturn(before);
+        when(update.getDataAfter()).thenReturn(after);
+
         WriterRegistry.DataObjectUpdates updates = new WriterRegistry.DataObjectUpdates(
                 Multimaps.forMap(Collections.singletonMap(id, update)),
                 Multimaps.forMap(Collections.emptyMap()));
-        build.update(updates, mock(WriteContext.class));
+        final WriteContext ctx = mock(WriteContext.class);
+        build.update(updates, ctx);
 
-        verify(writer)
-                .update(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
+        verify(writer).update(id, before, after, ctx);
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -18,6 +18,7 @@ package io.fd.honeycomb.translate.util.read;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,6 +42,7 @@ public class KeepaliveReaderWrapperTest {
 
     @Mock
     private ReadContext ctx;
+    private InstanceIdentifier<DataObject> iid = InstanceIdentifier.create(DataObject.class);
     @Mock
     private Reader<DataObject, Builder<DataObject>> delegate;
     @Mock
@@ -53,7 +55,8 @@ public class KeepaliveReaderWrapperTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         exec = Executors.newScheduledThreadPool(1);
-        when(delegate.read(any(InstanceIdentifier.class), any(ReadContext.class))).thenThrow(TestingException.class);
+        when(delegate.getManagedDataObjectType()).thenReturn(iid);
+        when(delegate.read(eq(iid), any(ReadContext.class))).thenThrow(TestingException.class);
     }
 
     @After

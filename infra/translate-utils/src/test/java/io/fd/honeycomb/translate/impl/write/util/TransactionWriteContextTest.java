@@ -60,11 +60,14 @@ public class TransactionWriteContextTest {
     private MappingContext contextBroker;
 
     private TransactionWriteContext transactionWriteContext;
+    private YangInstanceIdentifier yangId;
 
     @Before
     public void setUp() {
         initMocks(this);
         transactionWriteContext = new TransactionWriteContext(serializer, beforeTx, afterTx, contextBroker);
+        yangId = YangInstanceIdentifier.builder().node(QName.create("n", "d")).build();
+        when(serializer.toYangInstanceIdentifier(any(InstanceIdentifier.class))).thenReturn(yangId);
     }
 
     @Test
@@ -90,8 +93,6 @@ public class TransactionWriteContextTest {
 
         final InstanceIdentifier<DataObjects.DataObject1> instanceId =
                 InstanceIdentifier.create(DataObjects.DataObject1.class);
-        final YangInstanceIdentifier yangId = YangInstanceIdentifier.builder().node(QName.create("n", "d")).build();
-        when(serializer.toYangInstanceIdentifier(any(InstanceIdentifier.class))).thenReturn(yangId);
         when(serializer.fromNormalizedNode(eq(yangId), any(NormalizedNode.class))).thenReturn(entry);
         when(entry.getValue()).thenReturn(mock(DataObjects.DataObject1.class));
 
@@ -105,14 +106,14 @@ public class TransactionWriteContextTest {
 
     @Test(expected = IllegalStateException.class)
     public void testReadBeforeFailed() throws Exception {
-        when(beforeTx.read(eq(LogicalDatastoreType.CONFIGURATION), any(YangInstanceIdentifier.class))).thenReturn(
+        when(beforeTx.read(LogicalDatastoreType.CONFIGURATION, yangId)).thenReturn(
                 Futures.immediateFailedCheckedFuture(mock(ReadFailedException.class)));
         transactionWriteContext.readBefore(mock(InstanceIdentifier.class));
     }
 
     @Test(expected = IllegalStateException.class)
     public void testReadAfterFailed() throws Exception {
-        when(afterTx.read(eq(LogicalDatastoreType.CONFIGURATION), any(YangInstanceIdentifier.class))).thenReturn(
+        when(afterTx.read(LogicalDatastoreType.CONFIGURATION, yangId)).thenReturn(
                 Futures.immediateFailedCheckedFuture(mock(ReadFailedException.class)));
         transactionWriteContext.readAfter(mock(InstanceIdentifier.class));
     }

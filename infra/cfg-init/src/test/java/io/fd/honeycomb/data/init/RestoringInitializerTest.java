@@ -16,7 +16,6 @@
 
 package io.fd.honeycomb.data.init;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -46,6 +45,8 @@ public class RestoringInitializerTest {
     @Mock
     private SchemaService schemaService;
     @Mock
+    private SchemaContext schemaContext;
+    @Mock
     private DOMDataBroker dataTree;
     @Mock
     private RestoringInitializer.JsonReader jsonReader;
@@ -61,7 +62,8 @@ public class RestoringInitializerTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         path = Files.createTempFile("hc", "restoretest");
-        when(jsonReader.readData(any(SchemaContext.class), any(Path.class))).thenReturn(data);
+        when(schemaService.getGlobalContext()).thenReturn(schemaContext);
+        when(jsonReader.readData(schemaContext, path)).thenReturn(data);
         when(dataTree.newWriteOnlyTransaction()).thenReturn(writeTx);
         when(writeTx.submit()).thenReturn(Futures.immediateCheckedFuture(null));
         when(data.getValue()).thenReturn(Collections.singleton(data));
@@ -86,7 +88,7 @@ public class RestoringInitializerTest {
         init.initialize();
 
         verify(schemaService).getGlobalContext();
-        verify(jsonReader).readData(any(SchemaContext.class), any(Path.class));
+        verify(jsonReader).readData(schemaContext, path);
 
         verify(dataTree).newWriteOnlyTransaction();
         verify(writeTx).put(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.create(nodeId), data);
@@ -118,7 +120,7 @@ public class RestoringInitializerTest {
 
     @Test(expected = DataTreeInitializer.InitializeException.class)
     public void testFail() throws Exception {
-        when(jsonReader.readData(any(SchemaContext.class), any(Path.class))).thenThrow(new IOException("t"));
+        when(jsonReader.readData(schemaContext, path)).thenThrow(new IOException("t"));
 
         final RestoringInitializer init =
                 new RestoringInitializer(schemaService, path, dataTree,

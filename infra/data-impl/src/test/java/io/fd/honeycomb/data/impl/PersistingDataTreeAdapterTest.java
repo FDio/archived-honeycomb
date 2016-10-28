@@ -22,8 +22,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
 import java.io.IOException;
@@ -69,7 +71,7 @@ public class PersistingDataTreeAdapterTest {
         doThrow(new IllegalStateException("testing errors")).when(delegatingDataTree).commit(any(DataTreeCandidate.class));
 
         try {
-            persistingDataTreeAdapter.commit(null);
+            persistingDataTreeAdapter.commit(mock(DataTreeCandidate.class));
             fail("Exception expected");
         } catch (IllegalStateException e) {
             verify(delegatingDataTree, times(0)).takeSnapshot();
@@ -80,7 +82,10 @@ public class PersistingDataTreeAdapterTest {
     @Test
     public void testPersist() throws Exception {
         persistingDataTreeAdapter = new PersistingDataTreeAdapter(delegatingDataTree, persister);
-        persistingDataTreeAdapter.commit(null);
+        final DataTreeSnapshot snapshot = mock(DataTreeSnapshot.class);
+        when(snapshot.readNode(any())).thenReturn(Optional.absent());
+        when(delegatingDataTree.takeSnapshot()).thenReturn(snapshot);
+        persistingDataTreeAdapter.commit(mock(DataTreeCandidate.class));
         verify(delegatingDataTree).takeSnapshot();
         verify(persister).persistCurrentData(any(Optional.class));
     }
