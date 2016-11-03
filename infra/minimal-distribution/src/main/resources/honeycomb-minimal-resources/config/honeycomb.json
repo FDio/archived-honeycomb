@@ -1,6 +1,8 @@
   {
+  "persist-context": "true",
   "persisted-context-path": "/var/lib/honeycomb/persist/context/data.json",
   "persisted-context-restoration-type": "Merge",
+  "persist-config": "true",
   "persisted-config-path": "/var/lib/honeycomb/persist/config/data.json",
   "persisted-config-restoration-type": "Merge",
 

@@ -55,10 +55,21 @@ public class HoneycombConfiguration {
         return isNetconfTcpEnabled() || isNetconfSshEnabled();
     }
 
+    public boolean isConfigPersistenceEnabled() {
+        return persistConfig.isPresent() && Boolean.valueOf(persistConfig.get());
+    }
+    public boolean isContextPersistenceEnabled() {
+        return persistContext.isPresent() && Boolean.valueOf(persistContext.get());
+    }
+
+    @InjectConfig("persist-context")
+    public Optional<String> persistContext = Optional.of("true");
     @InjectConfig("persisted-context-path")
     public String peristContextPath;
     @InjectConfig("persisted-context-restoration-type")
     public String persistedContextRestorationType;
+    @InjectConfig("persist-config")
+    public Optional<String> persistConfig = Optional.of("true");
     @InjectConfig("persisted-config-path")
     public String peristConfigPath;
     @InjectConfig("persisted-config-restoration-type")

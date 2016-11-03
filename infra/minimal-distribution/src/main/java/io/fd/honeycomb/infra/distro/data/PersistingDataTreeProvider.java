@@ -34,8 +34,10 @@ public abstract class PersistingDataTreeProvider extends ProviderTrait<DataTree>
     @Inject
     protected HoneycombConfiguration config;
 
-    public PersistingDataTreeAdapter create() {
-        return new PersistingDataTreeAdapter(getDelegate(), schemaService, Paths.get(getPath()));
+    public DataTree create() {
+        return isEnabled()
+                ? new PersistingDataTreeAdapter(getDelegate(), schemaService, Paths.get(getPath()))
+                : getDelegate();
     }
 
     public abstract String getPath();
@@ -43,6 +45,8 @@ public abstract class PersistingDataTreeProvider extends ProviderTrait<DataTree>
     public abstract TreeType getType();
 
     public abstract DataTree getDelegate();
+
+    protected abstract boolean isEnabled();
 
     public static final class ConfigPersistingDataTreeProvider extends PersistingDataTreeProvider {
 
@@ -60,6 +64,11 @@ public abstract class PersistingDataTreeProvider extends ProviderTrait<DataTree>
 
         public DataTree getDelegate() {
             return delegate;
+        }
+
+        @Override
+        protected boolean isEnabled() {
+            return config.isConfigPersistenceEnabled();
         }
     }
 
@@ -80,5 +89,11 @@ public abstract class PersistingDataTreeProvider extends ProviderTrait<DataTree>
         public DataTree getDelegate() {
             return delegate;
         }
+
+        @Override
+        protected boolean isEnabled() {
+            return config.isContextPersistenceEnabled();
+        }
+
     }
 }
