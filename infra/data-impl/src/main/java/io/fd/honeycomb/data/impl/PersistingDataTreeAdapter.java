@@ -24,6 +24,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.util.JsonUtils;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -109,11 +110,10 @@ public class PersistingDataTreeAdapter implements DataTree {
 
         void persistCurrentData(final Optional<NormalizedNode<?, ?>> currentRoot) {
             if (currentRoot.isPresent()) {
-                try {
+                try (OutputStream outputStream = Files.newOutputStream(path, StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING)) {
                     LOG.trace("Persisting current data: {} into: {}", currentRoot.get(), path);
-                    JsonUtils.writeJsonRoot(currentRoot.get(), schemaServiceDependency.getGlobalContext(),
-                            Files.newOutputStream(path, StandardOpenOption.CREATE,
-                                    StandardOpenOption.TRUNCATE_EXISTING));
+                    JsonUtils.writeJsonRoot(currentRoot.get(), schemaServiceDependency.getGlobalContext(), outputStream);
                     LOG.trace("Data persisted successfully in {}", path);
                 } catch (IOException e) {
                     throw new IllegalStateException("Unable to persist current data", e);
