@@ -33,6 +33,18 @@
     <module>test-model</module>
     <module>it-test</module>
   </modules>
+
+
+  <!-- Activate from command line with mvn <goals> -Pbenchmark -->
+  <profiles>
+    <profile>
+      <id>benchmark</id>
+      <modules>
+        <module>benchmark</module>
+      </modules>
+    </profile>
+  </profiles>
+
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
   <build>
     <plugins>

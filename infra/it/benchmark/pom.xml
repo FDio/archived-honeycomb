@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2016 Cisco and/or its affiliates.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at:
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <groupId>io.fd.honeycomb.common</groupId>
+        <artifactId>honeycomb-parent</artifactId>
+        <version>1.16.12-SNAPSHOT</version>
+        <relativePath>../../../common/honeycomb-parent</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.fd.honeycomb</groupId>
+    <artifactId>benchmark</artifactId>
+    <version>1.16.12-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <jmh.version>1.15</jmh.version>
+        <uberjar.name>benchmarks</uberjar.name>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>${jmh.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <version>${jmh.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>minimal-distribution</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.honeycomb.it</groupId>
+            <artifactId>honeycomb-test-model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <!-- Enable maven to replace properties in resource files -->
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>build-classpath</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>build-classpath</goal>
+                        </goals>
+                        <configuration>
+                            <outputProperty>depClasspath</outputProperty>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>benchmark</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.openjdk.jmh.Main</mainClass>
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>java.class.path</key>
+                                    <value>${project.build.outputDirectory}${path.separator}${depClasspath}</value>
+                                </systemProperty>
+                            </systemProperties>
+                            <arguments>
+                                <!-- Reference org.openjdk.jmh.runner.options.CommandLineOptions -->
+
+                                <!-- Fail on error -->
+                                <argument>-foe=true</argument>
+
+                                <!-- PROFILING -->
+                                <!--        cl: Classloader profiling via standard MBeans
+                                          comp: JIT compiler profiling via standard MBeans
+                                            gc: GC profiling via standard MBeans
+                                         hs_cl: HotSpot (tm) classloader profiling via implementation-specific MBeans
+                                       hs_comp: HotSpot (tm) JIT compiler profiling via implementation-specific MBeans
+                                         hs_gc: HotSpot (tm) memory manager (GC) profiling via implementation-specific MBeans
+                                         hs_rt: HotSpot (tm) runtime profiling via implementation-specific MBeans
+                                        hs_thr: HotSpot (tm) threading subsystem via implementation-specific MBeans
+                                        pauses: Pauses profiler
+                                         stack: Simple and naive Java stack profiler -->
+                                <!--<argument>-prof=gc</argument>-->
+
+                                <!-- REPORT -->
+                                <!-- formats = Available formats: text, csv, scsv, json, latex-->
+                                <argument>-rf=csv</argument>
+                                <argument>-rff=${project.build.directory}/benchmark.csv</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

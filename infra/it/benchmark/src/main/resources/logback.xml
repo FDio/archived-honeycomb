@@ -1,0 +1,26 @@
+ <configuration scan="true">
+
+  <appender name="honeycomb.log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${project.build.directory}/logs/honeycomb.log</file>
+
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${project.build.directory}/logs/honeycomb.%d.log.zip</fileNamePattern>
+      <maxHistory>1</maxHistory>
+    </rollingPolicy>
+
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <maxFileSize>1MB</maxFileSize>
+    </triggeringPolicy>
+
+    <encoder>
+      <pattern>%date{"yyyy-MM-dd HH:mm:ss.SSS z"} [%thread] %-5level %logger{35} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="warn">
+    <appender-ref ref="honeycomb.log" />
+  </root>
+
+  <logger name="org.opendaylight" level="INFO"/>
+  <logger name="io.fd" level="INFO"/>
+</configuration>
