@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Manager responsible for returning Data object dumps<br> either from cache or by invoking specified {@link
  * EntityDumpExecutor}
+ *
+ * @param <T> Type of data returned by {@code EntityDumpExecutor},and stored cache
+ * @param <U> Type of dumping params
  */
 public final class DumpCacheManager<T, U> {
 
@@ -37,27 +40,29 @@ public final class DumpCacheManager<T, U> {
 
     private final EntityDumpExecutor<T, U> dumpExecutor;
     private final EntityDumpPostProcessingFunction<T> postProcessor;
+    private final CacheKeyFactory cacheKeyFactory;
 
     private DumpCacheManager(DumpCacheManagerBuilder<T, U> builder) {
         this.dumpExecutor = builder.dumpExecutor;
         this.postProcessor = builder.postProcessingFunction;
+        this.cacheKeyFactory = builder.cacheKeyFactory;
     }
 
     /**
      * Returns {@link Optional<T>} of dump
      *
      * @param identifier identifier for origin of dumping context
-     * @param entityKey  key that defines scope for caching
      * @param cache      modification cache of current transaction
      * @param dumpParams parameters to configure dump request
      * @throws ReadFailedException if execution of dumping request failed
-     * @returns If present in cache ,returns cached instance, if not, tries to dump data using provided executor, otherwise
-     * Optional.absent()
+     * @returns If present in cache ,returns cached instance, if not, tries to dump data using provided executor,
+     * otherwise Optional.absent()
      */
-    public Optional<T> getDump(@Nonnull final InstanceIdentifier<?> identifier, @Nonnull String entityKey,
-                               @Nonnull ModificationCache cache, final U dumpParams)
+    public Optional<T> getDump(@Nonnull final InstanceIdentifier<?> identifier,
+                               @Nonnull final ModificationCache cache, final U dumpParams)
             throws ReadFailedException {
 
+        final String entityKey = this.cacheKeyFactory.createKey(identifier);
         // this key binding to every log has its logic ,because every customizer have its own cache manager and if
         // there is need for debugging/fixing some complex call with a lot of data,you can get lost in those logs
         LOG.debug("Loading dump for KEY[{}]", entityKey);
@@ -81,29 +86,42 @@ public final class DumpCacheManager<T, U> {
 
     public static final class DumpCacheManagerBuilder<T, U> {
 
+        private static final CacheKeyFactory DEFAULT_CACHE_KEY_FACTORY_INSTANCE = new IdentifierCacheKeyFactory();
+
         private EntityDumpExecutor<T, U> dumpExecutor;
         private EntityDumpPostProcessingFunction<T> postProcessingFunction;
+        private CacheKeyFactory cacheKeyFactory;
 
         public DumpCacheManagerBuilder() {
             // for cases when user does not set specific post-processor
             postProcessingFunction = new NoopDumpPostProcessingFunction<T>();
+
+            //use no additional scopes version by default
+            cacheKeyFactory = DEFAULT_CACHE_KEY_FACTORY_INSTANCE;
         }
 
-        public DumpCacheManagerBuilder<T, U> withExecutor(@Nonnull EntityDumpExecutor<T, U> executor) {
+        public DumpCacheManagerBuilder<T, U> withExecutor(@Nonnull final EntityDumpExecutor<T, U> executor) {
             this.dumpExecutor = executor;
             return this;
         }
 
         public DumpCacheManagerBuilder<T, U> withPostProcessingFunction(
-                EntityDumpPostProcessingFunction<T> postProcessingFunction) {
+                @Nonnull final EntityDumpPostProcessingFunction<T> postProcessingFunction) {
             this.postProcessingFunction = postProcessingFunction;
+            return this;
+        }
+
+        public DumpCacheManagerBuilder<T, U> withCacheKeyFactory(@Nonnull final CacheKeyFactory cacheKeyFactory) {
+            this.cacheKeyFactory = cacheKeyFactory;
             return this;
         }
 
         public DumpCacheManager<T, U> build() {
             checkNotNull(dumpExecutor, "Dump executor cannot be null");
             checkNotNull(postProcessingFunction,
-                    "Dump post-processor cannot be null cannot be null, default implementation is used if its not set");
+                    "Dump post-processor cannot be null cannot be null, default implementation is used when not set explicitly");
+            checkNotNull(cacheKeyFactory,
+                    "Cache key factory cannot be null, default non-extended implementation is used when not set explicitly");
 
             return new DumpCacheManager<>(this);
         }
