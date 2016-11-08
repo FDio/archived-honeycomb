@@ -55,6 +55,11 @@ public final class StaticReader<T extends DataObject, B extends Builder<T>> impl
                 '}';
     }
 
+    @Override
+    public boolean isPresent(final InstanceIdentifier<T> id, final T built, final ReadContext ctx) {
+        return true;
+    }
+
     @Nonnull
     @Override
     public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id,

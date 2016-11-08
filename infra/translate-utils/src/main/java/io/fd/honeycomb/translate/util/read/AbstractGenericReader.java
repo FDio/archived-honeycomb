@@ -56,18 +56,15 @@ public abstract class AbstractGenericReader<D extends DataObject, B extends Buil
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
         LOG.debug("{}: Reading current: {}", this, id);
         final B builder = getBuilder(id);
-        // The empty value could be cached, but no caching is safer since we call overridden getBuilder each time
-        // and the build could produce something different (even if it shouldn't)
-        final D emptyValue = builder.build();
 
         LOG.trace("{}: Reading current attributes", this);
         readCurrentAttributes(id, builder, ctx);
 
         // Need to check whether anything was filled in to determine if data is present or not.
         final D built = builder.build();
-        final Optional<D> read = built.equals(emptyValue)
-            ? Optional.absent()
-            : Optional.of(built);
+        final Optional<D> read = isPresent(id, built, ctx)
+            ? Optional.of(built)
+            : Optional.absent();
 
         LOG.debug("{}: Current node read successfully. Result: {}", this, read);
         return read;

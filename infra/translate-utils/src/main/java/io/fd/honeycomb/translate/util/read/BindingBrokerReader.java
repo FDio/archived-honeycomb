@@ -50,6 +50,11 @@ public final class BindingBrokerReader<D extends DataObject, B extends Builder<D
         this.datastoreType = datastoreType;
     }
 
+    @Override
+    public boolean isPresent(final InstanceIdentifier<D> id, final D built, final ReadContext ctx) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
     @Nonnull
     @Override
     public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id,

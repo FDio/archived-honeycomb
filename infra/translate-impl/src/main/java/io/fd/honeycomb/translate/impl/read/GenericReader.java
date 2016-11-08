@@ -22,6 +22,7 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.AbstractGenericReader;
+import io.fd.honeycomb.translate.util.read.ReflexiveReaderCustomizer;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.yangtools.concepts.Builder;
@@ -73,4 +74,14 @@ public class GenericReader<C extends DataObject, B extends Builder<C>>
         customizer.merge(parentBuilder, readValue);
     }
 
+    @Override
+    public boolean isPresent(final InstanceIdentifier<C> id, final C built, final ReadContext ctx)
+            throws ReadFailedException {
+        return customizer.isPresent(id, built, ctx);
+    }
+
+    public static <C extends DataObject, B extends Builder<C>> Reader<C, B> createReflexive(
+            final InstanceIdentifier<C> id, Class<B> builderClass) {
+        return new GenericReader<>(id, new ReflexiveReaderCustomizer<>(id.getTargetType(), builderClass));
+    }
 }

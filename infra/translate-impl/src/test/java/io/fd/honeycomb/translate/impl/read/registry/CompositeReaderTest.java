@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.util.read.registry;
+package io.fd.honeycomb.translate.impl.read.registry;
 
 import static io.fd.honeycomb.translate.util.DataObjects.DataObject4;
 import static io.fd.honeycomb.translate.util.DataObjects.DataObject4.DataObject41;
 import static io.fd.honeycomb.translate.util.DataObjects.DataObjectK;
 import static io.fd.honeycomb.translate.util.DataObjects.DataObjectKey;
-import static io.fd.honeycomb.translate.util.read.registry.CompositeReaderRegistryTest.mockReader;
+import static io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryTest.mockReader;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;

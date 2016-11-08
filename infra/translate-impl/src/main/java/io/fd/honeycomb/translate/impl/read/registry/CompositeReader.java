@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.util.read.registry;
+package io.fd.honeycomb.translate.impl.read.registry;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -31,6 +31,7 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.AbstractGenericReader;
+import io.fd.honeycomb.translate.util.read.DelegatingReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,7 +47,7 @@ import org.slf4j.LoggerFactory;
 
 class CompositeReader<D extends DataObject, B extends Builder<D>>
         extends AbstractGenericReader<D, B>
-        implements Initializer<D> {
+        implements Initializer<D>, DelegatingReader<D, B> {
 
     private static final Logger LOG = LoggerFactory.getLogger(CompositeReader.class);
 
@@ -131,22 +132,16 @@ class CompositeReader<D extends DataObject, B extends Builder<D>>
     }
 
     @Override
+    public Reader<D, B> getDelegate() {
+        return delegate;
+    }
+
+    @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final B builder,
                                       @Nonnull final ReadContext ctx)
             throws ReadFailedException {
         delegate.readCurrentAttributes(id, builder, ctx);
         readChildren(id, ctx, builder);
-    }
-
-    @Nonnull
-    @Override
-    public B getBuilder(final InstanceIdentifier<D> id) {
-        return delegate.getBuilder(id);
-    }
-
-    @Override
-    public void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final D readValue) {
-        delegate.merge(parentBuilder, readValue);
     }
 
     /**
@@ -181,7 +176,7 @@ class CompositeReader<D extends DataObject, B extends Builder<D>>
 
     private static class CompositeListReader<D extends DataObject & Identifiable<K>, B extends Builder<D>, K extends Identifier<D>>
             extends CompositeReader<D, B>
-            implements InitListReader<D, K, B> {
+            implements DelegatingListReader<D, K, B>, InitListReader<D, K, B> {
 
         private final ListReader<D, K, B> delegate;
 
@@ -189,6 +184,10 @@ class CompositeReader<D extends DataObject, B extends Builder<D>>
                                     final ImmutableMap<Class<?>, Reader<? extends DataObject, ? extends Builder<?>>> childReaders) {
             super(reader, childReaders);
             this.delegate = reader;
+        }
+
+        public ListReader<D, K, B> getDelegate() {
+            return delegate;
         }
 
         @Nonnull
@@ -225,17 +224,6 @@ class CompositeReader<D extends DataObject, B extends Builder<D>>
             } catch (ReadFailedException e) {
                 throw new InitFailedException(id, e);
             }
-        }
-
-        @Override
-        public void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<D> readData) {
-            delegate.merge(builder, readData);
-        }
-
-        @Override
-        public List<K> getAllIds(@Nonnull final InstanceIdentifier<D> id,
-                                 @Nonnull final ReadContext ctx) throws ReadFailedException {
-            return delegate.getAllIds(id, ctx);
         }
     }
 }

@@ -35,6 +35,21 @@ public interface Reader<D extends DataObject, B extends Builder<D>> extends Subt
     // TODO HONEYCOMB-169 make async
 
     /**
+     * Check whether the data from current reader are present or not.
+     * Invoked after {@link #readCurrentAttributes(InstanceIdentifier, Builder, ReadContext)}
+     *
+     * @param id Keyed instance identifier of read data
+     * @param built Read data as returned from builder
+     *              after {@link #readCurrentAttributes(InstanceIdentifier, Builder, ReadContext)} invocation
+     * @param ctx Read context
+     *
+     *
+     * @return true if the result value is present.
+     */
+    boolean isPresent(@Nonnull InstanceIdentifier<D> id, @Nonnull D built, @Nonnull ReadContext ctx)
+            throws ReadFailedException;
+
+    /**
      * Reads data identified by id
      *
      * @param id unique identifier of subtree to be read. The subtree must contain managed data object type. For

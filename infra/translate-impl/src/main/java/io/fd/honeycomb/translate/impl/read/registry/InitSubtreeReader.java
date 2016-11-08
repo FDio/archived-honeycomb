@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.util.read.registry;
+package io.fd.honeycomb.translate.impl.read.registry;
 
 import io.fd.honeycomb.translate.read.InitFailedException;
 import io.fd.honeycomb.translate.read.InitListReader;

@@ -25,7 +25,6 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.honeycomb.translate.util.read.AbstractGenericReader;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -48,11 +47,9 @@ import org.slf4j.LoggerFactory;
 @Beta
 @ThreadSafe
 public class GenericListReader<C extends DataObject & Identifiable<K>, K extends Identifier<C>, B extends Builder<C>>
-        extends AbstractGenericReader<C, B> implements ListReader<C, K, B> {
+        extends GenericReader<C, B> implements ListReader<C, K, B> {
 
     private static final Logger LOG = LoggerFactory.getLogger(GenericListReader.class);
-
-    protected final ListReaderCustomizer<C, K, B> customizer;
 
     /**
      * Create new {@link GenericListReader}
@@ -62,8 +59,7 @@ public class GenericListReader<C extends DataObject & Identifiable<K>, K extends
      */
     public GenericListReader(@Nonnull final InstanceIdentifier<C> managedDataObjectType,
                              @Nonnull final ListReaderCustomizer<C, K, B> customizer) {
-        super(managedDataObjectType);
-        this.customizer = customizer;
+        super(managedDataObjectType, customizer);
     }
 
     @Override
@@ -92,31 +88,13 @@ public class GenericListReader<C extends DataObject & Identifiable<K>, K extends
     public List<K> getAllIds(@Nonnull final InstanceIdentifier<C> id, @Nonnull final ReadContext ctx)
             throws ReadFailedException {
         LOG.trace("{}: Getting all list ids", this);
-        final List<K> allIds = customizer.getAllIds(id, ctx);
+        final List<K> allIds = ((ListReaderCustomizer<C, K, B>) customizer).getAllIds(id, ctx);
         LOG.debug("{}: All list ids: {}", this, allIds);
         return allIds;
     }
 
     @Override
     public void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<C> readData) {
-        customizer.merge(builder, readData);
+        ((ListReaderCustomizer<C, K, B>) customizer).merge(builder, readData);
     }
-
-    @Override
-    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder,
-                                      @Nonnull final ReadContext ctx)
-            throws ReadFailedException {
-        try {
-            customizer.readCurrentAttributes(id, builder, ctx);
-        } catch (RuntimeException e) {
-            throw new ReadFailedException(id, e);
-        }
-    }
-
-    @Nonnull
-    @Override
-    public B getBuilder(@Nonnull final InstanceIdentifier<C> id) {
-        return customizer.getBuilder(id);
-    }
-
 }

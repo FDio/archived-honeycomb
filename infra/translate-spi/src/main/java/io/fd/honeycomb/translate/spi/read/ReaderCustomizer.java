@@ -57,4 +57,19 @@ public interface ReaderCustomizer<O extends DataObject, B extends Builder<O>> {
     void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final O readValue);
 
 
+    /**
+     * Check whether the resulting value should be added to the results or ignored.
+     * Invoked after {@link #readCurrentAttributes(InstanceIdentifier, Builder, ReadContext)}
+     *
+     * @param id Keyed instance identifier of read data
+     * @param built Read data as returned from builder
+     *              after {@link #readCurrentAttributes(InstanceIdentifier, Builder, ReadContext)} invocation
+     * @param ctx Read context
+     *
+     * @return true if value is present (even if empty)
+     */
+    default boolean isPresent(final InstanceIdentifier<O> id, final O built, final ReadContext ctx) throws ReadFailedException {
+        // Default impl = check whether read value is empty
+        return !built.equals(getBuilder(id).build());
+    }
 }

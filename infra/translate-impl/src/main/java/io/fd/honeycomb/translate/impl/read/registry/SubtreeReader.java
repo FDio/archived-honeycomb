@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.util.read.registry;
+package io.fd.honeycomb.translate.impl.read.registry;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -26,6 +26,7 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.ReflectionUtils;
+import io.fd.honeycomb.translate.util.read.DelegatingReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -45,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * Simple Reader delegate for subtree Readers (Readers handling also children nodes) providing a list of all the
  * children nodes being handled.
  */
-class SubtreeReader<D extends DataObject, B extends Builder<D>> implements Reader<D, B> {
+class SubtreeReader<D extends DataObject, B extends Builder<D>> implements DelegatingReader<D, B> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubtreeReader.class);
 
@@ -103,21 +104,8 @@ class SubtreeReader<D extends DataObject, B extends Builder<D>> implements Reade
     }
 
     @Override
-    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final B builder,
-                                      @Nonnull final ReadContext ctx)
-            throws ReadFailedException {
-        delegate.readCurrentAttributes(id, builder, ctx);
-    }
-
-    @Nonnull
-    @Override
-    public B getBuilder(final InstanceIdentifier<D> id) {
-        return delegate.getBuilder(id);
-    }
-
-    @Override
-    public void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final D readValue) {
-        delegate.merge(parentBuilder, readValue);
+    public Reader<D, B> getDelegate() {
+        return delegate;
     }
 
     @Nonnull
@@ -209,7 +197,7 @@ class SubtreeReader<D extends DataObject, B extends Builder<D>> implements Reade
     }
 
     static class SubtreeListReader<D extends DataObject & Identifiable<K>, B extends Builder<D>, K extends Identifier<D>>
-            extends SubtreeReader<D, B> implements ListReader<D, K, B> {
+            extends SubtreeReader<D, B> implements DelegatingListReader<D, K, B>, ListReader<D, K, B> {
 
         final ListReader<D, K, B> delegate;
 
@@ -219,22 +207,9 @@ class SubtreeReader<D extends DataObject, B extends Builder<D>> implements Reade
             this.delegate = delegate;
         }
 
-        @Nonnull
         @Override
-        public List<D> readList(@Nonnull final InstanceIdentifier<D> id, @Nonnull final ReadContext ctx)
-                throws ReadFailedException {
-            return delegate.readList(id, ctx);
-        }
-
-        @Override
-        public void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<D> readData) {
-            delegate.merge(builder, readData);
-        }
-
-        @Override
-        public List<K> getAllIds(@Nonnull final InstanceIdentifier<D> id,
-                                 @Nonnull final ReadContext ctx) throws ReadFailedException {
-            return delegate.getAllIds(id, ctx);
+        public ListReader<D, K, B> getDelegate() {
+            return delegate;
         }
     }
 

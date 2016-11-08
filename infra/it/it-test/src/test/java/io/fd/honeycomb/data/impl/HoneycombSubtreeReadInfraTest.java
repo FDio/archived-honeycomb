@@ -32,7 +32,7 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import io.fd.honeycomb.translate.util.read.ReflexiveListReaderCustomizer;
-import io.fd.honeycomb.translate.util.read.registry.CompositeReaderRegistryBuilder;
+import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;

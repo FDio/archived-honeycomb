@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.util.read.registry;
+package io.fd.honeycomb.translate.impl.read.registry;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -31,6 +31,7 @@ import io.fd.honeycomb.translate.util.DataObjects;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
@@ -49,7 +50,7 @@ public class SubtreeReaderTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        doReturn(DataObjects.DataObject4.IID).when(delegate).getManagedDataObjectType();
+        Mockito.doReturn(DataObjects.DataObject4.IID).when(delegate).getManagedDataObjectType();
         doReturn(DataObject1.IID).when(delegateLocal).getManagedDataObjectType();
     }
 

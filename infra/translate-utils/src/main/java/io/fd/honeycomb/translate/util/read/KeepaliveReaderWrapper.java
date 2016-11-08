@@ -18,11 +18,10 @@ package io.fd.honeycomb.translate.util.read;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
-import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.read.ReadContext;
+import io.fd.honeycomb.translate.read.Reader;
 import java.io.Closeable;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -40,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * In case a specific error occurs, Keep-alive failure listener gets notified.
  */
 public final class KeepaliveReaderWrapper<D extends DataObject, B extends Builder<D>>
-        implements Reader<D, B>, Runnable, Closeable {
+        implements DelegatingReader<D, B>,Runnable, Closeable {
 
     private static final Logger LOG = LoggerFactory.getLogger(KeepaliveReaderWrapper.class);
 
@@ -73,34 +72,6 @@ public final class KeepaliveReaderWrapper<D extends DataObject, B extends Builde
         scheduledFuture = executor.scheduleWithFixedDelay(this, delayInSeconds, delayInSeconds, TimeUnit.SECONDS);
     }
 
-    @Nonnull
-    public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier id,
-                                               @Nonnull final ReadContext ctx) throws ReadFailedException {
-        return delegate.read(id, ctx);
-    }
-
-    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
-                                      @Nonnull final B builder,
-                                      @Nonnull final ReadContext ctx) throws ReadFailedException {
-        delegate.readCurrentAttributes(id, builder, ctx);
-    }
-
-    @Nonnull
-    public B getBuilder(final InstanceIdentifier<D> id) {
-        return delegate.getBuilder(id);
-    }
-
-    public void merge(@Nonnull final Builder<? extends DataObject> parentBuilder,
-                      @Nonnull final D readValue) {
-        delegate.merge(parentBuilder, readValue);
-    }
-
-    @Nonnull
-    @Override
-    public InstanceIdentifier<D> getManagedDataObjectType() {
-        return delegate.getManagedDataObjectType();
-    }
-
     @Override
     public void run() {
         LOG.trace("Invoking keepalive");
@@ -121,6 +92,11 @@ public final class KeepaliveReaderWrapper<D extends DataObject, B extends Builde
     public void close() {
         // Do not interrupt, it's not our executor
         scheduledFuture.cancel(false);
+    }
+
+    @Override
+    public Reader<D, B> getDelegate() {
+        return delegate;
     }
 
     /**

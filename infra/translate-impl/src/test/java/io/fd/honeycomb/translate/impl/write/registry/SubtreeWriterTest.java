@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.util.write.registry;
+package io.fd.honeycomb.translate.impl.write.registry;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.assertEquals;
@@ -25,6 +25,7 @@ import com.google.common.collect.Sets;
 import io.fd.honeycomb.translate.util.DataObjects;
 import io.fd.honeycomb.translate.write.Writer;
 import java.util.Collections;
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -78,7 +79,7 @@ public class SubtreeWriterTest {
 
         assertEquals(writer.getManagedDataObjectType(), forWriter.getManagedDataObjectType());
         assertEquals(1, forWriter.getHandledChildTypes().size());
-        assertThat(forWriter.getHandledChildTypes(), hasItem(DataObjects.DataObject4.DataObject41.DataObject411.IID));
+        assertThat(forWriter.getHandledChildTypes(), CoreMatchers.hasItem(DataObjects.DataObject4.DataObject41.DataObject411.IID));
     }
 
 }

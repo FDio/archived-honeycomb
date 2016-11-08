@@ -18,7 +18,7 @@ package io.fd.honeycomb.infra.distro.data.config;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
-import io.fd.honeycomb.translate.util.write.registry.FlatWriterRegistryBuilder;
+import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import java.util.HashSet;

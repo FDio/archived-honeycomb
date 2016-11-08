@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.util.read.registry;
+package io.fd.honeycomb.translate.impl.read.registry;
 
 import com.google.common.collect.ImmutableMap;
+import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.read.InitReader;
 import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistryBuilder;
 import io.fd.honeycomb.translate.util.AbstractSubtreeManagerRegistryBuilderBuilder;
-import io.fd.honeycomb.translate.util.read.ReflexiveReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -54,10 +54,8 @@ public final class CompositeReaderRegistryBuilder
     @Override
     public <D extends DataObject> void addStructuralReader(@Nonnull InstanceIdentifier<D> id,
                                                            @Nonnull Class<? extends Builder<D>> builderType) {
-        add(new ReflexiveReader<>(id, builderType));
+        add(GenericReader.createReflexive(id, builderType));
     }
-
-
 
     /**
      * Create {@link CompositeReaderRegistry} with Readers ordered according to submitted relationships.

@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -78,7 +77,7 @@ public class GenericListReaderTest {
     @Test
     public void testMerge() throws Exception {
         reader.merge(builder, data);
-        verify(customizer).merge(builder, Collections.singletonList(data));
+        verify(customizer).merge(builder, data);
     }
 
     @Test

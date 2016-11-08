@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.util.write.registry;
+package io.fd.honeycomb.translate.impl.write.registry;
 
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -40,6 +39,7 @@ import io.fd.honeycomb.translate.write.registry.WriterRegistry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -171,7 +171,7 @@ public class FlatWriterRegistryBuilderTest {
                 mockWriter(DataObjects.DataObject4.class));
         assertThat(forWriter, instanceOf(SubtreeWriter.class));
         assertThat(((SubtreeWriter<?>) forWriter).getHandledChildTypes().size(), is(3));
-        assertThat(((SubtreeWriter<?>) forWriter).getHandledChildTypes(), hasItems(DataObjects.DataObject4.DataObject41.IID,
+        assertThat(((SubtreeWriter<?>) forWriter).getHandledChildTypes(), CoreMatchers.hasItems(DataObjects.DataObject4.DataObject41.IID,
                 DataObjects.DataObject4.DataObject42.IID, DataObjects.DataObject4.DataObject41.DataObject411.IID));
     }
 

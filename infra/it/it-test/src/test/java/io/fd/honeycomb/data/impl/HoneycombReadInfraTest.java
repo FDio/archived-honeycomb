@@ -24,6 +24,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
@@ -36,6 +37,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.CheckedFuture;
 import io.fd.honeycomb.translate.impl.read.GenericListReader;
+import io.fd.honeycomb.translate.impl.read.GenericReader;
+import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.translate.read.ListReader;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
@@ -43,8 +46,7 @@ import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.ReflexiveListReaderCustomizer;
-import io.fd.honeycomb.translate.util.read.ReflexiveReader;
-import io.fd.honeycomb.translate.util.read.registry.CompositeReaderRegistryBuilder;
+import io.fd.honeycomb.translate.util.read.ReflexiveReaderCustomizer;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -185,8 +187,11 @@ public class HoneycombReadInfraTest extends AbstractInfraTest {
         }
     }
 
-    private <D extends DataObject, B extends Builder<D>> void verifyNoMoreReadInteractions(final Reader<D, B> reader) {
+    private <D extends DataObject, B extends Builder<D>> void verifyNoMoreReadInteractions(final Reader<D, B> reader)
+            throws ReadFailedException {
         verify(reader, atLeastOnce()).getManagedDataObjectType();
+        // Just mark all the isPresent calls as verified
+        verify(reader, atMost(100)).isPresent(any(InstanceIdentifier.class), any(), any());
         verifyNoMoreInteractions(reader);
     }
 
@@ -254,7 +259,8 @@ public class HoneycombReadInfraTest extends AbstractInfraTest {
     static <D extends DataObject, B extends Builder<D>> Reader<D, B> mockReader(InstanceIdentifier<D> id,
                                                                                  CurrentAttributesReader<D, B> currentAttributesReader,
                                                                                  Class<B> builderClass) {
-        final ReflexiveReader<D, B> reflex = new ReflexiveReader<D, B>(id, builderClass) {
+        final Reader<D, B> reflex = new GenericReader<D, B>(id,
+                new ReflexiveReaderCustomizer<>(id.getTargetType(), builderClass)) {
 
             @Override
             public void readCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
@@ -270,6 +276,7 @@ public class HoneycombReadInfraTest extends AbstractInfraTest {
         final Reader<D, B> mock = mock(Reader.class);
         try {
             doAnswer(i -> reflexiveAnswer(reflex, i)).when(mock).read(any(InstanceIdentifier.class), any(ReadContext.class));
+            doAnswer(i -> reflexiveAnswer(reflex, i)).when(mock).isPresent(any(InstanceIdentifier.class), any(), any());
             doAnswer(i -> reflexiveAnswer(reflex, i)).when(mock)
                     .readCurrentAttributes(any(InstanceIdentifier.class), any(builderClass), any(ReadContext.class));
             doAnswer(i -> reflexiveAnswer(reflex, i)).when(mock).merge(any(Builder.class), any(id.getTargetType()));
@@ -311,6 +318,7 @@ public class HoneycombReadInfraTest extends AbstractInfraTest {
             // not using eq(id) instead using any(InstanceIdentifier.class) due to InstanceIdentifier.equals weird behavior
             // with wildcarded instance identifiers for lists
             doAnswer(i -> reflexiveAnswer(reflex, i)).when(mock).read(any(InstanceIdentifier.class), any(ReadContext.class));
+            doAnswer(i -> reflexiveAnswer(reflex, i)).when(mock).isPresent(any(InstanceIdentifier.class), any(), any());
             doAnswer(i -> reflexiveAnswer(reflex, i)).when(mock)
                     .readCurrentAttributes(any(InstanceIdentifier.class), any(builderClass), any(ReadContext.class));
             doAnswer(i -> reflexiveAnswer(reflex, i)).when(mock).merge(any(Builder.class), any(id.getTargetType()));

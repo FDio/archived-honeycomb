@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
-import io.fd.honeycomb.translate.util.read.registry.CompositeReaderRegistryBuilder;
+import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import java.util.HashSet;
 import java.util.Set;
 

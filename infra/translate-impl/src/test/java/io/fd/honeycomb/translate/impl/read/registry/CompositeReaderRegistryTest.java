@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.util.read.registry;
+package io.fd.honeycomb.translate.impl.read.registry;
 
 import static io.fd.honeycomb.translate.util.DataObjects.DataObject3;
 import static io.fd.honeycomb.translate.util.DataObjects.DataObject3.DataObject31;
 import static io.fd.honeycomb.translate.util.DataObjects.DataObject4;
 import static io.fd.honeycomb.translate.util.DataObjects.DataObject4.DataObject41;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,6 +37,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -57,16 +58,27 @@ public class CompositeReaderRegistryTest {
         MockitoAnnotations.initMocks(this);
 
         reader31 = mockReader(DataObject31.class);
+        final Reader<DataObject3, Builder<DataObject3>> mockedReader3 = mockReader(DataObject3.class);
         rootReader3 =
-                spy(CompositeReader.createForReader(
-                        mockReader(DataObject3.class),
+                Mockito.spy(CompositeReader.createForReader(
+                        mockedReader3,
                         ImmutableMap.of(DataObject31.class, reader31)));
+        // This is a workaround. This functionality is already present in CompositeReader, however when wrapping as spy
+        // null is always returned. That's why we need to explicitly stub the method with its actual implementation.
+        // The problem is that the method is inherited as default method from an interface and mockito's spy seems to
+        // have a problem there
+        doReturn(mockedReader3.getBuilder(InstanceIdentifier.create(DataObject3.class)))
+                .when(rootReader3).getBuilder(any(InstanceIdentifier.class));
 
         reader41 = mockReader(DataObject41.class);
+        final Reader<DataObject4, Builder<DataObject4>> mockedReader4 = mockReader(DataObject4.class);
         rootReader4 =
-                spy(CompositeReader.createForReader(
-                        mockReader(DataObject4.class), ImmutableMap.of(
+                Mockito.spy(CompositeReader.createForReader(
+                        mockedReader4, ImmutableMap.of(
                                 DataObject41.class, reader41)));
+        // Workaround
+        doReturn(mockedReader4.getBuilder(InstanceIdentifier.create(DataObject4.class)))
+                .when(rootReader4).getBuilder(any(InstanceIdentifier.class));
 
         reg = new CompositeReaderRegistry(Lists.newArrayList(rootReader3, rootReader4));
     }
