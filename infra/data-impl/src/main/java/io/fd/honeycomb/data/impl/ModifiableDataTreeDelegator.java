@@ -146,13 +146,14 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
                     LOG.info("Changes successfully reverted");
                 } catch (WriterRegistry.Reverter.RevertFailedException revertFailedException) {
                     // fail with failed revert
-                    LOG.error("Failed to revert successful changes", revertFailedException);
+                    LOG.error("Failed to revert successful(comitted) changes, failure occurred for: {}. State might be corrupted.",
+                            revertFailedException.getFailedUpdate(), revertFailedException);
                     throw revertFailedException;
                 }
                 // fail with success revert
                 // not passing the cause,its logged above and it would be logged after transaction
                 // ended again(prevent double logging of same error
-                throw new WriterRegistry.Reverter.RevertSuccessException(e.getFailedIds());
+                throw new WriterRegistry.Reverter.RevertSuccessException(e.getUnrevertedSubtrees());
             } catch (TransactionCommitFailedException e) {
                 // TODO HONEYCOMB-162 revert should probably occur when context is not written successfully
                 final String msg = "Error while updating mapping context data";

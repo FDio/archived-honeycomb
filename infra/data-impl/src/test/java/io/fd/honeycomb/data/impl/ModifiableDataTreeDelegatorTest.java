@@ -82,6 +82,7 @@ public class ModifiableDataTreeDelegatorTest {
     private ArgumentCaptor<WriteContext> writeContextCaptor;
 
     private ModifiableDataTreeManager configDataTree;
+    private final DataObjectUpdate update = DataObjectUpdate.create(DEFAULT_ID, null, DEFAULT_DATA_OBJECT);
 
     static final InstanceIdentifier<?> DEFAULT_ID = InstanceIdentifier.create(DataObject.class);
     static DataObject DEFAULT_DATA_OBJECT = mockDataObject("serialized", DataObject.class);
@@ -145,7 +146,7 @@ public class ModifiableDataTreeDelegatorTest {
         // Fail on update:
         final WriterRegistry.Reverter reverter = mock(WriterRegistry.Reverter.class);
         final TranslationException failedOnUpdateException = new TranslationException("update failed");
-        doThrow(new WriterRegistry.BulkUpdateException(Collections.singleton(DEFAULT_ID), reverter, failedOnUpdateException))
+        doThrow(new WriterRegistry.BulkUpdateException(DEFAULT_ID, update, Collections.singleton(DEFAULT_ID), reverter, failedOnUpdateException))
                 .when(writer).update(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
 
         try {
@@ -169,12 +170,13 @@ public class ModifiableDataTreeDelegatorTest {
         // Fail on update:
         final WriterRegistry.Reverter reverter = mock(WriterRegistry.Reverter.class);
         final TranslationException failedOnUpdateException = new TranslationException("update failed");
-        doThrow(new WriterRegistry.BulkUpdateException(Collections.singleton(DEFAULT_ID), reverter, failedOnUpdateException))
-                .when(writer).update(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
+        final WriterRegistry.BulkUpdateException bulkFailEx =
+                new WriterRegistry.BulkUpdateException(DEFAULT_ID, update, Collections.singleton(DEFAULT_ID), reverter,
+                        failedOnUpdateException);
+        doThrow(bulkFailEx).when(writer).update(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
 
         // Fail on revert:
-        final TranslationException failedOnRevertException = new TranslationException("revert failed");
-        doThrow(new WriterRegistry.Reverter.RevertFailedException(Collections.emptySet(), failedOnRevertException))
+        doThrow(new WriterRegistry.Reverter.RevertFailedException(bulkFailEx))
                 .when(reverter).revert(any(WriteContext.class));
 
         try {
@@ -187,7 +189,7 @@ public class ModifiableDataTreeDelegatorTest {
         } catch (WriterRegistry.Reverter.RevertFailedException e) {
             verify(writer).update(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
             verify(reverter).revert(any(WriteContext.class));
-            assertEquals(failedOnRevertException, e.getCause());
+            assertEquals(bulkFailEx, e.getCause());
         }
     }
 

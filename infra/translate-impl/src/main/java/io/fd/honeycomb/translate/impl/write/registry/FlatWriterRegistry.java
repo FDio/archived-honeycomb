@@ -224,7 +224,7 @@ final class FlatWriterRegistry implements WriterRegistry {
                             .map(DataObjectUpdate::getId)
                             .filter(id -> !processedNodes.contains(id))
                             .collect(Collectors.toSet());
-                    throw new BulkUpdateException(unprocessedChanges, reverter, e);
+                    throw new BulkUpdateException(writerType, singleUpdate, unprocessedChanges, reverter, e);
                 }
             }
         }
@@ -286,7 +286,7 @@ final class FlatWriterRegistry implements WriterRegistry {
                 LOG.info("Revert successful");
             } catch (BulkUpdateException e) {
                 LOG.error("Revert failed", e);
-                throw new RevertFailedException(e.getFailedIds(), e);
+                throw new RevertFailedException(e);
             }
         }
 

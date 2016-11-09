@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.Sets;
+import io.fd.honeycomb.translate.write.DataObjectUpdate;
 import io.fd.honeycomb.translate.write.WriteContext;
 import java.util.HashSet;
 import org.junit.Before;
@@ -35,9 +36,12 @@ public class BulkUpdateExceptionTest {
 
     @Mock
     private WriteContext writeContext;
-
     @Mock
     private WriterRegistry.Reverter reverter;
+    @Mock
+    private DataObject before;
+    @Mock
+    private DataObject after;
 
     @Before
     public void setUp() throws Exception {
@@ -48,9 +52,10 @@ public class BulkUpdateExceptionTest {
     public void testRevert() throws Exception {
         final HashSet<InstanceIdentifier<?>> failedIds = Sets.newHashSet(id);
         final WriterRegistry.BulkUpdateException bulkUpdateException =
-                new WriterRegistry.BulkUpdateException(failedIds, reverter, new RuntimeException());
+                new WriterRegistry.BulkUpdateException(id, DataObjectUpdate.create(id, before, after),
+                        failedIds, reverter, new RuntimeException());
 
-        assertEquals(failedIds, bulkUpdateException.getFailedIds());
+        assertEquals(failedIds, bulkUpdateException.getUnrevertedSubtrees());
 
         bulkUpdateException.revertChanges(writeContext);
         verify(reverter).revert(writeContext);

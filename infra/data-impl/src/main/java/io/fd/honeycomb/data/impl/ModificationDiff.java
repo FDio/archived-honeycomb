@@ -246,7 +246,7 @@ final class ModificationDiff {
             final com.google.common.base.Optional<NormalizedNode<?, ?>> afterData =
                     modification.getDataAfter();
             checkArgument(beforeData.isPresent() || afterData.isPresent(),
-                    "Both before and after data are null for $s", modification.getId());
+                    "Both before and after data are null for %s", modification.getId());
             return NormalizedNodeUpdate.create(modification.getId(), beforeData.orNull(), afterData.orNull());
         }
 

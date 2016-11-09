@@ -19,20 +19,37 @@ package io.fd.honeycomb.translate.write.registry;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.Sets;
+import io.fd.honeycomb.translate.write.DataObjectUpdate;
 import java.util.Set;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class RevertFailedExceptionTest {
 
     private InstanceIdentifier<?> id = InstanceIdentifier.create(DataObject.class);
+    @Mock
+    private WriterRegistry.Reverter reverter;
+    @Mock
+    private DataObject before;
+    @Mock
+    private DataObject after;
+
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+    }
 
     @Test
     public void testNonRevert() throws Exception {
         final Set<InstanceIdentifier<?>> notReverted = Sets.newHashSet(id);
         final WriterRegistry.Reverter.RevertFailedException revertFailedException =
-                new WriterRegistry.Reverter.RevertFailedException(notReverted, new RuntimeException());
+                new WriterRegistry.Reverter.RevertFailedException(
+                        new WriterRegistry.BulkUpdateException(id, DataObjectUpdate.create(id, before, after),
+                        notReverted, reverter, new RuntimeException()));
         assertEquals(notReverted, revertFailedException.getNotRevertedChanges());
     }
 }

@@ -19,7 +19,6 @@ package io.fd.honeycomb.translate.write.registry;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.Beta;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import io.fd.honeycomb.translate.TranslationException;
@@ -134,18 +133,24 @@ public interface WriterRegistry {
     class BulkUpdateException extends TranslationException {
 
         private final transient Reverter reverter;
-        private final Set<InstanceIdentifier<?>> failedIds;
+        private final InstanceIdentifier<?> failedSubtree;
+        private final DataObjectUpdate failedData;
+        private final Set<InstanceIdentifier<?>> unrevertedSubtrees;
 
         /**
          * Constructs an BulkUpdateException.
-         * @param failedIds instance identifiers of the data objects that were not processed during bulk update.
+         * @param unhandledSubtrees instance identifiers of the data objects that were not processed during bulk update.
          * @param cause the cause of bulk update failure
          */
-        public BulkUpdateException(@Nonnull final Set<InstanceIdentifier<?>> failedIds,
+        public BulkUpdateException(@Nonnull final InstanceIdentifier<?> failedSubtree,
+                                   @Nonnull final DataObjectUpdate failedData,
+                                   @Nonnull final Set<InstanceIdentifier<?>> unhandledSubtrees,
                                    @Nonnull final Reverter reverter,
                                    @Nonnull final Throwable cause) {
-            super("Bulk update failed at: " + failedIds, cause);
-            this.failedIds = failedIds;
+            super("Bulk update failed at: " + failedSubtree + " ignored updates: " + unhandledSubtrees, cause);
+            this.failedSubtree = failedSubtree;
+            this.failedData = failedData;
+            this.unrevertedSubtrees = unhandledSubtrees;
             this.reverter = checkNotNull(reverter, "reverter should not be null");
         }
 
@@ -160,8 +165,16 @@ public interface WriterRegistry {
             reverter.revert(writeContext);
         }
 
-        public Set<InstanceIdentifier<?>> getFailedIds() {
-            return failedIds;
+        public Set<InstanceIdentifier<?>> getUnrevertedSubtrees() {
+            return unrevertedSubtrees;
+        }
+
+        public InstanceIdentifier<?> getFailedSubtree() {
+            return failedSubtree;
+        }
+
+        public DataObjectUpdate getFailedData() {
+            return failedData;
         }
     }
 
@@ -188,20 +201,14 @@ public interface WriterRegistry {
         @Beta
         class RevertFailedException extends TranslationException {
 
-            // TODO HONEYCOMB-170 change to list of VppDataModifications to make debugging easier
-            private final Set<InstanceIdentifier<?>> notRevertedChanges;
-
             /**
              * Constructs a RevertFailedException with the list of changes that were not reverted.
              *
-             * @param notRevertedChanges list of changes that were not reverted
              * @param cause              the cause of revert failure
              */
-            public RevertFailedException(@Nonnull final Set<InstanceIdentifier<?>> notRevertedChanges,
-                                         final Throwable cause) {
-                super(cause);
-                checkNotNull(notRevertedChanges, "notRevertedChanges should not be null");
-                this.notRevertedChanges = ImmutableSet.copyOf(notRevertedChanges);
+            public RevertFailedException(@Nonnull final BulkUpdateException cause) {
+                super("Unable to revert changes after failure. Revert failed for "
+                        + cause.getFailedSubtree() + " unreverted subtrees: " + cause.getUnrevertedSubtrees(), cause);
             }
 
             /**
@@ -211,7 +218,17 @@ public interface WriterRegistry {
              */
             @Nonnull
             public Set<InstanceIdentifier<?>> getNotRevertedChanges() {
-                return notRevertedChanges;
+                return ((BulkUpdateException) getCause()).getUnrevertedSubtrees();
+            }
+
+            /**
+             * Returns the update that caused the failure.
+             *
+             * @return update that caused the failure
+             */
+            @Nonnull
+            public DataObjectUpdate getFailedUpdate() {
+                return ((BulkUpdateException) getCause()).getFailedData();
             }
         }
 
