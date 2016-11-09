@@ -422,7 +422,6 @@
                             <attributes>
                                 <source-highlighter>coderay</source-highlighter>
                                 <coderay-css>style</coderay-css>
-                                <imagesdir>${project.build.directory}/site/images</imagesdir>
                                 <icons>font</icons>
                                 <sectanchors>true</sectanchors>
                                 <idprefix/>
