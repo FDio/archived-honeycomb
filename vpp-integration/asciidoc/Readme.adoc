@@ -1,3 +1,0 @@
-= VPP-integration
-
-This is an integration project building HC distribution for VPP, including all available HC plugins for VPP

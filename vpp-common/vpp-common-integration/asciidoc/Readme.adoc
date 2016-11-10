@@ -1,3 +1,0 @@
-= vpp-common-integration
-
-Overview of vpp-common-integration

@@ -1,3 +1,0 @@
-= vpp-common-aggregator
-
-Overview of vpp-common-aggregator

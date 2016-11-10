@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.vpp.util.cache;
+package io.fd.honeycomb.translate.util.read.cache;
 
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 import static org.junit.Assert.assertEquals;
@@ -23,13 +23,9 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.util.read.cache.CacheKeyFactory;
-import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.honeycomb.translate.util.read.cache.EntityDumpPostProcessingFunction;
-import io.fd.honeycomb.translate.util.read.cache.IdentifierCacheKeyFactory;
-import io.fd.vpp.jvpp.core.dto.IpDetails;
-import io.fd.vpp.jvpp.core.dto.IpDetailsReplyDump;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -148,5 +144,30 @@ public class DumpCacheManagerTest {
 
             return modified;
         };
+    }
+
+    private static final class IpDetailsReplyDump {
+        List<IpDetails> ipDetails = new ArrayList<>();
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            final IpDetailsReplyDump that = (IpDetailsReplyDump) o;
+            return Objects.equals(ipDetails, that.ipDetails);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(ipDetails);
+        }
+    }
+
+    private static final class IpDetails {
+        int swIfIndex;
     }
 }

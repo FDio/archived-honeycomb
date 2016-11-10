@@ -1,3 +1,0 @@
-= vpp-integration-distribution
-
-Overview of vpp-integration-distribution

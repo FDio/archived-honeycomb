@@ -1,3 +1,0 @@
-= routing-aggregator
-
-Overview of routing-aggregator

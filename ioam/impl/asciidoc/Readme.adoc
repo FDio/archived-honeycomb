@@ -1,3 +1,0 @@
-= vppioam-impl
-
-Overview of vppioam-impl

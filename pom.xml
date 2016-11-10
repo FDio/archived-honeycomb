@@ -37,16 +37,8 @@
   <modules>
     <module>common</module>
     <module>infra</module>
-    <module>nsh</module>
-    <module>vpp-common</module>
-    <module>vpp-integration</module>
-    <module>v3po</module>
-    <module>lisp</module>
     <module>samples</module>
     <module>tools</module>
-    <module>routing</module>
-    <module>nat</module>
-    <module>ioam</module>
     <module>release-notes</module>
   </modules>
 </project>

@@ -1,3 +1,0 @@
-= vpp-translate-test
-
-Overview of vpp-translate-test

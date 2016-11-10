@@ -1,3 +1,0 @@
-= vpp-impl-parent
-
-Overview of vpp-impl-parent

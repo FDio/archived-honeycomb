@@ -1,3 +1,0 @@
-= vppioam-api
-
-Overview of vppioam-api
