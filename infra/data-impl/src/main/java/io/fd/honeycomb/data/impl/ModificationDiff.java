@@ -45,6 +45,7 @@ import org.opendaylight.yangtools.yang.model.api.ChoiceSchemaNode;
 import org.opendaylight.yangtools.yang.model.api.ContainerSchemaNode;
 import org.opendaylight.yangtools.yang.model.api.DataNodeContainer;
 import org.opendaylight.yangtools.yang.model.api.DataSchemaNode;
+import org.opendaylight.yangtools.yang.model.api.LeafListSchemaNode;
 import org.opendaylight.yangtools.yang.model.api.LeafSchemaNode;
 import org.opendaylight.yangtools.yang.model.api.ListSchemaNode;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
@@ -151,7 +152,9 @@ final class ModificationDiff {
         // Check if there are any modified leaves and if so, consider current node as modified
         final Boolean directLeavesModified = emptyPresenceNode
                 || modification.streamChildren()
-                .filter(child -> child.is(LeafSchemaNode.class))
+                // Checking leaf or leaf-lists children for direct modification, which means that leafs of leaf lists
+                // trigger a modification on parent node
+                .filter(child -> child.is(LeafSchemaNode.class) || child.is(LeafListSchemaNode.class))
                 // For some reason, we get modifications on unmodified list keys
                 // and that messes up our modifications collection here, so we need to skip
                 .filter(Modification::isBeforeAndAfterDifferent)
@@ -387,6 +390,10 @@ final class ModificationDiff {
                 if (maybeChild.isPresent()) {
                     found = maybeChild.get();
                 }
+                // Special handling for leaf-list nodes. Basically the same as is for list mixin nodes
+            } else if (schema instanceof LeafListSchemaNode &&
+                    ((SchemaNode) schema).getQName().equals(identifier.getNodeType())) {
+                found = schema;
             }
 
             return checkNotNull(found, "Unable to find child node in: %s identifiable by: %s", schema, identifier);

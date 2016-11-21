@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.LeafSetEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -41,6 +42,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.TipProducingDataTree
 import org.opendaylight.yangtools.yang.data.api.schema.tree.TreeType;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.ListNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.InMemoryDataTreeFactory;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.parser.spi.meta.ReactorException;
@@ -59,6 +61,10 @@ public class ModificationDiffTest {
     static final QName DEEP_LIST_QNAME = QName.create(TOP_CONTAINER_QNAME, "deep-list");
     static final QName EMPTY_QNAME = QName.create(TOP_CONTAINER_QNAME, "empty");
     static final QName IN_EMPTY_QNAME = QName.create(TOP_CONTAINER_QNAME, "in-empty");
+
+    static final QName FOR_LEAF_LIST_QNAME = QName.create(TOP_CONTAINER_QNAME, "for-leaf-list");
+    static final QName NESTED_LEAF_LIST_QNAME = QName.create(TOP_CONTAINER_QNAME, "nested-leaf-list");
+
 
     static final QName WITH_CHOICE_CONTAINER_QNAME =
             QName.create("urn:opendaylight:params:xml:ns:yang:test:diff", "2015-01-05", "with-choice");
@@ -85,6 +91,24 @@ public class ModificationDiffTest {
         assertThat(modificationDiff.getUpdates().size(), is(1));
         assertThat(modificationDiff.getUpdates().values().size(), is(1));
         assertUpdate(modificationDiff.getUpdates().values().iterator().next(), TOP_CONTAINER_ID, null, topContainer);
+    }
+
+    @Test
+    public void testLeafList() throws Exception {
+        final TipProducingDataTree dataTree = getDataTree();
+        final DataTreeModification dataTreeModification = getModification(dataTree);
+        final ContainerNode topContainer = getTopContainerWithLeafList("string1", "string2");
+        final YangInstanceIdentifier TOP_CONTAINER_ID = YangInstanceIdentifier.of(TOP_CONTAINER_QNAME);
+        dataTreeModification.write(TOP_CONTAINER_ID, topContainer);
+        final DataTreeCandidateTip prepare = prepareModification(dataTree, dataTreeModification);
+
+        final ModificationDiff modificationDiff = getModificationDiff(prepare);
+
+        assertThat(modificationDiff.getUpdates().size(), is(1));
+        assertThat(modificationDiff.getUpdates().values().size(), is(1));
+        assertUpdate(modificationDiff.getUpdates().values().iterator().next(),
+                TOP_CONTAINER_ID.node(FOR_LEAF_LIST_QNAME), null,
+                topContainer.getChild(new YangInstanceIdentifier.NodeIdentifier(FOR_LEAF_LIST_QNAME)).get());
     }
 
     @Test
@@ -453,6 +477,26 @@ public class ModificationDiffTest {
         return Builders.containerBuilder()
                 .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
                 .withChild(ImmutableNodes.leafNode(STRING_LEAF_QNAME, stringValue))
+                .build();
+    }
+
+    static ContainerNode getTopContainerWithLeafList(final String... stringValue) {
+        final ListNodeBuilder<String, LeafSetEntryNode<String>> leafSetBuilder = Builders.leafSetBuilder();
+        for (final String value : stringValue) {
+            leafSetBuilder.withChild(Builders.<String>leafSetEntryBuilder()
+                    .withNodeIdentifier(new YangInstanceIdentifier.NodeWithValue<>(NESTED_LEAF_LIST_QNAME, value))
+                    .withValue(value)
+                    .build());
+        }
+
+        return Builders.containerBuilder()
+                .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
+                .withChild(Builders.containerBuilder()
+                        .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(FOR_LEAF_LIST_QNAME))
+                        .withChild(leafSetBuilder
+                                .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(NESTED_LEAF_LIST_QNAME))
+                                .build())
+                        .build())
                 .build();
     }
 

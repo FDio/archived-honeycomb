@@ -22,6 +22,12 @@ module test-diff {
             }
         }
 
+        container for-leaf-list {
+            leaf-list nested-leaf-list {
+                type string;
+            }
+        }
+
         list nested-list {
             key "name";
 
