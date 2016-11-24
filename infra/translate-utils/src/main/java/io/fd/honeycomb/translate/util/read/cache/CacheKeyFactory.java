@@ -27,5 +27,12 @@ public interface CacheKeyFactory {
     /**
      * Construct key accordingly to provided {@code InstanceIdentifier<?>}
      */
+    @Nonnull
     String createKey(@Nonnull final InstanceIdentifier<?> actualContextIdentifier);
+
+    /**
+     * Returns type of data, for which is this factory creating keys
+     */
+    @Nonnull
+    Class<?> getCachedDataType();
 }

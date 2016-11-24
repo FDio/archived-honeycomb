@@ -17,6 +17,8 @@
 package io.fd.honeycomb.translate.util.read.cache;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.nonNull;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.ModificationCache;
@@ -41,11 +43,13 @@ public final class DumpCacheManager<T, U> {
     private final EntityDumpExecutor<T, U> dumpExecutor;
     private final EntityDumpPostProcessingFunction<T> postProcessor;
     private final CacheKeyFactory cacheKeyFactory;
+    private final Class<?> acceptOnly;
 
     private DumpCacheManager(DumpCacheManagerBuilder<T, U> builder) {
         this.dumpExecutor = builder.dumpExecutor;
         this.postProcessor = builder.postProcessingFunction;
         this.cacheKeyFactory = builder.cacheKeyFactory;
+        this.acceptOnly = builder.acceptOnly;
     }
 
     /**
@@ -79,6 +83,12 @@ public final class DumpCacheManager<T, U> {
             cache.put(entityKey, dump);
             return Optional.of(dump);
         } else {
+            // if specified, check whether data returned from cache can be used as result of this dump manager
+            // used as a secondary check if cache does not have any data of different type stored under the same key
+            checkState(acceptOnly.isInstance(dump),
+                    "This dump manager accepts only %s as data, but %s was returned from cache",
+                    acceptOnly, dump.getClass());
+
             LOG.debug("Cached instance of dump was found for KEY[{}]", entityKey);
             return Optional.of(dump);
         }
@@ -86,18 +96,14 @@ public final class DumpCacheManager<T, U> {
 
     public static final class DumpCacheManagerBuilder<T, U> {
 
-        private static final CacheKeyFactory DEFAULT_CACHE_KEY_FACTORY_INSTANCE = new IdentifierCacheKeyFactory();
-
         private EntityDumpExecutor<T, U> dumpExecutor;
         private EntityDumpPostProcessingFunction<T> postProcessingFunction;
         private CacheKeyFactory cacheKeyFactory;
+        private Class<?> acceptOnly;
 
         public DumpCacheManagerBuilder() {
             // for cases when user does not set specific post-processor
             postProcessingFunction = new NoopDumpPostProcessingFunction<T>();
-
-            //use no additional scopes version by default
-            cacheKeyFactory = DEFAULT_CACHE_KEY_FACTORY_INSTANCE;
         }
 
         public DumpCacheManagerBuilder<T, U> withExecutor(@Nonnull final EntityDumpExecutor<T, U> executor) {
@@ -111,8 +117,20 @@ public final class DumpCacheManager<T, U> {
             return this;
         }
 
+        /**
+         * Key providing unique(type-aware) keys.
+         */
         public DumpCacheManagerBuilder<T, U> withCacheKeyFactory(@Nonnull final CacheKeyFactory cacheKeyFactory) {
             this.cacheKeyFactory = cacheKeyFactory;
+            return this;
+        }
+
+        /**
+         * If modification returns object of different type that this, throw exception to prevent processing data
+         * of different type.
+         */
+        public DumpCacheManagerBuilder<T, U> acceptOnly(@Nonnull final Class<?> acceptOnly) {
+            this.acceptOnly = acceptOnly;
             return this;
         }
 
@@ -120,8 +138,16 @@ public final class DumpCacheManager<T, U> {
             checkNotNull(dumpExecutor, "Dump executor cannot be null");
             checkNotNull(postProcessingFunction,
                     "Dump post-processor cannot be null cannot be null, default implementation is used when not set explicitly");
-            checkNotNull(cacheKeyFactory,
-                    "Cache key factory cannot be null, default non-extended implementation is used when not set explicitly");
+
+            if (acceptOnly != null) {
+                cacheKeyFactory = new TypeAwareIdentifierCacheKeyFactory(acceptOnly);
+            } else if (cacheKeyFactory != null) {
+                acceptOnly = cacheKeyFactory.getCachedDataType();
+            } else {
+                throw new IllegalStateException(
+                        "Invalid combination - either acceptOnly type must be defined[defined=" + nonNull(acceptOnly) +
+                                "], or type-aware cache key factory[defined=" + nonNull(cacheKeyFactory) + "]");
+            }
 
             return new DumpCacheManager<>(this);
         }

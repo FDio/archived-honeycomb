@@ -18,6 +18,7 @@ package io.fd.honeycomb.translate.util.read.cache;
 
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
@@ -35,13 +36,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class DumpCacheManagerTest {
 
-    private interface DataObj extends DataObject {}
-
     @Mock
     private EntityDumpExecutor<IpDetailsReplyDump, Void> executor;
-
     private InstanceIdentifier<DataObj> identifier;
-
     private DumpCacheManager<IpDetailsReplyDump, Void> managerPositive;
     private DumpCacheManager<IpDetailsReplyDump, Void> managerPositiveWithPostProcessing;
     private DumpCacheManager<IpDetailsReplyDump, Void> managerNegative;
@@ -54,23 +51,26 @@ public class DumpCacheManagerTest {
         managerPositive =
                 new DumpCacheManager.DumpCacheManagerBuilder<IpDetailsReplyDump, Void>()
                         .withExecutor(executor)
+                        .acceptOnly(IpDetailsReplyDump.class)
                         .build();
 
         managerPositiveWithPostProcessing =
                 new DumpCacheManager.DumpCacheManagerBuilder<IpDetailsReplyDump, Void>()
                         .withExecutor(executor)
+                        .acceptOnly(IpDetailsReplyDump.class)
                         .withPostProcessingFunction(createPostProcessor())
                         .build();
 
         managerNegative =
                 new DumpCacheManager.DumpCacheManagerBuilder<IpDetailsReplyDump, Void>()
                         .withExecutor(executor)
+                        .acceptOnly(IpDetailsReplyDump.class)
                         .build();
 
         cache = new ModificationCache();
         identifier = InstanceIdentifier.create(DataObj.class);
         //manager uses this implementation by default, so it can be used to test behaviour
-        cacheKeyFactory = new IdentifierCacheKeyFactory();
+        cacheKeyFactory = new TypeAwareIdentifierCacheKeyFactory(IpDetailsReplyDump.class);
 
     }
 
@@ -131,6 +131,28 @@ public class DumpCacheManagerTest {
         assertEquals(7, optionalDump.get().ipDetails.get(0).swIfIndex);
     }
 
+    @Test
+    public void testSameKeyDifferentTypes() throws ReadFailedException {
+        final DumpCacheManager<String, Void> stringManager =
+                new DumpCacheManager.DumpCacheManagerBuilder<String, Void>()
+                        .withExecutor((InstanceIdentifier, Void) -> "value")
+                        .acceptOnly(String.class)
+                        .build();
+
+        final DumpCacheManager<Integer, Void> intManager = new DumpCacheManager.DumpCacheManagerBuilder<Integer, Void>()
+                .acceptOnly(Integer.class)
+                .withExecutor((InstanceIdentifier, Void) -> 3).build();
+
+        final Optional<String> stringDump = stringManager.getDump(identifier, cache, NO_PARAMS);
+        final Optional<Integer> integerDump = intManager.getDump(identifier, cache, NO_PARAMS);
+
+        assertTrue(stringDump.isPresent());
+        assertTrue(integerDump.isPresent());
+        assertEquals("value", stringDump.get());
+        assertEquals(3, integerDump.get().intValue());
+
+    }
+
     private EntityDumpPostProcessingFunction<IpDetailsReplyDump> createPostProcessor() {
         return ipDetailsReplyDump -> {
             IpDetailsReplyDump modified = new IpDetailsReplyDump();
@@ -144,6 +166,9 @@ public class DumpCacheManagerTest {
 
             return modified;
         };
+    }
+
+    private interface DataObj extends DataObject {
     }
 
     private static final class IpDetailsReplyDump {

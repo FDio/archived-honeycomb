@@ -28,31 +28,15 @@ import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class IdentifierCacheKeyFactoryTest {
-
-    private interface SuperDataObject extends DataObject {
-    }
-
-    private interface DataObjectParent extends DataObject, ChildOf<SuperDataObject>, Identifiable<DataObjectParentKey> {
-    }
-
-    private class DataObjectParentKey implements Identifier<DataObjectParent> {
-    }
-
-    private interface DataObjectChild extends DataObject, ChildOf<DataObjectParent>, Identifiable<DataObjectChildKey> {
-    }
-
-    private class DataObjectChildKey implements Identifier<DataObjectChild> {
-    }
+public class TypeAwareIdentifierCacheKeyFactoryTest {
 
     private DataObjectParentKey parentKey;
     private DataObjectChildKey childKey;
     private InstanceIdentifier<DataObjectChild> identifierBothKeyed;
     private InstanceIdentifier<DataObjectChild> identifierOneMissing;
     private InstanceIdentifier<DataObjectChild> identifierNoneKeyed;
-
-    private IdentifierCacheKeyFactory simpleKeyFactory;
-    private IdentifierCacheKeyFactory complexKeyFactory;
+    private TypeAwareIdentifierCacheKeyFactory simpleKeyFactory;
+    private TypeAwareIdentifierCacheKeyFactory complexKeyFactory;
 
     @Before
     public void init() {
@@ -64,8 +48,9 @@ public class IdentifierCacheKeyFactoryTest {
         identifierNoneKeyed = InstanceIdentifier.create(SuperDataObject.class).child(DataObjectParent.class)
                 .child(DataObjectChild.class);
 
-        complexKeyFactory = new IdentifierCacheKeyFactory(ImmutableSet.of(DataObjectParent.class));
-        simpleKeyFactory = new IdentifierCacheKeyFactory();
+        complexKeyFactory =
+                new TypeAwareIdentifierCacheKeyFactory(String.class, ImmutableSet.of(DataObjectParent.class));
+        simpleKeyFactory = new TypeAwareIdentifierCacheKeyFactory(String.class);
     }
 
     @Test
@@ -127,6 +112,7 @@ public class IdentifierCacheKeyFactoryTest {
     }
 
     private void verifyComplexKey(final String key) {
+        assertTrue(key.contains(String.class.getTypeName()));
         assertTrue(key.contains(DataObjectParent.class.getTypeName()));
         assertTrue(key.contains(parentKey.toString()));
         assertTrue(key.contains(DataObjectChild.class.getTypeName()));
@@ -135,10 +121,26 @@ public class IdentifierCacheKeyFactoryTest {
     }
 
     private void verifySimpleKey(final String key) {
+        assertTrue(key.contains(String.class.getTypeName()));
         assertFalse(key.contains(DataObjectParent.class.getTypeName()));
         assertFalse(key.contains(parentKey.toString()));
         assertTrue(key.contains(DataObjectChild.class.getTypeName()));
         assertFalse(key.contains(childKey.toString()));
         assertFalse(key.contains(SuperDataObject.class.getTypeName()));
+    }
+
+    private interface SuperDataObject extends DataObject {
+    }
+
+    private interface DataObjectParent extends DataObject, ChildOf<SuperDataObject>, Identifiable<DataObjectParentKey> {
+    }
+
+    private interface DataObjectChild extends DataObject, ChildOf<DataObjectParent>, Identifiable<DataObjectChildKey> {
+    }
+
+    private class DataObjectParentKey implements Identifier<DataObjectParent> {
+    }
+
+    private class DataObjectChildKey implements Identifier<DataObjectChild> {
     }
 }
