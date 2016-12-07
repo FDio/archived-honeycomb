@@ -22,7 +22,7 @@
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>common-scripts</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.16.12-SNAPSHOT</version>
+    <version>1.17.01-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
