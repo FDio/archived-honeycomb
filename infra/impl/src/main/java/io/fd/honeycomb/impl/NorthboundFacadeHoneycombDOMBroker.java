@@ -51,21 +51,21 @@ import org.osgi.framework.BundleContext;
  */
 public class NorthboundFacadeHoneycombDOMBroker implements AutoCloseable, Broker {
 
-    private static final BrokerService EMPTY_DOM_RPC_SERVICE = new EmptyDomRpcService();
     private static final BrokerService EMPTY_DOM_MOUNT_SERVICE = new EmptyDomMountService();
 
     private Map<Class<? extends BrokerService>, BrokerService> services;
 
     public NorthboundFacadeHoneycombDOMBroker(@Nonnull final DOMDataBroker domDataBrokerDependency,
                                               @Nonnull final SchemaService schemaBiService,
-                                              @Nonnull final DOMNotificationService domNotificatioNService) {
+                                              @Nonnull final DOMNotificationService domNotificatioNService,
+                                              @Nonnull final DOMRpcService domRpcService) {
         services = Maps.newHashMap();
         services.put(DOMDataBroker.class, domDataBrokerDependency);
         services.put(SchemaService.class, schemaBiService);
         services.put(DOMNotificationService.class, domNotificatioNService);
         services.put(DOMNotificationPublishService.class, domNotificatioNService);
-        // All services below are required to be present by Restconf northbound even if not used
-        services.put(DOMRpcService.class, EMPTY_DOM_RPC_SERVICE);
+        services.put(DOMRpcService.class, domRpcService);
+        // Required to be present by Restconf northbound even if not used:
         services.put(DOMMountPointService.class, EMPTY_DOM_MOUNT_SERVICE);
     }
 

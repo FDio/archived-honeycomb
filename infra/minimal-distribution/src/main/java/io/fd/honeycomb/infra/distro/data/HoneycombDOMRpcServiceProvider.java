@@ -17,28 +17,22 @@
 package io.fd.honeycomb.infra.distro.data;
 
 import com.google.inject.Inject;
-import io.fd.honeycomb.impl.NorthboundFacadeHoneycombDOMBroker;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
+import io.fd.honeycomb.rpc.HoneycombDOMRpcService;
+import io.fd.honeycomb.rpc.RpcRegistry;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
-import org.opendaylight.controller.md.sal.dom.broker.impl.DOMNotificationRouter;
-import org.opendaylight.controller.sal.core.api.Broker;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
 
-public final class HoneycombDOMBrokerProvider extends ProviderTrait<Broker> {
+public final class HoneycombDOMRpcServiceProvider extends ProviderTrait<DOMRpcService> {
 
     @Inject
-    private DOMDataBroker domDataBroker;
+    private BindingToNormalizedNodeCodec serializer;
+
     @Inject
-    private SchemaService schemaService;
-    @Inject
-    private DOMNotificationRouter domNotificationService;
-    @Inject
-    private DOMRpcService domRpcService;
+    private RpcRegistry rpcRegistry;
 
     @Override
-    protected NorthboundFacadeHoneycombDOMBroker create() {
-        return new NorthboundFacadeHoneycombDOMBroker(domDataBroker, schemaService, domNotificationService,
-            domRpcService);
+    protected DOMRpcService create() {
+        return new HoneycombDOMRpcService(serializer, rpcRegistry);
     }
 }

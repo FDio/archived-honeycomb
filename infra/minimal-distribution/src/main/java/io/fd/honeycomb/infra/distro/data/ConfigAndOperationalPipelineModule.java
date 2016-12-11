@@ -27,11 +27,14 @@ import io.fd.honeycomb.infra.distro.data.oper.ReadableDTDelegProvider;
 import io.fd.honeycomb.infra.distro.data.oper.ReaderRegistryBuilderProvider;
 import io.fd.honeycomb.infra.distro.data.oper.ReaderRegistryProvider;
 import io.fd.honeycomb.infra.distro.initializer.PersistedFileInitializerProvider;
+import io.fd.honeycomb.rpc.RpcRegistry;
+import io.fd.honeycomb.rpc.RpcRegistryBuilder;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
+import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
 import org.opendaylight.controller.md.sal.dom.broker.impl.DOMNotificationRouter;
 import org.opendaylight.controller.sal.core.api.Broker;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
@@ -81,6 +84,7 @@ public class ConfigAndOperationalPipelineModule extends PrivateModule {
         expose(DataTreeInitializer.class).annotatedWith(Names.named(HONEYCOMB_CONFIG));
 
         configureNotifications();
+        configureRpcs();
     }
 
     private void configureNotifications() {
@@ -90,5 +94,17 @@ public class ConfigAndOperationalPipelineModule extends PrivateModule {
         // Wrap notification service, data broker and schema service in a Broker MD-SAL API
         bind(Broker.class).toProvider(HoneycombDOMBrokerProvider.class).in(Singleton.class);
         expose(Broker.class);
+    }
+
+    private void configureRpcs() {
+        // Create rpc service
+        bind(DOMRpcService.class).toProvider(HoneycombDOMRpcServiceProvider.class).in(Singleton.class);
+        expose(DOMRpcService.class);
+
+        bind(RpcRegistryBuilder.class).toProvider(RpcRegistryBuilderProvider.class).in(Singleton.class);
+        expose(RpcRegistryBuilder.class);
+
+        bind(RpcRegistry.class).toProvider(RpcRegistryProvider.class).in(Singleton.class);
+        expose(RpcRegistry.class);
     }
 }
