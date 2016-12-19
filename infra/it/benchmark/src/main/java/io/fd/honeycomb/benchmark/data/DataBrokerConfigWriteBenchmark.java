@@ -92,17 +92,6 @@ public class DataBrokerConfigWriteBenchmark extends AbstractModule implements Fi
     private String data;
     private DataProvider dataProvider;
 
-    /*
-    * TODO HONEYCOMB-288 Visualization notes:
-    * - visualize as 3 graphs, 1 for each data
-    * - each graph should show 4 lines. for the combinations of parameters: submitFrequency and persistence
-    *   (if that's too much split or reduce submitFrequecy values that are shown in graph)
-    *
-    * TODO data need to be prepared for such visualization. Maybe if each benchmark class exposed a method to prepare
-    * that data from aggregated results... it might be easy
-    * (just maven exec plugin + main that invokes some method on all benchmark classes)
-    */
-
     // Infra modules to load
     private final Module[] modules = new Module[] {
             new io.fd.honeycomb.infra.distro.schema.YangBindingProviderModule(),

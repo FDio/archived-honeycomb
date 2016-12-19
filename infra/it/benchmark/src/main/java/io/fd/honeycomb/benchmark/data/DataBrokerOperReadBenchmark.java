@@ -85,12 +85,6 @@ public class DataBrokerOperReadBenchmark extends AbstractModule implements FileM
     private String data;
     private DataProvider dataProvider;
 
-    /*
-    * TODO HONEYCOMB-288 Visualization notes:
-    * - visualize as 1 graph
-    * - just 3 lines
-    */
-
     // Infra modules to load
     private final Module[] modules = new Module[] {
             new io.fd.honeycomb.infra.distro.schema.YangBindingProviderModule(),

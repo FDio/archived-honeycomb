@@ -59,6 +59,12 @@
             <artifactId>honeycomb-test-model</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.4</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -126,6 +132,19 @@
                                 <!-- formats = Available formats: text, csv, scsv, json, latex-->
                                 <argument>-rf=csv</argument>
                                 <argument>-rff=${project.build.directory}/benchmark.csv</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>benchmark-post-processing</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>io.fd.honeycomb.benchmark.format.BenchmarkOutputFormatter</mainClass>
+                            <arguments>
+                                <argument>${project.build.directory}/benchmark.csv</argument>
                             </arguments>
                         </configuration>
                     </execution>
