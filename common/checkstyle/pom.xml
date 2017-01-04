@@ -4,7 +4,7 @@
   <groupId>io.fd.honeycomb.common</groupId>
   <artifactId>honeycomb-checkstyle</artifactId>
   <name>${project.artifactId}</name>
-  <version>1.17.01-RC1</version>
+  <version>1.17.01-SNAPSHOT</version>
 
   <build>
     <pluginManagement>
