@@ -27,5 +27,5 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
  */
 @Beta
 public interface InitListReader<O extends DataObject & Identifiable<K>, K extends Identifier<O>, B extends Builder<O>>
-        extends ListReader<O, K, B>, Initializer<O> {
+        extends ListReader<O, K, B>, InitReader<O, B> {
 }

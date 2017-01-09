@@ -16,64 +16,18 @@
 
 package io.fd.honeycomb.translate.impl.read;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class GenericReaderTest {
+public class GenericReaderTest extends AbstractReaderTest {
 
-    private static final InstanceIdentifier<DataObject>
-            DATA_OBJECT_ID = InstanceIdentifier.create(DataObject.class);
-    @Mock
-    private ReaderCustomizer<DataObject, Builder<DataObject>> customizer;
-    @Mock
-    private Builder<DataObject> builder;
-    @Mock
-    private DataObject data;
-    @Mock
-    private ReadContext ctx;
-    private GenericReader<DataObject, Builder<DataObject>> reader;
-
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        when(customizer.getBuilder(DATA_OBJECT_ID)).thenReturn(builder);
-        reader = new GenericReader<>(DATA_OBJECT_ID, customizer);
-        when(builder.build()).thenReturn(data);
+    public GenericReaderTest() {
+        super(ReaderCustomizer.class);
     }
 
-    @Test
-    public void testGetBuilder() throws Exception {
-        assertEquals(builder, reader.getBuilder(DATA_OBJECT_ID));
-        verify(customizer).getBuilder(DATA_OBJECT_ID);
-    }
-
-    @Test
-    public void testManagedType() throws Exception {
-        assertEquals(DATA_OBJECT_ID, reader.getManagedDataObjectType());
-    }
-
-    @Test
-    public void testMerge() throws Exception {
-        reader.merge(builder, data);
-        verify(customizer).merge(builder, data);
-    }
-
-    @Test
-    public void testRead() throws Exception {
-        reader.read(DATA_OBJECT_ID, ctx);
-
-        verify(customizer).getBuilder(DATA_OBJECT_ID);
-        verify(customizer).readCurrentAttributes(DATA_OBJECT_ID, builder, ctx);
+    @Override
+    protected GenericReader<DataObject,Builder<DataObject>> initReader() {
+        return new GenericReader<>(DATA_OBJECT_ID, getCustomizer());
     }
 }
