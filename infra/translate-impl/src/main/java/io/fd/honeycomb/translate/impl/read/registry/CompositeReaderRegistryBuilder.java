@@ -19,6 +19,7 @@ package io.fd.honeycomb.translate.impl.read.registry;
 import com.google.common.collect.ImmutableMap;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.read.InitReader;
+import io.fd.honeycomb.translate.read.Initializer;
 import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
@@ -46,8 +47,8 @@ public final class CompositeReaderRegistryBuilder
     @Override
     protected Reader<? extends DataObject, ? extends Builder<?>> getSubtreeHandler(@Nonnull final Set<InstanceIdentifier<?>> handledChildren,
                                                                                    @Nonnull final Reader<? extends DataObject, ? extends Builder<?>> reader) {
-        return reader instanceof InitReader
-                ? InitSubtreeReader.createForReader(handledChildren, reader)
+        return reader instanceof Initializer
+                ? InitSubtreeReader.createForReader(handledChildren, (InitReader<?, ?>)reader)
                 : SubtreeReader.createForReader(handledChildren, reader);
     }
 

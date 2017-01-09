@@ -21,7 +21,6 @@ import io.fd.honeycomb.translate.read.InitListReader;
 import io.fd.honeycomb.translate.read.InitReader;
 import io.fd.honeycomb.translate.read.ListReader;
 import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.read.Reader;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -48,11 +47,11 @@ class InitSubtreeReader<O extends DataObject, B extends Builder<O>>
     /**
      * Wrap a Reader as an initializing subtree Reader.
      */
-    static <D extends DataObject, B extends Builder<D>> Reader<D, B> createForReader(@Nonnull final Set<InstanceIdentifier<?>> handledChildren,
-                                                                                     @Nonnull final Reader<D, B> reader) {
+    static <D extends DataObject, B extends Builder<D>> InitReader<D, B> createForReader(@Nonnull final Set<InstanceIdentifier<?>> handledChildren,
+                                                                                     @Nonnull final InitReader<D, B> reader) {
         return (reader instanceof ListReader)
                 ? new InitSubtreeListReader<>((InitListReader) reader, handledChildren)
-                : new InitSubtreeReader<>(((InitReader<D, B>) reader), handledChildren);
+                : new InitSubtreeReader<>(reader, handledChildren);
     }
 
     private static class InitSubtreeListReader<D extends DataObject & Identifiable<K>, B extends Builder<D>, K extends Identifier<D>>

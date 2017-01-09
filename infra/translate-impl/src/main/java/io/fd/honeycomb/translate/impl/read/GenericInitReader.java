@@ -20,7 +20,7 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.read.InitFailedException;
-import io.fd.honeycomb.translate.read.Initializer;
+import io.fd.honeycomb.translate.read.InitReader;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 public final class GenericInitReader<O extends DataObject, B extends Builder<O>>
         extends GenericReader<O, B>
-        implements Initializer<O> {
+        implements InitReader<O, B> {
 
     private static final Logger LOG = LoggerFactory.getLogger(GenericInitReader.class);
 

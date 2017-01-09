@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import io.fd.honeycomb.translate.read.InitFailedException;
 import io.fd.honeycomb.translate.read.InitListReader;
+import io.fd.honeycomb.translate.read.InitReader;
 import io.fd.honeycomb.translate.read.Initializer;
 import io.fd.honeycomb.translate.read.ListReader;
 import io.fd.honeycomb.translate.read.ReadContext;
@@ -47,7 +48,7 @@ import org.slf4j.LoggerFactory;
 
 class CompositeReader<D extends DataObject, B extends Builder<D>>
         extends AbstractGenericReader<D, B>
-        implements Initializer<D>, DelegatingReader<D, B> {
+        implements InitReader<D, B>, DelegatingReader<D, B> {
 
     private static final Logger LOG = LoggerFactory.getLogger(CompositeReader.class);
 
