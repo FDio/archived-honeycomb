@@ -1,0 +1,63 @@
+module hc-aug-test {
+  yang-version 1;
+  namespace "urn:opendaylight:params:xml:ns:yang:hc:aug:test";
+  prefix "hcat";
+
+  revision "2017-01--9" {
+    description "Test model for aumentations of augmentations (https://jira.fd.io/browse/HONEYCOMB-302)";
+  }
+
+  import yang-ext {
+    prefix "ext";
+  }
+
+  container aug-target {
+    leaf some-leaf {
+      type string;
+    }
+  }
+
+  augment "/aug-target" {
+    ext:augment-identifier "from-augment-augment";
+    container from-augment {
+      leaf some-leaf {
+        type string;
+      }
+    }
+  }
+
+  augment "/aug-target" {
+    ext:augment-identifier "simple-augment";
+    leaf simple-augment-leaf {
+        type string;
+    }
+  }
+
+  augment "/aug-target/from-augment" {
+    ext:augment-identifier "simple-nested-augment";
+    leaf simple-nested-augment-leaf {
+        type string;
+    }
+  }
+
+  augment "/aug-target/from-augment" {
+    ext:augment-identifier "from-augment2-augment";
+    container from-augment-2 {
+      leaf new-leaf {
+        type string;
+      }
+    }
+  }
+
+  augment "/aug-target/from-augment" {
+    ext:augment-identifier "from-augment-list-augment";
+    list from-augment-entry {
+      key some-leaf;
+
+      leaf some-leaf {
+        type string;
+      }
+    }
+  }
+
+}

@@ -24,6 +24,7 @@ import static org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationT
 import static org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType.WRITE;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -296,19 +297,23 @@ final class ModificationDiff {
         private final DataTreeCandidateNode dataCandidate;
         // Using Object as type for schema node since it's the only type that's a parent to all schema node types from
         // yangtools. The hierarchy does not use e.g. SchemaNode class for all types
+        private final Object parentNode;
         private final Object schemaNode;
 
         Modification(final YangInstanceIdentifier id,
                      final DataTreeCandidateNode dataCandidate,
+                     final Object parentNode,
                      final Object schemaNode) {
             this.id = id;
             this.dataCandidate = dataCandidate;
+            this.parentNode = parentNode;
             this.schemaNode = schemaNode;
         }
 
-        Stream<Modification> streamChildren() {
-            return dataCandidate.getChildNodes().stream()
-                    .map(child -> new Modification(id.node(child.getIdentifier()), child, schemaChild(schemaNode, child.getIdentifier())));
+        Modification(final YangInstanceIdentifier id,
+                     final DataTreeCandidateNode dataCandidate,
+                     final Object schemaNode) {
+            this(id, dataCandidate, schemaNode, schemaNode);
         }
 
         List<Modification> getChildNodes() {
@@ -355,35 +360,98 @@ final class ModificationDiff {
             return dataCandidate.getDataAfter().isPresent();
         }
 
+        private AugmentationSchema findAugmentation(Object currentNode,
+                                                    final YangInstanceIdentifier.AugmentationIdentifier identifier) {
+            if (currentNode != null) {
+                // check if identifier points to some augmentation of currentNode
+                if (currentNode instanceof AugmentationTarget) {
+                    Optional<AugmentationSchema> augmentationSchema =
+                        ((AugmentationTarget) currentNode).getAvailableAugmentations().stream()
+                            .filter(aug -> identifier.equals(new YangInstanceIdentifier.AugmentationIdentifier(
+                                aug.getChildNodes().stream()
+                                    .map(SchemaNode::getQName)
+                                    .collect(Collectors.toSet()))))
+                            .findFirst();
+                    if (augmentationSchema.isPresent()) {
+                        return augmentationSchema.get();
+                    }
+                }
+
+                // continue search:
+                Collection<DataSchemaNode> childNodes = Collections.emptyList();
+                if (currentNode instanceof DataNodeContainer) {
+                    childNodes = ((DataNodeContainer) currentNode).getChildNodes();
+                } else if (currentNode instanceof ChoiceSchemaNode) {
+                    childNodes = ((ChoiceSchemaNode) currentNode).getCases().stream()
+                        .flatMap(cas -> cas.getChildNodes().stream()).collect(Collectors.toList());
+                }
+                return childNodes.stream().map(n -> findAugmentation(n, identifier)).filter(n -> n != null).findFirst()
+                    .orElse(null);
+            } else {
+                return null;
+            }
+        }
+
+        Stream<Modification> streamChildren() {
+            return dataCandidate.getChildNodes().stream()
+                .map(child -> {
+                    final YangInstanceIdentifier childId = id.node(child.getIdentifier());
+                    final Object schemaChild = schemaChild(schemaNode, child.getIdentifier());
+                    // An augment cannot change other augment, so we do not update parent node if we are streaming
+                    // children of AugmentationSchema (otherwise we would fail to find schema for nested augmentations):
+                    final Object newParent = (schemaNode instanceof AugmentationSchema)
+                        ? parentNode
+                        : schemaNode;
+                    return new Modification(childId, child, newParent, schemaChild);
+                });
+        }
+
         /**
          * Find next schema node in hierarchy.
          */
-        private Object schemaChild(final Object schema, final YangInstanceIdentifier.PathArgument identifier) {
+        private Object schemaChild(final Object schemaNode, final YangInstanceIdentifier.PathArgument identifier) {
             Object found = null;
 
             if (identifier instanceof YangInstanceIdentifier.AugmentationIdentifier) {
-                if (schema instanceof AugmentationTarget) {
+                if (schemaNode instanceof AugmentationTarget) {
                     // Find matching augmentation
-                    found = ((AugmentationTarget) schema).getAvailableAugmentations().stream()
-                            .filter(aug -> identifier.equals(new YangInstanceIdentifier.AugmentationIdentifier(
-                                    aug.getChildNodes().stream()
-                                            .map(SchemaNode::getQName)
-                                            .collect(Collectors.toSet()))))
-                            .findFirst()
-                            .orElse(null);
+                    found = ((AugmentationTarget) schemaNode).getAvailableAugmentations().stream()
+                        .filter(aug -> identifier.equals(new YangInstanceIdentifier.AugmentationIdentifier(
+                            aug.getChildNodes().stream()
+                                .map(SchemaNode::getQName)
+                                .collect(Collectors.toSet()))))
+                        .findFirst()
+                        .orElse(null);
+
+                    if (found == null) {
+                        // An augment cannot change other augment, but all augments only change their targets (data nodes).
+                        //
+                        // As a consequence, if nested augmentations are present,
+                        // AugmentationSchema might reference child schema node instances that do not include changes
+                        // from nested augments.
+                        //
+                        // But schemaNode, as mentioned earlier, contains all the changes introduced by augments.
+                        //
+                        // On the other hand, in case of augments which introduce leaves,
+                        // we need to address AugmentationSchema node directly so we can't simply do
+                        // found = schemaNode;
+                        //
+                        found =
+                            findAugmentation(parentNode, (YangInstanceIdentifier.AugmentationIdentifier) identifier);
+                    }
                 }
-            } else if (schema instanceof DataNodeContainer) {
+            } else if (schemaNode instanceof DataNodeContainer) {
                 // Special handling for list aggregator nodes. If we are at list aggregator node e.g. MapNode and
                 // we are searching for schema for a list entry e.g. MapEntryNode just return the same schema
-                if (schema instanceof ListSchemaNode &&
-                        ((SchemaNode) schema).getQName().equals(identifier.getNodeType())) {
-                    found = schema;
+                if (schemaNode instanceof ListSchemaNode &&
+                    ((SchemaNode) schemaNode).getQName().equals(identifier.getNodeType())) {
+                    found = schemaNode;
                 } else {
-                    found = ((DataNodeContainer) schema).getDataChildByName(identifier.getNodeType());
+                    found = ((DataNodeContainer) schemaNode).getDataChildByName(identifier.getNodeType());
                 }
-            } else if (schema instanceof ChoiceSchemaNode) {
+            } else if (schemaNode instanceof ChoiceSchemaNode) {
                 // For choices, iterate through all the cases
-                final Optional<DataSchemaNode> maybeChild = ((ChoiceSchemaNode) schema).getCases().stream()
+                final Optional<DataSchemaNode> maybeChild = ((ChoiceSchemaNode) schemaNode).getCases().stream()
                         .flatMap(cas -> cas.getChildNodes().stream())
                         .filter(child -> child.getQName().equals(identifier.getNodeType()))
                         .findFirst();
@@ -391,12 +459,12 @@ final class ModificationDiff {
                     found = maybeChild.get();
                 }
                 // Special handling for leaf-list nodes. Basically the same as is for list mixin nodes
-            } else if (schema instanceof LeafListSchemaNode &&
-                    ((SchemaNode) schema).getQName().equals(identifier.getNodeType())) {
-                found = schema;
+            } else if (schemaNode instanceof LeafListSchemaNode &&
+                ((SchemaNode) schemaNode).getQName().equals(identifier.getNodeType())) {
+                found = schemaNode;
             }
 
-            return checkNotNull(found, "Unable to find child node in: %s identifiable by: %s", schema, identifier);
+            return checkNotNull(found, "Unable to find child node in: %s identifiable by: %s", schemaNode, identifier);
         }
 
         @Override
