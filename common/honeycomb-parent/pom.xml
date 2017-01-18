@@ -479,6 +479,20 @@
                                 </source>
                             </configuration>
                         </execution>
+                        <!-- copy generated schema pictures -->
+                        <execution>
+                            <id>copy-generated-pictures</id>
+                            <phase>site</phase>
+                            <goals>
+                                <goal>execute</goal>
+                            </goals>
+                            <configuration>
+                                <!-- Copies generated schema pictures from ascii-doctor folders to site folder-->
+                                <source>
+                                    io.fd.honeycomb.common.scripts.AsciiDocImgForwarder.copyGeneratedImages(project, properties, log)
+                                </source>
+                            </configuration>
+                        </execution>
                     </executions>
                     <dependencies>
                         <dependency>
