@@ -5,27 +5,28 @@ Release notes for honeycomb {project-version}.
 Honeycomb is a generic NETCONF/RESTCONF management agent and provides a framework
 for building specialized agents.
 
+It uses many features and utilities from different http://www.opendaylight.org/[Opendaylight (ODL)] projects
+(e.g. yangtools, controller, mdsal and netconf).
+
 The biggest use case of honeycomb is VPP (fd.io's Vector packet processor).
 Honeycomb delivers a management agent to enable integration of VPP with e.g. SDN controllers such as Opendaylight.
 
-For VPP specific distribution of Honeycomb, refer to:
-!!!!! FIXME/TODO add link !!!!!!
+For VPP specific distribution of Honeycomb, please refer to https://wiki.fd.io/view/Hc2vpp[hc2vpp] project.
 
 == Release plan
 https://wiki.fd.io/view/Honeycomb/Release_Plans/Release_Plan_{project-public-version}[Release plan]
 
 == Features
-Adding to the list of existing features: https://wiki.fd.io/view/Honeycomb/Releases/1609#Features[1609 feature list]:
+Adding to the list of existing features: https://docs.fd.io/honeycomb/1.17.01/release-notes-aggregator/release_notes.html#_features[1701 feature list]
 
 === New features
+* https://jira.fd.io/browse/HONEYCOMB-344[Structural readers for list]
 
 === Removed features
 
 === Modified features
-* https://jira.fd.io/browse/HONEYCOMB-73[Initializers tie-in with readers]
-** Instead of root level initializer, initialization can be split among multiple initializing readers
-* https://jira.fd.io/browse/HONEYCOMB-270[Readers/ReadCustomizers able to influence presence of resulting data]
-** Suitable for presence container readers
+* https://jira.fd.io/browse/HONEYCOMB-333[HoneycombTestRunner improvements]
+* https://jira.fd.io/browse/HONEYCOMB-342[Various processing/translation improvements]
 
 === Deprecated features
 

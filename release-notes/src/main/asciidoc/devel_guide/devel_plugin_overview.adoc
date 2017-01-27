@@ -5,9 +5,8 @@ link:release_notes.html[< Home]
 Honeycomb provides a framework for plugins to participate in the data handling. The plugins use YANG modeling language to describe what:
 
 * *data* they can handle (Create, Read, Update, Delete operations)
-* *notifications* do they emit
-
-NOTE: RPCs are not supported in this release.
+* *notifications* they do emit
+* *RPCs* they can handle
 
 A plugin usually consists of:
 
