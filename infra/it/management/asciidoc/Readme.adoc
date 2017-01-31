@@ -1,0 +1,35 @@
+= management
+
+This modules is used to enable JMX monitoring on honeycomb Instance.
+
+= Tutorial
+== Configure
+To build honeycomb with management module incldued
+
+ mvn clean install -DskipTests -Pmanagement
+
+After this management module must be included to honeycomb module configuration.
+In /minimal-distribution/modules , just include fully qualified name of management module like so
+
+ io.fd.honeycomb.management.jmx.HoneycombManagementModule
+
+This will start all necessary beans to allow jmx connections to honeycomb instance.
+Also in logs , you will see all available JMX beans
+
+== Use
+
+To get any available JMX bean,
+use interface *JMXBeanProvider* that defines utility method to get *JMXConnector*
+
+ // get configured instance of jxm connection url according to HoneycombManagementConfig
+ @Inject JMXServiceUrl url;
+
+ // creates JMX connector
+ final JMXConnector connector = getConnector(url);
+ // to get any available bean
+ final String beanType = "java.lang:type=Memory";
+ final String beanName = "HeapMemoryUsage";
+ final Object jmxBean = getJMXAttribute(connector, beanType, beanName);
+
+
+

@@ -1,0 +1,19 @@
+module memory-benchmark {
+
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:memory:benchmark";
+    prefix "mm-bench";
+
+    revision "2016-12-04" {
+      description "Memory benchmark test api";
+    }
+
+    container config-data {
+        list config-list {
+            key name;
+            leaf name {
+                type string;
+            }
+        }
+    }
+}

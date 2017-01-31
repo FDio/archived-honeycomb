@@ -34,13 +34,31 @@
     <module>it-test</module>
   </modules>
 
-
-  <!-- Activate from command line with mvn <goals> -Pbenchmark -->
   <profiles>
+    <!-- Activate from command line with mvn <goals> -Pbenchmark -->
     <profile>
       <id>benchmark</id>
       <modules>
         <module>benchmark</module>
+      </modules>
+    </profile>
+
+    <!-- Activate management module -->
+    <profile>
+      <id>management</id>
+      <modules>
+        <module>management</module>
+      </modules>
+    </profile>
+
+    <!-- Activate memory benchmarking modules -->
+    <profile>
+      <id>memory-benchmark</id>
+      <modules>
+        <module>management</module>
+        <module>memory-benchmark-scripts</module>
+        <module>memory-benchmark</module>
+        <module>memory-benchmark-api</module>
       </modules>
     </profile>
   </profiles>

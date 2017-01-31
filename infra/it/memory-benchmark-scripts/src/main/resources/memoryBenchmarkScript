@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+java -cp .:memory-benchmark-1.0.0-with-tests.jar ${testParams} org.junit.runner.JUnitCore ${testClass}

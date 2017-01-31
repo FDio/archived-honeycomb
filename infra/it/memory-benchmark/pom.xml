@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2016 Cisco and/or its affiliates.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at:
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!-- Parent set as common script to use all groovy dependency versions, etc-->
+    <parent>
+        <groupId>io.fd.honeycomb.common</groupId>
+        <artifactId>honeycomb-parent</artifactId>
+        <version>1.17.04-SNAPSHOT</version>
+        <relativePath>../../../common/honeycomb-parent</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.fd.honeycomb.it</groupId>
+    <artifactId>memory-benchmark</artifactId>
+    <!-- Static version, we don't want it to be deployed anyway-->
+    <version>1.0.0</version>
+    <properties>
+        <commons-csv.version>1.4</commons-csv.version>
+        <honeycomb.version>1.17.04-SNAPSHOT</honeycomb.version>
+        <maven.groovy.version>2.0</maven.groovy.version>
+        <groovy.version>2.4.7</groovy.version>
+        <groovy.eclipse.compiler.version>2.9.2-01</groovy.eclipse.compiler.version>
+        <groovy.eclipse.batch.version>2.4.3-01</groovy.eclipse.batch.version>
+    </properties>
+    <!-- to be runnable from command line -->
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.fd.honeycomb.it</groupId>
+            <artifactId>memory-benchmark-api</artifactId>
+            <version>${honeycomb.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>minimal-distribution</artifactId>
+            <version>${honeycomb.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.fd.honeycomb.it</groupId>
+            <artifactId>management</artifactId>
+            <version>${honeycomb.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>${commons-csv.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>${groovy.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <!-- Skip deploy -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
+            <!-- skips test by default but compile them -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+
+            <!-- assemble jar with all dependencies and test classes -->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <descriptor>src/main/assembly/assembly.xml</descriptor>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- generate scripts for benchmarks -->
+            <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>groovy-maven-plugin</artifactId>
+                <executions>
+                    <!-- script for on-rest memory benchmark -->
+                    <execution>
+                        <id>generate-on-rest-benchmark-script</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <!-- 0 data samples == empty config file, therefore same as honeycomb on rest -->
+                        <configuration>
+                            <source>
+                            io.fd.honeycomb.benchmark.script.MemoryBenchmarkStartupScriptGenerator.generateWithDataScript(project, log, "memory-benchmark-on-rest-out", 0)
+                            </source>
+                        </configuration>
+                    </execution>
+                    <!-- script for memory benchmark with 1000 nodes in config data-->
+                    <execution>
+                        <id>generate-with-data-1000-benchmark-script</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>
+                            io.fd.honeycomb.benchmark.script.MemoryBenchmarkStartupScriptGenerator.generateWithDataScript(project, log, "memory-benchmark-with-data-out", 1000)
+                            </source>
+                        </configuration>
+                    </execution>
+                    <!-- script for memory benchmark with 10000 nodes in config data-->
+                    <execution>
+                        <id>generate-with-data-10000-benchmark-script</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>
+                            io.fd.honeycomb.benchmark.script.MemoryBenchmarkStartupScriptGenerator.generateWithDataScript(project, log, "memory-benchmark-with-data-out", 10000)
+                            </source>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>io.fd.honeycomb.it</groupId>
+                        <artifactId>benchmark-scripts</artifactId>
+                        <version>1.17.04-SNAPSHOT</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+</project>

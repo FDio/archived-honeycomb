@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- have to basically duplicate common-scripts, it cannot be used as parent because of jar packaging -->
+
+    <properties>
+        <!-- groovy -->
+        <maven.groovy.version>2.0</maven.groovy.version>
+        <groovy.version>2.4.7</groovy.version>
+        <groovy.eclipse.compiler.version>2.9.2-01</groovy.eclipse.compiler.version>
+        <groovy.eclipse.batch.version>2.4.3-01</groovy.eclipse.batch.version>
+    </properties>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.fd.honeycomb.it</groupId>
+    <artifactId>benchmark-scripts</artifactId>
+    <version>1.17.04-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <configuration>
+                        <skip>true</skip>
+                        <skipDeploy>true</skipDeploy>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-eclipse-compiler</artifactId>
+                <version>${groovy.eclipse.compiler.version}</version>
+                <extensions>true</extensions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <!-- 2.8.0-01 and later require maven-compiler-plugin 3.1 or higher -->
+                <configuration>
+                    <compilerId>groovy-eclipse-compiler</compilerId>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-eclipse-compiler</artifactId>
+                        <version>${groovy.eclipse.compiler.version}</version>
+                    </dependency>
+                    <!-- for 2.8.0-01 and later you must have an explicit dependency on groovy-eclipse-batch -->
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-eclipse-batch</artifactId>
+                        <version>${groovy.eclipse.batch.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>${groovy.version}</version>
+        </dependency>
+    </dependencies>
+</project>

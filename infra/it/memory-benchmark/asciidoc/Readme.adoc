@@ -1,0 +1,68 @@
+= memory-benchmark
+
+Overview of memory-benchmark
+
+= Tutorial
+= Configure
+
+To run honeycomb memory benchmark, use maven profile *memory-benchmark* like so
+
+ mvn clean install -DskipTests -Pmemory-benchmark
+
+This will add following modules to build
+
+* _management_ - Enable JMX for honeycomb
+* _memory-benchmark-scripts_ - Script generation for benchmarks
+* _memory-benchmark-api_ - Test models for benchmark
+* _memory-benchmark_ - Benchmark itself
+
+By default, 3 versions of run scripts are produces in project build folder
+
+* _honeycomb-memory-footprint-benchmark-0_ - Tests honeycomb memory footprint on rest without any config/context data
+* _honeycomb-memory-footprint-benchmark-1000_ - Tests honeycomb memory footprint while 1000 data nodes present in config data
+* _honeycomb-memory-footprint-benchmark-10000_ - Tests honeycomb memory footprint while 10000 data nodes present in config data
+
+Any other data sample size can be tested by modifying script parameter *-DsampleSize*
+
+== Run
+
+To run benchmark
+
+ ./honeycomb-memory-footprint-benchmark-0
+
+This will produce two output files.
+
+* memory-benchmark-on-rest-out-0-HeapMemoryUsage.csv
+* memory-benchmark-on-rest-out-0-NonHeapMemoryUsage.csv
+
+For further explanation look at
+
+ https://docs.oracle.com/javase/7/docs/api/java/lang/management/MemoryMXBean.html
+
+
+Each of these files contains values in following format
+
+ committed,init,max,used
+ 132644864,109051904,1525153792,12577144
+
+These values stands for
+
+
+* init - Represents the initial amount of memory (in bytes) that the Java virtual machine requests from the operating system for memory management during startup.
+The Java virtual machine may request additional memory from the operating system and may also release memory to the system over time.
+The value of init may be undefined(-1).
+* used - Represents the amount of memory currently used (in bytes).
+* committed	- Represents the amount of memory (in bytes) that is guaranteed to be available for use by the Java virtual machine.
+The amount of committed memory may change over time (increase or decrease). The Java virtual machine may release memory to the system and committed could be less than init.
+Committed will always be greater than or equal to used.
+* max - Represents the maximum amount of memory (in bytes) that can be used for memory management. Its value may be undefined(-1).
+ The maximum amount of memory may change over time if defined.
+ The amount of used and committed memory will always be less than or equal to max if max is defined.
+ A memory allocation may fail if it attempts to increase the used memory
+ such that used > committed even if used <= max would still be true (for example, when the system is low on virtual memory).
+
+
+
+
+
+
