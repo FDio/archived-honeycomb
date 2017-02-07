@@ -60,6 +60,9 @@ public class DataObjects {
         }
     }
 
+    public interface DataObjectKBuilder extends org.opendaylight.yangtools.concepts.Builder<DataObjectK>{
+    }
+
     public interface DataObject1ChildK extends DataObject, ChildOf<DataObject1>, Identifiable<DataObject1ChildKey> {
         // needs to be defined like this to have paths totally equal after cutting path for internally keyed id inside infra
         InstanceIdentifier<DataObject1ChildK> IID =

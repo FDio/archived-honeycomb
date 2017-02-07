@@ -66,6 +66,11 @@ public class CompositeReaderRegistryBuilderTest {
         return mock;
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testPreventStructuralReaderForList() {
+        new CompositeReaderRegistryBuilder().addStructuralReader(InstanceIdentifier.create(DataObjects.DataObjectK.class), DataObjects.DataObjectKBuilder.class);
+    }
+
     @Test
     public void testCompositeStructure() throws Exception {
         final CompositeReaderRegistryBuilder compositeReaderRegistryBuilder = new CompositeReaderRegistryBuilder();

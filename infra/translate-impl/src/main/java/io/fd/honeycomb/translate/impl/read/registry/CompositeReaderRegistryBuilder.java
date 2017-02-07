@@ -25,17 +25,22 @@ import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistryBuilder;
 import io.fd.honeycomb.translate.util.AbstractSubtreeManagerRegistryBuilderBuilder;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
+
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 @NotThreadSafe
 public final class CompositeReaderRegistryBuilder
@@ -48,13 +53,18 @@ public final class CompositeReaderRegistryBuilder
     protected Reader<? extends DataObject, ? extends Builder<?>> getSubtreeHandler(@Nonnull final Set<InstanceIdentifier<?>> handledChildren,
                                                                                    @Nonnull final Reader<? extends DataObject, ? extends Builder<?>> reader) {
         return reader instanceof Initializer
-                ? InitSubtreeReader.createForReader(handledChildren, (InitReader<?, ?>)reader)
+                ? InitSubtreeReader.createForReader(handledChildren, (InitReader<?, ?>) reader)
                 : SubtreeReader.createForReader(handledChildren, reader);
     }
 
     @Override
     public <D extends DataObject> void addStructuralReader(@Nonnull InstanceIdentifier<D> id,
                                                            @Nonnull Class<? extends Builder<D>> builderType) {
+        // TODO https://jira.fd.io/browse/HONEYCOMB-344 provide variant of this method for list nodes
+        // prevent case to submit structural reader for list, which would cause fail because target setter consumes
+        // List<TargetType>, not Target type. If node is static, customizer that handles it should return static list
+        // of IDs.
+        checkArgument(!Identifiable.class.isAssignableFrom(id.getTargetType()), "Structural readers cannot be used for keyed nodes[node type %s]", id.getTargetType());
         add(GenericReader.createReflexive(id, builderType));
     }
 
