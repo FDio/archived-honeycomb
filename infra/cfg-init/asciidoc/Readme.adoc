@@ -42,7 +42,7 @@ configuration succeeds, is applied committed to config data tree.
 
 1.  On each successful commit, persist:
 1.  Entire config data tree
-2.  Entire cotnext data tree
+2.  Entire context data tree
 
 == Restoration process
 
