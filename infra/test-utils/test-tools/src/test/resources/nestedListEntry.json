@@ -1,0 +1,10 @@
+{
+  "nested-list": [
+    {
+      "nested-name": "nameUnderNestedList"
+    },
+    {
+      "nested-name": "otherName"
+    }
+  ]
+}

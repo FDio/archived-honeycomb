@@ -12,6 +12,13 @@ module hc-data{
         prefix "ext";
       }
 
+      list root-list {
+        key root-name;
+        leaf root-name{
+          type string;
+        }
+      }
+
       container simple-container{
          list simple-list{
             key name;
@@ -21,6 +28,13 @@ module hc-data{
             container cont-under-list{
                 leaf nested-name{
                     type string;
+                }
+            }
+
+            list nested-list {
+                key nested-name;
+                leaf nested-name {
+                     type string;
                 }
             }
         }
@@ -66,6 +80,13 @@ module hc-data{
 
         leaf name-in-augment{
             type string;
+        }
+
+        list list-in-augment{
+            key key-in-augment;
+            leaf key-in-augment{
+                type string;
+            }
         }
       }
 }

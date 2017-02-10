@@ -17,28 +17,22 @@
 package io.fd.honeycomb.test.tools;
 
 import io.fd.honeycomb.test.tools.annotations.InjectablesProcessor;
-import io.fd.honeycomb.test.tools.factories.ChildNodeDataFactory;
-import io.fd.honeycomb.test.tools.factories.RootNodeDataFactory;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Parameter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.data.impl.codec.DeserializationException;
 import org.opendaylight.yangtools.yang.data.util.AbstractModuleStringInstanceIdentifierCodec;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class HoneycombTestRunner extends BlockJUnit4ClassRunner implements YangContextProducer, InjectablesProcessor {
 
@@ -48,8 +42,7 @@ public class HoneycombTestRunner extends BlockJUnit4ClassRunner implements YangC
     private BindingToNormalizedNodeCodec serializer;
     private AbstractModuleStringInstanceIdentifierCodec iidParser;
 
-    private ChildNodeDataFactory childNodeDataFactory;
-    private RootNodeDataFactory rootNodeDataFactory;
+    private YangDataProcessorRegistry processorRegistry;
 
     public HoneycombTestRunner(final Class<?> klass) throws InitializationError {
         super(klass);
@@ -64,12 +57,11 @@ public class HoneycombTestRunner extends BlockJUnit4ClassRunner implements YangC
         final ModuleInfoBackedContext ctx = getCheckedModuleInfoContext(test);
         schemaContext = ctx.getSchemaContext();
         // Create serializer from it in order to later transform NormalizedNodes into BA
-        serializer = createSerializer(ctx, schemaContext);
+        serializer = createSerializer(ctx);
         // Create InstanceIdentifier Codec in order to later transform string represented IID into YangInstanceIdentifier
         iidParser = getIIDCodec(ctx);
 
-        childNodeDataFactory = new ChildNodeDataFactory(schemaContext, serializer, iidParser);
-        rootNodeDataFactory = new RootNodeDataFactory(schemaContext, serializer, iidParser);
+        processorRegistry = YangDataProcessorRegistry.create(schemaContext, serializer);
 
         injectFields(test);
         return test;
@@ -83,7 +75,7 @@ public class HoneycombTestRunner extends BlockJUnit4ClassRunner implements YangC
 
     /**
      * Allows method parameters injection
-     * */
+     */
     @Override
     protected Statement methodInvoker(final FrameworkMethod method, final Object test) {
         return new InjectableTestMethodInvoker(method, test, Arrays.stream(method.getMethod().getParameters())
@@ -94,7 +86,7 @@ public class HoneycombTestRunner extends BlockJUnit4ClassRunner implements YangC
 
     private Object injectValueOrNull(final Parameter parameter) {
         return isInjectable(parameter)
-                ? getData(resourcePath(parameter), instanceIdentifier(parameter).orNull(), parameter.getType())
+                ? processorRegistry.getNodeData(instanceIdentifier(iidParser, parameter), resourcePath(parameter))
                 : null;
     }
 
@@ -107,22 +99,7 @@ public class HoneycombTestRunner extends BlockJUnit4ClassRunner implements YangC
         injectableFields(testInstance.getClass()).forEach(field -> {
             LOG.debug("Processing field {}", field);
             injectField(field, testInstance,
-                    getData(resourcePath(field), instanceIdentifier(field).orNull(), field.getType()));
+                    processorRegistry.getNodeData(instanceIdentifier(iidParser, field), resourcePath(field)));
         });
-    }
-
-    private DataObject getData(final String resourcePath, @Nullable final String identifier,
-                               final Class<?> injectedType) {
-        try {
-            if (StringUtils.isNotEmpty(identifier)) {
-                LOG.debug("Processing {}  as child node {}", injectedType, identifier);
-                return childNodeDataFactory.getChildNodeData(identifier, resourcePath);
-            } else {
-                LOG.debug("Processing {} as root node", injectedType);
-                return rootNodeDataFactory.getRootNodeData(getRootInstanceIdentifier(injectedType), resourcePath);
-            }
-        } catch (DeserializationException | IOException e) {
-            throw new IllegalStateException(e);
-        }
     }
 }

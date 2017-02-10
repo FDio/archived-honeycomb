@@ -1,0 +1,10 @@
+{
+  "root-list":[
+    {
+      "root-name":"rootName"
+    },
+    {
+      "root-name":"otherRootName"
+    }
+  ]
+}

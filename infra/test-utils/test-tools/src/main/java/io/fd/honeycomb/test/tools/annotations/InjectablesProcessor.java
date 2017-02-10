@@ -16,22 +16,21 @@
 
 package io.fd.honeycomb.test.tools.annotations;
 
-import static io.fd.honeycomb.test.tools.annotations.InjectTestData.NO_ID;
-
-import com.google.common.base.Optional;
-import java.lang.reflect.Field;
-import java.lang.reflect.Parameter;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.$YangModuleInfoImpl;
 import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.util.AbstractModuleStringInstanceIdentifierCodec;
+
+import javax.annotation.Nonnull;
+import java.lang.reflect.Field;
+import java.lang.reflect.Parameter;
+import java.util.List;
+import java.util.Set;
+
+import static io.fd.honeycomb.test.tools.annotations.InjectTestData.NO_ID;
 
 /**
  * Common logic for @InjectTestData
@@ -54,23 +53,23 @@ public interface InjectablesProcessor {
         return parameter.getAnnotation(InjectTestData.class).resourcePath();
     }
 
-    default Optional<String> instanceIdentifier(final Field field) {
+    default YangInstanceIdentifier instanceIdentifier(@Nonnull final AbstractModuleStringInstanceIdentifierCodec parser, @Nonnull final Field field) {
         final String identifier = field.getAnnotation(InjectTestData.class).id();
         // == used instead of equals to ensure constant was used
         if (NO_ID.equals(identifier)) {
-            return Optional.absent();
+            return getRootInstanceIdentifier(field.getType());
         } else {
-            return Optional.of(identifier);
+            return parser.deserialize(identifier);
         }
     }
 
-    default Optional<String> instanceIdentifier(final Parameter parameter) {
+    default YangInstanceIdentifier instanceIdentifier(@Nonnull final AbstractModuleStringInstanceIdentifierCodec parser, @Nonnull final Parameter parameter) {
         final String identifier = parameter.getAnnotation(InjectTestData.class).id();
         // == used instead of equals to ensure constant was used
         if (NO_ID.equals(identifier)) {
-            return Optional.absent();
+            return getRootInstanceIdentifier(parameter.getType());
         } else {
-            return Optional.of(identifier);
+            return parser.deserialize(identifier);
         }
     }
 
@@ -83,7 +82,7 @@ public interface InjectablesProcessor {
         }
     }
 
-    default YangInstanceIdentifier getRootInstanceIdentifier(final Class type) {
+    static YangInstanceIdentifier getRootInstanceIdentifier(final Class type) {
         try {
             return YangInstanceIdentifier.of(QName.class.cast(type.getField("QNAME").get(null)));
         } catch (IllegalAccessException e) {

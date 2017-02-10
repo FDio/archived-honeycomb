@@ -1,0 +1,10 @@
+{
+  "list-in-augment":[
+    {
+      "key-in-augment":"keyInAugment"
+    },
+    {
+      "key-in-augment":"otherKeyInAugment"
+    }
+  ]
+}

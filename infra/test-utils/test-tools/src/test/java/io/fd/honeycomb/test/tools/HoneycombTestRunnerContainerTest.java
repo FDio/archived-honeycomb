@@ -16,27 +16,27 @@
 
 package io.fd.honeycomb.test.tools;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.test.tools.annotations.InjectablesProcessor;
 import io.fd.honeycomb.test.tools.annotations.SchemaContextProvider;
-import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.$YangModuleInfoImpl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.AugContainerAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.SimpleContainer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.SimpleContainerBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.simple.container.NestedContainer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.simple.container.SimpleList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.simple.container.augmented.container.ListInAugment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.simple.container.simple.list.ContUnderList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.simple.container.simple.list.ContUnderListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.simple.container.simple.list.NestedList;
 import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
 
+import java.util.Collections;
+
+import static io.fd.honeycomb.test.tools.InjectionTestData.*;
+import static org.junit.Assert.*;
+
 @RunWith(HoneycombTestRunner.class)
-public class HoneycombTestRunnerTest implements InjectablesProcessor {
+public class HoneycombTestRunnerContainerTest implements InjectablesProcessor {
 
     @InjectTestData(resourcePath = "/simpleContainerEmpty.json")
     private SimpleContainer simpleContainer;
@@ -51,6 +51,19 @@ public class HoneycombTestRunnerTest implements InjectablesProcessor {
             "/hc-data:simple-list[hc-data:name='nameUnderSimpleList']" +
             "/hc-data:cont-under-list")
     private ContUnderList containerUnderList;
+
+    @InjectTestData(resourcePath = AUGMENT_LIST_RESOURCE, id = AUGMENT_LIST_DATA_PATH)
+    private ListInAugment listInAugment;
+
+    @InjectTestData(resourcePath = NESTED_LIST_RESOURCE, id = NESTED_LIST_DATA_PATH)
+    private NestedList nestedList;
+
+    @InjectTestData(resourcePath = ROOT_LIST_RESOURCE, id = ROOT_LIST_DATA_PATH)
+    private RootList rootList;
+
+    @InjectTestData(resourcePath = SIMPLES_LIST_RESOURCE, id = SIMPLE_LIST_DATA_PATH)
+    private SimpleList simpleList;
+
 
     @SchemaContextProvider
     public ModuleInfoBackedContext getSchemaContext() {
