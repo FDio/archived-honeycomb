@@ -299,15 +299,26 @@ final class ModificationDiff {
         // yangtools. The hierarchy does not use e.g. SchemaNode class for all types
         private final Object parentNode;
         private final Object schemaNode;
+        private final boolean updateParentNode;
+
+        private Modification(final YangInstanceIdentifier id,
+                             final DataTreeCandidateNode dataCandidate,
+                             final Object parentNode,
+                             final Object schemaNode,
+                             final boolean updateParentNode) {
+            this.id = id;
+            this.dataCandidate = dataCandidate;
+            this.parentNode = parentNode;
+            this.schemaNode = schemaNode;
+            // controls process of updating parent node while moving down the schema tree:
+            this.updateParentNode = updateParentNode;
+        }
 
         Modification(final YangInstanceIdentifier id,
                      final DataTreeCandidateNode dataCandidate,
                      final Object parentNode,
                      final Object schemaNode) {
-            this.id = id;
-            this.dataCandidate = dataCandidate;
-            this.parentNode = parentNode;
-            this.schemaNode = schemaNode;
+            this(id, dataCandidate, parentNode, schemaNode, true);
         }
 
         Modification(final YangInstanceIdentifier id,
@@ -397,12 +408,19 @@ final class ModificationDiff {
                 .map(child -> {
                     final YangInstanceIdentifier childId = id.node(child.getIdentifier());
                     final Object schemaChild = schemaChild(schemaNode, child.getIdentifier());
+
                     // An augment cannot change other augment, so we do not update parent node if we are streaming
                     // children of AugmentationSchema (otherwise we would fail to find schema for nested augmentations):
-                    final Object newParent = (schemaNode instanceof AugmentationSchema)
-                        ? parentNode
-                        : schemaNode;
-                    return new Modification(childId, child, newParent, schemaChild);
+                    if (updateParentNode) {
+                        if (schemaNode instanceof AugmentationSchema) {
+                            // child nodes would not have nested augmentations, so we stop moving parentNode:
+                            return new Modification(childId, child, parentNode, schemaChild, false);
+                        } else {
+                            // update parent node:
+                            return new Modification(childId, child, schemaNode, schemaChild, true);
+                        }
+                    }
+                    return new Modification(childId, child, parentNode, schemaChild, updateParentNode);
                 });
         }
 

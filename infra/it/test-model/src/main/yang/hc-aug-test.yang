@@ -27,6 +27,17 @@ module hc-aug-test {
   }
 
   augment "/aug-target" {
+    ext:augment-identifier "list-augment";
+    list list-from-augment {
+      key some-leaf;
+
+      leaf some-leaf {
+        type string;
+      }
+    }
+  }
+
+  augment "/aug-target" {
     ext:augment-identifier "simple-augment";
     leaf simple-augment-leaf {
         type string;
@@ -57,6 +68,13 @@ module hc-aug-test {
       leaf some-leaf {
         type string;
       }
+    }
+  }
+
+  augment "/aug-target/list-from-augment" {
+    ext:augment-identifier "list-from-augment-augment";
+    leaf new-leaf {
+        type string;
     }
   }
 

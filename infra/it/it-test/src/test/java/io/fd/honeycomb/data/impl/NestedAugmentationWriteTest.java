@@ -29,6 +29,7 @@ import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.Writer;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
@@ -41,12 +42,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.t
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.FromAugmentAugmentBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.FromAugmentListAugment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.FromAugmentListAugmentBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.ListAugment;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.ListAugmentBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.ListFromAugmentAugment;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.ListFromAugmentAugmentBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.SimpleAugment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.SimpleAugmentBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.SimpleNestedAugment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.SimpleNestedAugmentBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.aug.target.FromAugment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.aug.target.FromAugmentBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.aug.target.ListFromAugment;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.aug.target.ListFromAugmentBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.aug.target.ListFromAugmentKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.aug.target.from.augment.FromAugment2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.aug.target.from.augment.FromAugment2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.aug.target.from.augment.FromAugmentEntry;
@@ -73,6 +81,12 @@ public class NestedAugmentationWriteTest extends AbstractInfraTest {
         AUG_TARGET_ID.augmentation(FromAugmentAugment.class);
     private static final InstanceIdentifier<FromAugment> FROM_AUGMENT_ID =
         FROM_AUGMENT_AUGMENT_ID.child(FromAugment.class);
+    private static final InstanceIdentifier<ListAugment> LIST_AUGMENT_ID =
+        AUG_TARGET_ID.augmentation(ListAugment.class);
+    private static final InstanceIdentifier<ListFromAugment> LIST_FROM_AUGMENT_ID =
+        LIST_AUGMENT_ID.child(ListFromAugment.class);
+    private static final InstanceIdentifier<ListFromAugmentAugment> LIST_FROM_AUGMENT_AUGMENT_ID =
+        LIST_FROM_AUGMENT_ID.augmentation(ListFromAugmentAugment.class);
     private static final InstanceIdentifier<SimpleAugment> SIMPLE_AUGMENT_ID =
         AUG_TARGET_ID.augmentation(SimpleAugment.class);
     private static final InstanceIdentifier<FromAugment2Augment> FROM_AUGMENT2_AUGMENT_ID =
@@ -91,6 +105,9 @@ public class NestedAugmentationWriteTest extends AbstractInfraTest {
 
     private final Writer<AugTarget> augTargetWriter = mockWriter(AUG_TARGET_ID);
     private final Writer<FromAugment> fromAugmentWriter = mockWriter(FROM_AUGMENT_ID);
+    private final Writer<ListFromAugment> listFromAugmentWriter = mockWriter(LIST_FROM_AUGMENT_ID);
+    private final Writer<ListFromAugmentAugment> listFromAugmentAugmentWriter =
+        mockWriter(LIST_FROM_AUGMENT_AUGMENT_ID);
     private final Writer<FromAugment2> fromAugment2Writer = mockWriter(FROM_AUGMENT2_ID);
     private final Writer<FromAugmentEntry> fromAugmentListWriter = mockWriter(FROM_AUGMENT_ENTRY_ID);
 
@@ -118,6 +135,8 @@ public class NestedAugmentationWriteTest extends AbstractInfraTest {
         writerRegistry = new FlatWriterRegistryBuilder()
             .add(augTargetWriter)
             .add(fromAugmentWriter)
+            .add(listFromAugmentWriter)
+            .add(listFromAugmentAugmentWriter)
             .add(simpleAugmentWriter)
             .add(fromAugment2Writer)
             .add(simpleNestedAugmentWriter)
@@ -224,6 +243,47 @@ public class NestedAugmentationWriteTest extends AbstractInfraTest {
             .update(eq(keyedNestedList1), eq(null), eq(entries.get(0)), any(WriteContext.class));
         verify(fromAugmentListWriter)
             .update(eq(keyedNestedList2), eq(null), eq(entries.get(1)), any(WriteContext.class));
+    }
+
+    @Test
+    public void testListNestedAugmentationWrite() throws Exception {
+        // tests augmenting list that already comes from augment
+        final ModifiableDataTreeDelegator modifiableDataTreeDelegator =
+            new ModifiableDataTreeDelegator(serializer, dataTree, schemaContext, writerRegistry, contextBroker);
+
+        final DataModification dataModification = modifiableDataTreeDelegator.newModification();
+
+        final ListFromAugmentAugment listAugmentation = new ListFromAugmentAugmentBuilder()
+            .setNewLeaf("new-leaf-val").build();
+        final List<ListFromAugment> list = Collections.singletonList(
+            new ListFromAugmentBuilder()
+                .setSomeLeaf("some-leaf-val")
+                .addAugmentation(ListFromAugmentAugment.class, listAugmentation).build());
+        final AugTarget data = new AugTargetBuilder()
+            .setSomeLeaf("aug-target-leaf-val")
+            .addAugmentation(ListAugment.class, new ListAugmentBuilder().setListFromAugment(list).build()).build();
+
+        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedNode =
+            serializer.toNormalizedNode(AUG_TARGET_ID, data);
+        dataModification.write(normalizedNode.getKey(), normalizedNode.getValue());
+        dataModification.commit();
+
+        // verify aug target update:
+        verify(augTargetWriter).update(eq(AUG_TARGET_ID), eq(null), eq(data), any(WriteContext.class));
+
+        // verify list customizer update:
+        final KeyedInstanceIdentifier<ListFromAugment, ListFromAugmentKey> keyedNestedList =
+            LIST_AUGMENT_ID.child(ListFromAugment.class, new ListFromAugmentKey("some-leaf-val"));
+        final ArgumentCaptor<DataObject> doCaptor = ArgumentCaptor.forClass(DataObject.class);
+        verify(listFromAugmentWriter)
+            .update(eq(keyedNestedList), eq(null), doCaptor.capture(), any(WriteContext.class));
+        assertEquals(list.get(0).getSomeLeaf(), ((ListFromAugment) doCaptor.getValue()).getSomeLeaf());
+
+        // verify list augmentation customizer update:
+        verify(listFromAugmentAugmentWriter)
+            .update(eq(keyedNestedList.augmentation(ListFromAugmentAugment.class)), eq(null), doCaptor.capture(),
+                any(WriteContext.class));
+        assertEquals(listAugmentation.getNewLeaf(), ((ListFromAugmentAugment) doCaptor.getValue()).getNewLeaf());
     }
 
     private AugTarget augTarget(FromAugment fromAugment) {
