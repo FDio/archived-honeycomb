@@ -20,7 +20,9 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
-import javax.annotation.Nonnull;
+import org.apache.commons.lang3.builder.RecursiveToStringStyle;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -32,12 +34,20 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+
+import static org.apache.commons.lang3.builder.ToStringStyle.MULTI_LINE_STYLE;
 
 /**
  * Composite DOM transaction that delegates reads to a {@link DOMDataReadTransaction} delegate and writes to a {@link
  * DOMDataWriteTransaction} delegate.
  */
 final class ReadWriteTransaction implements DOMDataReadWriteTransaction {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ReadWriteTransaction.class);
 
     private final DOMDataReadOnlyTransaction delegateReadTx;
     private final DOMDataWriteTransaction delegateWriteTx;
@@ -73,6 +83,15 @@ final class ReadWriteTransaction implements DOMDataReadWriteTransaction {
 
     @Override
     public CheckedFuture<Void, TransactionCommitFailedException> submit() {
+        //TODO - remove after https://bugs.opendaylight.org/show_bug.cgi?id=7791 resolved
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Submitting transaction {}", ReflectionToStringBuilder.toString(
+                    delegateWriteTx,
+                    RecursiveToStringStyle.MULTI_LINE_STYLE,
+                    false,
+                    false
+            ));
+        }
         return delegateWriteTx.submit();
     }
 

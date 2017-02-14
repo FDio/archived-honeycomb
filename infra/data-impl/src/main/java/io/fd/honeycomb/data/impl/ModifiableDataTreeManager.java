@@ -18,6 +18,7 @@ package io.fd.honeycomb.data.impl;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.util.concurrent.Futures.immediateCheckedFuture;
+import static org.apache.commons.lang3.builder.ToStringStyle.MULTI_LINE_STYLE;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -25,6 +26,9 @@ import io.fd.honeycomb.data.ModifiableDataManager;
 import io.fd.honeycomb.data.DataModification;
 import io.fd.honeycomb.translate.TranslationException;
 import javax.annotation.Nonnull;
+
+import org.apache.commons.lang3.builder.RecursiveToStringStyle;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -114,6 +118,18 @@ public class ModifiableDataTreeManager implements ModifiableDataManager {
             modification.ready();
             dataTree.validate(modification);
             validated = true;
+        }
+
+        @Override
+        public String toString() {
+            return "ConfigSnapshot{" +
+                    "modification=" +
+                    ReflectionToStringBuilder.toString(
+                            modification,
+                            RecursiveToStringStyle.MULTI_LINE_STYLE,
+                            false,
+                            false
+                    ) + ", validated=" + validated + '}';
         }
     }
 }
