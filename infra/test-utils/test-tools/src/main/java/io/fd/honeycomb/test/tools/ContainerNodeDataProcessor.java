@@ -48,6 +48,8 @@ final class ContainerNodeDataProcessor extends AbstractYangContextHolder impleme
     public DataObject getNodeData(@Nonnull YangInstanceIdentifier yangInstanceIdentifier, @Nonnull String resourcePath) {
 
         final InputStream resourceStream = this.getClass().getResourceAsStream(resourcePath);
+        checkState(resourceStream != null, "Resource %s not found", resourcePath);
+
         final YangInstanceIdentifier nodeParent = getNodeParent(yangInstanceIdentifier).orElse(null);
         final SchemaNode parentSchema = parentSchema(schemaContext(), serializer(), nodeParent, () -> LOG);
 

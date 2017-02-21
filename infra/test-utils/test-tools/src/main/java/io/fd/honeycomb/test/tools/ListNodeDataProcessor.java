@@ -30,6 +30,7 @@ import javax.annotation.Nonnull;
 import java.io.InputStream;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static io.fd.honeycomb.translate.util.JsonUtils.readListEntryFromJson;
 
 /**
@@ -52,6 +53,8 @@ final class ListNodeDataProcessor extends AbstractYangContextHolder implements Y
         final YangInstanceIdentifier listParent = listNodeParent(nodeIdentifier);
         final YangInstanceIdentifier.NodeIdentifierWithPredicates keyedNodeIdentifier = listNodeIdentifier(nodeIdentifier);
         final InputStream resourceStream = this.getClass().getResourceAsStream(resourcePath);
+        checkState(resourceStream != null, "Resource %s not found", resourcePath);
+
         final SchemaNode parentSchemaNode = parentSchema(schemaContext(), serializer(), listParent, () -> LOG);
         final MapEntryNode data = readListEntryFromJson(schemaContext(), resourceStream, parentSchemaNode, keyedNodeIdentifier);
 
