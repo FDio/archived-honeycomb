@@ -17,6 +17,7 @@
 package io.fd.honeycomb.translate.impl.read.registry;
 
 import com.google.common.collect.ImmutableMap;
+import io.fd.honeycomb.translate.impl.read.GenericListReader;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.read.InitReader;
 import io.fd.honeycomb.translate.read.Initializer;
@@ -36,6 +37,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,12 +62,16 @@ public final class CompositeReaderRegistryBuilder
     @Override
     public <D extends DataObject> void addStructuralReader(@Nonnull InstanceIdentifier<D> id,
                                                            @Nonnull Class<? extends Builder<D>> builderType) {
-        // TODO https://jira.fd.io/browse/HONEYCOMB-344 provide variant of this method for list nodes
         // prevent case to submit structural reader for list, which would cause fail because target setter consumes
-        // List<TargetType>, not Target type. If node is static, customizer that handles it should return static list
-        // of IDs.
-        checkArgument(!Identifiable.class.isAssignableFrom(id.getTargetType()), "Structural readers cannot be used for keyed nodes[node type %s]", id.getTargetType());
+        // List<TargetType>, not Target type. If node is static list, addStructuralListReader should be used
+        checkArgument(!Identifiable.class.isAssignableFrom(id.getTargetType()), "Structural readers cannot be used for keyed nodes[node type %s], use addStructuralListReader()", id.getTargetType());
         add(GenericReader.createReflexive(id, builderType));
+    }
+
+    @Override
+    public <D extends DataObject & Identifiable<K>, K extends Identifier<D>> void addStructuralListReader(@Nonnull InstanceIdentifier<D> id, @Nonnull Class<? extends Builder<D>> builderType, @Nonnull List<K> staticKeys) {
+        checkArgument(Identifiable.class.isAssignableFrom(id.getTargetType()), "Node %s is not keyed, use addStructuralReader()", id.getTargetType());
+        add(GenericListReader.createReflexive(id, builderType, staticKeys));
     }
 
     /**

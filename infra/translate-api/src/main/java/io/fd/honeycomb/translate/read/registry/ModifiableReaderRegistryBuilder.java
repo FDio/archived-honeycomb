@@ -22,7 +22,11 @@ import io.fd.honeycomb.translate.read.Reader;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import java.util.List;
 
 /**
  * Mutable registry that allows adding new readers.
@@ -38,4 +42,10 @@ public interface ModifiableReaderRegistryBuilder
      */
     <D extends DataObject> void addStructuralReader(@Nonnull InstanceIdentifier<D> id,
                                                     @Nonnull Class<? extends Builder<D>> builderType);
+    /**
+     * Construct customizer that will always return static list of keys.
+     * */
+    <D extends DataObject & Identifiable<K>,K extends Identifier<D>> void addStructuralListReader(@Nonnull InstanceIdentifier<D> id,
+                                                                                                  @Nonnull Class<? extends Builder<D>> builderType,
+                                                                                                  @Nonnull List<K> staticKeys);
 }

@@ -16,31 +16,39 @@
 
 package io.fd.honeycomb.translate.util.read;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.google.common.base.Optional;
+import io.fd.honeycomb.translate.read.ReadContext;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.ReflectionUtils;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.List;
-import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import javax.annotation.Nonnull;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.*;
 
 /**
  * Might be slow.
  */
-public abstract class ReflexiveListReaderCustomizer<C extends DataObject & Identifiable<K>, K extends Identifier<C>, B extends Builder<C>>
+public class ReflexiveListReaderCustomizer<C extends DataObject & Identifiable<K>, K extends Identifier<C>, B extends Builder<C>>
         extends ReflexiveReaderCustomizer<C, B>
         implements ListReaderCustomizer<C, K, B> {
 
+    private final List<K> staticKeys;
 
-    public ReflexiveListReaderCustomizer(final Class<C> typeClass, final Class<B> builderClass) {
+    public ReflexiveListReaderCustomizer(@Nonnull final Class<C> typeClass, @Nonnull final Class<B> builderClass,
+                                         @Nonnull final List<K> staticKeys) {
         super(typeClass, builderClass);
+        this.staticKeys = checkNotNull(staticKeys, "Static keys cannot be null");
+        checkState(!this.staticKeys.isEmpty(), "No static keys provided");
     }
 
     @Override
@@ -61,5 +69,11 @@ public abstract class ReflexiveListReaderCustomizer<C extends DataObject & Ident
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new IllegalArgumentException("Unable to set " + readData + " to " + parentBuilder, e);
         }
+    }
+
+    @Nonnull
+    @Override
+    public List<K> getAllIds(@Nonnull InstanceIdentifier<C> id, @Nonnull ReadContext context) throws ReadFailedException {
+        return staticKeys;
     }
 }

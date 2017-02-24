@@ -16,26 +16,21 @@
 
 package io.fd.honeycomb.translate.util.read;
 
+import com.google.common.collect.Lists;
+import io.fd.honeycomb.translate.read.ReadContext;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.opendaylight.yangtools.concepts.Builder;
+import org.opendaylight.yangtools.yang.binding.*;
+
+import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verifyZeroInteractions;
-
-import com.google.common.collect.Lists;
-import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.read.ReadFailedException;
-import java.util.Collections;
-import java.util.List;
-import javax.annotation.Nonnull;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.opendaylight.yangtools.concepts.Builder;
-import org.opendaylight.yangtools.yang.binding.Augmentation;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class ReflexiveReaderCustomizerTest {
 
@@ -80,16 +75,7 @@ public class ReflexiveReaderCustomizerTest {
         final ReflexiveListReaderCustomizer<TestingListObject, TestingListObject.TestingListKey, TestingListBuilder>
                 reflexReaderCustomizer =
                 new ReflexiveListReaderCustomizer<TestingListObject, TestingListObject.TestingListKey, TestingListBuilder>
-                        (TestingListObject.class, TestingListBuilder.class) {
-
-                    @Nonnull
-                    @Override
-                    public List<TestingListObject.TestingListKey> getAllIds(
-                            @Nonnull final InstanceIdentifier<TestingListObject> id,
-                            @Nonnull final ReadContext context) throws ReadFailedException {
-                        return Lists.newArrayList();
-                    }
-                };
+                        (TestingListObject.class, TestingListBuilder.class, Collections.singletonList(new TestingListObject.TestingListKey()));
 
         final TestingBuilderParent parentBuilder = new TestingBuilderParent();
         final List<TestingListObject> readValue = Lists.newArrayList(new TestingListObject(), new TestingListObject());

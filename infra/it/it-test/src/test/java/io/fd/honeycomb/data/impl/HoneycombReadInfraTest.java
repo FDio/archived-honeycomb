@@ -16,22 +16,6 @@
 
 package io.fd.honeycomb.data.impl;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.atMost;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -47,23 +31,12 @@ import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.ReflexiveListReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.ReflexiveReaderCustomizer;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.exceptions.misusing.MockitoConfigurationException;
 import org.mockito.invocation.InvocationOnMock;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.ComplexAugment;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.ComplexAugmentBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.ContainerWithList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.ContainerWithListBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.SimpleAugment;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.SimpleAugmentBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.SimpleContainer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.SimpleContainerBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.container.with.list.ListInContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.container.with.list.ListInContainerBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.container.with.list.ListInContainerKey;
@@ -81,6 +54,18 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+
+import javax.annotation.Nonnull;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class HoneycombReadInfraTest extends AbstractInfraTest {
 
@@ -108,14 +93,14 @@ public class HoneycombReadInfraTest extends AbstractInfraTest {
     // 2.1
     private ListReader<ListInContainer, ListInContainerKey, ListInContainerBuilder> listInContainerReader =
             mockListReader(Ids.LIST_IN_CONTAINER_ID, this::readListInContainer, this::getListInContainerIds,
-                    ListInContainerBuilder.class);
+                    ListInContainerBuilder.class, ctx);
     // 2.1.1
     private Reader<ContainerInList, ContainerInListBuilder> containerInListReader =
             mockReader(Ids.CONTAINER_IN_LIST_ID, this::readContainerInList, ContainerInListBuilder.class);
     // 2.1.1.1
     private ListReader<NestedList, NestedListKey, NestedListBuilder> nestedListReader =
             mockListReader(Ids.NESTED_LIST_ID, this::readNestedList, this::getNestedListIds,
-                    NestedListBuilder.class);
+                    NestedListBuilder.class, ctx);
 
     @Override
     void postSetup() {
@@ -293,17 +278,11 @@ public class HoneycombReadInfraTest extends AbstractInfraTest {
             InstanceIdentifier<D> id,
             CurrentAttributesReader<D, B> currentAttributesReader,
             ListKeysReader<D, K> listKeysReader,
-            Class<B> builderClass) {
+            Class<B> builderClass,
+            ReadContext ctx) {
 
         ListReader<D, K, B> reflex = new GenericListReader<>(id,
-                new ReflexiveListReaderCustomizer<D, K, B>(id.getTargetType(), builderClass) {
-
-            @Nonnull
-            @Override
-            public List<K> getAllIds(@Nonnull final InstanceIdentifier<D> id, @Nonnull final ReadContext context)
-                    throws ReadFailedException {
-                return listKeysReader.getAllIds(id, context);
-            }
+                new ReflexiveListReaderCustomizer<D, K, B>(id.getTargetType(), builderClass, listKeysReader.getAllIds(id, ctx)) {
 
             @Override
             public void readCurrentAttributes(final InstanceIdentifier<D> id, final B builder,

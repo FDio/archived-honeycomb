@@ -23,12 +23,15 @@ import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.read.ListReader;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
+
+import io.fd.honeycomb.translate.util.read.ReflexiveListReaderCustomizer;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
@@ -96,5 +99,11 @@ public class GenericListReader<C extends DataObject & Identifiable<K>, K extends
     @Override
     public void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<C> readData) {
         ((ListReaderCustomizer<C, K, B>) customizer).merge(builder, readData);
+    }
+
+    public static <C extends DataObject & Identifiable<K>,K extends Identifier<C>, B extends Builder<C>> Reader<C, B> createReflexive(
+            final InstanceIdentifier<C> id, Class<B> builderClass,
+            final List<K> staticKeys) {
+        return new GenericListReader<>(id, new ReflexiveListReaderCustomizer<>(id.getTargetType(), builderClass, staticKeys));
     }
 }

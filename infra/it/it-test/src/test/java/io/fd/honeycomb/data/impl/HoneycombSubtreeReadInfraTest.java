@@ -33,6 +33,8 @@ import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import io.fd.honeycomb.translate.util.read.ReflexiveListReaderCustomizer;
 import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -61,22 +63,8 @@ public class HoneycombSubtreeReadInfraTest extends AbstractInfraTest {
 
     private ListReader<ListInContainer, ListInContainerKey, ListInContainerBuilder> listInContainerReader =
             new GenericListReader<>(Ids.LIST_IN_CONTAINER_ID,
-                    new ReflexiveListReaderCustomizer<ListInContainer, ListInContainerKey, ListInContainerBuilder>(Ids.LIST_IN_CONTAINER_ID.getTargetType(), ListInContainerBuilder.class) {
-
-                        @Nonnull
-                        @Override
-                        public List<ListInContainerKey> getAllIds(@Nonnull final InstanceIdentifier<ListInContainer> id,
-                                                                  @Nonnull final ReadContext context)
-                                throws ReadFailedException {
-                            // This is the only way of extending subtree reader's list child
-                            // Reflexive list reader has to be used in place of the list(managed by subtree reader perent)
-                            // to enable further children readers. However, it will not work out of the box, because
-                            // reflexive list reader has no way to tell what are the IDs to correctly invoke its children.
-                            // Only way is to override the getAllIds method in reflexive reader and return the same list
-                            // as parent used (this can be done using cache or repeated dump call)
-                            return Lists.newArrayList(new ListInContainerKey(1L), new ListInContainerKey(2L));
-                        }
-
+                    new ReflexiveListReaderCustomizer<ListInContainer, ListInContainerKey, ListInContainerBuilder>(Ids.LIST_IN_CONTAINER_ID.getTargetType(), ListInContainerBuilder.class,
+                            Lists.newArrayList(new ListInContainerKey(1L), new ListInContainerKey(2L))) {
                         @Override
                         public void readCurrentAttributes(final InstanceIdentifier<ListInContainer> id,
                                                           final ListInContainerBuilder builder,
