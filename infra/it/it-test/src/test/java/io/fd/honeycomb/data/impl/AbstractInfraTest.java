@@ -58,8 +58,8 @@ abstract class AbstractInfraTest {
 
     static BindingToNormalizedNodeCodec getSerializer(final ModuleInfoBackedContext moduleInfoBackedContext,
                                                       final SchemaContext schemaContext) {
-        final DataObjectSerializerGenerator serializerGenerator = new StreamWriterGenerator(JavassistUtils.forClassPool(
-                ClassPool.getDefault()));
+        final DataObjectSerializerGenerator serializerGenerator =
+            StreamWriterGenerator.create(JavassistUtils.forClassPool(ClassPool.getDefault()));
         final BindingNormalizedNodeCodecRegistry codecRegistry = new BindingNormalizedNodeCodecRegistry(serializerGenerator);
         final BindingRuntimeContext ctx =
                 BindingRuntimeContext.create(moduleInfoBackedContext, schemaContext);

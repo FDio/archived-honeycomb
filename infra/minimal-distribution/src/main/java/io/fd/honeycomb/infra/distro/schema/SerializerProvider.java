@@ -20,6 +20,7 @@ import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
 import javassist.ClassPool;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
+import org.opendaylight.yangtools.binding.data.codec.gen.impl.DataObjectSerializerGenerator;
 import org.opendaylight.yangtools.binding.data.codec.gen.impl.StreamWriterGenerator;
 import org.opendaylight.yangtools.binding.data.codec.impl.BindingNormalizedNodeCodecRegistry;
 import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
@@ -33,8 +34,8 @@ public class SerializerProvider extends ProviderTrait<BindingToNormalizedNodeCod
 
     @Override
     protected BindingToNormalizedNodeCodec create() {
-        StreamWriterGenerator serializerGenerator =
-                new StreamWriterGenerator(JavassistUtils.forClassPool(ClassPool.getDefault()));
+        final DataObjectSerializerGenerator serializerGenerator =
+            StreamWriterGenerator.create(JavassistUtils.forClassPool(ClassPool.getDefault()));
         BindingNormalizedNodeCodecRegistry codecRegistry = new BindingNormalizedNodeCodecRegistry(serializerGenerator);
         BindingRuntimeContext ctx = BindingRuntimeContext.create(mibCtx, mibCtx.getSchemaContext());
         codecRegistry.onBindingRuntimeContextUpdated(ctx);
