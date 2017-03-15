@@ -43,13 +43,13 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- ODL dependencies -->
-        <yangtools.version>1.0.3-Boron-SR3</yangtools.version>
-        <mdsal.version>2.1.3-Boron-SR3</mdsal.version>
-        <mdsal.controller.version>1.4.3-Boron-SR3</mdsal.controller.version>
-        <mdsalmodel.version>0.9.3-Boron-SR3</mdsalmodel.version>
-        <netconf.version>1.1.3-Boron-SR3</netconf.version>
-        <restconf.version>1.4.3-Boron-SR3</restconf.version>
-        <salGenerator.version>0.9.3-Boron-SR3</salGenerator.version>
+        <yangtools.version>1.0.4-Boron-SR4</yangtools.version>
+        <mdsal.version>2.1.4-Boron-SR4</mdsal.version>
+        <mdsal.controller.version>1.4.4-Boron-SR4</mdsal.controller.version>
+        <mdsalmodel.version>0.9.4-Boron-SR4</mdsalmodel.version>
+        <netconf.version>1.1.4-Boron-SR4</netconf.version>
+        <restconf.version>1.4.4-Boron-SR4</restconf.version>
+        <salGenerator.version>0.9.4-Boron-SR4</salGenerator.version>
         <salGeneratorPath>target/generated-sources/mdsal-binding</salGeneratorPath>
 
         <!-- dependencies -->
