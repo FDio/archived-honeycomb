@@ -21,8 +21,8 @@ import com.google.inject.name.Named;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
 import java.lang.reflect.Constructor;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
@@ -72,16 +72,18 @@ public class NetconfNotificationMapperProvider extends ProviderTrait<NetconfOper
             bindingAwareBroker.registerProvider(writer);
 
             final Class<?> notifPublisherCls = Class.forName(
-                    "org.opendaylight.controller.config.yang.netconf.mdsal.notification.BaseCapabilityChangeNotificationPublisher");
+                    "org.opendaylight.controller.config.yang.netconf.mdsal.notification.CapabilityChangeNotificationProducer");
             declaredConstructor =
                     notifPublisherCls.getDeclaredConstructor(BaseNotificationPublisherRegistration.class);
             declaredConstructor.setAccessible(true);
-            final DataChangeListener publisher = (DataChangeListener) declaredConstructor.newInstance(
-                    notificationCollector.registerBaseNotificationPublisher());
+            final DataTreeChangeListener<Capabilities> publisher =
+                    (DataTreeChangeListener<Capabilities>) declaredConstructor.newInstance(
+                            notificationCollector.registerBaseNotificationPublisher());
 
-            ListenerRegistration<DataChangeListener> capabilityChangeListenerRegistration = dataBroker
-                    .registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, capabilitiesIdentifier,
-                            publisher, AsyncDataBroker.DataChangeScope.SUBTREE);
+            ListenerRegistration<DataTreeChangeListener<Capabilities>> capabilityChangeListenerRegistration = dataBroker
+                    .registerDataTreeChangeListener(
+                            new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, capabilitiesIdentifier),
+                            publisher);
             NetconfNotificationOperationServiceFactory netconfNotificationOperationServiceFactory =
                     new NetconfNotificationOperationServiceFactory(notificationRegistry);
             aggregator.onAddNetconfOperationServiceFactory(netconfNotificationOperationServiceFactory);

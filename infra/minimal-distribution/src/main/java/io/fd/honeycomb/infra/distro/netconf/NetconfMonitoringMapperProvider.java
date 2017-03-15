@@ -50,9 +50,11 @@ public final class NetconfMonitoringMapperProvider extends ProviderTrait<Netconf
             Constructor<?> declaredConstructor =
                     monitoringWriterCls.getDeclaredConstructor(NetconfMonitoringService.class);
             declaredConstructor.setAccessible(true);
-            final BindingAwareProvider o = (BindingAwareProvider) declaredConstructor.newInstance(monitoringService);
-            bindingAwareBroker.registerProvider(o);
+            final BindingAwareProvider writer = (BindingAwareProvider) declaredConstructor.newInstance(monitoringService);
+            bindingAwareBroker.registerProvider(writer);
 
+            final Class<?> moduleClass = Class.forName(
+                    "org.opendaylight.controller.config.yang.netconf.mdsal.monitoring.NetconfMdsalMonitoringMapperModule");
             final Class<?> monitoringMapperCls = Class.forName(
                     "org.opendaylight.controller.config.yang.netconf.mdsal.monitoring.NetconfMdsalMonitoringMapperModule$MdsalMonitoringMapper");
             declaredConstructor =
@@ -64,10 +66,12 @@ public final class NetconfMonitoringMapperProvider extends ProviderTrait<Netconf
             final Class<?> monitoringMpperFactory = Class.forName(
                     "org.opendaylight.controller.config.yang.netconf.mdsal.monitoring.NetconfMdsalMonitoringMapperModule$MdSalMonitoringMapperFactory");
             declaredConstructor =
-                    monitoringMpperFactory.getDeclaredConstructor(NetconfOperationService.class);
+                    monitoringMpperFactory.getDeclaredConstructor(NetconfOperationService.class, moduleClass, monitoringWriterCls);
             declaredConstructor.setAccessible(true);
+            // The second argument is null, it should be the parent cfg-subsystem module class instance, that we dont have
+            // it's used only during close so dont close the factory using its close() method
             final NetconfOperationServiceFactory mdSalMonitoringMapperFactory =
-                    (NetconfOperationServiceFactory) declaredConstructor.newInstance(mdSalMonitoringMapper);
+                    (NetconfOperationServiceFactory) declaredConstructor.newInstance(mdSalMonitoringMapper, null, writer);
             aggregator.onAddNetconfOperationServiceFactory(mdSalMonitoringMapperFactory);
             return mdSalMonitoringMapperFactory;
         } catch (final ReflectiveOperationException e) {
