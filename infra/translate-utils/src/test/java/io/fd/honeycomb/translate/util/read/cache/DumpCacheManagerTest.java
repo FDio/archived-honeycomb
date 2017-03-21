@@ -80,7 +80,7 @@ public class DumpCacheManagerTest {
     @Test
     public void testCaching() throws ReadFailedException {
         final IpDetailsReplyDump stage1Data = new IpDetailsReplyDump();
-        final String key = cacheKeyFactory.createKey(identifier);
+        final String key = cacheKeyFactory.createKey(identifier, NO_PARAMS);
 
 
         // executor cant return null data
@@ -134,14 +134,14 @@ public class DumpCacheManagerTest {
     @Test
     public void testSameKeyDifferentTypes() throws ReadFailedException {
         final DumpCacheManager<String, Void> stringManager =
-                new DumpCacheManager.DumpCacheManagerBuilder<String, Void>()
-                        .withExecutor((InstanceIdentifier, Void) -> "value")
-                        .acceptOnly(String.class)
-                        .build();
+            new DumpCacheManager.DumpCacheManagerBuilder<String, Void>()
+                .withExecutor((InstanceIdentifier, Void) -> "value")
+                .acceptOnly(String.class)
+                .build();
 
         final DumpCacheManager<Integer, Void> intManager = new DumpCacheManager.DumpCacheManagerBuilder<Integer, Void>()
-                .acceptOnly(Integer.class)
-                .withExecutor((InstanceIdentifier, Void) -> 3).build();
+            .acceptOnly(Integer.class)
+            .withExecutor((InstanceIdentifier, Void) -> 3).build();
 
         final Optional<String> stringDump = stringManager.getDump(identifier, cache, NO_PARAMS);
         final Optional<Integer> integerDump = intManager.getDump(identifier, cache, NO_PARAMS);
@@ -151,6 +151,21 @@ public class DumpCacheManagerTest {
         assertEquals("value", stringDump.get());
         assertEquals(3, integerDump.get().intValue());
 
+    }
+
+    @Test
+    public void testCachingWithDifferentParams() throws ReadFailedException {
+        final DumpCacheManager<Integer, Integer> manager =
+            new DumpCacheManager.DumpCacheManagerBuilder<Integer, Integer>()
+                .withExecutor((iid, param) -> param)
+                .acceptOnly(Integer.class)
+                .build();
+
+        final Optional<Integer> dump1 = manager.getDump(identifier, cache, 1);
+        final Optional<Integer> dump2 = manager.getDump(identifier, cache, 2);
+
+        assertEquals(1, dump1.get().intValue());
+        assertEquals(2, dump2.get().intValue());
     }
 
     private EntityDumpPostProcessingFunction<IpDetailsReplyDump> createPostProcessor() {

@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.translate.util.read.cache;
 
+import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
+import static io.fd.honeycomb.translate.util.read.cache.TypeAwareIdentifierCacheKeyFactory.NO_PARAMS_KEY;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -35,8 +37,9 @@ public class TypeAwareIdentifierCacheKeyFactoryTest {
     private InstanceIdentifier<DataObjectChild> identifierBothKeyed;
     private InstanceIdentifier<DataObjectChild> identifierOneMissing;
     private InstanceIdentifier<DataObjectChild> identifierNoneKeyed;
-    private TypeAwareIdentifierCacheKeyFactory simpleKeyFactory;
-    private TypeAwareIdentifierCacheKeyFactory complexKeyFactory;
+    private TypeAwareIdentifierCacheKeyFactory<Void> simpleKeyFactory;
+    private TypeAwareIdentifierCacheKeyFactory<Void> complexKeyFactory;
+    private TypeAwareIdentifierCacheKeyFactory<Integer> complexIntegerKeyFactory;
 
     @Before
     public void init() {
@@ -49,19 +52,27 @@ public class TypeAwareIdentifierCacheKeyFactoryTest {
                 .child(DataObjectChild.class);
 
         complexKeyFactory =
-                new TypeAwareIdentifierCacheKeyFactory(String.class, ImmutableSet.of(DataObjectParent.class));
-        simpleKeyFactory = new TypeAwareIdentifierCacheKeyFactory(String.class);
+                new TypeAwareIdentifierCacheKeyFactory<>(String.class, ImmutableSet.of(DataObjectParent.class));
+        simpleKeyFactory = new TypeAwareIdentifierCacheKeyFactory<>(String.class);
+        complexIntegerKeyFactory =
+            new TypeAwareIdentifierCacheKeyFactory<>(String.class, ImmutableSet.of(DataObjectParent.class));
     }
 
     @Test
     public void createKeyBothKeyedComplex() {
-        final String key = complexKeyFactory.createKey(identifierBothKeyed);
+        final String key = complexKeyFactory.createKey(identifierBothKeyed, NO_PARAMS);
 
         /**
          * Should pass because key constructed in this case should look like :
          * additional_scope_type[additional_scope_type_key]|cached_type
          * */
-        verifyComplexKey(key);
+        verifyComplexKey(key, NO_PARAMS_KEY);
+    }
+
+    @Test
+    public void createKeyBothKeyedComplexWithParams() {
+        final String key = complexIntegerKeyFactory.createKey(identifierBothKeyed, 123);
+        verifyComplexKey(key, "123");
     }
 
     /**
@@ -69,7 +80,7 @@ public class TypeAwareIdentifierCacheKeyFactoryTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void createKeyOneMissingComplex() {
-        complexKeyFactory.createKey(identifierOneMissing);
+        complexKeyFactory.createKey(identifierOneMissing, NO_PARAMS);
     }
 
     /**
@@ -77,12 +88,12 @@ public class TypeAwareIdentifierCacheKeyFactoryTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void createKeyNoneKeyedComplex() {
-        complexKeyFactory.createKey(identifierNoneKeyed);
+        complexKeyFactory.createKey(identifierNoneKeyed, NO_PARAMS);
     }
 
     @Test
     public void createKeyBothKeyedSimple() {
-        final String key = simpleKeyFactory.createKey(identifierBothKeyed);
+        final String key = simpleKeyFactory.createKey(identifierBothKeyed, NO_PARAMS);
 
         /**
          * Should pass because key constructed in this case should look like : cached_type
@@ -92,7 +103,7 @@ public class TypeAwareIdentifierCacheKeyFactoryTest {
 
     @Test
     public void createKeyOneMissingSimple() {
-        final String key = simpleKeyFactory.createKey(identifierOneMissing);
+        final String key = simpleKeyFactory.createKey(identifierOneMissing, NO_PARAMS);
         /**
          * Should pass because key constructed in this case should look like : cached_type
          * */
@@ -104,20 +115,21 @@ public class TypeAwareIdentifierCacheKeyFactoryTest {
      */
     @Test
     public void createKeyNoneKeyedSimple() {
-        final String key = simpleKeyFactory.createKey(identifierNoneKeyed);
+        final String key = simpleKeyFactory.createKey(identifierNoneKeyed, NO_PARAMS);
         /**
          * Should pass because key constructed in this case should look like : cached_type
          * */
         verifySimpleKey(key);
     }
 
-    private void verifyComplexKey(final String key) {
+    private void verifyComplexKey(final String key, final String params) {
         assertTrue(key.contains(String.class.getTypeName()));
         assertTrue(key.contains(DataObjectParent.class.getTypeName()));
         assertTrue(key.contains(parentKey.toString()));
         assertTrue(key.contains(DataObjectChild.class.getTypeName()));
         assertFalse(key.contains(childKey.toString()));
         assertFalse(key.contains(SuperDataObject.class.getTypeName()));
+        assertTrue(key.contains(params));
     }
 
     private void verifySimpleKey(final String key) {

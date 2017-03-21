@@ -20,11 +20,13 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.opendaylight.yangtools.yang.binding.InstanceIdentifier.IdentifiableItem;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -32,9 +34,11 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 /**
  * Factory providing cache keys to easier switching between scopes of caching
  */
-public final class TypeAwareIdentifierCacheKeyFactory implements CacheKeyFactory {
+public final class TypeAwareIdentifierCacheKeyFactory<U> implements CacheKeyFactory<U> {
 
     private static final String KEY_PARTS_SEPARATOR = "|";
+    @VisibleForTesting
+    protected static final String NO_PARAMS_KEY = "NO_PARAMS";
 
     // should be Set<Class<? extends DataObject & Identifiable<?>>>, but that's not possible for wildcards
     private final Set<Class<? extends DataObject>> additionalKeyTypes;
@@ -78,14 +82,15 @@ public final class TypeAwareIdentifierCacheKeyFactory implements CacheKeyFactory
     }
 
     @Override
-    public String createKey(@Nonnull final InstanceIdentifier<?> actualContextIdentifier) {
+    public String createKey(@Nonnull final InstanceIdentifier<?> actualContextIdentifier, @Nullable final U dumpParams) {
 
         checkNotNull(actualContextIdentifier, "Cannot construct key for null InstanceIdentifier");
 
         // easiest case when only simple key is needed
         if (additionalKeyTypes.isEmpty()) {
             return String
-                    .join(KEY_PARTS_SEPARATOR, type.getTypeName(), actualContextIdentifier.getTargetType().toString());
+                    .join(KEY_PARTS_SEPARATOR, type.getTypeName(), params(dumpParams),
+                        actualContextIdentifier.getTargetType().toString());
         }
 
         checkArgument(isUniqueKeyConstructable(actualContextIdentifier),
@@ -95,7 +100,15 @@ public final class TypeAwareIdentifierCacheKeyFactory implements CacheKeyFactory
         // joins unique key in form : type | additional keys | actual context
         return String
                 .join(KEY_PARTS_SEPARATOR, type.getTypeName(), additionalKeys(actualContextIdentifier),
-                        actualContextIdentifier.getTargetType().toString());
+                    params(dumpParams), actualContextIdentifier.getTargetType().toString());
+    }
+
+    private String params(final U dumpParams) {
+        if (dumpParams == null) {
+            return NO_PARAMS_KEY;
+        } else {
+            return String.valueOf(dumpParams.hashCode());
+        }
     }
 
     @Override

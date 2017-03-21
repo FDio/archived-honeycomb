@@ -42,7 +42,7 @@ public final class DumpCacheManager<T, U> {
 
     private final EntityDumpExecutor<T, U> dumpExecutor;
     private final EntityDumpPostProcessingFunction<T> postProcessor;
-    private final CacheKeyFactory cacheKeyFactory;
+    private final CacheKeyFactory<U> cacheKeyFactory;
     private final Class<?> acceptOnly;
 
     private DumpCacheManager(DumpCacheManagerBuilder<T, U> builder) {
@@ -66,7 +66,7 @@ public final class DumpCacheManager<T, U> {
                                @Nonnull final ModificationCache cache, final U dumpParams)
             throws ReadFailedException {
 
-        final String entityKey = this.cacheKeyFactory.createKey(identifier);
+        final String entityKey = this.cacheKeyFactory.createKey(identifier, dumpParams);
         // this key binding to every log has its logic ,because every customizer have its own cache manager and if
         // there is need for debugging/fixing some complex call with a lot of data,you can get lost in those logs
         LOG.debug("Loading dump for KEY[{}]", entityKey);
@@ -120,7 +120,7 @@ public final class DumpCacheManager<T, U> {
         /**
          * Key providing unique(type-aware) keys.
          */
-        public DumpCacheManagerBuilder<T, U> withCacheKeyFactory(@Nonnull final CacheKeyFactory cacheKeyFactory) {
+        public DumpCacheManagerBuilder<T, U> withCacheKeyFactory(@Nonnull final CacheKeyFactory<U> cacheKeyFactory) {
             this.cacheKeyFactory = cacheKeyFactory;
             return this;
         }

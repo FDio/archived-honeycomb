@@ -17,18 +17,19 @@
 package io.fd.honeycomb.translate.util.read.cache;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Provides keys for provided {@code InstanceIdentifier}
  */
-public interface CacheKeyFactory {
+public interface CacheKeyFactory<U> {
 
     /**
-     * Construct key accordingly to provided {@code InstanceIdentifier<?>}
+     * Construct key accordingly to provided {@code InstanceIdentifier<?>} and dumpParams
      */
     @Nonnull
-    String createKey(@Nonnull final InstanceIdentifier<?> actualContextIdentifier);
+    String createKey(@Nonnull final InstanceIdentifier<?> actualContextIdentifier, @Nullable final U dumpParams);
 
     /**
      * Returns type of data, for which is this factory creating keys
