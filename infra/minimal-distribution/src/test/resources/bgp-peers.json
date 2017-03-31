@@ -1,0 +1,90 @@
+{
+  "bgp-openconfig-extensions:neighbors": {
+    "neighbor": [
+      {
+        "neighbor-address": "10.25.1.9",
+        "config": {
+          "peer-group": "application-peers"
+        },
+        "afi-safis": {
+          "afi-safi": [
+            {
+              "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST",
+              "receive": true,
+              "send-max": 0
+            }
+          ]
+        }
+      },
+      {
+        "neighbor-address": "10.25.1.10",
+        "config": {
+          "peer-group": "application-peers"
+        },
+        "afi-safis": {
+          "afi-safi": [
+            {
+              "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST",
+              "receive": true,
+              "send-max": 0
+            }
+          ]
+        }
+      },
+      {
+        "neighbor-address": "127.0.0.2",
+        "config": {
+          "peer-type": "INTERNAL"
+        },
+        "timers": {
+          "config": {
+            "connect-retry": 10,
+            "hold-time": 90
+          }
+        },
+        "transport": {
+          "config": {
+            "remote-port": 17900,
+            "passive-mode": false
+          }
+        },
+        "afi-safis": {
+          "afi-safi": [
+            {
+              "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST",
+              "receive": true,
+              "send-max": 0
+            }
+          ]
+        }
+      },
+      {
+        "neighbor-address": "127.0.0.3",
+        "config": {
+          "peer-type": "EXTERNAL"
+        },
+        "timers": {
+          "config": {
+            "connect-retry": 10,
+            "hold-time": 90
+          }
+        },
+        "transport": {
+          "config": {
+            "remote-port": 17900,
+            "passive-mode": false
+          }
+        },
+        "afi-safis": {
+          "afi-safi": [
+            {
+              "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST",
+              "receive": true,
+              "send-max": 0
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

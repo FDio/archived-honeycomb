@@ -18,6 +18,7 @@ package io.fd.honeycomb.infra.distro;
 
 import static com.google.common.collect.ImmutableSet.of;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -30,6 +31,10 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
+import io.fd.honeycomb.infra.distro.bgp.BgpExtensionsModule;
+import io.fd.honeycomb.infra.distro.bgp.BgpModule;
+import io.fd.honeycomb.infra.distro.bgp.BgpReadersModule;
+import io.fd.honeycomb.infra.distro.bgp.BgpWritersModule;
 import io.fd.honeycomb.infra.distro.cfgattrs.CfgAttrsModule;
 import io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule;
 import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule;
@@ -41,8 +46,8 @@ import io.fd.honeycomb.infra.distro.schema.SchemaModule;
 import io.fd.honeycomb.infra.distro.schema.YangBindingProviderModule;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.net.Socket;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import javax.net.ssl.SSLContext;
@@ -68,7 +73,11 @@ public class BaseMinimalDistributionTest {
     private static final int NETCONF_TCP_PORT = 7778;
     private static final int NETCONF_SSH_PORT = 2832;
     private static final String NETCONF_NAMESPACE = "urn:ietf:params:xml:ns:netconf:base:1.0";
-    private static final int NETCONF_HELLO_WAIT = 2500;
+    private static final int HELLO_WAIT = 2500;
+
+    private static final int BGP_MSG_TYPE_OFFSET = 18; // 16 (MARKER) + 2 (LENGTH);
+    private static final byte BGP_OPEN_MSG_TYPE = 1;
+    private static final int BGP_PORT = 1790;
 
     public static final Set<Module> BASE_MODULES = of(
             new YangBindingProviderModule(),
@@ -79,6 +88,10 @@ public class BaseMinimalDistributionTest {
             new NetconfModule(),
             new NetconfReadersModule(),
             new RestconfModule(),
+            new BgpModule(),
+            new BgpExtensionsModule(),
+            new BgpReadersModule(),
+            new BgpWritersModule(),
             new CfgAttrsModule());
 
     @Before
@@ -111,13 +124,15 @@ public class BaseMinimalDistributionTest {
         assertRestconfHttp();
         LOG.info("Testing RESTCONF HTTPS");
         assertRestconfHttps();
+        LOG.info("Testing BGP");
+        assertBgp();
     }
 
     private void assertNetconfTcp() throws Exception {
         try (final Socket localhost = new Socket("127.0.0.1", NETCONF_TCP_PORT);
              final InputStream inputStream = localhost.getInputStream()) {
             // Wait until hello msg is sent from server
-            Thread.sleep(NETCONF_HELLO_WAIT);
+            Thread.sleep(HELLO_WAIT);
             final String helloMessage = inputStreamToString(inputStream);
 
             LOG.info("NETCONF TCP sent hello: {}", helloMessage);
@@ -127,11 +142,14 @@ public class BaseMinimalDistributionTest {
         }
     }
 
-    private String inputStreamToString(final InputStream inputStream) throws IOException {
+    private byte[] readMessage(final InputStream inputStream) throws IOException {
         final int available = inputStream.available();
-        final byte[] helloBytes = new byte[available];
-        ByteStreams.read(inputStream, helloBytes, 0, available);
-        return new String(helloBytes, Charsets.UTF_8);
+        final byte[] msg = new byte[available];
+        ByteStreams.read(inputStream, msg, 0, available);
+        return msg;
+    }
+    private String inputStreamToString(final InputStream inputStream) throws IOException {
+        return new String(readMessage(inputStream), Charsets.UTF_8);
     }
 
     private void assertNetconfSsh() throws Exception {
@@ -151,7 +169,7 @@ public class BaseMinimalDistributionTest {
         channel.connect(20000);
 
         // Wait until hello msg is sent from server
-        Thread.sleep(NETCONF_HELLO_WAIT);
+        Thread.sleep(HELLO_WAIT);
         final String helloMessage = inputStreamToString(inputStream);
         LOG.info("NETCONF SSH sent hello: {}", helloMessage);
 
@@ -198,5 +216,20 @@ public class BaseMinimalDistributionTest {
     private void assertSuccessStatus(final HttpResponse<String> jsonNodeHttpResponse) {
         assertTrue(jsonNodeHttpResponse.getStatus() >= 200);
         assertTrue(jsonNodeHttpResponse.getStatus() < 400);
+    }
+
+    private void assertBgp() throws Exception {
+        final InetAddress bgpHost = InetAddress.getByName("127.0.0.1");
+        final InetAddress bgpPeerAddress = InetAddress.getByName("127.0.0.2");
+        try (final Socket localhost = new Socket(bgpHost, BGP_PORT, bgpPeerAddress, 0);
+             final InputStream inputStream = localhost.getInputStream()) {
+            // wait until bgp message is sent
+            Thread.sleep(HELLO_WAIT);
+
+            final byte[] msg = readMessage(inputStream);
+            LOG.info("Received BGP message: {}", msg);
+
+            assertEquals(BGP_OPEN_MSG_TYPE, msg[BGP_MSG_TYPE_OFFSET]);
+        }
     }
 }

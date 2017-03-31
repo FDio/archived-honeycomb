@@ -55,11 +55,19 @@ public class HoneycombConfiguration {
         return isNetconfTcpEnabled() || isNetconfSshEnabled();
     }
 
+    public boolean isBgpEnabled() {
+        return Boolean.valueOf(bgpEnabled);
+    }
+
     public boolean isConfigPersistenceEnabled() {
         return persistConfig.isPresent() && Boolean.valueOf(persistConfig.get());
     }
     public boolean isContextPersistenceEnabled() {
         return persistContext.isPresent() && Boolean.valueOf(persistContext.get());
+    }
+
+    public boolean isBgpMultiplePathsEnabled() {
+        return Boolean.valueOf(bgpMultiplePaths.get());
     }
 
     @InjectConfig("persist-context")
@@ -138,6 +146,20 @@ public class HoneycombConfiguration {
     public Optional<Integer> netconfSshBindingPort;
     @InjectConfig("netconf-notification-stream-name")
     public Optional<String> netconfNotificationStreamName = Optional.of("honeycomb");
+    @InjectConfig("bgp-enabled")
+    public String bgpEnabled;
+    @InjectConfig("bgp-binding-address")
+    public Optional<String> bgpBindingAddress;
+    @InjectConfig("bgp-port")
+    public Optional<Integer> bgpPort;
+    @InjectConfig("bgp-as-number")
+    public Optional<Integer> bgpAsNumber;
+    @InjectConfig("bgp-receive-multiple-paths")
+    public Optional<String> bgpMultiplePaths;
+    @InjectConfig("bgp-send-max-paths")
+    public Optional<Integer> bgpSendMaxMaths;
+    @InjectConfig("bgp-netty-threads")
+    public Integer bgpNettyThreads;
     @InjectConfig("username")
     public String username;
     @InjectConfig("password")
@@ -178,6 +200,13 @@ public class HoneycombConfiguration {
                 .add("netconfSshBindingAddress", netconfSshBindingAddress)
                 .add("netconfSshBindingPort", netconfSshBindingPort)
                 .add("netconfNotificationStreamName", netconfNotificationStreamName)
+                .add("bgpEnabled", bgpEnabled)
+                .add("bgpBindingAddress", bgpBindingAddress)
+                .add("bgpPort", bgpPort)
+                .add("bgp-as-number", bgpAsNumber)
+                .add("bgp-netty-threads", bgpNettyThreads)
+                .add("bgp-receive-multiple-paths", bgpMultiplePaths)
+                .add("bgp-send-max-paths", bgpSendMaxMaths)
                 .add("username", username)
                 .add("password", password)
                 .toString();

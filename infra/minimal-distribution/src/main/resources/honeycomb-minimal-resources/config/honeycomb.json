@@ -1,8 +1,8 @@
   {
-  "persist-context": "true",
+  "persist-context": "false",
   "persisted-context-path": "/var/lib/honeycomb/persist/context/data.json",
   "persisted-context-restoration-type": "Merge",
-  "persist-config": "true",
+  "persist-config": "false",
   "persisted-config-path": "/var/lib/honeycomb/persist/config/data.json",
   "persisted-config-restoration-type": "Merge",
 
@@ -36,6 +36,14 @@
   "netconf-ssh-binding-address": "0.0.0.0",
   "netconf-ssh-binding-port": 2831,
   "netconf-notification-stream-name": "honeycomb",
+
+  "bgp-enabled": "true",
+  "bgp-binding-address": "127.0.0.1",
+  "bgp-port": 1790,
+  "bgp-as-number": 65000,
+  "bgp-receive-multiple-paths": "true",
+  "bgp-send-max-paths": 0,
+  "bgp-netty-threads": 2,
 
   "username": "admin",
   "password": "admin"

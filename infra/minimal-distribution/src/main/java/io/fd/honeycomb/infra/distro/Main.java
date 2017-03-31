@@ -31,6 +31,7 @@ import com.google.inject.ProvisionException;
 import com.google.inject.name.Names;
 import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.data.init.InitializerRegistry;
+import io.fd.honeycomb.infra.distro.bgp.BgpServerProvider;
 import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import io.fd.honeycomb.infra.distro.initializer.InitializerPipelineModule;
 import io.fd.honeycomb.infra.distro.netconf.HoneycombNotification2NetconfProvider;
@@ -117,6 +118,11 @@ public final class Main {
                     injector.getInstance(NetconfSshServerProvider.NetconfSshServer.class);
                 }
                 injector.getInstance(HoneycombNotification2NetconfProvider.HoneycombNotification2Netconf.class);
+            }
+
+            if (cfgAttributes.isBgpEnabled()) {
+                LOG.info("Starting BGP");
+                injector.getInstance(BgpServerProvider.BgpServer.class);
             }
 
             try {

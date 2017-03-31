@@ -39,6 +39,10 @@
             io.fd.honeycomb.infra.distro.netconf.NetconfModule,
             io.fd.honeycomb.infra.distro.netconf.NetconfReadersModule,
             io.fd.honeycomb.infra.distro.restconf.RestconfModule,
+            io.fd.honeycomb.infra.distro.bgp.BgpModule,
+            io.fd.honeycomb.infra.distro.bgp.BgpExtensionsModule,
+            io.fd.honeycomb.infra.distro.bgp.BgpReadersModule,
+            io.fd.honeycomb.infra.distro.bgp.BgpWritersModule,
             io.fd.honeycomb.infra.distro.cfgattrs.CfgAttrsModule
         </distribution.modules>
     </properties>
@@ -99,6 +103,43 @@
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>
             <artifactId>ietf-netconf-monitoring-extension</artifactId>
+        </dependency>
+        <!-- ODL-BGP -->
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-rib-impl</artifactId>
+            <!-- TODO remove exclusion after bumping to Boron-SR4 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.powermock</groupId>
+                    <artifactId>powermock</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-openconfig-impl</artifactId>
+        </dependency>
+        <!-- BGP extensions -->
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-evpn</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-inet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-labeled-unicast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-linkstate</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-l3vpn</artifactId>
         </dependency>
 
         <!-- Jersey + Jetty for RESTCONF -->

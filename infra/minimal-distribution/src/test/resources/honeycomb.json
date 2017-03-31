@@ -35,6 +35,14 @@
   "netconf-ssh-binding-port": 2832,
   "netconf-notification-stream-name": "honeycomb",
 
+  "bgp-enabled": "true",
+  "bgp-binding-address": "127.0.0.1",
+  "bgp-port": 1790,
+  "bgp-as-number": 65000,
+  "bgp-receive-multiple-paths": "true",
+  "bgp-send-max-paths": 0,
+  "bgp-netty-threads": 2,
+
   "username": "admin",
   "password": "admin"
 }
