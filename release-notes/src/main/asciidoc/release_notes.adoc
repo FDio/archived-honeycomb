@@ -17,33 +17,17 @@ For VPP specific distribution of Honeycomb, please refer to https://wiki.fd.io/v
 https://wiki.fd.io/view/Honeycomb/Release_Plans/Release_Plan_{project-public-version}[Release plan]
 
 == Features
-* Generic, model-driven agent framework providing northbound interfaces
-** NETCONF
-** RESTCONF
-* Persistence/reconciliation mechanism
-* https://jira.fd.io/browse/HONEYCOMB-18 [Minimal distribution]
-** optimized set of ODL components, static wiring, runnable shell scripts
+Adding to the list of existing features: https://docs.fd.io/honeycomb/1.17.04/release-notes-aggregator/release_notes.html#_features[1704 feature list]
 
 === New features
-* https://jira.fd.io/browse/HONEYCOMB-151[RPC support]
-** RPC translation is done using RpcServices registered in RpcRegistry.
-* https://jira.fd.io/browse/HONEYCOMB-266[Loading test data from resource files]
-** Provides convenient framework for testing translation layer.
 
 === Removed features
 
 === Modified features
-* https://jira.fd.io/browse/HONEYCOMB-73[Initializers tie-in with readers]
-** Instead of root level initializer, initialization can be split among multiple initializing readers
-* https://jira.fd.io/browse/HONEYCOMB-270[Readers/ReadCustomizers able to influence presence of resulting data]
-** Suitable for presence container readers
 
 === Deprecated features
 
 == Backlog
-
-Process of spiting honeycomb project into generic (honeycomb) and vpp related (hc2vpp) parts
-was done during 1.17.01 release. Issues for both projects were tracked in the same jira.
 
 * https://jira.fd.io/projects/HONEYCOMB/versions/{project-version-in-jira}[JIRA]
 * https://jira.fd.io/jira/secure/ReleaseNote.jspa?projectId=10001&version={project-version-in-jira}[Release notes]
