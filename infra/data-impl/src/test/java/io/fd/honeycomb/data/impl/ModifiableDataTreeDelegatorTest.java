@@ -64,7 +64,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 
-public class ModifiableDataTreeDelegatorTest {
+public class ModifiableDataTreeDelegatorTest extends ModificationBaseTest {
 
     @Mock
     private WriterRegistry writer;
@@ -90,7 +90,7 @@ public class ModifiableDataTreeDelegatorTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        dataTree = ModificationDiffTest.getDataTree();
+        dataTree = getDataTree();
         when(contextBroker.newReadWriteTransaction()).thenReturn(tx);
         when(tx.submit()).thenReturn(Futures.immediateCheckedFuture(null));
 
@@ -98,39 +98,39 @@ public class ModifiableDataTreeDelegatorTest {
         final Map.Entry<InstanceIdentifier<?>, DataObject> parsed = new AbstractMap.SimpleEntry<>(DEFAULT_ID, DEFAULT_DATA_OBJECT);
         when(serializer.fromNormalizedNode(any(YangInstanceIdentifier.class), any(NormalizedNode.class))).thenReturn(parsed);
 
-        configDataTree = new ModifiableDataTreeDelegator(serializer, dataTree, ModificationDiffTest.getSchemaCtx(), writer, contextBroker);
+        configDataTree = new ModifiableDataTreeDelegator(serializer, dataTree, getSchemaCtx(), writer, contextBroker);
     }
 
     @Test
     public void testRead() throws Exception {
-        final ContainerNode topContainer = ModificationDiffTest.getTopContainer("topContainer");
-        ModificationDiffTest.addNodeToTree(dataTree, topContainer, ModificationDiffTest.TOP_CONTAINER_ID);
+        final ContainerNode topContainer = getTopContainer("topContainer");
+        addNodeToTree(dataTree, topContainer, TOP_CONTAINER_ID);
         final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read =
-                configDataTree.read(ModificationDiffTest.TOP_CONTAINER_ID);
+                configDataTree.read(TOP_CONTAINER_ID);
         final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read2 =
-                configDataTree.newModification().read(ModificationDiffTest.TOP_CONTAINER_ID);
+                configDataTree.newModification().read(TOP_CONTAINER_ID);
         final Optional<NormalizedNode<?, ?>> normalizedNodeOptional = read.get();
         final Optional<NormalizedNode<?, ?>> normalizedNodeOptional2 = read2.get();
 
         assertEquals(normalizedNodeOptional, normalizedNodeOptional2);
         assertTrue(normalizedNodeOptional.isPresent());
         assertEquals(topContainer, normalizedNodeOptional.get());
-        assertEquals(dataTree.takeSnapshot().readNode(ModificationDiffTest.TOP_CONTAINER_ID), normalizedNodeOptional);
+        assertEquals(dataTree.takeSnapshot().readNode(TOP_CONTAINER_ID), normalizedNodeOptional);
     }
 
     @Test
     public void testCommitSuccessful() throws Exception {
-        final MapNode nestedList = ModificationDiffTest.getNestedList("listEntry", "listValue");
+        final MapNode nestedList = getNestedList("listEntry", "listValue");
 
         final DataModification dataModification = configDataTree.newModification();
-        dataModification.write(ModificationDiffTest.NESTED_LIST_ID, nestedList);
+        dataModification.write(NESTED_LIST_ID, nestedList);
         dataModification.validate();
         dataModification.commit();
 
         final Multimap<InstanceIdentifier<?>, DataObjectUpdate> map = HashMultimap.create();
         map.put(DEFAULT_ID, DataObjectUpdate.create(DEFAULT_ID, DEFAULT_DATA_OBJECT, DEFAULT_DATA_OBJECT));
         verify(writer).update(eq(new WriterRegistry.DataObjectUpdates(map, ImmutableMultimap.of())), any(WriteContext.class));
-        assertEquals(nestedList, dataTree.takeSnapshot().readNode(ModificationDiffTest.NESTED_LIST_ID).get());
+        assertEquals(nestedList, dataTree.takeSnapshot().readNode(NESTED_LIST_ID).get());
     }
 
     private static DataObject mockDataObject(final String name, final Class<? extends DataObject> classToMock) {
@@ -141,7 +141,7 @@ public class ModifiableDataTreeDelegatorTest {
 
     @Test
     public void testCommitUndoSuccessful() throws Exception {
-        final MapNode nestedList = ModificationDiffTest.getNestedList("listEntry", "listValue");
+        final MapNode nestedList = getNestedList("listEntry", "listValue");
 
         // Fail on update:
         final WriterRegistry.Reverter reverter = mock(WriterRegistry.Reverter.class);
@@ -152,7 +152,7 @@ public class ModifiableDataTreeDelegatorTest {
         try {
             // Run the test
             final DataModification dataModification = configDataTree.newModification();
-            dataModification.write(ModificationDiffTest.NESTED_LIST_ID, nestedList);
+            dataModification.write(NESTED_LIST_ID, nestedList);
             dataModification.validate();
             dataModification.commit();
             fail("WriterRegistry.RevertSuccessException was expected");
@@ -165,7 +165,7 @@ public class ModifiableDataTreeDelegatorTest {
 
     @Test
     public void testCommitUndoFailed() throws Exception {
-        final MapNode nestedList = ModificationDiffTest.getNestedList("listEntry", "listValue");
+        final MapNode nestedList = getNestedList("listEntry", "listValue");
 
         // Fail on update:
         final WriterRegistry.Reverter reverter = mock(WriterRegistry.Reverter.class);
@@ -182,7 +182,7 @@ public class ModifiableDataTreeDelegatorTest {
         try {
             // Run the test
             final DataModification dataModification = configDataTree.newModification();
-            dataModification.write(ModificationDiffTest.NESTED_LIST_ID, nestedList);
+            dataModification.write(NESTED_LIST_ID, nestedList);
             dataModification.validate();
             dataModification.commit();
             fail("WriterRegistry.Reverter.RevertFailedException was expected");
@@ -201,14 +201,14 @@ public class ModifiableDataTreeDelegatorTest {
     public void testToBindingAware() throws Exception {
         when(serializer.fromNormalizedNode(any(YangInstanceIdentifier.class), eq(null))).thenReturn(null);
 
-        final Map<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> biNodes = new HashMap<>();
+        final Map<YangInstanceIdentifier, NormalizedNodeUpdate> biNodes = new HashMap<>();
         // delete
         final QName nn1 = QName.create("namespace", "nn1");
         final YangInstanceIdentifier yid1 = mockYid(nn1);
         final InstanceIdentifier iid1 = mockIid(yid1, DataObject1.class);
         final NormalizedNode nn1B = mockNormalizedNode(nn1);
         final DataObject1 do1B = mockDataObject(yid1, iid1, nn1B, DataObject1.class);
-        biNodes.put(yid1, ModificationDiff.NormalizedNodeUpdate.create(yid1, nn1B, null));
+        biNodes.put(yid1, NormalizedNodeUpdate.create(yid1, nn1B, null));
 
         // create
         final QName nn2 = QName.create("namespace", "nn1");
@@ -216,7 +216,7 @@ public class ModifiableDataTreeDelegatorTest {
         final InstanceIdentifier iid2 = mockIid(yid2, DataObject2.class);;
         final NormalizedNode nn2A = mockNormalizedNode(nn2);
         final DataObject2 do2A = mockDataObject(yid2, iid2, nn2A, DataObject2.class);
-        biNodes.put(yid2, ModificationDiff.NormalizedNodeUpdate.create(yid2, null, nn2A));
+        biNodes.put(yid2, NormalizedNodeUpdate.create(yid2, null, nn2A));
 
         // update
         final QName nn3 = QName.create("namespace", "nn1");
@@ -226,7 +226,7 @@ public class ModifiableDataTreeDelegatorTest {
         final DataObject3 do3B = mockDataObject(yid3, iid3, nn3B, DataObject3.class);
         final NormalizedNode nn3A = mockNormalizedNode(nn3);
         final DataObject3 do3A = mockDataObject(yid3, iid3, nn3A, DataObject3.class);;
-        biNodes.put(yid3, ModificationDiff.NormalizedNodeUpdate.create(yid3, nn3B, nn3A));
+        biNodes.put(yid3, NormalizedNodeUpdate.create(yid3, nn3B, nn3A));
 
         final WriterRegistry.DataObjectUpdates dataObjectUpdates =
                 ModifiableDataTreeDelegator.toBindingAware(biNodes, serializer);

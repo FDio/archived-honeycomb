@@ -23,59 +23,26 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
 import java.util.Map;
 import org.junit.Test;
-import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.LeafSetEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateTip;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.TipProducingDataTree;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.TreeType;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.ListNodeBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.tree.InMemoryDataTreeFactory;
-import org.opendaylight.yangtools.yang.model.api.SchemaContext;
-import org.opendaylight.yangtools.yang.parser.spi.meta.ReactorException;
-import org.opendaylight.yangtools.yang.parser.stmt.reactor.CrossSourceStatementReactor;
-import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangInferencePipeline;
-import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangStatementSourceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class ModificationDiffTest {
+public class ModificationDiffTest extends ModificationBaseTest {
 
-    static final QName TOP_CONTAINER_QNAME =
-            QName.create("urn:opendaylight:params:xml:ns:yang:test:diff", "2015-01-05", "top-container");
-    static final QName STRING_LEAF_QNAME = QName.create(TOP_CONTAINER_QNAME, "string");
-    static final QName NAME_LEAF_QNAME = QName.create(TOP_CONTAINER_QNAME, "name");
-    static final QName TEXT_LEAF_QNAME = QName.create(TOP_CONTAINER_QNAME, "text");
-    static final QName NESTED_LIST_QNAME = QName.create(TOP_CONTAINER_QNAME, "nested-list");
-    static final QName DEEP_LIST_QNAME = QName.create(TOP_CONTAINER_QNAME, "deep-list");
-    static final QName EMPTY_QNAME = QName.create(TOP_CONTAINER_QNAME, "empty");
-    static final QName IN_EMPTY_QNAME = QName.create(TOP_CONTAINER_QNAME, "in-empty");
-
-    static final QName FOR_LEAF_LIST_QNAME = QName.create(TOP_CONTAINER_QNAME, "for-leaf-list");
-    static final QName NESTED_LEAF_LIST_QNAME = QName.create(TOP_CONTAINER_QNAME, "nested-leaf-list");
-
-
-    static final QName WITH_CHOICE_CONTAINER_QNAME =
-            QName.create("urn:opendaylight:params:xml:ns:yang:test:diff", "2015-01-05", "with-choice");
-    static final QName CHOICE_QNAME = QName.create(WITH_CHOICE_CONTAINER_QNAME, "choice");
-    static final QName IN_CASE1_LEAF_QNAME = QName.create(WITH_CHOICE_CONTAINER_QNAME, "in-case1");
-    static final QName IN_CASE2_LEAF_QNAME = QName.create(WITH_CHOICE_CONTAINER_QNAME, "in-case2");
-
-    static final QName PRESENCE_CONTAINER_QNAME = QName.create(TOP_CONTAINER_QNAME, "presence");
-
-    static final YangInstanceIdentifier TOP_CONTAINER_ID = YangInstanceIdentifier.of(TOP_CONTAINER_QNAME);
-    static final YangInstanceIdentifier NESTED_LIST_ID = TOP_CONTAINER_ID.node(new YangInstanceIdentifier.NodeIdentifier(NESTED_LIST_QNAME));
+    private static final Logger LOG = LoggerFactory.getLogger(ModificationDiffTest.class);
 
     @Test
     public void testInitialWrite() throws Exception {
@@ -150,17 +117,14 @@ public class ModificationDiffTest {
         dataTreeModification.write(WITH_CHOICE_CONTAINER_ID, containerWithChoice);
         final DataTreeCandidateTip prepare = prepareModification(dataTree, dataTreeModification);
 
-        final Map<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> updates = getModificationDiff(prepare).getUpdates();
+        final Map<YangInstanceIdentifier, NormalizedNodeUpdate> updates = getModificationDiff(prepare).getUpdates();
 
         assertThat(updates.size(), is(1));
         assertUpdate(getNormalizedNodeUpdateForAfterType(updates, ContainerNode.class),
                 WITH_CHOICE_CONTAINER_ID, null, containerWithChoice);
     }
 
-    private DataTreeModification getModification(final TipProducingDataTree dataTree) {
-        final DataTreeSnapshot dataTreeSnapshot = dataTree.takeSnapshot();
-        return dataTreeSnapshot.newModification();
-    }
+
 
     @Test
     public void testWriteNonPresenceEmptyContainer() throws Exception {
@@ -174,6 +138,65 @@ public class ModificationDiffTest {
 
         assertThat(modificationDiff.getUpdates().size(), is(0));
     }
+
+    /**
+     * Covers case when both non-presence and nested is not present
+     */
+    @Test
+    public void testWriteNonPresenceNonEmptyContainer() throws Exception {
+        final TipProducingDataTree dataTree = getDataTree();
+        final DataTreeModification dataTreeModification = getModification(dataTree);
+        // non presence ,but with valid child list
+        final NormalizedNode<?, ?> topContainer = Builders.containerBuilder()
+                .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
+                .withChild(getNestedList("value","txt"))
+                .build();
+
+        dataTreeModification.write(TOP_CONTAINER_ID, topContainer);
+        final DataTreeCandidateTip prepare = prepareModification(dataTree, dataTreeModification);
+
+        final ModificationDiff modificationDiff = getModificationDiff(prepare);
+
+        assertThat(modificationDiff.getUpdates().size(), is(1));
+        assertNodeModificationPresent(modificationDiff, ImmutableSet.of(NESTED_LIST_QNAME));
+    }
+
+    /**
+     * Covers case when non-presence container was already filled with some data,
+     * and modification just ads some other nested data
+     */
+    @Test
+    public void testWriteNonPresenceNonEmptyContainerPreviousData() throws Exception {
+        final TipProducingDataTree dataTree = getDataTree();
+        final DataTreeModification dataTreeModificationOriginal = getModification(dataTree);
+        // non presence, but with valid child list
+        final MapEntryNode alreadyPresent = getNestedListEntry("value", "txt");
+        final NormalizedNode<?, ?> topContainerOriginal = Builders.containerBuilder()
+                .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
+                .withChild(getNestedList(alreadyPresent))
+                .build();
+
+        dataTreeModificationOriginal.write(TOP_CONTAINER_ID, topContainerOriginal);
+        final DataTreeCandidateTip prepare = prepareModification(dataTree, dataTreeModificationOriginal);
+        dataTree.commit(prepare);
+        // now we have state with some data
+
+        final MapEntryNode newEntry = getNestedListEntry("value2", "txt2");
+        final NormalizedNode<?, ?> topContainerModified = Builders.containerBuilder()
+                .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
+                .withChild(getNestedList(alreadyPresent, newEntry))
+                .build();
+        final DataTreeModification dataTreeModificationModified = getModification(dataTree);
+        dataTreeModificationModified.write(TOP_CONTAINER_ID, topContainerModified);
+        final DataTreeCandidateTip prepareModified = prepareModification(dataTree, dataTreeModificationModified);
+
+        final ModificationDiff modificationDiff = getModificationDiff(prepareModified);
+        // should detect one new entry
+        LOG.debug(modificationDiff.toString());
+        assertThat(modificationDiff.getUpdates().size(), is(1));
+        assertNodeModificationPresent(modificationDiff, ImmutableSet.of(NESTED_LIST_QNAME));
+    }
+
 
     @Test
     public void testWriteNonPresenceEmptyNestedContainer() throws Exception {
@@ -195,14 +218,6 @@ public class ModificationDiffTest {
         assertThat(modificationDiff.getUpdates().size(), is(1));
     }
 
-    private DataTreeCandidateTip prepareModification(final TipProducingDataTree dataTree,
-                                                     final DataTreeModification dataTreeModification)
-            throws DataValidationFailedException {
-        dataTreeModification.ready();
-        dataTree.validate(dataTreeModification);
-        return dataTree.prepare(dataTreeModification);
-    }
-
     @Test
     public void testUpdateWrite() throws Exception {
         final TipProducingDataTree dataTree = getDataTree();
@@ -214,16 +229,13 @@ public class ModificationDiffTest {
         dataTreeModification.write(TOP_CONTAINER_ID, topContainerAfter);
         final DataTreeCandidateTip prepare = prepareModification(dataTree, dataTreeModification);
 
-        final Map<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> updates = getModificationDiff(prepare).getUpdates();
+        final Map<YangInstanceIdentifier, NormalizedNodeUpdate> updates = getModificationDiff(prepare).getUpdates();
 
         assertThat(updates.size(), is(1));
         assertThat(updates.values().size(), is(1));
         assertUpdate(updates.values().iterator().next(), TOP_CONTAINER_ID, topContainer, topContainerAfter);
     }
 
-    private ModificationDiff getModificationDiff(final DataTreeCandidateTip prepare) throws ReactorException {
-        return ModificationDiff.recursivelyFromCandidateRoot(prepare.getRootNode(), getSchemaCtx());
-    }
 
     @Test
     public void testUpdateMerge() throws Exception {
@@ -236,7 +248,7 @@ public class ModificationDiffTest {
         dataTreeModification.merge(TOP_CONTAINER_ID, topContainerAfter);
         final DataTreeCandidateTip prepare = prepareModification(dataTree, dataTreeModification);
 
-        final Map<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> updates = getModificationDiff(prepare).getUpdates();
+        final Map<YangInstanceIdentifier, NormalizedNodeUpdate> updates = getModificationDiff(prepare).getUpdates();
         assertThat(updates.size(), is(1));
         assertThat(updates.values().size(), is(1));
         assertUpdate(updates.values().iterator().next(), TOP_CONTAINER_ID, topContainer, topContainerAfter);
@@ -252,7 +264,7 @@ public class ModificationDiffTest {
         dataTreeModification.delete(TOP_CONTAINER_ID);
         final DataTreeCandidateTip prepare = prepareModification(dataTree, dataTreeModification);
 
-        final Map<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> updates = getModificationDiff(prepare).getUpdates();
+        final Map<YangInstanceIdentifier, NormalizedNodeUpdate> updates = getModificationDiff(prepare).getUpdates();
         assertThat(updates.size(), is(1));
         assertThat(updates.values().size(), is(1));
         assertUpdate(updates.values().iterator().next(), TOP_CONTAINER_ID, topContainer, null);
@@ -276,7 +288,7 @@ public class ModificationDiffTest {
         dataTree.validate(dataTreeModification);
         DataTreeCandidateTip prepare = dataTree.prepare(dataTreeModification);
 
-        Map<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> updates = getModificationDiff(prepare).getUpdates();
+        Map<YangInstanceIdentifier, NormalizedNodeUpdate> updates = getModificationDiff(prepare).getUpdates();
 
         assertThat(updates.size(), is(1));
         assertUpdate(getNormalizedNodeUpdateForAfterType(updates, MapEntryNode.class),
@@ -301,14 +313,6 @@ public class ModificationDiffTest {
         assertThat(updates.size(), is(1 /*Actual list entry*/));
     }
 //
-    private void assertUpdate(final ModificationDiff.NormalizedNodeUpdate update,
-                              final YangInstanceIdentifier idExpected,
-                              final NormalizedNode<?, ?> beforeExpected,
-                              final NormalizedNode<?, ?> afterExpected) {
-        assertThat(update.getId(), is(idExpected));
-        assertThat(update.getDataBefore(), is(beforeExpected));
-        assertThat(update.getDataAfter(), is(afterExpected));
-    }
 
     @Test
     public void testWriteTopContainerAndInnerList() throws Exception {
@@ -332,7 +336,7 @@ public class ModificationDiffTest {
 
         final DataTreeCandidateTip prepare = prepareModification(dataTree, dataTreeModification);
 
-        final Map<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> updates = getModificationDiff(prepare).getUpdates();
+        final Map<YangInstanceIdentifier, NormalizedNodeUpdate> updates = getModificationDiff(prepare).getUpdates();
 
         assertThat(updates.size(), is(2));
         assertThat(updates.values().size(), is(2));
@@ -345,21 +349,7 @@ public class ModificationDiffTest {
                 listEntryId));
     }
 
-    private ModificationDiff.NormalizedNodeUpdate getNormalizedNodeUpdateForAfterType(
-            final Map<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> updates,
-            final Class<? extends NormalizedNode<?, ?>> containerNodeClass) {
-        return updates.values().stream()
-                    .filter(update -> containerNodeClass.isAssignableFrom(update.getDataAfter().getClass()))
-                    .findFirst().get();
-    }
 
-    private ModificationDiff.NormalizedNodeUpdate getNormalizedNodeUpdateForBeforeType(
-            final Map<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> updates,
-            final Class<? extends NormalizedNode<?, ?>> containerNodeClass) {
-        return updates.values().stream()
-                    .filter(update -> containerNodeClass.isAssignableFrom(update.getDataBefore().getClass()))
-                    .findFirst().get();
-    }
 
     @Test
     public void testWriteDeepList() throws Exception {
@@ -415,7 +405,7 @@ public class ModificationDiffTest {
         prepare = dataTree.prepare(dataTreeModification);
         dataTree.commit(prepare);
 
-        final Map<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> updates = getModificationDiff(prepare).getUpdates();
+        final Map<YangInstanceIdentifier, NormalizedNodeUpdate> updates = getModificationDiff(prepare).getUpdates();
         assertThat(updates.size(), is(1));
         assertUpdate(getNormalizedNodeUpdateForAfterType(updates, MapEntryNode.class), deepListEntryId, null, deepListEntry);
     }
@@ -450,88 +440,10 @@ public class ModificationDiffTest {
         dataTree.validate(dataTreeModification);
         prepare = dataTree.prepare(dataTreeModification);
 
-        final Map<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> updates = getModificationDiff(prepare).getUpdates();
+        final Map<YangInstanceIdentifier, NormalizedNodeUpdate> updates = getModificationDiff(prepare).getUpdates();
         assertThat(updates.size(), is(1));
         assertUpdate(getNormalizedNodeUpdateForBeforeType(updates, MapEntryNode.class), listItemId, mapNode.getValue().iterator().next(), null);
     }
 
-    static void addNodeToTree(final DataTree dataTree, final NormalizedNode<?, ?> node,
-                                              final YangInstanceIdentifier id)
-            throws DataValidationFailedException {
-        DataTreeSnapshot dataTreeSnapshot = dataTree.takeSnapshot();
-        DataTreeModification dataTreeModification = dataTreeSnapshot.newModification();
-        dataTreeModification.write(id, node);
-        dataTreeModification.ready();
-        dataTree.validate(dataTreeModification);
-        DataTreeCandidate prepare = dataTree.prepare(dataTreeModification);
-        dataTree.commit(prepare);
-    }
 
-    static TipProducingDataTree getDataTree() throws ReactorException {
-        final TipProducingDataTree dataTree = InMemoryDataTreeFactory.getInstance().create(TreeType.CONFIGURATION);
-        dataTree.setSchemaContext(getSchemaCtx());
-        return dataTree;
-    }
-
-    static ContainerNode getTopContainer(final String stringValue) {
-        return Builders.containerBuilder()
-                .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
-                .withChild(ImmutableNodes.leafNode(STRING_LEAF_QNAME, stringValue))
-                .build();
-    }
-
-    static ContainerNode getTopContainerWithLeafList(final String... stringValue) {
-        final ListNodeBuilder<String, LeafSetEntryNode<String>> leafSetBuilder = Builders.leafSetBuilder();
-        for (final String value : stringValue) {
-            leafSetBuilder.withChild(Builders.<String>leafSetEntryBuilder()
-                    .withNodeIdentifier(new YangInstanceIdentifier.NodeWithValue<>(NESTED_LEAF_LIST_QNAME, value))
-                    .withValue(value)
-                    .build());
-        }
-
-        return Builders.containerBuilder()
-                .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
-                .withChild(Builders.containerBuilder()
-                        .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(FOR_LEAF_LIST_QNAME))
-                        .withChild(leafSetBuilder
-                                .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(NESTED_LEAF_LIST_QNAME))
-                                .build())
-                        .build())
-                .build();
-    }
-
-    static MapNode getNestedList(final String listItemName, final String text) {
-        return Builders.mapBuilder()
-                .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(NESTED_LIST_QNAME))
-                .withChild(
-                        Builders.mapEntryBuilder()
-                                .withNodeIdentifier(
-                                        new YangInstanceIdentifier.NodeIdentifierWithPredicates(NESTED_LIST_QNAME,
-                                                NAME_LEAF_QNAME, listItemName))
-                                .withChild(ImmutableNodes.leafNode(NAME_LEAF_QNAME, listItemName))
-                                .withChild(ImmutableNodes.leafNode(TEXT_LEAF_QNAME, text))
-                                .build()
-                )
-                .build();
-    }
-
-    private MapNode getDeepList(final String listItemName) {
-        return Builders.mapBuilder()
-                .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(DEEP_LIST_QNAME))
-                .withChild(
-                        Builders.mapEntryBuilder()
-                                .withNodeIdentifier(
-                                        new YangInstanceIdentifier.NodeIdentifierWithPredicates(DEEP_LIST_QNAME,
-                                                NAME_LEAF_QNAME, listItemName))
-                                .withChild(ImmutableNodes.leafNode(NAME_LEAF_QNAME, listItemName))
-                                .build()
-                )
-                .build();
-    }
-
-    static SchemaContext getSchemaCtx() throws ReactorException {
-        final CrossSourceStatementReactor.BuildAction buildAction = YangInferencePipeline.RFC6020_REACTOR.newBuild();
-        buildAction.addSource(new YangStatementSourceImpl(ModificationDiffTest.class.getResourceAsStream("/test-diff.yang")));
-        return buildAction.buildEffective();
-    }
 }

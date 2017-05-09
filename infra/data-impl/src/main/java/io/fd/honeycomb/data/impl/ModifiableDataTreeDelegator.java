@@ -119,8 +119,8 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
             LOG.trace("ConfigDataTree.modify() rootPath={}, rootNode={}, dataBefore={}, dataAfter={}",
                 rootPath, rootNode, rootNode.getDataBefore(), rootNode.getDataAfter());
 
-            final ModificationDiff modificationDiff =
-                    ModificationDiff.recursivelyFromCandidateRoot(rootNode, schema);
+            final ModificationDiff modificationDiff = new ModificationDiff.ModificationDiffBuilder()
+                    .setCtx(schema).build(rootNode);
             LOG.debug("ConfigDataTree.modify() diff: {}", modificationDiff);
 
             // Distinguish between updates (create + update) and deletes
@@ -194,25 +194,25 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
         }
 
         private WriterRegistry.DataObjectUpdates toBindingAware(
-                final Map<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> biNodes) {
+                final Map<YangInstanceIdentifier, NormalizedNodeUpdate> biNodes) {
             return ModifiableDataTreeDelegator.toBindingAware(biNodes, serializer);
         }
     }
 
     @VisibleForTesting
     static WriterRegistry.DataObjectUpdates toBindingAware(
-            final Map<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> biNodes,
+            final Map<YangInstanceIdentifier, NormalizedNodeUpdate> biNodes,
             final BindingNormalizedNodeSerializer serializer) {
 
         final Multimap<InstanceIdentifier<?>, DataObjectUpdate> dataObjectUpdates = HashMultimap.create();
         final Multimap<InstanceIdentifier<?>, DataObjectUpdate.DataObjectDelete> dataObjectDeletes =
                 HashMultimap.create();
 
-        for (Map.Entry<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> biEntry : biNodes.entrySet()) {
+        for (Map.Entry<YangInstanceIdentifier, NormalizedNodeUpdate> biEntry : biNodes.entrySet()) {
             final InstanceIdentifier<?> unkeyedIid =
                     RWUtils.makeIidWildcarded(serializer.fromYangInstanceIdentifier(biEntry.getKey()));
 
-            ModificationDiff.NormalizedNodeUpdate normalizedNodeUpdate = biEntry.getValue();
+            NormalizedNodeUpdate normalizedNodeUpdate = biEntry.getValue();
             final DataObjectUpdate dataObjectUpdate = toDataObjectUpdate(normalizedNodeUpdate, serializer);
             if (dataObjectUpdate != null) {
                 if (dataObjectUpdate instanceof DataObjectUpdate.DataObjectDelete) {
@@ -227,7 +227,7 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
 
     @Nullable
     private static DataObjectUpdate toDataObjectUpdate(
-            final ModificationDiff.NormalizedNodeUpdate normalizedNodeUpdate,
+            final NormalizedNodeUpdate normalizedNodeUpdate,
             final BindingNormalizedNodeSerializer serializer) {
 
         InstanceIdentifier<?> baId = serializer.fromYangInstanceIdentifier(normalizedNodeUpdate.getId());
