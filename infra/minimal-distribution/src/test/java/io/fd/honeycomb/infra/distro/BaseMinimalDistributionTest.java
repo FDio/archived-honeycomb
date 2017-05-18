@@ -18,7 +18,6 @@ package io.fd.honeycomb.infra.distro;
 
 import static com.google.common.collect.ImmutableSet.of;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -31,10 +30,6 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
-import io.fd.honeycomb.infra.distro.bgp.BgpExtensionsModule;
-import io.fd.honeycomb.infra.distro.bgp.BgpModule;
-import io.fd.honeycomb.infra.distro.bgp.BgpReadersModule;
-import io.fd.honeycomb.infra.distro.bgp.BgpWritersModule;
 import io.fd.honeycomb.infra.distro.cfgattrs.CfgAttrsModule;
 import io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule;
 import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule;
@@ -46,7 +41,6 @@ import io.fd.honeycomb.infra.distro.schema.SchemaModule;
 import io.fd.honeycomb.infra.distro.schema.YangBindingProviderModule;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Properties;
 import java.util.Set;
@@ -75,36 +69,28 @@ public class BaseMinimalDistributionTest {
     private static final String NETCONF_NAMESPACE = "urn:ietf:params:xml:ns:netconf:base:1.0";
     private static final int HELLO_WAIT = 2500;
 
-    private static final int BGP_MSG_TYPE_OFFSET = 18; // 16 (MARKER) + 2 (LENGTH);
-    private static final byte BGP_OPEN_MSG_TYPE = 1;
-    private static final int BGP_PORT = 1790;
-
     public static final Set<Module> BASE_MODULES = of(
-            new YangBindingProviderModule(),
-            new SchemaModule(),
-            new ConfigAndOperationalPipelineModule(),
-            new ContextPipelineModule(),
-            new InitializerPipelineModule(),
-            new NetconfModule(),
-            new NetconfReadersModule(),
-            new RestconfModule(),
-            new BgpModule(),
-            new BgpExtensionsModule(),
-            new BgpReadersModule(),
-            new BgpWritersModule(),
-            new CfgAttrsModule());
+        new YangBindingProviderModule(),
+        new SchemaModule(),
+        new ConfigAndOperationalPipelineModule(),
+        new ContextPipelineModule(),
+        new InitializerPipelineModule(),
+        new NetconfModule(),
+        new NetconfReadersModule(),
+        new RestconfModule(),
+        new CfgAttrsModule());
 
     @Before
     public void setUp() throws Exception {
         SSLContext sslcontext = SSLContexts.custom()
-                .loadTrustMaterial(getClass().getResource("/honeycomb-keystore"),
-                        CERT_PASSWORD.toCharArray(), new TrustSelfSignedStrategy())
-                .build();
+            .loadTrustMaterial(getClass().getResource("/honeycomb-keystore"),
+                CERT_PASSWORD.toCharArray(), new TrustSelfSignedStrategy())
+            .build();
 
         SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext);
         CloseableHttpClient httpclient = HttpClients.custom()
-                .setSSLSocketFactory(sslsf)
-                .build();
+            .setSSLSocketFactory(sslsf)
+            .build();
         Unirest.setHttpClient(httpclient);
     }
 
@@ -124,8 +110,6 @@ public class BaseMinimalDistributionTest {
         assertRestconfHttp();
         LOG.info("Testing RESTCONF HTTPS");
         assertRestconfHttps();
-        LOG.info("Testing BGP");
-        assertBgp();
     }
 
     private void assertNetconfTcp() throws Exception {
@@ -182,13 +166,13 @@ public class BaseMinimalDistributionTest {
 
     private void assertRestconfHttp() throws Exception {
         final String url =
-                "http://127.0.0.1:" + HTTP_PORT + "/restconf/operational/ietf-netconf-monitoring:netconf-state";
+            "http://127.0.0.1:" + HTTP_PORT + "/restconf/operational/ietf-netconf-monitoring:netconf-state";
         LOG.info("RESTCONF HTTP GET to {}", url);
         final HttpResponse<String> jsonNodeHttpResponse = Unirest.get(url)
-                .basicAuth(UNAME, PASSWORD)
-                .asString();
+            .basicAuth(UNAME, PASSWORD)
+            .asString();
         LOG.info("RESTCONF HTTP GET to {}, status: {}, data: {}",
-                url, jsonNodeHttpResponse.getStatus(), jsonNodeHttpResponse.getBody());
+            url, jsonNodeHttpResponse.getStatus(), jsonNodeHttpResponse.getBody());
 
         assertSuccessStatus(jsonNodeHttpResponse);
         assertSuccessResponseForNetconfMonitoring(jsonNodeHttpResponse);
@@ -196,13 +180,13 @@ public class BaseMinimalDistributionTest {
 
     private void assertRestconfHttps() throws Exception {
         final String url =
-                "https://127.0.0.1:" + HTTPS_PORT + "/restconf/operational/ietf-netconf-monitoring:netconf-state";
+            "https://127.0.0.1:" + HTTPS_PORT + "/restconf/operational/ietf-netconf-monitoring:netconf-state";
         LOG.info("RESTCONF HTTPS GET to {}", url);
         final HttpResponse<String> jsonNodeHttpResponse = Unirest.get(url)
-                .basicAuth(UNAME, PASSWORD)
-                .asString();
+            .basicAuth(UNAME, PASSWORD)
+            .asString();
         LOG.info("RESTCONF HTTPS GET to {}, status: {}, data: {}",
-                url, jsonNodeHttpResponse.getStatus(), jsonNodeHttpResponse.getBody());
+            url, jsonNodeHttpResponse.getStatus(), jsonNodeHttpResponse.getBody());
 
         assertSuccessStatus(jsonNodeHttpResponse);
         assertSuccessResponseForNetconfMonitoring(jsonNodeHttpResponse);
@@ -216,20 +200,5 @@ public class BaseMinimalDistributionTest {
     private void assertSuccessStatus(final HttpResponse<String> jsonNodeHttpResponse) {
         assertTrue(jsonNodeHttpResponse.getStatus() >= 200);
         assertTrue(jsonNodeHttpResponse.getStatus() < 400);
-    }
-
-    private void assertBgp() throws Exception {
-        final InetAddress bgpHost = InetAddress.getByName("127.0.0.1");
-        final InetAddress bgpPeerAddress = InetAddress.getByName("127.0.0.2");
-        try (final Socket localhost = new Socket(bgpHost, BGP_PORT, bgpPeerAddress, 0);
-             final InputStream inputStream = localhost.getInputStream()) {
-            // wait until bgp message is sent
-            Thread.sleep(HELLO_WAIT);
-
-            final byte[] msg = readMessage(inputStream);
-            LOG.info("Received BGP message: {}", msg);
-
-            assertEquals(BGP_OPEN_MSG_TYPE, msg[BGP_MSG_TYPE_OFFSET]);
-        }
     }
 }

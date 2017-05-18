@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.bgp;
+package io.fd.honeycomb.infra.bgp;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -57,8 +57,11 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.model.api.DataNodeContainer;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class BGPPeerRegistryProvider extends ProviderTrait<BGPPeerRegistry> {
+    private static final Logger LOG = LoggerFactory.getLogger(BGPPeerRegistryProvider.class);
     private static final String PEERS_CFG = "/bgp-peers.json";
     @Inject
     private BindingToNormalizedNodeCodec codec;
@@ -75,15 +78,19 @@ final class BGPPeerRegistryProvider extends ProviderTrait<BGPPeerRegistry> {
         final Neighbors neighbors = readNeighbours();
         for (final Neighbor neighbor : neighbors.getNeighbor()) {
             if (isApplicationPeer(neighbor)) {
+                LOG.trace("Starting AppPeer for {}", neighbor);
                 new AppPeer().start(globalRib, neighbor, mappingService, null);
             } else {
+                LOG.trace("Starting BgpPeer for {}", neighbor);
                 new BgpPeer(null, peerRegistry).start(globalRib, neighbor, mappingService, null);
             }
         }
+        LOG.debug("Created BGPPeerRegistry with neighbours {}", neighbors);
         return peerRegistry;
     }
 
     private Neighbors readNeighbours() {
+        LOG.debug("Reading BGP neighbours from {}", PEERS_CFG);
         final InputStream resourceStream = this.getClass().getResourceAsStream(PEERS_CFG);
         checkState(resourceStream != null, "Resource %s not found", PEERS_CFG);
 

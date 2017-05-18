@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.bgp;
+package io.fd.honeycomb.infra.bgp;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
-import com.google.inject.multibindings.Multibinder;
-import io.fd.honeycomb.translate.write.WriterFactory;
+import net.jmob.guice.conf.core.ConfigurationModule;
 
-public class BgpWritersModule extends AbstractModule {
+/**
+ * Load the configuration from json into HoneycombConfiguration and make it available.
+ */
+public class BgpConfigurationModule extends AbstractModule {
 
     protected void configure() {
-        // This should be part of BgpModule, but that one is Private and Multibinders + private BASE_MODULES
-        // do not work together, that's why there's a dedicated module here
-        // https://github.com/google/guice/issues/906
-        final Multibinder<WriterFactory> binder = Multibinder.newSetBinder(binder(), WriterFactory.class);
-        binder.addBinding().toProvider(BgpWriterFactoryProvider.class).in(Singleton.class);
+        install(ConfigurationModule.create());
+        // Inject non-dependency configuration
+        requestInjection(BgpConfiguration.class);
     }
+
 }

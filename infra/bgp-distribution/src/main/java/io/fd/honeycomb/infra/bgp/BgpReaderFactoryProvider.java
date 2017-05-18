@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.bgp;
+package io.fd.honeycomb.infra.bgp;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;

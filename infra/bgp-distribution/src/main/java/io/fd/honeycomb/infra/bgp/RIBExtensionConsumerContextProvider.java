@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.bgp;
+package io.fd.honeycomb.infra.bgp;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
@@ -25,8 +25,11 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContextActivator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RIBExtensionConsumerContextProvider extends ProviderTrait<RIBExtensionConsumerContext> {
+    private static final Logger LOG = LoggerFactory.getLogger(RIBExtensionConsumerContextProvider.class);
     @Inject
     private Set<RIBExtensionProviderActivator> activators;
 
@@ -35,6 +38,7 @@ public class RIBExtensionConsumerContextProvider extends ProviderTrait<RIBExtens
         final RIBExtensionProviderContext ctx = new SimpleRIBExtensionProviderContext();
         final SimpleRIBExtensionProviderContextActivator activator =
             new SimpleRIBExtensionProviderContextActivator(ctx, new ArrayList<>(activators));
+        LOG.debug("Starting RIBExtensionConsumerContext with activators: {}", activators);
         activator.start();
         return ctx;
     }

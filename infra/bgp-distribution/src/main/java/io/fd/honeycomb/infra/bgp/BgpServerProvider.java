@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.bgp;
+package io.fd.honeycomb.infra.bgp;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
-import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelConfig;
 import io.netty.channel.ChannelFuture;
@@ -35,10 +34,13 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistryListener;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class BgpServerProvider  extends ProviderTrait<BgpServerProvider.BgpServer> {
+    private static final Logger LOG = LoggerFactory.getLogger(BgpServerProvider.class);
     @Inject
-    private HoneycombConfiguration cfg;
+    private BgpConfiguration cfg;
     @Inject
     private BGPPeerRegistry peerRegistry;
     @Inject
@@ -54,6 +56,7 @@ public final class BgpServerProvider  extends ProviderTrait<BgpServerProvider.Bg
             throw new IllegalArgumentException("Illegal BGP binding address", e);
         }
         final InetSocketAddress address = new InetSocketAddress(bindingAddress, cfg.bgpPort.get());
+        LOG.debug("Creating BgpServer for {}", address);
         final ChannelFuture localServer = dispatcher.createServer(peerRegistry, address);
         localServer.addListener(future -> {
             Preconditions.checkArgument(future.isSuccess(), "Unable to start bgp server on %s", address, future.cause());
@@ -62,7 +65,9 @@ public final class BgpServerProvider  extends ProviderTrait<BgpServerProvider.Bg
                 peerRegistry.registerPeerRegisterListener(new PeerRegistryListenerImpl(channel.config()));
             }
         });
-        return new BgpServer(localServer);
+        final BgpServer server = new BgpServer(localServer);
+        LOG.debug("BgpServer successfully created.");
+        return server;
     }
 
     public static final class BgpServer {

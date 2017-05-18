@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.bgp;
+package io.fd.honeycomb.infra.bgp;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
-import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -51,11 +50,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class BgpRIBProvider extends ProviderTrait<RIB> {
-
+    private static final Logger LOG = LoggerFactory.getLogger(BgpRIBProvider.class);
     private static final String HC_BGP_INSTANCE_NAME = "hc-bgp-instance";
 
     @Inject
-    private HoneycombConfiguration cfg;
+    private BgpConfiguration cfg;
     @Inject
     private RIBExtensionConsumerContext extensions;
     @Inject
@@ -74,6 +73,7 @@ final class BgpRIBProvider extends ProviderTrait<RIB> {
         final AsNumber asNumber = new AsNumber(cfg.bgpAsNumber.get().longValue());
         final Ipv4Address routerId = new Ipv4Address(cfg.bgpBindingAddress.get());
         final ClusterIdentifier clusterId = new ClusterIdentifier(routerId);
+        LOG.debug("Creating BGP RIB: routerId={}, asNumber={}", routerId, asNumber);
         // TODO configure other BGP Multiprotocol extensions:
         final List<AfiSafi> afiSafi = ImmutableList.of(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
             .addAugmentation(AfiSafi2.class,
@@ -91,6 +91,8 @@ final class BgpRIBProvider extends ProviderTrait<RIB> {
 
         // required for proper RIB's CodecRegistry initialization (based on RIBImpl.start)
         schemaService.registerSchemaContextListener(rib);
+
+        LOG.debug("BGP RIB created successfully: {}", rib);
         return rib;
     }
 

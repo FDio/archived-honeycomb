@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <groupId>io.fd.honeycomb.common</groupId>
+        <artifactId>minimal-distribution-parent</artifactId>
+        <version>1.17.07-SNAPSHOT</version>
+        <relativePath>../../common/minimal-distribution-parent</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.fd.honeycomb</groupId>
+    <artifactId>bgp-distribution</artifactId>
+    <name>${project.artifactId}</name>
+    <version>1.17.07-SNAPSHOT</version>
+
+    <properties>
+        <main.class>io.fd.honeycomb.infra.bgp.distro.Main</main.class>
+        <sonar.skip>true</sonar.skip>
+        <distribution.modules>
+            io.fd.honeycomb.infra.bgp.BgpModule,
+            io.fd.honeycomb.infra.bgp.BgpExtensionsModule,
+            io.fd.honeycomb.infra.bgp.BgpReadersModule,
+            io.fd.honeycomb.infra.bgp.BgpWritersModule,
+            io.fd.honeycomb.infra.bgp.BgpConfigurationModule
+        </distribution.modules>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>groovy-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>minimal-distribution</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- ODL-BGP -->
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-rib-impl</artifactId>
+            <!-- TODO remove exclusion after bumping to Boron-SR4 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.powermock</groupId>
+                    <artifactId>powermock</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-openconfig-impl</artifactId>
+        </dependency>
+        <!-- BGP extensions -->
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-evpn</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-inet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-labeled-unicast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-linkstate</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-l3vpn</artifactId>
+        </dependency>
+
+        <!-- test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.mashape.unirest</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>1.4.9</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.54</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

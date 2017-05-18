@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.bgp;
+package io.fd.honeycomb.infra.bgp;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
@@ -25,8 +25,12 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContextActivator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class BGPExtensionConsumerContextProvider extends ProviderTrait<BGPExtensionConsumerContext> {
+    private static final Logger LOG = LoggerFactory.getLogger(BGPExtensionConsumerContextProvider.class);
+
     @Inject
     private Set<BGPExtensionProviderActivator> activators;
 
@@ -35,6 +39,7 @@ final class BGPExtensionConsumerContextProvider extends ProviderTrait<BGPExtensi
         final BGPExtensionProviderContext ctx = new SimpleBGPExtensionProviderContext();
         final SimpleBGPExtensionProviderContextActivator activator =
             new SimpleBGPExtensionProviderContextActivator(ctx, new ArrayList<>(activators));
+        LOG.debug("Starting BGPExtensionConsumerContext with activators: {}", activators);
         activator.start();
         return ctx;
     }

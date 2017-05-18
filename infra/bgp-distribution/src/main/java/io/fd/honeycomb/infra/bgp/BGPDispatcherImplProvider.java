@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2017 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.bgp;
+package io.fd.honeycomb.infra.bgp;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
-import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.EventLoopGroup;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 
-final class BgpNettyThreadGroupProvider extends ProviderTrait<NioEventLoopGroup> {
-
+final class BGPDispatcherImplProvider extends ProviderTrait<BGPDispatcher> {
     @Inject
-    private HoneycombConfiguration cfgAttributes;
+    private BGPExtensionConsumerContext consumerContext;
+    @Inject
+    private EventLoopGroup threadGroup;
 
     @Override
-    protected NioEventLoopGroup create() {
-        return new NioEventLoopGroup(cfgAttributes.bgpNettyThreads,
-                new ThreadFactoryBuilder().setNameFormat("bgp-netty-%d").build());
+    protected BGPDispatcher create() {
+        return new BGPDispatcherImpl(consumerContext.getMessageRegistry(), threadGroup, threadGroup);
     }
 }

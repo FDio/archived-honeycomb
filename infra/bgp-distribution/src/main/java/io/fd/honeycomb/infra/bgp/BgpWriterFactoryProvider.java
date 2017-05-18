@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.bgp;
+package io.fd.honeycomb.infra.bgp;
 
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
@@ -64,7 +64,7 @@ final class BgpWriterFactoryProvider extends ProviderTrait<WriterFactory> {
             this.dataBroker = dataBroker;
         }
 
-        // TODO
+        // TODO (HONEYCOMB-359):
         // BGP models are huge, we need some kind of wildcarded subtree writer, that works for whole subtree.
         // 1) we can either move checking handledTypes to writers (getHandledTypes, isAffected, writer.getHandedTypes, ...)
         // but then precondition check in flatWriterRegistry might be slower (we need to check if we have all writers

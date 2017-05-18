@@ -33,9 +33,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 /**
  * Simple DataBroker backed writer allowing to delegate writes to different brokers.
  */
-public final class BindingBrokerWriter<D extends DataObject>
-    implements Writer<D> {
-
+public final class BindingBrokerWriter<D extends DataObject> implements Writer<D> {
     private final InstanceIdentifier<D> instanceIdentifier;
     private final DataBroker dataBroker;
 
