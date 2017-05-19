@@ -16,6 +16,11 @@
 
 package io.fd.honeycomb.test.tools;
 
+import java.util.AbstractMap;
+import java.util.Map;
+import java.util.Optional;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.yangtools.sal.binding.generator.impl.BindingSchemaContextUtils;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -27,13 +32,6 @@ import org.opendaylight.yangtools.yang.model.api.DataNodeContainer;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaNode;
 import org.slf4j.Logger;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.AbstractMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
 
 interface YangDataProcessor {
 
@@ -68,11 +66,11 @@ interface YangDataProcessor {
     default SchemaNode parentSchema(@Nonnull final SchemaContext schemaContext,
                                     @Nonnull final BindingToNormalizedNodeCodec serializer,
                                     @Nullable final YangInstanceIdentifier parentYangId,
-                                    @Nonnull final Supplier<Logger> logProvider) {
+                                    @Nonnull final Logger logger) {
         // null or root
         if (parentYangId == null || parentYangId.getPathArguments().size() == 0) {
             // no parent == use schema context as root context
-            logProvider.get().info("Parent is null, providing schema context as parent node");
+            logger.info("Parent is null, providing schema context as parent node");
             return schemaContext;
         }
 
@@ -96,7 +94,7 @@ interface YangDataProcessor {
         }
 
         final DataNodeContainer parentNode = dataNodeContainerOptional.get();
-        logProvider.get().info("Parent schema node resolved as {}", parentNode);
+        logger.info("Parent schema node resolved as {}", parentNode);
         return (SchemaNode) parentNode;
     }
 

@@ -33,7 +33,7 @@ public interface BenchmarkFilesProvider {
 
     default void outputBenchmarkResult(@Nonnull final MemoryInfo benchmarkResult,
                                        @Nonnull final String outputPath,
-                                       @Nonnull final Supplier<Logger> loggerSupplier) {
+                                       @Nonnull final Logger logger) {
         // specifies output file in form specified_name-memory_info_type.csv
         final Path outPath = Paths.get(outputPath + "-" + benchmarkResult.getMemoryInfoTypeName() + ".csv");
         final CSVFormat csvFormat = CSVFormat.RFC4180.withHeader(MemoryInfo.COMMITTED, MemoryInfo.INIT, MemoryInfo.MAX, MemoryInfo.USED);
@@ -42,7 +42,7 @@ public interface BenchmarkFilesProvider {
             // prints values in same order that header is
             csvPrinter.printRecord(benchmarkResult.getCommitted(), benchmarkResult.getInit(), benchmarkResult.getMax(), benchmarkResult.getUsed());
 
-            loggerSupplier.get().info("Creating output file {}", outPath);
+            logger.info("Creating output file {}", outPath);
             // writes output to separate file
             Files.write(Files.createFile(outPath), Collections.singleton(csvPrinter.getOut().toString()));
         } catch (IOException e) {

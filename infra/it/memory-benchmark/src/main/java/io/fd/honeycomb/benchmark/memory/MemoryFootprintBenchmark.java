@@ -84,7 +84,7 @@ public class MemoryFootprintBenchmark implements JMXBeanProvider, BenchmarkFiles
 
         // query memory beans with JMX and output results on output path
         queryMemoryBeans(injector.getInstance(JMXServiceURL.class))
-                .forEach(memoryInfo -> outputBenchmarkResult(memoryInfo, outputPath, () -> LOG));
+                .forEach(memoryInfo -> outputBenchmarkResult(memoryInfo, outputPath, LOG));
         // shutdowns server instance
         injector.getInstance(Server.class).stop();
     }

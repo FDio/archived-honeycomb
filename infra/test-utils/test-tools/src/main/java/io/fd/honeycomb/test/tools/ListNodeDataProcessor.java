@@ -16,6 +16,12 @@
 
 package io.fd.honeycomb.test.tools;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static io.fd.honeycomb.translate.util.JsonUtils.readListEntryFromJson;
+
+import java.io.InputStream;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
@@ -25,13 +31,6 @@ import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import java.io.InputStream;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static io.fd.honeycomb.translate.util.JsonUtils.readListEntryFromJson;
 
 /**
  * json --> BA processor for list entry data
@@ -55,7 +54,7 @@ final class ListNodeDataProcessor extends AbstractYangContextHolder implements Y
         final InputStream resourceStream = this.getClass().getResourceAsStream(resourcePath);
         checkState(resourceStream != null, "Resource %s not found", resourcePath);
 
-        final SchemaNode parentSchemaNode = parentSchema(schemaContext(), serializer(), listParent, () -> LOG);
+        final SchemaNode parentSchemaNode = parentSchema(schemaContext(), serializer(), listParent, LOG);
         final MapEntryNode data = readListEntryFromJson(schemaContext(), resourceStream, parentSchemaNode, keyedNodeIdentifier);
 
         return nodeBinding(serializer(), nodeIdentifier, data).getValue();
