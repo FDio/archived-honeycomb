@@ -27,7 +27,8 @@ package ${package}.read;
 import ${package}.CrudService;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -43,7 +44,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  * Reader for {@link Element} list node from our YANG model.
  */
 public final class ElementStateCustomizer implements
-        ListReaderCustomizer<Element, ElementKey, ElementBuilder> {
+    InitializingListReaderCustomizer<Element, ElementKey, ElementBuilder> {
 
     private final CrudService<Element> crudService;
 
@@ -89,5 +90,20 @@ public final class ElementStateCustomizer implements
         builder.setId(data.getId());
         builder.setKey(data.getKey());
         builder.setDescription(data.getDescription());
+    }
+    /**
+     *
+     * Initialize configuration data based on operational data.
+     * <p/>
+     * Very useful when a plugin is initiated but the underlying layer already contains some operation state.
+     * Deriving the configuration from existing operational state enables reconciliation in case when
+     * Honeycomb's persistence is not available to do the work for us.
+     */
+    @Nonnull
+    @Override
+    public Initialized<? extends DataObject> init(@Nonnull final InstanceIdentifier<Element> id,
+                                                  @Nonnull final Element readValue,
+                                                  @Nonnull final ReadContext ctx) {
+        return Initialized.create(id, readValue);
     }
 }

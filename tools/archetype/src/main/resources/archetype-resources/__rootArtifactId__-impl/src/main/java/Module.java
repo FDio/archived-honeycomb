@@ -30,7 +30,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
-import ${package}.init.ConfigDataInitializer;
 import ${package}.read.ModuleStateReaderFactory;
 import ${package}.write.ModuleWriterFactory;
 import io.fd.honeycomb.data.init.DataTreeInitializer;
@@ -71,11 +70,5 @@ public final class Module extends AbstractModule {
         // can hold multiple binding for separate yang modules
         final Multibinder<WriterFactory> writerFactoryBinder = Multibinder.newSetBinder(binder(), WriterFactory.class);
         writerFactoryBinder.addBinding().to(ModuleWriterFactory.class);
-
-        // create initializer binding
-        // can hold multiple binding for separate yang modules
-        final Multibinder<DataTreeInitializer> initializerBinder =
-                Multibinder.newSetBinder(binder(), DataTreeInitializer.class);
-        initializerBinder.addBinding().to(ConfigDataInitializer.class);
     }
 }
