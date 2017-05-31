@@ -37,6 +37,7 @@ import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborPeerGroupConfig;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighbors;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
@@ -60,8 +61,8 @@ import org.opendaylight.yangtools.yang.model.api.SchemaNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class BGPPeerRegistryProvider extends ProviderTrait<BGPPeerRegistry> {
-    private static final Logger LOG = LoggerFactory.getLogger(BGPPeerRegistryProvider.class);
+final class BgpNeighboursProvider extends ProviderTrait<BgpNeighbors> {
+    private static final Logger LOG = LoggerFactory.getLogger(BgpNeighboursProvider.class);
     private static final String PEERS_CFG = "/bgp-peers.json";
     @Inject
     private BindingToNormalizedNodeCodec codec;
@@ -71,11 +72,12 @@ final class BGPPeerRegistryProvider extends ProviderTrait<BGPPeerRegistry> {
     private BGPOpenConfigMappingService mappingService;
     @Inject
     private SchemaService schemaService;
+    @Inject
+    private BGPPeerRegistry peerRegistry;
 
     @Override
-    protected BGPPeerRegistry create() {
-        final BGPPeerRegistry peerRegistry = StrictBGPPeerRegistry.instance();
-        final Neighbors neighbors = readNeighbours();
+    protected BgpNeighbors create() {
+        final BgpNeighbors neighbors = readNeighbours();
         for (final Neighbor neighbor : neighbors.getNeighbor()) {
             if (isApplicationPeer(neighbor)) {
                 LOG.trace("Starting AppPeer for {}", neighbor);
@@ -85,8 +87,8 @@ final class BGPPeerRegistryProvider extends ProviderTrait<BGPPeerRegistry> {
                 new BgpPeer(null, peerRegistry).start(globalRib, neighbor, mappingService, null);
             }
         }
-        LOG.debug("Created BGPPeerRegistry with neighbours {}", neighbors);
-        return peerRegistry;
+        LOG.debug("BgpNeighbours initialized: {}", neighbors);
+        return neighbors;
     }
 
     private Neighbors readNeighbours() {

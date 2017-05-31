@@ -28,6 +28,7 @@ import com.google.inject.ProvisionException;
 import io.fd.honeycomb.infra.bgp.BgpConfiguration;
 import io.fd.honeycomb.infra.bgp.BgpServerProvider;
 import java.util.Set;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighbors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,8 @@ public final class Main {
             if (bgpAttributes.isBgpEnabled()) {
                 LOG.info("Starting BGP");
                 injector.getInstance(BgpServerProvider.BgpServer.class);
+                LOG.info("Initializing BgpNeighbours");
+                injector.getInstance(BgpNeighbors.class);
                 LOG.info("BGP started successfully!");
             }
 

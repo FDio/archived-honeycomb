@@ -32,9 +32,11 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.store.impl.InMemoryDOMDataStore;
 import org.opendaylight.protocol.bgp.openconfig.impl.BGPOpenConfigMappingServiceImpl;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
+import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighbors;
 
 public final class BgpModule extends PrivateModule {
 
@@ -49,11 +51,16 @@ public final class BgpModule extends PrivateModule {
 
         // Configure peer registry
         bind(BGPOpenConfigMappingService.class).toInstance(new BGPOpenConfigMappingServiceImpl());
-        bind(BGPPeerRegistry.class).toProvider(BGPPeerRegistryProvider.class);
+        bind(BGPPeerRegistry.class).toInstance(StrictBGPPeerRegistry.instance());
+
 
         // Create BGP server instance
         bind(BgpServerProvider.BgpServer.class).toProvider(BgpServerProvider.class).in(Singleton.class);
         expose(BgpServerProvider.BgpServer.class);
+
+        // Initialize BgpNeighbours
+        bind(BgpNeighbors.class).toProvider(BgpNeighboursProvider.class).in(Singleton.class);
+        expose(BgpNeighbors.class);
     }
 
     private void configureRIB() {
