@@ -17,6 +17,7 @@
 package io.fd.honeycomb.infra.bgp;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
@@ -46,7 +47,8 @@ public final class BgpExtensionsModule extends AbstractModule {
         ribExtensionBinder.addBinding().to(org.opendaylight.protocol.bgp.linkstate.impl.RIBActivator.class);
         ribExtensionBinder.addBinding().to(org.opendaylight.protocol.bgp.l3vpn.ipv4.RibIpv4Activator.class);
         ribExtensionBinder.addBinding().to(org.opendaylight.protocol.bgp.l3vpn.ipv6.RibIpv6Activator.class);
-        bind(RIBExtensionConsumerContext.class).toProvider(RIBExtensionConsumerContextProvider.class);
+        bind(RIBExtensionConsumerContext.class).toProvider(RIBExtensionConsumerContextProvider.class)
+            .in(Singleton.class);
     }
 
     private void configureBGPExtensions() {
@@ -59,6 +61,7 @@ public final class BgpExtensionsModule extends AbstractModule {
         bgpExtensionBinder.addBinding().to(org.opendaylight.protocol.bgp.linkstate.impl.BGPActivator.class);
         bgpExtensionBinder.addBinding().to(org.opendaylight.protocol.bgp.l3vpn.ipv4.BgpIpv4Activator.class);
         bgpExtensionBinder.addBinding().to(org.opendaylight.protocol.bgp.l3vpn.ipv6.BgpIpv6Activator.class);
-        bind(BGPExtensionConsumerContext.class).toProvider(BGPExtensionConsumerContextProvider.class);
+        bind(BGPExtensionConsumerContext.class).toProvider(BGPExtensionConsumerContextProvider.class)
+            .in(Singleton.class);
     }
 }
