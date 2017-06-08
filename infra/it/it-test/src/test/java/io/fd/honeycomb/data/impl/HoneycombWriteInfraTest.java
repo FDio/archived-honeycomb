@@ -30,8 +30,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.fd.honeycomb.data.DataModification;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
-import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.write.WriteContext;
+import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.translate.write.Writer;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
 import java.util.ArrayList;
@@ -116,7 +117,7 @@ public class HoneycombWriteInfraTest extends AbstractInfraTest {
     }
 
     private void initWriterRegistry() {
-        writerRegistry = new FlatWriterRegistryBuilder()
+        writerRegistry = new FlatWriterRegistryBuilder(new YangDAG())
                 .add(complexAugmentWriter) // unordered
                 .add(nestedListWriter) // 6
                 .addAfter(listInContainerWriter, Ids.NESTED_LIST_ID) // 7
@@ -473,7 +474,7 @@ public class HoneycombWriteInfraTest extends AbstractInfraTest {
 
     @Test
     public void testSubtreeWriter() throws Exception {
-        writerRegistry = new FlatWriterRegistryBuilder()
+        writerRegistry = new FlatWriterRegistryBuilder(new YangDAG())
                 // Handles also container from grouping
                 .subtreeAdd(Sets.newHashSet(Ids.CONTAINER_FROM_GROUPING_ID), containerWithChoiceWriter)
                 .build();

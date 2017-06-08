@@ -18,11 +18,12 @@ package io.fd.honeycomb.translate.impl.write.registry;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
-import io.fd.honeycomb.translate.write.registry.WriterRegistryBuilder;
 import io.fd.honeycomb.translate.util.AbstractSubtreeManagerRegistryBuilderBuilder;
+import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.write.Writer;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
+import io.fd.honeycomb.translate.write.registry.WriterRegistryBuilder;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -41,6 +42,10 @@ public final class FlatWriterRegistryBuilder
         implements ModifiableWriterRegistryBuilder, WriterRegistryBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlatWriterRegistryBuilder.class);
+
+    public FlatWriterRegistryBuilder(@Nonnull final YangDAG yangDAG) {
+        super(yangDAG);
+    }
 
     @Override
     protected Writer<? extends DataObject> getSubtreeHandler(final @Nonnull Set<InstanceIdentifier<?>> handledChildren,

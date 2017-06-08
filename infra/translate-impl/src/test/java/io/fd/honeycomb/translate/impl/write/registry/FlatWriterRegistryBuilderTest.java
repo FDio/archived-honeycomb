@@ -32,6 +32,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import io.fd.honeycomb.translate.util.DataObjects;
+import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.write.DataObjectUpdate;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.Writer;
@@ -45,10 +46,9 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class FlatWriterRegistryBuilderTest {
-
     @Test
     public void testRelationsBefore() throws Exception {
-        final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder();
+        final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder(new YangDAG());
         /*
             1   ->  2   ->  3
                         ->  4
@@ -70,7 +70,7 @@ public class FlatWriterRegistryBuilderTest {
 
     @Test
     public void testBuild() throws Exception {
-        final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder();
+        final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder(new YangDAG());
         final Writer<? extends DataObject> writer = mockWriter(DataObjects.DataObject3.class);
         flatWriterRegistryBuilder.add(writer);
         final WriterRegistry build = flatWriterRegistryBuilder.build();
@@ -94,7 +94,7 @@ public class FlatWriterRegistryBuilderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testBuildUnknownWriter() throws Exception {
-        final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder();
+        final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder(new YangDAG());
         final Writer<? extends DataObject> writer = mockWriter(DataObjects.DataObject3.class);
         flatWriterRegistryBuilder.add(writer);
         final WriterRegistry build = flatWriterRegistryBuilder.build();
@@ -109,7 +109,7 @@ public class FlatWriterRegistryBuilderTest {
 
     @Test
     public void testRelationsAfter() throws Exception {
-        final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder();
+        final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder(new YangDAG());
         /*
             1   ->  2   ->  3
                         ->  4
@@ -131,7 +131,7 @@ public class FlatWriterRegistryBuilderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testRelationsLoop() throws Exception {
-        final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder();
+        final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder(new YangDAG());
         /*
             1   ->  2   ->  1
          */
@@ -142,14 +142,14 @@ public class FlatWriterRegistryBuilderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testAddWriterTwice() throws Exception {
-        final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder();
+        final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder(new YangDAG());
         flatWriterRegistryBuilder.add(mockWriter(DataObjects.DataObject1.class));
         flatWriterRegistryBuilder.add(mockWriter(DataObjects.DataObject1.class));
     }
 
     @Test
     public void testAddSubtreeWriter() throws Exception {
-        final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder();
+        final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder(new YangDAG());
         flatWriterRegistryBuilder.subtreeAdd(
                 Sets.newHashSet(DataObjects.DataObject4.DataObject41.IID,
                                 DataObjects.DataObject4.DataObject41.IID),

@@ -18,7 +18,6 @@ package io.fd.honeycomb.translate.util;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 import io.fd.honeycomb.translate.ModifiableSubtreeManagerRegistryBuilder;
 import io.fd.honeycomb.translate.SubtreeManager;
 import io.fd.honeycomb.translate.SubtreeManagerRegistryBuilder;
@@ -27,17 +26,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public abstract class AbstractSubtreeManagerRegistryBuilderBuilder<S extends SubtreeManager<? extends DataObject>, R>
-        implements ModifiableSubtreeManagerRegistryBuilder<S>, SubtreeManagerRegistryBuilder<R>, AutoCloseable {
+        implements ModifiableSubtreeManagerRegistryBuilder<S>, SubtreeManagerRegistryBuilder<R> {
 
-    // Using directed acyclic graph to represent the ordering relationships between writers
-    private final DirectedAcyclicGraph<InstanceIdentifier<?>, Order>
-            handlersRelations = new DirectedAcyclicGraph<>((sourceVertex, targetVertex) -> new Order());
     private final Map<InstanceIdentifier<?>, S> handlersMap = new HashMap<>();
+    private final YangDAG dag;
+
+    protected AbstractSubtreeManagerRegistryBuilderBuilder(@Nonnull final YangDAG yangDAG) {
+        this.dag = Preconditions.checkNotNull(yangDAG, "yangDAG should not be null");
+    }
 
     /**
      * Add handler without any special relationship to any other type.
@@ -49,7 +49,7 @@ public abstract class AbstractSubtreeManagerRegistryBuilderBuilder<S extends Sub
         // not be matched to writers in registry
         final InstanceIdentifier<?> targetType = RWUtils.makeIidWildcarded(handler.getManagedDataObjectType());
         checkWriterNotPresentYet(targetType);
-        handlersRelations.addVertex(targetType);
+        dag.addVertex(targetType);
         handlersMap.put(targetType, handler);
         return this;
     }
@@ -78,9 +78,9 @@ public abstract class AbstractSubtreeManagerRegistryBuilderBuilder<S extends Sub
         final InstanceIdentifier<?> targetType = RWUtils.makeIidWildcarded(handler.getManagedDataObjectType());
         final InstanceIdentifier<?> wildcardedRelatedType = RWUtils.makeIidWildcarded(relatedType);
         checkWriterNotPresentYet(targetType);
-        handlersRelations.addVertex(targetType);
-        handlersRelations.addVertex(wildcardedRelatedType);
-        addEdge(targetType, wildcardedRelatedType);
+        dag.addVertex(targetType);
+        dag.addVertex(wildcardedRelatedType);
+        dag.addEdge(targetType, wildcardedRelatedType);
         handlersMap.put(targetType, handler);
         return this;
     }
@@ -90,13 +90,13 @@ public abstract class AbstractSubtreeManagerRegistryBuilderBuilder<S extends Sub
                                                                         @Nonnull final Collection<InstanceIdentifier<?>> relatedTypes) {
         final InstanceIdentifier<?> targetType = RWUtils.makeIidWildcarded(handler.getManagedDataObjectType());
         checkWriterNotPresentYet(targetType);
-        handlersRelations.addVertex(targetType);
+        dag.addVertex(targetType);
         relatedTypes.stream()
                 .map(RWUtils::makeIidWildcarded)
-                .forEach(handlersRelations::addVertex);
+                .forEach(dag::addVertex);
         relatedTypes.stream()
                 .map(RWUtils::makeIidWildcarded)
-                .forEach(type -> addEdge(targetType, type));
+                .forEach(type -> dag.addEdge(targetType, type));
         handlersMap.put(targetType, handler);
         return this;
     }
@@ -129,10 +129,10 @@ public abstract class AbstractSubtreeManagerRegistryBuilderBuilder<S extends Sub
         final InstanceIdentifier<?> targetType = RWUtils.makeIidWildcarded(handler.getManagedDataObjectType());
         final InstanceIdentifier<?> wildcardedRelatedType = RWUtils.makeIidWildcarded(relatedType);
         checkWriterNotPresentYet(targetType);
-        handlersRelations.addVertex(targetType);
-        handlersRelations.addVertex(wildcardedRelatedType);
+        dag.addVertex(targetType);
+        dag.addVertex(wildcardedRelatedType);
         // set edge to indicate before relationship, just reversed
-        addEdge(wildcardedRelatedType, targetType);
+        dag.addEdge(wildcardedRelatedType, targetType);
         handlersMap.put(targetType, handler);
         return this;
     }
@@ -142,14 +142,14 @@ public abstract class AbstractSubtreeManagerRegistryBuilderBuilder<S extends Sub
                                                                        @Nonnull final Collection<InstanceIdentifier<?>> relatedTypes) {
         final InstanceIdentifier<?> targetType = RWUtils.makeIidWildcarded(handler.getManagedDataObjectType());
         checkWriterNotPresentYet(targetType);
-        handlersRelations.addVertex(targetType);
+        dag.addVertex(targetType);
         relatedTypes.stream()
                 .map(RWUtils::makeIidWildcarded)
-                .forEach(handlersRelations::addVertex);
+                .forEach(dag::addVertex);
         // set edge to indicate before relationship, just reversed
         relatedTypes.stream()
                 .map(RWUtils::makeIidWildcarded)
-                .forEach(type -> addEdge(type, targetType));
+                .forEach(type -> dag.addEdge(type, targetType));
         handlersMap.put(targetType, handler);
         return this;
     }
@@ -170,22 +170,10 @@ public abstract class AbstractSubtreeManagerRegistryBuilderBuilder<S extends Sub
         return addAfter(getSubtreeHandler(handledChildren, handler), relatedTypes);
     }
 
-
-    private void addEdge(final InstanceIdentifier<?> targetType,
-                         final InstanceIdentifier<?> relatedType) {
-        try {
-            handlersRelations.addDagEdge(targetType, relatedType);
-        } catch (DirectedAcyclicGraph.CycleFoundException e) {
-            throw new IllegalArgumentException(String.format(
-                    "Unable to add writer with relation: %s -> %s. Loop detected", targetType, relatedType), e);
-        }
-    }
-
     protected ImmutableMap<InstanceIdentifier<?>, S> getMappedHandlers() {
         final ImmutableMap.Builder<InstanceIdentifier<?>, S> builder = ImmutableMap.builder();
         // Iterate writer types according to their relationships from graph
-        handlersRelations.iterator()
-                .forEachRemaining(handlerType -> {
+        dag.iterator().forEachRemaining(handlerType -> {
                     // There might be types stored just for relationship sake, no real writer, ignoring those
                     if (handlersMap.containsKey(handlerType)) {
                         builder.put(handlerType, handlersMap.get(handlerType));
@@ -199,15 +187,4 @@ public abstract class AbstractSubtreeManagerRegistryBuilderBuilder<S extends Sub
 
         return builder.build();
     }
-
-    @Override
-    public void close() throws Exception {
-        handlersMap.clear();
-        // Wrap sets into another set to avoid concurrent modification ex in graph
-        handlersRelations.removeAllEdges(Sets.newHashSet(handlersRelations.edgeSet()));
-        handlersRelations.removeAllVertices(Sets.newHashSet(handlersRelations.vertexSet()));
-    }
-
-    // Represents edges in graph
-    private class Order {}
 }

@@ -26,18 +26,15 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.CheckedFuture;
 import io.fd.honeycomb.translate.impl.read.GenericListReader;
+import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.translate.read.ListReader;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
+import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.util.read.ReflexiveListReaderCustomizer;
-import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
-
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.ContainerWithList;
@@ -85,7 +82,7 @@ public class HoneycombSubtreeReadInfraTest extends AbstractInfraTest {
     }
 
     private void initReaderRegistry() {
-        registry = new CompositeReaderRegistryBuilder()
+        registry = new CompositeReaderRegistryBuilder(new YangDAG())
                 // Subtree reader handling its child list
                 .subtreeAdd(Sets.newHashSet(Ids.LIST_IN_CONTAINER_ID), containerWithListReader)
                 // Reflexive

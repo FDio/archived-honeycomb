@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.translate.impl.read.registry;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.collect.ImmutableMap;
 import io.fd.honeycomb.translate.impl.read.GenericListReader;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
@@ -26,14 +28,13 @@ import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistryBuilder;
 import io.fd.honeycomb.translate.util.AbstractSubtreeManagerRegistryBuilderBuilder;
-
+import io.fd.honeycomb.translate.util.YangDAG;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
-
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
@@ -42,14 +43,16 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 @NotThreadSafe
 public final class CompositeReaderRegistryBuilder
         extends AbstractSubtreeManagerRegistryBuilderBuilder<Reader<? extends DataObject, ? extends Builder<?>>, ReaderRegistry>
         implements ModifiableReaderRegistryBuilder, ReaderRegistryBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(CompositeReaderRegistryBuilder.class);
+
+    public CompositeReaderRegistryBuilder(@Nonnull final YangDAG yangDAG) {
+        super(yangDAG);
+    }
 
     @Override
     protected Reader<? extends DataObject, ? extends Builder<?>> getSubtreeHandler(@Nonnull final Set<InstanceIdentifier<?>> handledChildren,

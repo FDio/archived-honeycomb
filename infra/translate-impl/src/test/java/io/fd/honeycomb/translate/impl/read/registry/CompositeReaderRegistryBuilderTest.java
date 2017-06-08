@@ -26,6 +26,7 @@ import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import io.fd.honeycomb.translate.util.DataObjects;
+import io.fd.honeycomb.translate.util.YangDAG;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
@@ -68,12 +69,12 @@ public class CompositeReaderRegistryBuilderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testPreventStructuralReaderForList() {
-        new CompositeReaderRegistryBuilder().addStructuralReader(InstanceIdentifier.create(DataObjects.DataObjectK.class), DataObjects.DataObjectKBuilder.class);
+        new CompositeReaderRegistryBuilder(new YangDAG()).addStructuralReader(InstanceIdentifier.create(DataObjects.DataObjectK.class), DataObjects.DataObjectKBuilder.class);
     }
 
     @Test
     public void testCompositeStructure() throws Exception {
-        final CompositeReaderRegistryBuilder compositeReaderRegistryBuilder = new CompositeReaderRegistryBuilder();
+        final CompositeReaderRegistryBuilder compositeReaderRegistryBuilder = new CompositeReaderRegistryBuilder(new YangDAG());
         /*
             Composite reader structure ordered left from right
 

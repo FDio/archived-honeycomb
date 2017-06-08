@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.data.DataModification;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
+import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.Writer;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
@@ -132,7 +133,7 @@ public class NestedAugmentationWriteTest extends AbstractInfraTest {
     }
 
     private void initWriterRegistry() {
-        writerRegistry = new FlatWriterRegistryBuilder()
+        writerRegistry = new FlatWriterRegistryBuilder(new YangDAG())
             .add(augTargetWriter)
             .add(fromAugmentWriter)
             .add(listFromAugmentWriter)

@@ -19,6 +19,7 @@ package io.fd.honeycomb.infra.distro.data.config;
 import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
+import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
 import java.util.HashSet;
@@ -31,7 +32,7 @@ public final class WriterRegistryProvider extends ProviderTrait<WriterRegistry> 
 
     @Override
     protected WriterRegistry create() {
-        final FlatWriterRegistryBuilder builder = new FlatWriterRegistryBuilder();
+        final FlatWriterRegistryBuilder builder = new FlatWriterRegistryBuilder(new YangDAG());
         writerFactories
                 .stream()
                 .forEach(it -> it.init(builder));
