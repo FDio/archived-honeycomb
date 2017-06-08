@@ -20,21 +20,21 @@ import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
 import io.fd.honeycomb.translate.write.WriterFactory;
-import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
+import io.fd.honeycomb.translate.write.registry.WriterRegistry;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class WriterRegistryProvider extends ProviderTrait<ModifiableWriterRegistryBuilder> {
+public final class WriterRegistryProvider extends ProviderTrait<WriterRegistry> {
 
     @Inject(optional = true)
     private Set<WriterFactory> writerFactories = new HashSet<>();
 
     @Override
-    protected FlatWriterRegistryBuilder create() {
+    protected WriterRegistry create() {
         final FlatWriterRegistryBuilder builder = new FlatWriterRegistryBuilder();
         writerFactories
                 .stream()
                 .forEach(it -> it.init(builder));
-        return builder;
+        return builder.build();
     }
 }

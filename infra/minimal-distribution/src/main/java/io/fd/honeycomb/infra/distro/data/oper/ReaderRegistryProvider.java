@@ -18,18 +18,23 @@ package io.fd.honeycomb.infra.distro.data.oper;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
-import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
+import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
+import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
-import io.fd.honeycomb.translate.read.registry.ReaderRegistryBuilder;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class ReaderRegistryProvider extends ProviderTrait<ReaderRegistry> {
 
-    @Inject
-    private ModifiableReaderRegistryBuilder readerRegistryBuilder;
+    @Inject(optional = true)
+    private Set<ReaderFactory> readerFactories = new HashSet<>();
 
     @Override
     protected ReaderRegistry create() {
-        return ((ReaderRegistryBuilder) readerRegistryBuilder).build();
+        final CompositeReaderRegistryBuilder builder = new CompositeReaderRegistryBuilder();
+        readerFactories.stream()
+            .forEach(it -> it.init(builder));
+        return builder.build();
     }
 
 }
