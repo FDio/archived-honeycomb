@@ -229,7 +229,8 @@
                             **\/src/main/yang-gen-sal\/,
                             **\/src/main/xtend-gen\/,
                             **\/src/main/yang\/,
-                            **\/archetype-resources\/</excludes>
+                            **\/archetype-resources\/,
+                            **\/.idea\/</excludes>
                     </configuration>
                     <executions>
                         <!-- Override license check configuration to fit Honeycomb coding style-->
