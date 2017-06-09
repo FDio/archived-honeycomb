@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.data.impl;
+package io.fd.honeycomb.test.model;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.ComplexAugment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.ContainerWithChoice;
@@ -30,33 +30,29 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Instance identifiers referencing all complex nodes within IT test-model.
+ * Instance identifiers referencing all complex nodes within honeycomb's test-model.
  */
-interface Ids {
+public interface Ids {
 
-    // Simple container
-    // ORDER = 3
     InstanceIdentifier<SimpleContainer> SIMPLE_CONTAINER_ID = InstanceIdentifier.create(SimpleContainer.class);
-    // 2
+
     InstanceIdentifier<SimpleAugment> SIMPLE_AUGMENT_ID = SIMPLE_CONTAINER_ID.augmentation(SimpleAugment.class);
-    // UNORDERED
+
     InstanceIdentifier<ComplexAugment> COMPLEX_AUGMENT_ID = SIMPLE_CONTAINER_ID.augmentation(ComplexAugment.class);
-    // 1
+
     InstanceIdentifier<ComplexAugmentContainer> COMPLEX_AUGMENT_CONTAINER_ID = COMPLEX_AUGMENT_ID.child(ComplexAugmentContainer.class);
-    // Container with list
-    // 9
+
     InstanceIdentifier<ContainerWithList> CONTAINER_WITH_LIST_ID = InstanceIdentifier.create(ContainerWithList.class);
-    // 7
+
     InstanceIdentifier<ListInContainer> LIST_IN_CONTAINER_ID = CONTAINER_WITH_LIST_ID.child(ListInContainer.class);
-    // 8
+
     InstanceIdentifier<ContainerInList> CONTAINER_IN_LIST_ID = LIST_IN_CONTAINER_ID.child(ContainerInList.class);
-    // 6
+
     InstanceIdentifier<NestedList> NESTED_LIST_ID = CONTAINER_IN_LIST_ID.child(NestedList.class);
-    // Container with choice
-    // 4
+
     InstanceIdentifier<ContainerWithChoice> CONTAINER_WITH_CHOICE_ID = InstanceIdentifier.create(ContainerWithChoice.class);
-    // 2
+
     InstanceIdentifier<C3> C3_ID = CONTAINER_WITH_CHOICE_ID.child(C3.class);
-    // 5
+
     InstanceIdentifier<ContainerFromGrouping> CONTAINER_FROM_GROUPING_ID = CONTAINER_WITH_CHOICE_ID.child(ContainerFromGrouping.class);
 }
