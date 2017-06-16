@@ -1,0 +1,11 @@
+= bgp-translate-api
+
+API for translation between Binding Aware representation of BGP routes and actual device data.
+Consists of writers responsible for RIB to FIB translation.
+
+Provides registry of writers for the data layer.
+For every supported route type (e.g. ipv4, ipv6, labeled-unicast, etc.),
+there should be at least one writer registered.
+
+BGP routes are based on bgp-rib model, provided by
+https://wiki.opendaylight.org/view/BGP_LS_PCEP:Main[ODL's BGP].
