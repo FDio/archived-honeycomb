@@ -97,7 +97,7 @@ public class BaseMinimalDistributionTest {
     /**
      * Start base distribution and check all northbound interfaces
      */
-    @Test(timeout = 60000)
+    @Test(timeout = 120000)
     public void test() throws Exception {
         Main.init(BASE_MODULES);
 

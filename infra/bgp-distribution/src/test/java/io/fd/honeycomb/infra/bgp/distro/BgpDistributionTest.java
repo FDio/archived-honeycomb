@@ -92,7 +92,7 @@ public class BgpDistributionTest {
         Unirest.setHttpClient(httpclient);
     }
 
-    @Test(timeout = 60000)
+    @Test(timeout = 120000)
     public void test() throws Exception {
         io.fd.honeycomb.infra.bgp.distro.Main.init(BASE_MODULES);
         LOG.info("Testing Honeycomb BGP distribution");
