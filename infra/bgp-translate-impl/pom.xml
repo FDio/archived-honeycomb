@@ -26,27 +26,45 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.honeycomb</groupId>
-    <artifactId>bgp-translate-api</artifactId>
+    <artifactId>bgp-translate-impl</artifactId>
     <name>${project.artifactId}</name>
     <version>1.17.07-SNAPSHOT</version>
     <dependencies>
         <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>yang-binding</artifactId>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-binding-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.bgpcep</groupId>
-            <artifactId>bgp-rib-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-common-api</artifactId>
         </dependency>
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
-            <artifactId>translate-api</artifactId>
+            <artifactId>bgp-translate-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-    </dependencies>
 
+        <!-- test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- models used in tests -->
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-inet</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-labeled-unicast</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

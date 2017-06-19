@@ -25,6 +25,7 @@ import com.google.inject.name.Names;
 import io.fd.honeycomb.infra.distro.data.BindingDataBrokerProvider;
 import io.fd.honeycomb.infra.distro.data.DataStoreProvider;
 import io.fd.honeycomb.infra.distro.data.InmemoryDOMDataBrokerProvider;
+import io.fd.honeycomb.translate.bgp.RibWriter;
 import io.netty.channel.EventLoopGroup;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -61,6 +62,10 @@ public final class BgpModule extends PrivateModule {
         // Initialize BgpNeighbours
         bind(BgpNeighbors.class).toProvider(BgpNeighboursProvider.class).in(Singleton.class);
         expose(BgpNeighbors.class);
+
+        // Listens for local RIB modifications and passes routes to translation layer
+        bind(RibWriter.class).toProvider(LocRibWriterProvider.class).asEagerSingleton();
+        expose(RibWriter.class);
     }
 
     private void configureRIB() {

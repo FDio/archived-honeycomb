@@ -1,0 +1,11 @@
+= bgp-translate-impl
+
+Provides simple implementation of route writers.
+
+LocRibWriter provides route translation for routes in local RIB.
+LocRibWriter registers DataTreeChangeListener for given route type to specific route writers.
+
+RouteWriters receive create/update/delete notifications for single route modifications
+in LocRib DS.
+
+RouteWriter can translata RIB update to any other format, e.g. device FIB.

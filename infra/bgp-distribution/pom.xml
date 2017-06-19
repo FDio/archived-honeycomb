@@ -57,6 +57,16 @@
             <artifactId>minimal-distribution</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>bgp-translate-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>bgp-translate-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- ODL-BGP -->
         <dependency>
