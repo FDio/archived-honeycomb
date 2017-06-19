@@ -26,6 +26,9 @@ import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.Ipv4Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev150305.ipv4.routes.ipv4.routes.Ipv4Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.labeled.unicast.LabelStack;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.labeled.unicast.routes.LabeledUnicastRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.labeled.unicast.routes.list.LabeledUnicastRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.LocalPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.attributes.Origin;
@@ -59,6 +62,8 @@ final class BgpWriterFactoryProvider extends ProviderTrait<WriterFactory> {
         private static final InstanceIdentifier<Tables> TABLES_IID = AR_IID.child(Tables.class);
         private static final InstanceIdentifier<Ipv4Routes> IPV4_ROUTES_IID = TABLES_IID.child((Class) Ipv4Routes.class);
         private static final InstanceIdentifier<Ipv4Route> IPV4_ROUTE_IID = IPV4_ROUTES_IID.child(Ipv4Route.class);
+        private static final InstanceIdentifier<LabeledUnicastRoutes> LABELED_UNICAST_ROUTES_IID = TABLES_IID.child((Class) LabeledUnicastRoutes.class);
+        private static final InstanceIdentifier<LabeledUnicastRoute> LABELED_UNICAST_ROUTE_IID = LABELED_UNICAST_ROUTES_IID.child(LabeledUnicastRoute.class);
 
         private BgpWriterFactory(final DataBroker dataBroker) {
             this.dataBroker = dataBroker;
@@ -81,7 +86,14 @@ final class BgpWriterFactoryProvider extends ProviderTrait<WriterFactory> {
                     IPV4_ROUTE_IID.child(Attributes.class),
                     IPV4_ROUTE_IID.child(Attributes.class).child(Origin.class),
                     IPV4_ROUTE_IID.child(Attributes.class).child(LocalPref.class),
-                    IPV4_ROUTE_IID.child(Attributes.class).child(Ipv4NextHop.class)
+                    IPV4_ROUTE_IID.child(Attributes.class).child(Ipv4NextHop.class),
+                    LABELED_UNICAST_ROUTES_IID,
+                    LABELED_UNICAST_ROUTE_IID,
+                    LABELED_UNICAST_ROUTE_IID.child(Attributes.class),
+                    LABELED_UNICAST_ROUTE_IID.child(Attributes.class).child(Origin.class),
+                    LABELED_UNICAST_ROUTE_IID.child(Attributes.class).child(LocalPref.class),
+                    LABELED_UNICAST_ROUTE_IID.child(Attributes.class).child(Ipv4NextHop.class),
+                    LABELED_UNICAST_ROUTE_IID.child(LabelStack.class)
                 ),
                 new BindingBrokerWriter<>(InstanceIdentifier.create(ApplicationRib.class), dataBroker)
             );

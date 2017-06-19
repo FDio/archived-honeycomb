@@ -37,6 +37,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4LABELLEDUNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -75,11 +76,18 @@ final class BgpRIBProvider extends ProviderTrait<RIB> {
         final ClusterIdentifier clusterId = new ClusterIdentifier(routerId);
         LOG.debug("Creating BGP RIB: routerId={}, asNumber={}", routerId, asNumber);
         // TODO configure other BGP Multiprotocol extensions:
-        final List<AfiSafi> afiSafi = ImmutableList.of(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
+        final List<AfiSafi> afiSafi = ImmutableList.of(
+            new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
             .addAugmentation(AfiSafi2.class,
                 new AfiSafi2Builder().setReceive(cfg.isBgpMultiplePathsEnabled())
                     .setSendMax(cfg.bgpSendMaxMaths.get().shortValue()).build())
-            .build());
+            .build(),
+            new AfiSafiBuilder().setAfiSafiName(IPV4LABELLEDUNICAST.class)
+                .addAugmentation(AfiSafi2.class,
+                    new AfiSafi2Builder().setReceive(cfg.isBgpMultiplePathsEnabled())
+                        .setSendMax(cfg.bgpSendMaxMaths.get().shortValue()).build())
+                .build()
+            );
         final Map<TablesKey, PathSelectionMode> pathSelectionModes = mappingService.toPathSelectionMode(afiSafi)
             .entrySet().stream().collect(Collectors.toMap(entry ->
                 new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));

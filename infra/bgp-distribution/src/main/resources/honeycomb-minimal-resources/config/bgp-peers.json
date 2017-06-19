@@ -12,6 +12,11 @@
               "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST",
               "receive": true,
               "send-max": 0
+            },
+            {
+              "afi-safi-name": "openconfig-bgp-types:IPV4-LABELLED-UNICAST",
+              "receive": true,
+              "send-max": 0
             }
           ]
         }
