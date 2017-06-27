@@ -16,30 +16,12 @@
 
 package io.fd.honeycomb.infra.bgp.distro;
 
-import static com.google.common.collect.ImmutableSet.of;
-
 import com.google.common.io.ByteStreams;
-import com.google.inject.Module;
 import com.mashape.unirest.http.Unirest;
-import io.fd.honeycomb.infra.bgp.BgpConfigurationModule;
-import io.fd.honeycomb.infra.bgp.BgpExtensionsModule;
-import io.fd.honeycomb.infra.bgp.BgpModule;
-import io.fd.honeycomb.infra.bgp.BgpReadersModule;
-import io.fd.honeycomb.infra.bgp.BgpWritersModule;
-import io.fd.honeycomb.infra.distro.cfgattrs.CfgAttrsModule;
-import io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule;
-import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule;
-import io.fd.honeycomb.infra.distro.initializer.InitializerPipelineModule;
-import io.fd.honeycomb.infra.distro.netconf.NetconfModule;
-import io.fd.honeycomb.infra.distro.netconf.NetconfReadersModule;
-import io.fd.honeycomb.infra.distro.restconf.RestconfModule;
-import io.fd.honeycomb.infra.distro.schema.SchemaModule;
-import io.fd.honeycomb.infra.distro.schema.YangBindingProviderModule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Set;
 import javax.net.ssl.SSLContext;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
@@ -62,22 +44,6 @@ public class BgpDistributionTest {
     private static final byte BGP_OPEN_MSG_TYPE = 1;
     private static final int BGP_PORT = 1790;
 
-    public static final Set<Module> BASE_MODULES = of(
-            new YangBindingProviderModule(),
-            new SchemaModule(),
-            new ConfigAndOperationalPipelineModule(),
-            new ContextPipelineModule(),
-            new InitializerPipelineModule(),
-            new NetconfModule(),
-            new NetconfReadersModule(),
-            new RestconfModule(),
-            new CfgAttrsModule(),
-            new BgpModule(),
-            new BgpExtensionsModule(),
-            new BgpReadersModule(),
-            new BgpWritersModule(),
-            new BgpConfigurationModule());
-
     @Before
     public void setUp() throws Exception {
         SSLContext sslcontext = SSLContexts.custom()
@@ -94,7 +60,7 @@ public class BgpDistributionTest {
 
     @Test(timeout = 120000)
     public void test() throws Exception {
-        io.fd.honeycomb.infra.bgp.distro.Main.init(BASE_MODULES);
+        io.fd.honeycomb.infra.bgp.distro.Main.init();
         LOG.info("Testing Honeycomb BGP distribution");
         assertBgp();
     }

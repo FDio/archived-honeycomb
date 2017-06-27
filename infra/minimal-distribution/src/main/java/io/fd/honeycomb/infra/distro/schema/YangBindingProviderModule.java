@@ -56,6 +56,7 @@ public class YangBindingProviderModule extends AbstractModule {
                 .map(YangBindingProviderModule::urlToString)
                 .flatMap(content -> Lists.newArrayList(content.split("\n")).stream())
                 .filter(line -> !Strings.isNullOrEmpty(line.trim()))
+                .distinct()
                 .map(YangBindingProviderModule::loadClass)
                 .forEach(providerClass -> {
                     LOG.debug("ModuleProvider found for {}", providerClass);

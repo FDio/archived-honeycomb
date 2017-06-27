@@ -16,18 +16,12 @@
 
 package io.fd.honeycomb.infra.bgp.distro;
 
-import static io.fd.honeycomb.infra.distro.ActiveModuleProvider.STANDARD_MODULES_RELATIVE_PATH;
-import static io.fd.honeycomb.infra.distro.ActiveModuleProvider.aggregateResources;
-import static io.fd.honeycomb.infra.distro.ActiveModuleProvider.loadActiveModules;
-
 import com.google.inject.ConfigurationException;
 import com.google.inject.CreationException;
 import com.google.inject.Injector;
-import com.google.inject.Module;
 import com.google.inject.ProvisionException;
 import io.fd.honeycomb.infra.bgp.BgpConfiguration;
 import io.fd.honeycomb.infra.bgp.BgpServerProvider;
-import java.util.Set;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighbors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,16 +34,15 @@ public final class Main {
     }
 
     public static void main(String[] args) {
-        final ClassLoader classLoader = Main.class.getClassLoader();
-        init(loadActiveModules(aggregateResources(STANDARD_MODULES_RELATIVE_PATH, classLoader)));
+        init();
     }
 
     /**
      * Initialize the Honeycomb with provided modules
      */
-    public static Injector init(final Set<? extends Module> modules) {
+    public static Injector init() {
         try {
-            Injector injector = io.fd.honeycomb.infra.distro.Main.init(modules);
+            Injector injector = io.fd.honeycomb.infra.distro.Main.init();
             final BgpConfiguration bgpAttributes = injector.getInstance(BgpConfiguration.class);
 
             if (bgpAttributes.isBgpEnabled()) {

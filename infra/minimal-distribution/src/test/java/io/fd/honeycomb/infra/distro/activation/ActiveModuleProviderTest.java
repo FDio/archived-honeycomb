@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2017 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro;
+package io.fd.honeycomb.infra.distro.activation;
 
 
 import static com.google.common.collect.ImmutableList.of;
@@ -36,7 +36,7 @@ public class ActiveModuleProviderTest {
 
     @Test
     public void testLoadActiveModulesSuccessfull() {
-        final ImmutableList rawResources = of(
+        final ImmutableList<String> rawResources = of(
                 "// this should be skipped",
                 "// io.fd.honeycomb.infra.distro.Modules$ChildModule1",
                 "               io.fd.honeycomb.infra.distro.Modules$ChildModule2",
@@ -44,8 +44,8 @@ public class ActiveModuleProviderTest {
                 "io.fd.honeycomb.infra.distro.Modules$ChildModule3",
                 "io.fd.honeycomb.infra.distro.Modules$NonModule"
         );
-
-        final Set<Module> activeModules = ActiveModuleProvider.loadActiveModules(rawResources);
+        // have to be without wildcard, otherwise mockito has problem with it
+        final Set<Module> activeModules = (Set<Module>) new ActiveModules(ActiveModuleProvider.loadActiveModules(rawResources)).createModuleInstances();
 
         // first and second line should be ignored due to comment
         // second,third,and fourth are valid,but should reduce module count to 2,because of duplicity
@@ -73,7 +73,7 @@ public class ActiveModuleProviderTest {
     @Test
     public void testAggregateResourcesNonEmpty() {
         final List<String> aggregatedResources =
-                ActiveModuleProvider.aggregateResources("./modules", this.getClass().getClassLoader());
+                ActiveModuleProvider.aggregateResources("modules", this.getClass().getClassLoader());
         assertThat(aggregatedResources, hasSize(5));
         assertThat(aggregatedResources, hasItems("        Non-commented non-trimmed",
                 "//Commented",

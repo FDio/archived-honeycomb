@@ -16,34 +16,22 @@
 
 package io.fd.honeycomb.infra.distro;
 
-import static com.google.common.collect.ImmutableSet.of;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
-import com.google.inject.Module;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSubsystem;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
-import io.fd.honeycomb.infra.distro.cfgattrs.CfgAttrsModule;
-import io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule;
-import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule;
-import io.fd.honeycomb.infra.distro.initializer.InitializerPipelineModule;
-import io.fd.honeycomb.infra.distro.netconf.NetconfModule;
-import io.fd.honeycomb.infra.distro.netconf.NetconfReadersModule;
-import io.fd.honeycomb.infra.distro.restconf.RestconfModule;
-import io.fd.honeycomb.infra.distro.schema.SchemaModule;
-import io.fd.honeycomb.infra.distro.schema.YangBindingProviderModule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.Properties;
-import java.util.Set;
 import javax.net.ssl.SSLContext;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
@@ -69,17 +57,6 @@ public class BaseMinimalDistributionTest {
     private static final String NETCONF_NAMESPACE = "urn:ietf:params:xml:ns:netconf:base:1.0";
     private static final int HELLO_WAIT = 2500;
 
-    public static final Set<Module> BASE_MODULES = of(
-        new YangBindingProviderModule(),
-        new SchemaModule(),
-        new ConfigAndOperationalPipelineModule(),
-        new ContextPipelineModule(),
-        new InitializerPipelineModule(),
-        new NetconfModule(),
-        new NetconfReadersModule(),
-        new RestconfModule(),
-        new CfgAttrsModule());
-
     @Before
     public void setUp() throws Exception {
         SSLContext sslcontext = SSLContexts.custom()
@@ -99,7 +76,7 @@ public class BaseMinimalDistributionTest {
      */
     @Test(timeout = 120000)
     public void test() throws Exception {
-        Main.init(BASE_MODULES);
+        Main.init();
 
         LOG.info("Testing Honeycomb base distribution");
         LOG.info("Testing NETCONF TCP");

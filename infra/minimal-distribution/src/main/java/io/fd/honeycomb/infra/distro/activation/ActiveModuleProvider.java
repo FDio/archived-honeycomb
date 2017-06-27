@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2017 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro;
+package io.fd.honeycomb.infra.distro.activation;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
 import com.google.inject.Module;
+import com.google.inject.Provider;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -38,15 +40,23 @@ import org.slf4j.LoggerFactory;
 /**
  * Provides list of active modules for distribution
  */
-public class ActiveModuleProvider {
+class ActiveModuleProvider implements Provider<ActiveModules> {
 
-    public static final String STANDARD_MODULES_RELATIVE_PATH = "../modules/";
     private static final Logger LOG = LoggerFactory.getLogger(ActiveModuleProvider.class);
+
+    @Inject
+    private ActivationConfig config;
+
+    @Override
+    public ActiveModules get() {
+        return new ActiveModules(loadActiveModules(
+                aggregateResources(config.getModulesResourcePath(), Thread.currentThread().getContextClassLoader())));
+    }
 
     /**
      * Provide unique set of active modules filtered from provided resources
      */
-    public static Set<Module> loadActiveModules(@Nonnull final List<String> moduleNames) {
+    static Set<Class<? extends Module>> loadActiveModules(@Nonnull final List<String> moduleNames) {
         final ClassLoader classLoader = ActiveModuleProvider.class.getClassLoader();
         LOG.info("Reading active modules configuration for distribution");
 
@@ -58,10 +68,9 @@ public class ActiveModuleProvider {
                 .filter(nonEmptyLine -> !nonEmptyLine.startsWith("//"))
                 // filter duplicates
                 .distinct()
-                .map(validLine -> nameToClass(validLine, classLoader))
+                .map(validLine -> moduleNameToClass(validLine, classLoader))
                 // filters out classes that are not modules
                 .filter(ActiveModuleProvider::filterNonModules)
-                .map(ActiveModuleProvider::classToInstance)
                 .collect(Collectors.toSet());
     }
 
@@ -127,28 +136,15 @@ public class ActiveModuleProvider {
     /**
      * Loads class by provided name
      */
-    private static Class<?> nameToClass(final String name,
-                                        final ClassLoader classLoader) {
+    private static Class<? extends Module> moduleNameToClass(final String name,
+                                                             final ClassLoader classLoader) {
         try {
             LOG.info("Loading module class {}", name);
-            return classLoader.loadClass(name);
+            return (Class<? extends Module>) classLoader.loadClass(name);
         } catch (ClassNotFoundException e) {
             LOG.error("Unable to convert {} to class, make sure you've provided sources to classpath", name);
             throw new IllegalStateException(
                     "Unable to convert " + name + " to class, make sure you've provided sources to classpath", e);
-        }
-    }
-
-    /**
-     * Creates instance of module class
-     */
-    private static Module classToInstance(final Class<?> moduleClass) {
-        try {
-            LOG.info("Creating instance for module {}", moduleClass);
-            return Module.class.cast(moduleClass.newInstance());
-        } catch (InstantiationException | IllegalAccessException e) {
-            LOG.error("Unable to create instance for class {}", moduleClass, e);
-            throw new IllegalStateException("Unable to create instance for class" + moduleClass, e);
         }
     }
 }

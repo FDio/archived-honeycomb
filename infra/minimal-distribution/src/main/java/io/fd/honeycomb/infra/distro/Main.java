@@ -16,11 +16,10 @@
 
 package io.fd.honeycomb.infra.distro;
 
-import static io.fd.honeycomb.infra.distro.ActiveModuleProvider.STANDARD_MODULES_RELATIVE_PATH;
-import static io.fd.honeycomb.infra.distro.ActiveModuleProvider.aggregateResources;
-import static io.fd.honeycomb.infra.distro.ActiveModuleProvider.loadActiveModules;
+import static com.google.inject.Guice.createInjector;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.ConfigurationException;
 import com.google.inject.CreationException;
 import com.google.inject.Guice;
@@ -31,6 +30,8 @@ import com.google.inject.ProvisionException;
 import com.google.inject.name.Names;
 import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.data.init.InitializerRegistry;
+import io.fd.honeycomb.infra.distro.activation.ActivationModule;
+import io.fd.honeycomb.infra.distro.activation.ActiveModules;
 import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import io.fd.honeycomb.infra.distro.initializer.InitializerPipelineModule;
 import io.fd.honeycomb.infra.distro.netconf.HoneycombNotification2NetconfProvider;
@@ -38,7 +39,6 @@ import io.fd.honeycomb.infra.distro.netconf.NetconfModule;
 import io.fd.honeycomb.infra.distro.netconf.NetconfSshServerProvider;
 import io.fd.honeycomb.infra.distro.netconf.NetconfTcpServerProvider;
 import io.fd.honeycomb.infra.distro.restconf.RestconfModule;
-import java.util.Set;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory;
@@ -54,17 +54,23 @@ public final class Main {
     }
 
     public static void main(String[] args) {
-        final ClassLoader classLoader = Main.class.getClassLoader();
-        init(loadActiveModules(aggregateResources(STANDARD_MODULES_RELATIVE_PATH, classLoader)));
+        init();
     }
 
     /**
      * Initialize the Honeycomb with provided modules
      */
-    public static Injector init(final Set<? extends Module> modules) {
+    public static Injector init() {
         try {
             LOG.info("Starting honeycomb");
-            Injector injector = Guice.createInjector(modules);
+            final ActivationModule activationModule = new ActivationModule();
+            // creating child injector does not work in this case, so just create injector, and does not store ref
+            // to it, or its active modules instance
+            Injector injector = createInjector(ImmutableSet.<Module>builder()
+                    .add(activationModule)
+                    .addAll(createInjector(activationModule).getInstance(ActiveModules.class).createModuleInstances())
+                    .build());
+
             LOG.info("Honeycomb configuration: {}", injector.getInstance(HoneycombConfiguration.class));
 
             // Log all bindings
