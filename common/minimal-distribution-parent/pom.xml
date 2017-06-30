@@ -34,64 +34,11 @@
         <exec.parameters>-Xms32m -Xmx128m -XX:MetaspaceSize=32m -XX:MaxMetaspaceSize=128m</exec.parameters>
         <exec.parameters.minimal>-client -Xms20m -Xmx32m -XX:MetaspaceSize=5m -XX:MaxMetaspaceSize=32m -XX:MaxMetaspaceExpansion=1m -Xss512k -XX:+UseSerialGC -Djava.compiler=NONE -Xverify:none -noverify</exec.parameters.minimal>
 
-        <!-- Jersey versions to run RESTCONF-->
-        <jersey.version>1.19.1</jersey.version>
-        <jetty.version>9.3.11.v20160721</jetty.version>
-        <servlet.version>3.1.0</servlet.version>
-        <!-- Used by mdsal as provided/runtime dependency-->
-        <osgi.core.version>5.0.0</osgi.core.version>
         <!-- Use /dev/urandom instead of /dev/random during tests to speed up execution
             http://stackoverflow.com/questions/137212/how-to-solve-performance-problem-with-java-securerandom
         -->
         <random.seed.file>/dev/./urandom</random.seed.file>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <!-- Jersey + Jetty for RESTCONF -->
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-server</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
-                <version>${servlet.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-webapp</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-servlets</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-server</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-core</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-servlet</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <!-- OSGI Even tough not running in OSGI, dependency needs to be here since some deprecated MD-SAL APIs rely on osgi core -->
-            <dependency>
-                <groupId>org.osgi</groupId>
-                <artifactId>org.osgi.core</artifactId>
-                <version>${osgi.core.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <!-- Generate executable shell script -->
     <build>

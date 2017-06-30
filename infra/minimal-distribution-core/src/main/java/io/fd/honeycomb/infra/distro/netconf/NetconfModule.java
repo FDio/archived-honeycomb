@@ -57,13 +57,13 @@ public class NetconfModule extends PrivateModule {
     @Override
     protected void configure() {
         // Create inmemory data store for HONEYCOMB_NETCONF config metadata
-        bind(InMemoryDOMDataStore.class).annotatedWith(Names.named(CONFIG))
-                .toProvider(new DataStoreProvider(CONFIG, LogicalDatastoreType.CONFIGURATION))
+        bind(InMemoryDOMDataStore.class).annotatedWith(Names.named(InmemoryDOMDataBrokerProvider.CONFIG))
+                .toProvider(new DataStoreProvider(InmemoryDOMDataBrokerProvider.CONFIG, LogicalDatastoreType.CONFIGURATION))
                 .in(Singleton.class);
 
         // Create inmemory data store for HONEYCOMB_NETCONF operational metadata
-        bind(InMemoryDOMDataStore.class).annotatedWith(Names.named(OPERATIONAL))
-                .toProvider(new DataStoreProvider(OPERATIONAL, LogicalDatastoreType.OPERATIONAL))
+        bind(InMemoryDOMDataStore.class).annotatedWith(Names.named(InmemoryDOMDataBrokerProvider.OPERATIONAL))
+                .toProvider(new DataStoreProvider(InmemoryDOMDataBrokerProvider.OPERATIONAL, LogicalDatastoreType.OPERATIONAL))
                 .in(Singleton.class);
         // Wrap datastores as DOMDataBroker
         bind(DOMDataBroker.class).toProvider(InmemoryDOMDataBrokerProvider.class).in(Singleton.class);

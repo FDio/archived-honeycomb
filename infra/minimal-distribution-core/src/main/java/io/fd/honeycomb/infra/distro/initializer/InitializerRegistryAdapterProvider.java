@@ -16,6 +16,7 @@
 
 package io.fd.honeycomb.infra.distro.initializer;
 
+import static io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule.HONEYCOMB_CONFIG;
 import static io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule.HONEYCOMB_CONTEXT;
 import static io.fd.honeycomb.infra.distro.initializer.InitializerPipelineModule.HONEYCOMB_INITIALIZER;
 
@@ -24,7 +25,6 @@ import com.google.inject.name.Named;
 import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.data.init.InitializerRegistry;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
-import io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -35,7 +35,7 @@ public final class InitializerRegistryAdapterProvider extends ProviderTrait<Init
     @Named(HONEYCOMB_CONTEXT)
     private DataTreeInitializer contextInitializer;
     @Inject
-    @Named(ConfigAndOperationalPipelineModule.HONEYCOMB_CONFIG)
+    @Named(HONEYCOMB_CONFIG)
     private DataTreeInitializer configInitializer;
     @Inject
     private ReaderRegistry initRegistry;

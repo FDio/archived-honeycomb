@@ -34,6 +34,7 @@
     <guice.config.version>1.2.0</guice.config.version>
     <skinny.logback.version>1.0.8</skinny.logback.version>
     <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
+      <jetty.version>9.3.11.v20160721</jetty.version>
   </properties>
 
   <dependencyManagement>
@@ -67,6 +68,12 @@
         <version>${guice.version}</version>
         <scope>test</scope>
       </dependency>
+        <!-- Server -->
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
     </dependencies>
   </dependencyManagement>
 

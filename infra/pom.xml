@@ -49,6 +49,7 @@
     <module>rpc</module>
     <module>minimal-distribution-test</module>
     <module>bgp-distribution-test</module>
+    <module>minimal-distribution-core</module>
   </modules>
 
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
