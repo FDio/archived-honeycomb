@@ -16,11 +16,11 @@
 
 package io.fd.honeycomb.infra.distro.schema;
 
+import static io.fd.honeycomb.infra.distro.schema.YangModulesProvider.YangModules;
+
 import com.google.common.base.MoreObjects;
 import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yangtools.yang.binding.YangModelBindingProvider;
@@ -30,13 +30,14 @@ import org.slf4j.LoggerFactory;
 public final class ModuleInfoBackedCtxProvider extends ProviderTrait<ModuleInfoBackedContext> {
     private static final Logger LOG = LoggerFactory.getLogger(ModuleInfoBackedCtxProvider.class);
 
-    @Inject(optional = true)
-    private Set<YangModelBindingProvider> moduleInfos = new HashSet<>();
+    // optional in sense that list of modules inside can be empty if none was found
+    @Inject
+    private YangModules moduleInfos;
 
     @Override
     protected ModuleInfoBackedContext create() {
         ModuleInfoBackedContext create = ModuleInfoBackedContext.create();
-        create.addModuleInfos(moduleInfos.stream()
+        create.addModuleInfos(moduleInfos.getYangBindings().stream()
                 .map(YangModelBindingProvider::getModuleInfo)
                 .collect(Collectors.toList()));
         LOG.debug("ModuleInfoBackedContext created from {}", moduleInfos);

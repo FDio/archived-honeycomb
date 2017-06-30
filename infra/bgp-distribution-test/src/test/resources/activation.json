@@ -1,0 +1,4 @@
+{
+  "modules-resource-path": "base-distro-test-modules",
+  "yang-modules-index-path": "honeycomb-minimal-resources/yang-mapping"
+}

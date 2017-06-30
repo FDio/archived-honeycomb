@@ -1,0 +1,6 @@
+= bgp-distribution-test
+
+Distribution tests use generated files(yang-module-index)
+that are generated after the build phase that maven invoke unit test.
+Therefore these tests must be part or separate project that uses distribution
+as dependency that has these files allready generated.

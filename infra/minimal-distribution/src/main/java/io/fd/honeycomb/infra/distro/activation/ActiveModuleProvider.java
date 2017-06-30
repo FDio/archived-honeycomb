@@ -139,7 +139,7 @@ class ActiveModuleProvider implements Provider<ActiveModules> {
     private static Class<? extends Module> moduleNameToClass(final String name,
                                                              final ClassLoader classLoader) {
         try {
-            LOG.info("Loading module class {}", name);
+            LOG.debug("Loading module class {}", name);
             return (Class<? extends Module>) classLoader.loadClass(name);
         } catch (ClassNotFoundException e) {
             LOG.error("Unable to convert {} to class, make sure you've provided sources to classpath", name);

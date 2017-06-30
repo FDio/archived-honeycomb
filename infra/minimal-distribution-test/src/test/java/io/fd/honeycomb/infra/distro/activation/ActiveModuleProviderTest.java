@@ -28,6 +28,7 @@ import static org.hamcrest.core.Is.is;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Module;
+import io.fd.honeycomb.infra.distro.Modules;
 import java.util.List;
 import java.util.Set;
 import org.junit.Test;
@@ -52,8 +53,8 @@ public class ActiveModuleProviderTest {
         // last one does is not ancestor of Module, so it should be ignored/skipped
         assertThat(activeModules, hasSize(2));
         //hasItems or containsInAnyOrder does not have/is deprecated in variant with matcher
-        assertThat(activeModules, hasItem(isA(io.fd.honeycomb.infra.distro.Modules.ChildModule2.class)));
-        assertThat(activeModules, hasItem(isA(io.fd.honeycomb.infra.distro.Modules.ChildModule3.class)));
+        assertThat(activeModules, hasItem(isA(Modules.ChildModule2.class)));
+        assertThat(activeModules, hasItem(isA(Modules.ChildModule3.class)));
     }
 
     @Test(expected = IllegalStateException.class)

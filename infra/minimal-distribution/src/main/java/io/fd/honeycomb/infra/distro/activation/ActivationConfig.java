@@ -27,7 +27,15 @@ public class ActivationConfig {
     @InjectConfig("modules-resource-path")
     private String modulesResourcePath;
 
+    @InjectConfig("yang-modules-index-path")
+    private String yangModulesIndexPath;
+
     public String getModulesResourcePath() {
         return Optional.ofNullable(modulesResourcePath).orElse("../modules/");
     }
+
+    public String getYangModulesIndexPath() {
+        return Optional.ofNullable(yangModulesIndexPath).orElse("../yang-mapping/");
+    }
+
 }
