@@ -19,6 +19,7 @@ package io.fd.honeycomb.infra.distro.restconf;
 import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
 import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
+import io.fd.honeycomb.northbound.CredentialsConfiguration;
 import java.net.URL;
 import java.util.Collections;
 import org.eclipse.jetty.security.ConstraintMapping;
@@ -45,6 +46,9 @@ final class JettyServerProvider extends ProviderTrait<Server> {
     @Inject
     private HoneycombConfiguration cfg;
 
+    @Inject
+    private CredentialsConfiguration credentialsCfg;
+
     @Override
     protected Server create() {
         Server server = new Server(new QueuedThreadPool(cfg.restPoolMaxSize.get(), cfg.restPoolMinSize.get()));
@@ -52,7 +56,8 @@ final class JettyServerProvider extends ProviderTrait<Server> {
         // Load Realm for basic auth
         HashLoginService service = new HashLoginService(REALM);
         // Reusing the name as role
-        service.putUser(cfg.username, new Password(cfg.password), new String[]{cfg.username});
+        service.putUser(credentialsCfg.username, new Password(credentialsCfg.password),
+                new String[]{credentialsCfg.username});
         server.addBean(service);
 
         final URL resource = getClass().getResource("/");
@@ -73,7 +78,7 @@ final class JettyServerProvider extends ProviderTrait<Server> {
         Constraint constraint = new Constraint();
         constraint.setName("auth");
         constraint.setAuthenticate(true);
-        constraint.setRoles(new String[]{cfg.username});
+        constraint.setRoles(new String[]{credentialsCfg.username});
 
         ConstraintMapping mapping = new ConstraintMapping();
         mapping.setPathSpec("/*");

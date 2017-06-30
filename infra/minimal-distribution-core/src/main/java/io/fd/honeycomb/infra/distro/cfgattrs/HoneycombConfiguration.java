@@ -138,10 +138,6 @@ public class HoneycombConfiguration {
     public Optional<Integer> netconfSshBindingPort;
     @InjectConfig("netconf-notification-stream-name")
     public Optional<String> netconfNotificationStreamName = Optional.of("honeycomb");
-    @InjectConfig("username")
-    public String username;
-    @InjectConfig("password")
-    public String password;
 
     @Override
     public String toString() {
@@ -178,8 +174,6 @@ public class HoneycombConfiguration {
                 .add("netconfSshBindingAddress", netconfSshBindingAddress)
                 .add("netconfSshBindingPort", netconfSshBindingPort)
                 .add("netconfNotificationStreamName", netconfNotificationStreamName)
-                .add("username", username)
-                .add("password", password)
                 .toString();
     }
 }

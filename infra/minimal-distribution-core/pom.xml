@@ -138,6 +138,13 @@
             <version>${osgi.core.version}</version>
         </dependency>
 
+        <!-- Northbound -->
+        <dependency>
+            <groupId>io.fd.honeycomb.northbound</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- HC -->
         <dependency>
             <groupId>${project.groupId}</groupId>

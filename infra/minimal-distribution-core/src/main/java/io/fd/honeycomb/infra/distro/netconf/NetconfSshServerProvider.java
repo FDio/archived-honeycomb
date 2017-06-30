@@ -21,6 +21,7 @@ import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.InitializationException;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
 import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
+import io.fd.honeycomb.northbound.CredentialsConfiguration;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.local.LocalAddress;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -51,6 +52,8 @@ public final class NetconfSshServerProvider extends ProviderTrait<NetconfSshServ
     private HoneycombConfiguration cfgAttributes;
     @Inject
     private NioEventLoopGroup nettyThreadgroup;
+    @Inject
+    private CredentialsConfiguration credentialsCfg;
 
     private ScheduledExecutorService pool =
             Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("netconf-ssh-%d").build());
@@ -76,7 +79,7 @@ public final class NetconfSshServerProvider extends ProviderTrait<NetconfSshServ
         sshConfigBuilder.setBindingAddress(bindingAddress);
         sshConfigBuilder.setLocalAddress(localAddress);
         // Only simple authProvider checking ConfigAttributes, checking the config file
-        sshConfigBuilder.setAuthenticator(new SimplelAuthProvider(cfgAttributes));
+        sshConfigBuilder.setAuthenticator(new SimplelAuthProvider(credentialsCfg));
         sshConfigBuilder.setIdleTimeout(Integer.MAX_VALUE);
         sshConfigBuilder.setKeyPairProvider(new PEMGeneratorHostKeyProvider());
 
@@ -106,9 +109,9 @@ public final class NetconfSshServerProvider extends ProviderTrait<NetconfSshServ
 
     private static final class SimplelAuthProvider implements AuthProvider {
 
-        private final HoneycombConfiguration cfgAttributes;
+        private final CredentialsConfiguration cfgAttributes;
 
-        SimplelAuthProvider(final HoneycombConfiguration cfgAttributes) {
+        SimplelAuthProvider(final CredentialsConfiguration cfgAttributes) {
             this.cfgAttributes = cfgAttributes;
         }
 

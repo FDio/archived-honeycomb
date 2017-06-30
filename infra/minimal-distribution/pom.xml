@@ -36,6 +36,7 @@
             io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule,
             io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule,
             io.fd.honeycomb.infra.distro.initializer.InitializerPipelineModule,
+            io.fd.honeycomb.northbound.CredentialsModule,
             io.fd.honeycomb.infra.distro.netconf.NetconfModule,
             io.fd.honeycomb.infra.distro.netconf.NetconfReadersModule,
             io.fd.honeycomb.infra.distro.restconf.RestconfModule,
@@ -54,6 +55,13 @@
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
             <artifactId>minimal-distribution-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Northbound interfaces -->
+        <dependency>
+            <groupId>io.fd.honeycomb.northbound</groupId>
+            <artifactId>common</artifactId>
             <version>${project.version}</version>
         </dependency>
 

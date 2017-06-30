@@ -36,5 +36,9 @@
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.jmob</groupId>
+            <artifactId>guice.conf</artifactId>
+        </dependency>
     </dependencies>
 </project>

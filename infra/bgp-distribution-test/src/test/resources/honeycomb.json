@@ -33,8 +33,5 @@
   "netconf-ssh-enabled" : "true",
   "netconf-ssh-binding-address": "127.0.0.1",
   "netconf-ssh-binding-port": 2832,
-  "netconf-notification-stream-name": "honeycomb",
-
-  "username": "admin",
-  "password": "admin"
+  "netconf-notification-stream-name": "honeycomb"
 }
