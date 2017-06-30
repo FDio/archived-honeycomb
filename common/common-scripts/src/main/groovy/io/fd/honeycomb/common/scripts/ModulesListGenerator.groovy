@@ -18,6 +18,7 @@ package io.fd.honeycomb.common.scripts
 
 import groovy.text.SimpleTemplateEngine
 
+import java.nio.file.Path
 import java.nio.file.Paths
 
 /**
@@ -37,7 +38,7 @@ class ModulesListGenerator {
         // builds project name from group,artifact and version to prevent overwriting
         // while building multiple distribution project
         def artifact = project.artifact
-        def projectName = "${artifact.getGroupId()}_${artifact.getArtifactId()}_${artifact.getVersion()}".replace(".","-")
+        def projectName = pathFriendlyProjectName(artifact)
 
         log.info "Generating list of modules started by distribution ${projectName}"
 
@@ -48,7 +49,7 @@ class ModulesListGenerator {
         log.info "Project ${projectName} : Found modules ${activeModules}"
         //creates folder modules
 
-        def outputPath = Paths.get(project.build.outputDirectory, StartupScriptGenerator.MINIMAL_RESOURCES_FOLDER, MODULES_FOLDER)
+        def outputPath = modulesConfigFolder(project)
         //creates module folder
         outputPath.toFile().mkdirs()
 
@@ -65,5 +66,13 @@ class ModulesListGenerator {
             activeModules.add(0, "// Generated from ${project.groupId}/${project.artifactId}/${project.version}")
             outputFile.text = activeModules.join(System.lineSeparator)
         }
+    }
+
+    public static Path modulesConfigFolder(project) {
+        return Paths.get(project.build.outputDirectory, StartupScriptGenerator.MINIMAL_RESOURCES_FOLDER, MODULES_FOLDER)
+    }
+
+    public static String pathFriendlyProjectName(artifact) {
+        return "${artifact.getGroupId()}_${artifact.getArtifactId()}_${artifact.getVersion()}".replace(".", "-")
     }
 }

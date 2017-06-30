@@ -31,6 +31,8 @@
         <groovy.version>2.4.7</groovy.version>
         <groovy.eclipse.compiler.version>2.9.2-01</groovy.eclipse.compiler.version>
         <groovy.eclipse.batch.version>2.4.3-01</groovy.eclipse.batch.version>
+        <commons-io.version>2.5</commons-io.version>
+        <yang-binding.version>0.9.3-Boron-SR3</yang-binding.version>
     </properties>
 
     <build>
@@ -81,6 +83,16 @@
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <version>${groovy.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>yang-binding</artifactId>
+            <version>${yang-binding.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
         </dependency>
     </dependencies>
 
