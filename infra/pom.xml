@@ -43,7 +43,6 @@
     <module>minimal-distribution</module>
     <module>bgp-translate-api</module>
     <module>bgp-translate-impl</module>
-    <module>bgp-distribution</module>
     <module>it</module>
     <module>test-utils</module>
     <module>rpc</module>

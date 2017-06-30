@@ -1,5 +1,5 @@
 {
-  "bgp-enabled": "true",
+  "bgp-enabled": "false",
   "bgp-binding-address": "127.0.0.1",
   "bgp-port": 1790,
   "bgp-as-number": 65000,

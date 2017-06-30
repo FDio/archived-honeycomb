@@ -32,7 +32,7 @@
     <dependencies>
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
-            <artifactId>bgp-distribution</artifactId>
+            <artifactId>minimal-distribution</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

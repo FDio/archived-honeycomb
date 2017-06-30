@@ -31,7 +31,6 @@ import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
-import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.config.AppPeer;
 import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -77,6 +76,7 @@ final class BgpNeighboursProvider extends ProviderTrait<BgpNeighbors> {
 
     @Override
     protected BgpNeighbors create() {
+        LOG.info("Initializing BgpNeighbours");
         final BgpNeighbors neighbors = readNeighbours();
         for (final Neighbor neighbor : neighbors.getNeighbor()) {
             if (isApplicationPeer(neighbor)) {

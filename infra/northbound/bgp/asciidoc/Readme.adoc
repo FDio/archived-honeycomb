@@ -1,0 +1,4 @@
+= bgp
+
+Adds BGP support to Honeycomb's northbound interfaces.
+Depends on ODL's BGP implementation.

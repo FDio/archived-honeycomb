@@ -16,21 +16,33 @@
 
 package io.fd.honeycomb.infra.bgp;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
+import io.fd.honeycomb.northbound.NorthboundAbstractModule;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Registers BGP extensions provided by ODL implementation.
  * TODO add support for flowspec (requires some special initialization)
  */
-public final class BgpExtensionsModule extends AbstractModule {
+public final class BgpExtensionsModule extends NorthboundAbstractModule<BgpConfiguration> {
+    private static final Logger LOG = LoggerFactory.getLogger(BgpExtensionsModule.class);
+
+    public BgpExtensionsModule() {
+        super(new BgpConfigurationModule(), BgpConfiguration.class);
+    }
 
     protected void configure() {
+        if (!getConfiguration().isBgpEnabled()) {
+            LOG.debug("BGP disabled. Skipping initialization");
+            return;
+        }
+        LOG.debug("Initializing BgpExtensionsModule");
         // This should be part of BgpModule, but that one is Private and Multibinders + private BASE_MODULES
         // do not work together, that's why there's a dedicated module here
         // https://github.com/google/guice/issues/906

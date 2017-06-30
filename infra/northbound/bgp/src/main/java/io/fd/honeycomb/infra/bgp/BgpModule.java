@@ -19,12 +19,12 @@ package io.fd.honeycomb.infra.bgp;
 import static io.fd.honeycomb.infra.distro.data.InmemoryDOMDataBrokerProvider.CONFIG;
 import static io.fd.honeycomb.infra.distro.data.InmemoryDOMDataBrokerProvider.OPERATIONAL;
 
-import com.google.inject.PrivateModule;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import io.fd.honeycomb.infra.distro.data.BindingDataBrokerProvider;
 import io.fd.honeycomb.infra.distro.data.DataStoreProvider;
 import io.fd.honeycomb.infra.distro.data.InmemoryDOMDataBrokerProvider;
+import io.fd.honeycomb.northbound.NorthboundPrivateModule;
 import io.fd.honeycomb.translate.bgp.RibWriter;
 import io.netty.channel.EventLoopGroup;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -38,12 +38,25 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighbors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public final class BgpModule extends PrivateModule {
+public final class BgpModule extends NorthboundPrivateModule<BgpConfiguration> {
+    private static final Logger LOG = LoggerFactory.getLogger(BgpModule.class);
 
     static final String HONEYCOMB_BGP = "honeycomb-bgp";
 
+    public BgpModule() {
+        super(new BgpConfigurationModule(), BgpConfiguration.class);
+    }
+
     protected void configure() {
+        if (!getConfiguration().isBgpEnabled()) {
+            LOG.debug("BGP disabled. Skipping initialization");
+            return;
+        }
+        LOG.debug("Initializing BgpModule");
+        install(getConfigurationModule());
         // Create BGPDispatcher BGPDispatcher for creating BGP clients
         bind(EventLoopGroup.class).toProvider(BgpNettyThreadGroupProvider.class).in(Singleton.class);
         bind(BGPDispatcher.class).toProvider(BGPDispatcherImplProvider.class).in(Singleton.class);
@@ -54,16 +67,14 @@ public final class BgpModule extends PrivateModule {
         bind(BGPOpenConfigMappingService.class).toInstance(new BGPOpenConfigMappingServiceImpl());
         bind(BGPPeerRegistry.class).toInstance(StrictBGPPeerRegistry.instance());
 
+        // Create BGP server instance (initialize eagerly to start BGP)
+        bind(BgpServerProvider.BgpServer.class).toProvider(BgpServerProvider.class).asEagerSingleton();
 
-        // Create BGP server instance
-        bind(BgpServerProvider.BgpServer.class).toProvider(BgpServerProvider.class).in(Singleton.class);
-        expose(BgpServerProvider.BgpServer.class);
-
-        // Initialize BgpNeighbours
-        bind(BgpNeighbors.class).toProvider(BgpNeighboursProvider.class).in(Singleton.class);
-        expose(BgpNeighbors.class);
+        // Initialize BgpNeighbours (initialize eagerly to start BGP neighbours)
+        bind(BgpNeighbors.class).toProvider(BgpNeighboursProvider.class).asEagerSingleton();
 
         // Listens for local RIB modifications and passes routes to translation layer
+        // (initialize eagerly to configure RouteWriters)
         bind(RibWriter.class).toProvider(LocRibWriterProvider.class).asEagerSingleton();
         expose(RibWriter.class);
     }

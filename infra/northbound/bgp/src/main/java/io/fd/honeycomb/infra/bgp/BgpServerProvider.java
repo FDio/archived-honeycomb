@@ -66,7 +66,7 @@ public final class BgpServerProvider  extends ProviderTrait<BgpServerProvider.Bg
             }
         });
         final BgpServer server = new BgpServer(localServer);
-        LOG.debug("BgpServer successfully created.");
+        LOG.debug("BgpServer successfully started.");
         return server;
     }
 

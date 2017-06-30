@@ -1,3 +1,0 @@
-= bgp-distribution
-
-Honeycomb distribution that adds BGP to NETCONF and RESTCONF northbound intrerfaces provided by minimal-distribution.

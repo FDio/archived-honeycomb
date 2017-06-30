@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2017 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package io.fd.honeycomb.infra.bgp.distro;
 
 import com.google.common.io.ByteStreams;
 import com.mashape.unirest.http.Unirest;
+import io.fd.honeycomb.infra.distro.Main;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -60,7 +61,7 @@ public class BgpDistributionTest {
 
     @Test(timeout = 120000)
     public void test() throws Exception {
-        io.fd.honeycomb.infra.bgp.distro.Main.init();
+        Main.init();
         LOG.info("Testing Honeycomb BGP distribution");
         assertBgp();
     }

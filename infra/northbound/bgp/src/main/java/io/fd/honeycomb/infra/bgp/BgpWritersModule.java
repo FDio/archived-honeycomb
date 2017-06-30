@@ -16,18 +16,30 @@
 
 package io.fd.honeycomb.infra.bgp;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
-import io.fd.honeycomb.translate.read.ReaderFactory;
+import io.fd.honeycomb.northbound.NorthboundAbstractModule;
+import io.fd.honeycomb.translate.write.WriterFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class BgpReadersModule extends AbstractModule {
+public class BgpWritersModule extends NorthboundAbstractModule<BgpConfiguration> {
+    private static final Logger LOG = LoggerFactory.getLogger(BgpWritersModule.class);
+
+    public BgpWritersModule() {
+        super(new BgpConfigurationModule(), BgpConfiguration.class);
+    }
 
     protected void configure() {
+        if (!getConfiguration().isBgpEnabled()) {
+            LOG.debug("BGP disabled. Skipping initialization");
+            return;
+        }
+        LOG.debug("Initializing BgpReadersModule");
         // This should be part of BgpModule, but that one is Private and Multibinders + private BASE_MODULES
         // do not work together, that's why there's a dedicated module here
         // https://github.com/google/guice/issues/906
-        final Multibinder<ReaderFactory> binder = Multibinder.newSetBinder(binder(), ReaderFactory.class);
-        binder.addBinding().toProvider(BgpReaderFactoryProvider.class).in(Singleton.class);
+        final Multibinder<WriterFactory> binder = Multibinder.newSetBinder(binder(), WriterFactory.class);
+        binder.addBinding().toProvider(BgpWriterFactoryProvider.class).in(Singleton.class);
     }
 }
