@@ -17,9 +17,9 @@
 package io.fd.honeycomb.infra.distro.data.context;
 
 import com.google.inject.Inject;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.data.ModifiableDataManager;
 import io.fd.honeycomb.data.impl.ModifiableDataTreeManager;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 
 public final class ModifiableDTMgrProvider extends ProviderTrait<ModifiableDataManager> {

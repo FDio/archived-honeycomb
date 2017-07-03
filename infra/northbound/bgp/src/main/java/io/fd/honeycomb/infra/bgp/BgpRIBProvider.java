@@ -18,7 +18,7 @@ package io.fd.honeycomb.infra.bgp;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

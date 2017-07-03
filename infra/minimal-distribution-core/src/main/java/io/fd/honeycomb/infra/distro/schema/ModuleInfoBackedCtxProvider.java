@@ -20,7 +20,7 @@ import static io.fd.honeycomb.infra.distro.schema.YangModulesProvider.YangModule
 
 import com.google.common.base.MoreObjects;
 import com.google.inject.Inject;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import java.util.stream.Collectors;
 import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yangtools.yang.binding.YangModelBindingProvider;

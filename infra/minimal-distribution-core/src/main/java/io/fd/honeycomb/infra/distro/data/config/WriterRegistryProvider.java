@@ -17,7 +17,7 @@
 package io.fd.honeycomb.infra.distro.data.config;
 
 import com.google.inject.Inject;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
 import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.write.WriterFactory;

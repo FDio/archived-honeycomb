@@ -17,12 +17,11 @@
 package io.fd.honeycomb.management.jmx;
 
 import com.google.inject.Inject;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
+import io.fd.honeycomb.binding.init.ProviderTrait;
+import javax.management.remote.JMXServiceURL;
 import org.eclipse.jetty.jmx.ConnectorServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.management.remote.JMXServiceURL;
 
 /**
  * Provides and start JMX connector server

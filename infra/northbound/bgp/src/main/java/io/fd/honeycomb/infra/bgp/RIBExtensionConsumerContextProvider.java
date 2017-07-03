@@ -17,7 +17,7 @@
 package io.fd.honeycomb.infra.bgp;
 
 import com.google.inject.Inject;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import java.util.ArrayList;
 import java.util.Set;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;

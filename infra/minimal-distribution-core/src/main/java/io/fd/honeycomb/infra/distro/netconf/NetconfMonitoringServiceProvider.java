@@ -18,7 +18,7 @@ package io.fd.honeycomb.infra.distro.netconf;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import org.opendaylight.netconf.api.monitoring.NetconfMonitoringService;
 import org.opendaylight.netconf.impl.osgi.NetconfMonitoringServiceImpl;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory;

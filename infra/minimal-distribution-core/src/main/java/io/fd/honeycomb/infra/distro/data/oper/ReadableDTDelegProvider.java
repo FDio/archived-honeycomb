@@ -18,9 +18,9 @@ package io.fd.honeycomb.infra.distro.data.oper;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.data.ReadableDataManager;
 import io.fd.honeycomb.data.impl.ReadableDataTreeDelegator;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
 import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;

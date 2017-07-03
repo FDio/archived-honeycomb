@@ -19,7 +19,7 @@ package io.fd.honeycomb.infra.bgp;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.bgp.translate.impl.LocRibWriter;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.translate.bgp.RouteWriterFactory;
 import java.util.HashSet;
 import java.util.Set;

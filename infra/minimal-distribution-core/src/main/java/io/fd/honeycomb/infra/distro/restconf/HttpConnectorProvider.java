@@ -17,7 +17,7 @@
 package io.fd.honeycomb.infra.distro.restconf;
 
 import com.google.inject.Inject;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;

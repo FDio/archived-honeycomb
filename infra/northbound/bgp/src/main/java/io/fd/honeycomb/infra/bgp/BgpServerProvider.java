@@ -18,7 +18,7 @@ package io.fd.honeycomb.infra.bgp;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelConfig;
 import io.netty.channel.ChannelFuture;

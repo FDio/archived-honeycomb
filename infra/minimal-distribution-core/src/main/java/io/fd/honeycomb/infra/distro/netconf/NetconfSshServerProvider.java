@@ -18,8 +18,8 @@ package io.fd.honeycomb.infra.distro.netconf;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.infra.distro.InitializationException;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
 import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import io.fd.honeycomb.northbound.CredentialsConfiguration;
 import io.netty.channel.ChannelFuture;

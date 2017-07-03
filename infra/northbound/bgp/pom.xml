@@ -55,6 +55,11 @@
             <groupId>net.jmob</groupId>
             <artifactId>guice.conf</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>binding-init</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- BGP translation layer -->
         <dependency>

@@ -17,8 +17,8 @@
 package io.fd.honeycomb.infra.distro.data;
 
 import com.google.inject.Inject;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.impl.NorthboundFacadeHoneycombDOMBroker;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
 import org.opendaylight.controller.md.sal.dom.broker.impl.DOMNotificationRouter;

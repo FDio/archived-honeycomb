@@ -18,7 +18,7 @@ package io.fd.honeycomb.infra.distro.netconf;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import java.lang.reflect.Constructor;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;

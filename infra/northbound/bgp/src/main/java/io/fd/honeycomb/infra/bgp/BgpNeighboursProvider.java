@@ -24,7 +24,7 @@ import static org.opendaylight.yangtools.sal.binding.generator.impl.BindingSchem
 
 import com.google.common.base.Optional;
 import com.google.inject.Inject;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import java.io.InputStream;
 import java.util.Map;
 import javax.annotation.Nonnull;

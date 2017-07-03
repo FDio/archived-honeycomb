@@ -18,7 +18,7 @@ package io.fd.honeycomb.infra.distro.data;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.notification.ManagedNotificationProducer;
 import io.fd.honeycomb.notification.NotificationCollector;
 import io.fd.honeycomb.notification.impl.HoneycombNotificationCollector;

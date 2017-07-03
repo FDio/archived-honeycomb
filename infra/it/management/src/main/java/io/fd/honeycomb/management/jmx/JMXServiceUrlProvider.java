@@ -17,10 +17,9 @@
 package io.fd.honeycomb.management.jmx;
 
 import com.google.inject.Inject;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
-
-import javax.management.remote.JMXServiceURL;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import java.net.MalformedURLException;
+import javax.management.remote.JMXServiceURL;
 
 /**
  * Provides properly binded {@link JMXServiceURL}

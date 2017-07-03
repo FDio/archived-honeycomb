@@ -53,6 +53,11 @@
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-multibindings</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>binding-init</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- ODL -->
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
