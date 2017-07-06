@@ -76,8 +76,8 @@
                 <!-- Attributes below are inlined into resulting documentation,
                 making it much easier when bumping versions -->
                 <project-version>${project.version}</project-version>
-                <project-public-version>17.07</project-public-version>
-                <project-version-in-jira>10702</project-version-in-jira>
+                <project-public-version>17.10</project-public-version>
+                <project-version-in-jira>10801</project-version-in-jira>
                 <project-branch>master</project-branch>
                 <project-git-web>https://git.fd.io/cgit/honeycomb/tree</project-git-web>
               </attributes>
