@@ -31,16 +31,10 @@ import net.jmob.guice.conf.core.Syntax;
 @BindConfig(value = "bgp", syntax = Syntax.JSON)
 public class BgpConfiguration {
 
-    public boolean isBgpEnabled() {
-        return Boolean.valueOf(bgpEnabled);
-    }
-
     public boolean isBgpMultiplePathsEnabled() {
         return Boolean.valueOf(bgpMultiplePaths.get());
     }
 
-    @InjectConfig("bgp-enabled")
-    public String bgpEnabled;
     @InjectConfig("bgp-binding-address")
     public Optional<String> bgpBindingAddress;
     @InjectConfig("bgp-port")
@@ -56,7 +50,6 @@ public class BgpConfiguration {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("bgpEnabled", bgpEnabled)
                 .add("bgpBindingAddress", bgpBindingAddress)
                 .add("bgpPort", bgpPort)
                 .add("bgp-as-number", bgpAsNumber)

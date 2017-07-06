@@ -22,7 +22,7 @@ import net.jmob.guice.conf.core.ConfigurationModule;
 /**
  * Load the configuration from json into HoneycombConfiguration and make it available.
  */
-public class BgpConfigurationModule extends AbstractModule {
+final class BgpConfigurationModule extends AbstractModule {
 
     protected void configure() {
         install(ConfigurationModule.create());

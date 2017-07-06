@@ -19,12 +19,12 @@ package io.fd.honeycomb.infra.bgp;
 import static io.fd.honeycomb.infra.distro.data.InmemoryDOMDataBrokerProvider.CONFIG;
 import static io.fd.honeycomb.infra.distro.data.InmemoryDOMDataBrokerProvider.OPERATIONAL;
 
+import com.google.inject.PrivateModule;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import io.fd.honeycomb.infra.distro.data.BindingDataBrokerProvider;
 import io.fd.honeycomb.infra.distro.data.DataStoreProvider;
 import io.fd.honeycomb.infra.distro.data.InmemoryDOMDataBrokerProvider;
-import io.fd.honeycomb.northbound.NorthboundPrivateModule;
 import io.fd.honeycomb.translate.bgp.RibWriter;
 import io.netty.channel.EventLoopGroup;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -41,22 +41,13 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNe
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class BgpModule extends NorthboundPrivateModule<BgpConfiguration> {
+public final class BgpModule extends PrivateModule {
     private static final Logger LOG = LoggerFactory.getLogger(BgpModule.class);
 
     static final String HONEYCOMB_BGP = "honeycomb-bgp";
 
-    public BgpModule() {
-        super(new BgpConfigurationModule(), BgpConfiguration.class);
-    }
-
     protected void configure() {
-        if (!getConfiguration().isBgpEnabled()) {
-            LOG.debug("BGP disabled. Skipping initialization");
-            return;
-        }
         LOG.debug("Initializing BgpModule");
-        install(getConfigurationModule());
         // Create BGPDispatcher BGPDispatcher for creating BGP clients
         bind(EventLoopGroup.class).toProvider(BgpNettyThreadGroupProvider.class).in(Singleton.class);
         bind(BGPDispatcher.class).toProvider(BGPDispatcherImplProvider.class).in(Singleton.class);
@@ -77,6 +68,10 @@ public final class BgpModule extends NorthboundPrivateModule<BgpConfiguration> {
         // (initialize eagerly to configure RouteWriters)
         bind(RibWriter.class).toProvider(LocRibWriterProvider.class).asEagerSingleton();
         expose(RibWriter.class);
+
+        // install other BGP modules (hidden from HC user):
+        install(new BgpConfigurationModule());
+        install(new BgpExtensionsModule());
     }
 
     private void configureRIB() {

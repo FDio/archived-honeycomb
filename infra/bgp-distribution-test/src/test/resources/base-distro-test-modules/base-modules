@@ -1,5 +1,3 @@
-io.fd.honeycomb.infra.bgp.BgpConfigurationModule
-io.fd.honeycomb.infra.bgp.BgpExtensionsModule
 io.fd.honeycomb.infra.bgp.BgpModule
 io.fd.honeycomb.infra.bgp.BgpReadersModule
 io.fd.honeycomb.infra.bgp.BgpWritersModule

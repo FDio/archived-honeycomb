@@ -42,7 +42,6 @@
             io.fd.honeycomb.infra.distro.restconf.RestconfModule,
             io.fd.honeycomb.infra.distro.cfgattrs.CfgAttrsModule,
             // io.fd.honeycomb.infra.bgp.BgpModule,
-            // io.fd.honeycomb.infra.bgp.BgpExtensionsModule,
             // io.fd.honeycomb.infra.bgp.BgpReadersModule,
             // io.fd.honeycomb.infra.bgp.BgpWritersModule
         </distribution.modules>
