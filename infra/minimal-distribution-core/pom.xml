@@ -21,14 +21,14 @@
     <parent>
         <artifactId>impl-parent</artifactId>
         <groupId>io.fd.honeycomb.common</groupId>
-        <version>1.17.07-SNAPSHOT</version>
+        <version>1.17.07-RC1</version>
         <relativePath>../../common/impl-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fd.honeycomb</groupId>
     <artifactId>minimal-distribution-core</artifactId>
-    <version>1.17.07-SNAPSHOT</version>
+    <version>1.17.07-RC1</version>
     <name>${project.artifactId}</name>
 
     <properties>
