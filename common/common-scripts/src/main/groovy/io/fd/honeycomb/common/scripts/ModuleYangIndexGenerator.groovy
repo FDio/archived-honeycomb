@@ -91,21 +91,10 @@ class ModuleYangIndexGenerator {
 
         log.info "Pairing distribution modules ${modules} to yang modules"
         def moduleToYangModulesIndex = new HashMap<String, String>()
-        def outputDir = project.getBuild().getOutputDirectory()
 
-        // TODO - HONEYCOMB-373 - eliminate local matching after distribution modules are moved to separate project
-        // first ,matches modules against local files, helps to filter local classpath modules, to reduce scope
-        // of dependency scanning that is more performance heavy
-        log.info "Pairing against local classpath"
-        pairAgainsLocalFiles(outputDir, modules, moduleToYangModulesIndex, log)
-
-        // go to dependencies only if some modules are left. this occurs for modules
-        // started by distribution that are not part of its classpath(basically all plugin modules)
-        if (!modules.isEmpty()) {
-            log.info "Pairing against dependencies"
-            // The rest of the modules is looked up in dependencies
-            pairAgainsDependencyArtifacts(project, modules, log, moduleToYangModulesIndex)
-        }
+        log.info "Pairing against dependencies"
+        // The rest of the modules is looked up in dependencies
+        pairAgainsDependencyArtifacts(project, modules, log, moduleToYangModulesIndex)
 
         // for ex.: /target/honeycomb-minimal-resources/yang-mapping
         def yangMappingFolder = Paths.get(project.getBuild().getOutputDirectory(), StartupScriptGenerator.MINIMAL_RESOURCES_FOLDER, YANG_MAPPING_FOLDER).toFile()
@@ -178,38 +167,6 @@ class ModuleYangIndexGenerator {
         }
         modules.removeAll(index.keySet());
         log.info "Modules left after dependency pairing $modules"
-    }
-
-    // TODO - HONEYCOMB-373 - eliminate local matching
-    private static void pairAgainsLocalFiles(outputDir, modules, HashMap<String, String> index, log) {
-        // Pairs modules that are part of distribution classpath
-        def yangModulesLocalConfig = Paths.get(outputDir, YANG_MODULES_FOLDER, YANG_MODULES_FILE_NAME).toFile()
-        if (!yangModulesLocalConfig.exists()) {
-            log.debug "Local configuration for yang modules does not exist, skiping local matching"
-            return
-        }
-
-        log.info "Local file ${yangModulesLocalConfig}"
-        def localYangModules = fixDelimiters(FileUtils.readFileToString(yangModulesLocalConfig, StandardCharsets.UTF_8))
-
-        log.info "Output dir $outputDir"
-        FileUtils.listFiles(Paths.get(outputDir).toFile(), EXTENSIONS, true)
-                .stream()
-                .map { file -> file.getPath() }
-                .map { path -> relativizePath(path, outputDir) }
-                .forEach { path ->
-            for (String module : modules) {
-                if (path.equals(classNameToPath(module))) {
-                    log.info "Module $module found in local classpath"
-                    // mapping by standard class name
-                    index.put(module, localYangModules)
-                }
-            }
-        }
-
-        // remove all matching modules to reduce scope of search
-        modules.removeAll(index.keySet());
-        log.info "Modules left after local classpath pairing $modules"
     }
 
     private static String relativizePath(String path, String outputDir) {
