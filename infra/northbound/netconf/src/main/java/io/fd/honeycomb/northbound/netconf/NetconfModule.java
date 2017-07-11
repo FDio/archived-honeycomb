@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.netconf;
+package io.fd.honeycomb.northbound.netconf;
 
-import static io.fd.honeycomb.infra.distro.data.InmemoryDOMDataBrokerProvider.CONFIG;
-import static io.fd.honeycomb.infra.distro.data.InmemoryDOMDataBrokerProvider.OPERATIONAL;
-
-import com.google.inject.PrivateModule;
 import com.google.inject.Singleton;
 import com.google.inject.binder.AnnotatedElementBuilder;
 import com.google.inject.name.Names;
@@ -27,6 +23,8 @@ import io.fd.honeycomb.infra.distro.data.BindingDataBrokerProvider;
 import io.fd.honeycomb.infra.distro.data.DataStoreProvider;
 import io.fd.honeycomb.infra.distro.data.HoneycombNotificationManagerProvider;
 import io.fd.honeycomb.infra.distro.data.InmemoryDOMDataBrokerProvider;
+import io.fd.honeycomb.northbound.NetconfConfiguration;
+import io.fd.honeycomb.northbound.NorthboundPrivateModule;
 import io.fd.honeycomb.notification.NotificationCollector;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
@@ -45,8 +43,12 @@ import org.opendaylight.netconf.notifications.NetconfNotificationCollector;
 import org.opendaylight.netconf.notifications.NetconfNotificationListener;
 import org.opendaylight.netconf.notifications.NetconfNotificationRegistry;
 import org.opendaylight.netconf.notifications.impl.NetconfNotificationManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class NetconfModule extends PrivateModule {
+public class NetconfModule extends NorthboundPrivateModule<NetconfConfiguration> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NetconfModule.class);
 
     public static final String HONEYCOMB_NETCONF = "honeycomb-netconf";
     public static final String HONEYCOMB_NETCONF_MAPPER_AGGR = "netconf-mapper-aggregator";
@@ -54,16 +56,28 @@ public class NetconfModule extends PrivateModule {
     public static final String HONEYCOMB_NETCONF_MAPPER_CORE = "netconf-mapper-honeycomb";
     public static final String HONEYCOMB_NETCONF_MAPPER_OPER = "netconf-mapper-monitoring";
 
+    public NetconfModule() {
+        super(new NetconfConfigurationModule(), NetconfConfiguration.class);
+    }
+
     @Override
     protected void configure() {
+        if (!getConfiguration().isNetconfEnabled()) {
+            LOG.debug("Netconf disabled, skipping initialization");
+            return;
+        }
+        install(getConfigurationModule());
+        LOG.info("Starting NETCONF Northbound");
         // Create inmemory data store for HONEYCOMB_NETCONF config metadata
         bind(InMemoryDOMDataStore.class).annotatedWith(Names.named(InmemoryDOMDataBrokerProvider.CONFIG))
-                .toProvider(new DataStoreProvider(InmemoryDOMDataBrokerProvider.CONFIG, LogicalDatastoreType.CONFIGURATION))
+                .toProvider(
+                        new DataStoreProvider(InmemoryDOMDataBrokerProvider.CONFIG, LogicalDatastoreType.CONFIGURATION))
                 .in(Singleton.class);
 
         // Create inmemory data store for HONEYCOMB_NETCONF operational metadata
         bind(InMemoryDOMDataStore.class).annotatedWith(Names.named(InmemoryDOMDataBrokerProvider.OPERATIONAL))
-                .toProvider(new DataStoreProvider(InmemoryDOMDataBrokerProvider.OPERATIONAL, LogicalDatastoreType.OPERATIONAL))
+                .toProvider(new DataStoreProvider(InmemoryDOMDataBrokerProvider.OPERATIONAL,
+                        LogicalDatastoreType.OPERATIONAL))
                 .in(Singleton.class);
         // Wrap datastores as DOMDataBroker
         bind(DOMDataBroker.class).toProvider(InmemoryDOMDataBrokerProvider.class).in(Singleton.class);
@@ -91,18 +105,18 @@ public class NetconfModule extends PrivateModule {
 
         // Netconf notification service factory
         bind(NetconfOperationServiceFactory.class).annotatedWith(Names.named(HONEYCOMB_NETCONF_MAPPER_NOTIF))
-                .toProvider(NetconfNotificationMapperProvider.class).in(Singleton.class);
+                .toProvider(NetconfNotificationMapperProvider.class).asEagerSingleton();
         expose(NetconfOperationServiceFactory.class).annotatedWith(Names.named(HONEYCOMB_NETCONF_MAPPER_NOTIF));
 
         // Netconf core part - mapping between Honeycomb and Netconf
         bind(NetconfOperationServiceFactory.class).annotatedWith(Names.named(HONEYCOMB_NETCONF_MAPPER_CORE))
-                .toProvider(NetconfMdsalMapperProvider.class).in(Singleton.class);
+                .toProvider(NetconfMdsalMapperProvider.class).asEagerSingleton();
         expose(NetconfOperationServiceFactory.class).annotatedWith(Names.named(HONEYCOMB_NETCONF_MAPPER_CORE));
 
         // Netconf monitoring service factory
         bind(NetconfMonitoringService.class).toProvider(NetconfMonitoringServiceProvider.class).in(Singleton.class);
         bind(NetconfOperationServiceFactory.class).annotatedWith(Names.named(HONEYCOMB_NETCONF_MAPPER_OPER))
-                .toProvider(NetconfMonitoringMapperProvider.class).in(Singleton.class);
+                .toProvider(NetconfMonitoringMapperProvider.class).asEagerSingleton();
         expose(NetconfOperationServiceFactory.class).annotatedWith(Names.named(HONEYCOMB_NETCONF_MAPPER_OPER));
 
         // Create HC notification manager + HC2Netconf translator
@@ -122,10 +136,10 @@ public class NetconfModule extends PrivateModule {
         bind(Timer.class).toInstance(new HashedWheelTimer());
         bind(NetconfServerDispatcher.class).toProvider(NetconfServerDispatcherProvider.class).in(Singleton.class);
         bind(NetconfTcpServerProvider.NetconfTcpServer.class).toProvider(NetconfTcpServerProvider.class)
-                .in(Singleton.class);
+                .asEagerSingleton();
         expose(NetconfTcpServerProvider.NetconfTcpServer.class);
         bind(NetconfSshServerProvider.NetconfSshServer.class).toProvider(NetconfSshServerProvider.class)
-                .in(Singleton.class);
+                .asEagerSingleton();
         return expose(NetconfSshServerProvider.NetconfSshServer.class);
     }
 }

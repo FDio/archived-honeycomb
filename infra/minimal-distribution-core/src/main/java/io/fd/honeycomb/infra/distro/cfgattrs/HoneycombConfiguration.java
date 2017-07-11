@@ -31,18 +31,6 @@ import net.jmob.guice.conf.core.Syntax;
 @BindConfig(value = "honeycomb", syntax = Syntax.JSON)
 public class HoneycombConfiguration {
 
-    public boolean isNetconfTcpEnabled() {
-        return Boolean.valueOf(netconfTcp);
-    }
-
-    public boolean isNetconfSshEnabled() {
-        return Boolean.valueOf(netconfSsh);
-    }
-
-    public boolean isNetconfEnabled() {
-        return isNetconfTcpEnabled() || isNetconfSshEnabled();
-    }
-
     public boolean isConfigPersistenceEnabled() {
         return persistConfig.isPresent() && Boolean.valueOf(persistConfig.get());
     }
@@ -65,23 +53,6 @@ public class HoneycombConfiguration {
     @InjectConfig("notification-service-queue-depth")
     public int notificationServiceQueueDepth;
 
-    @InjectConfig("netconf-netty-threads")
-    public Integer netconfNettyThreads;
-    @InjectConfig("netconf-tcp-enabled")
-    public String netconfTcp;
-    @InjectConfig("netconf-tcp-binding-address")
-    public Optional<String> netconfTcpBindingAddress;
-    @InjectConfig("netconf-tcp-binding-port")
-    public Optional<Integer> netconfTcpBindingPort;
-    @InjectConfig("netconf-ssh-enabled")
-    public String netconfSsh;
-    @InjectConfig("netconf-ssh-binding-address")
-    public Optional<String> netconfSshBindingAddress;
-    @InjectConfig("netconf-ssh-binding-port")
-    public Optional<Integer> netconfSshBindingPort;
-    @InjectConfig("netconf-notification-stream-name")
-    public Optional<String> netconfNotificationStreamName = Optional.of("honeycomb");
-
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
@@ -90,14 +61,6 @@ public class HoneycombConfiguration {
                 .add("peristConfigPath", peristConfigPath)
                 .add("persistedConfigRestorationType", persistedConfigRestorationType)
                 .add("notificationServiceQueueDepth", notificationServiceQueueDepth)
-                .add("netconfNettyThreads", netconfNettyThreads)
-                .add("netconfTcp", netconfTcp)
-                .add("netconfTcpBindingAddress", netconfTcpBindingAddress)
-                .add("netconfTcpBindingPort", netconfTcpBindingPort)
-                .add("netconfSsh", netconfSsh)
-                .add("netconfSshBindingAddress", netconfSshBindingAddress)
-                .add("netconfSshBindingPort", netconfSshBindingPort)
-                .add("netconfNotificationStreamName", netconfNotificationStreamName)
                 .toString();
     }
 }

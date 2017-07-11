@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.netconf;
+package io.fd.honeycomb.northbound.netconf;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.infra.distro.InitializationException;
-import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import io.fd.honeycomb.northbound.CredentialsConfiguration;
+import io.fd.honeycomb.northbound.NetconfConfiguration;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.local.LocalAddress;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -49,7 +49,7 @@ public final class NetconfSshServerProvider extends ProviderTrait<NetconfSshServ
     @Inject
     private NetconfServerDispatcher dispatcher;
     @Inject
-    private HoneycombConfiguration cfgAttributes;
+    private NetconfConfiguration cfgAttributes;
     @Inject
     private NioEventLoopGroup nettyThreadgroup;
     @Inject
@@ -60,6 +60,11 @@ public final class NetconfSshServerProvider extends ProviderTrait<NetconfSshServ
 
     @Override
     protected NetconfSshServer create() {
+        if (!cfgAttributes.isNetconfSshEnabled()) {
+            LOG.info("NETCONF SSH disabled, skipping initialization");
+            return null;
+        }
+        LOG.info("Starting NETCONF SSH");
         InetAddress sshBindingAddress = null;
         try {
             sshBindingAddress = InetAddress.getByName(cfgAttributes.netconfSshBindingAddress.get());

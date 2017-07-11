@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.netconf;
+package io.fd.honeycomb.northbound.netconf;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
+import io.fd.honeycomb.northbound.NetconfConfiguration;
 import io.fd.honeycomb.notification.NotificationCollector;
 import io.fd.honeycomb.notification.impl.NotificationProducerRegistry;
 import io.fd.honeycomb.notification.impl.TranslationUtil;
@@ -48,7 +48,7 @@ public final class HoneycombNotification2NetconfProvider
     @Inject
     private SchemaService schemaService;
     @Inject
-    private HoneycombConfiguration cfgAttributes;
+    private NetconfConfiguration cfgAttributes;
     @Inject
     private NotificationCollector hcNotificationCollector;
     @Inject

@@ -22,19 +22,13 @@
         <artifactId>impl-parent</artifactId>
         <groupId>io.fd.honeycomb.common</groupId>
         <version>1.17.10-SNAPSHOT</version>
-        <relativePath>../../common/impl-parent</relativePath>
+        <relativePath>../../../common/impl-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.fd.honeycomb</groupId>
-    <artifactId>minimal-distribution-core</artifactId>
+    <groupId>io.fd.honeycomb.northbound</groupId>
+    <artifactId>netconf</artifactId>
     <version>1.17.10-SNAPSHOT</version>
-    <name>${project.artifactId}</name>
-
-    <properties>
-        <commons-io.version>2.5</commons-io.version>
-        <osgi.core.version>5.0.0</osgi.core.version>
-    </properties>
 
     <dependencies>
         <!-- DI-->
@@ -55,22 +49,11 @@
             <artifactId>binding-init</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- ODL -->
-        <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>yang-data-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>sal-core-api</artifactId>
-        </dependency>
 
-
-        <!-- OSGI Even tough not running in OSGI, dependency needs to be here since some deprecated MD-SAL APIs rely on osgi core -->
         <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <version>${osgi.core.version}</version>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>minimal-distribution-core</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- Northbound -->
@@ -79,28 +62,37 @@
             <artifactId>common</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- ODL-Netconf -->
         <dependency>
-            <groupId>io.fd.honeycomb.northbound</groupId>
-            <artifactId>restconf</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.opendaylight.netconf</groupId>
+            <artifactId>netconf-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.netconf</groupId>
+            <artifactId>netconf-ssh</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.netconf</groupId>
+            <artifactId>mdsal-netconf-notification</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.netconf</groupId>
+            <artifactId>mdsal-netconf-monitoring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.netconf</groupId>
+            <artifactId>mdsal-netconf-connector</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.netconf</groupId>
+            <artifactId>ietf-netconf-monitoring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.netconf</groupId>
+            <artifactId>ietf-netconf-monitoring-extension</artifactId>
         </dependency>
 
-        <!-- HC -->
-        <dependency>
-            <groupId>io.fd.honeycomb</groupId>
-            <artifactId>cfg-init</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fd.honeycomb</groupId>
-            <artifactId>notification-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fd.honeycomb</groupId>
-            <artifactId>rpc-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
             <artifactId>data-impl</artifactId>
@@ -116,16 +108,6 @@
             <artifactId>notification-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <!-- Utilities -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
-        </dependency>
     </dependencies>
+
 </project>

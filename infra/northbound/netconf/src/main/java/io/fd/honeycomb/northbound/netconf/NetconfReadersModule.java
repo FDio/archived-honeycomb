@@ -14,16 +14,30 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.netconf;
+package io.fd.honeycomb.northbound.netconf;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
+import io.fd.honeycomb.northbound.NetconfConfiguration;
+import io.fd.honeycomb.northbound.NorthboundAbstractModule;
 import io.fd.honeycomb.translate.read.ReaderFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class NetconfReadersModule extends AbstractModule {
+public class NetconfReadersModule extends NorthboundAbstractModule<NetconfConfiguration> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NetconfReadersModule.class);
+
+    public NetconfReadersModule() {
+        super(new NetconfConfigurationModule(), NetconfConfiguration.class);
+    }
 
     protected void configure() {
+        if (!getConfiguration().isNetconfEnabled()) {
+            LOG.debug("NETCONF Northbound disabled, skipping readers initialization");
+            return;
+        }
+        LOG.info("Initializing NETCONF Northbound readers");
         // This should be part of NetconfModule, but that one is Private and Multibinders + private BASE_MODULES
         // do not work together, that's why there's a dedicated module here
         // https://github.com/google/guice/issues/906

@@ -43,22 +43,7 @@ public class StaticHoneycombConfiguration extends HoneycombConfiguration impleme
     }
 
     @Override
-    public boolean isNetconfTcpEnabled() {
-        return false;
-    }
-
-    @Override
     public boolean isContextPersistenceEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isNetconfEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isNetconfSshEnabled() {
         return false;
     }
 

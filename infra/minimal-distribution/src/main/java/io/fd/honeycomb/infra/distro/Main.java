@@ -30,13 +30,7 @@ import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.data.init.InitializerRegistry;
 import io.fd.honeycomb.infra.distro.activation.ActivationModule;
 import io.fd.honeycomb.infra.distro.activation.ActiveModules;
-import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import io.fd.honeycomb.infra.distro.initializer.InitializerPipelineModule;
-import io.fd.honeycomb.infra.distro.netconf.HoneycombNotification2NetconfProvider;
-import io.fd.honeycomb.infra.distro.netconf.NetconfModule;
-import io.fd.honeycomb.infra.distro.netconf.NetconfSshServerProvider;
-import io.fd.honeycomb.infra.distro.netconf.NetconfTcpServerProvider;
-import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,34 +58,9 @@ public final class Main {
                     .addAll(createInjector(activationModule).getInstance(ActiveModules.class).createModuleInstances())
                     .build());
 
-            LOG.info("Honeycomb configuration: {}", injector.getInstance(HoneycombConfiguration.class));
-
             // Log all bindings
             injector.getAllBindings().entrySet().stream()
                     .forEach(e -> LOG.trace("Component available under: {} is {}", e.getKey(), e.getValue()));
-
-            final HoneycombConfiguration cfgAttributes = injector.getInstance(HoneycombConfiguration.class);
-
-            if (cfgAttributes.isNetconfEnabled()) {
-                LOG.info("Starting HONEYCOMB_NETCONF");
-                injector.getInstance(Key.get(NetconfOperationServiceFactory.class,
-                        Names.named(NetconfModule.HONEYCOMB_NETCONF_MAPPER_CORE)));
-                injector.getInstance(Key.get(NetconfOperationServiceFactory.class,
-                        Names.named(NetconfModule.HONEYCOMB_NETCONF_MAPPER_NOTIF)));
-                injector.getInstance(Key.get(NetconfOperationServiceFactory.class,
-                        Names.named(NetconfModule.HONEYCOMB_NETCONF_MAPPER_OPER)));
-
-                if (cfgAttributes.isNetconfTcpEnabled()) {
-                    LOG.info("Starting HONEYCOMB_NETCONF TCP");
-                    injector.getInstance(NetconfTcpServerProvider.NetconfTcpServer.class);
-                }
-
-                if (cfgAttributes.isNetconfSshEnabled()) {
-                    LOG.info("Starting HONEYCOMB_NETCONF SSH");
-                    injector.getInstance(NetconfSshServerProvider.NetconfSshServer.class);
-                }
-                injector.getInstance(HoneycombNotification2NetconfProvider.HoneycombNotification2Netconf.class);
-            }
 
             try {
                 LOG.info("Initializing configuration");

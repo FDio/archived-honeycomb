@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.netconf;
+package io.fd.honeycomb.northbound.netconf;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import org.opendaylight.netconf.api.monitoring.NetconfMonitoringService;
-import org.opendaylight.netconf.impl.osgi.NetconfMonitoringServiceImpl;
-import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory;
+import io.fd.honeycomb.impl.FakeBindingAwareBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 
-
-public class NetconfMonitoringServiceProvider extends ProviderTrait<NetconfMonitoringService> {
+public final class NetconfBindingBrokerProvider extends ProviderTrait<BindingAwareBroker> {
 
     @Inject
-    @Named(NetconfModule.HONEYCOMB_NETCONF_MAPPER_AGGR)
-    private NetconfOperationServiceFactory aggregator;
+    @Named(NetconfModule.HONEYCOMB_NETCONF)
+    private DataBroker dataBroker;
 
     @Override
-    protected NetconfMonitoringServiceImpl create() {
-        return new NetconfMonitoringServiceImpl(aggregator);
+    protected FakeBindingAwareBroker create() {
+        return new FakeBindingAwareBroker(dataBroker);
     }
 }

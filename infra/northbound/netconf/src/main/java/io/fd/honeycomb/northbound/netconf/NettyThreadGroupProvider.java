@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.netconf;
+package io.fd.honeycomb.northbound.netconf;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
+import io.fd.honeycomb.northbound.NetconfConfiguration;
 import io.netty.channel.nio.NioEventLoopGroup;
 
 public final class NettyThreadGroupProvider extends ProviderTrait<NioEventLoopGroup> {
 
     @Inject
-    private HoneycombConfiguration cfgAttributes;
+    private NetconfConfiguration cfgAttributes;
 
     @Override
     protected NioEventLoopGroup create() {
