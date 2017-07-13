@@ -45,6 +45,8 @@ public class BgpConfiguration {
     public Optional<String> bgpMultiplePaths;
     @InjectConfig("bgp-send-max-paths")
     public Optional<Integer> bgpSendMaxMaths;
+    @InjectConfig("bgp-network-instance-name")
+    public String bgpNetworkInstanceName;
     @InjectConfig("bgp-protocol-instance-name")
     public Optional<String> bgpProtocolInstanceName;
     @InjectConfig("bgp-netty-threads")
@@ -57,6 +59,7 @@ public class BgpConfiguration {
             .add("bgpAsNumber", bgpAsNumber)
             .add("bgpMultiplePaths", bgpMultiplePaths)
             .add("bgpSendMaxMaths", bgpSendMaxMaths)
+            .add("bgpNetworkInstanceName", bgpNetworkInstanceName)
             .add("bgpProtocolInstanceName", bgpProtocolInstanceName)
             .add("bgpNettyThreads", bgpNettyThreads)
             .toString();

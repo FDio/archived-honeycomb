@@ -31,13 +31,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.store.impl.InMemoryDOMDataStore;
-import org.opendaylight.protocol.bgp.openconfig.impl.BGPOpenConfigMappingServiceImpl;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
-import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighbors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,15 +49,8 @@ public final class BgpModule extends PrivateModule {
 
         configureRIB();
 
-        // Configure peer registry
-        bind(BGPOpenConfigMappingService.class).toInstance(new BGPOpenConfigMappingServiceImpl());
-        bind(BGPPeerRegistry.class).toInstance(StrictBGPPeerRegistry.instance());
-
         // Create BGP server instance (initialize eagerly to start BGP)
         bind(BgpServerProvider.BgpServer.class).toProvider(BgpServerProvider.class).asEagerSingleton();
-
-        // Initialize BgpNeighbours (initialize eagerly to start BGP neighbours)
-        bind(BgpNeighbors.class).toProvider(BgpNeighboursProvider.class).asEagerSingleton();
 
         // Listens for local RIB modifications and passes routes to translation layer
         // (initialize eagerly to configure RouteWriters)
@@ -96,5 +84,6 @@ public final class BgpModule extends PrivateModule {
 
         // Create RIB instance
         bind(RIB.class).toProvider(BgpRIBProvider.class).in(Singleton.class);
+        expose(RIB.class);
     }
 }
