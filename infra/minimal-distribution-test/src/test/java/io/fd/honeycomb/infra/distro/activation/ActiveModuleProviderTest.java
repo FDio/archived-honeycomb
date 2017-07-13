@@ -19,12 +19,10 @@ package io.fd.honeycomb.infra.distro.activation;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.isA;
-import static org.hamcrest.core.Is.is;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Module;
@@ -74,7 +72,7 @@ public class ActiveModuleProviderTest {
     @Test
     public void testAggregateResourcesNonEmpty() {
         final List<String> aggregatedResources =
-                ActiveModuleProvider.aggregateResources("modules", this.getClass().getClassLoader());
+                new ActiveModuleProvider().aggregateResources("modules");
         assertThat(aggregatedResources, hasSize(5));
         assertThat(aggregatedResources, hasItems("        Non-commented non-trimmed",
                 "//Commented",
@@ -83,10 +81,9 @@ public class ActiveModuleProviderTest {
                 "// Line from second file"));
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void testAggregateResourcesEmpty() {
-        assertThat(ActiveModuleProvider.aggregateResources("/non-existing-folder", this.getClass().getClassLoader()),
-                is(empty()));
+        new ActiveModuleProvider().aggregateResources("/non-existing-folder");
     }
 
 }

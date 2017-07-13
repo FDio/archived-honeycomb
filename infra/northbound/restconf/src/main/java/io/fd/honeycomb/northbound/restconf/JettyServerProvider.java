@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.restconf;
+package io.fd.honeycomb.northbound.restconf;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import io.fd.honeycomb.northbound.CredentialsConfiguration;
 import java.net.URL;
 import java.util.Collections;
@@ -44,7 +43,7 @@ final class JettyServerProvider extends ProviderTrait<Server> {
         "application/yang.data+json"};
 
     @Inject
-    private HoneycombConfiguration cfg;
+    private RestconfConfiguration cfg;
 
     @Inject
     private CredentialsConfiguration credentialsCfg;

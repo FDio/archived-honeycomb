@@ -17,6 +17,7 @@
 package io.fd.honeycomb.infra.distro.schema;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 
 import com.google.common.base.Charsets;
@@ -38,11 +39,14 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 
-interface ResourceLoader {
+/**
+ * Allows loading content of X amount of files from filesystem or archive
+ */
+public interface ResourceLoader {
 
     default Set<String> loadResourceContentsOnPath(final String path) {
         final URL folderUrl = getClass().getClassLoader().getResource(path);
-        checkNotNull(folderUrl, "Resources %s not found", path);
+        checkState(folderUrl != null, "Resources %s not found", path);
 
         if (ResourceLoaderIml.urlToUri(folderUrl).getScheme().equals("jar")) {
             return ResourceLoaderIml.readFromJar(path, folderUrl);

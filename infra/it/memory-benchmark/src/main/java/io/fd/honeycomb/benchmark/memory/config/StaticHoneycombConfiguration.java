@@ -22,7 +22,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Optional;
 
 /**
  * Static configuration to prevent injecting of properties from json fles
@@ -33,35 +32,14 @@ public class StaticHoneycombConfiguration extends HoneycombConfiguration impleme
         this.peristConfigPath = persistConfigPath;
         this.peristContextPath = persistContextPath;
 
-        this.username = "admin";
-        this.password = "admin";
         this.notificationServiceQueueDepth = 1;
-        this.restconfBindingAddress = Optional.of("/restconf");
-        this.restconfPort = Optional.of(8187);
-        this.restconfBindingAddress = Optional.of("127.0.0.1");
         this.persistedConfigRestorationType = "Merge";
         this.persistedContextRestorationType = "Merge";
-        this.restconfWebsocketPort = Optional.of(7890);
     }
 
     @Override
     public boolean isConfigPersistenceEnabled() {
         return false;
-    }
-
-    @Override
-    public boolean isRestconfHttpsEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean isRestconfHttpEnabled() {
-        return true;
-    }
-
-    @Override
-    public boolean isRestconfEnabled() {
-        return true;
     }
 
     @Override

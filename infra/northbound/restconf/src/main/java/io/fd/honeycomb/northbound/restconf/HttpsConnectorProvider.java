@@ -14,28 +14,38 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.restconf;
+package io.fd.honeycomb.northbound.restconf;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
+
 import java.net.URL;
+
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class HttpsConnectorProvider extends ProviderTrait<ServerConnector> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(HttpsConnectorProvider.class);
+
     @Inject
-    private HoneycombConfiguration cfg;
+    private RestconfConfiguration cfg;
     @Inject
     private Server server;
 
     @Override
     protected ServerConnector create() {
+        if (!cfg.isRestconfHttpsEnabled()) {
+            LOG.debug("RESTCONF HTTPS disabled, skipping initialization");
+            return null;
+        }
+        LOG.info("Starting RESTCONF HTTPS");
         // SSL Context Factory
         // Based on:
         // https://github.com/eclipse/jetty.project/blob/jetty-9.3.x/examples/embedded/src/main/java/org/eclipse/jetty/embedded/LikeJettyXml.java
@@ -55,7 +65,8 @@ final class HttpsConnectorProvider extends ProviderTrait<ServerConnector> {
         sslContextFactory.setTrustStorePassword((cfg.truststorePassword.get()));
         // TODO HONEYCOMB-167 make this more configurable
         sslContextFactory.setExcludeCipherSuites("SSL_RSA_WITH_DES_CBC_SHA", "SSL_DHE_RSA_WITH_DES_CBC_SHA",
-                "SSL_DHE_DSS_WITH_DES_CBC_SHA", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
+                "SSL_DHE_DSS_WITH_DES_CBC_SHA", "SSL_RSA_EXPORT_WITH_RC4_40_MD5",
+                "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
                 "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA", "SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA");
 
         // SSL Connector

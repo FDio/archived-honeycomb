@@ -19,6 +19,7 @@ package io.fd.honeycomb.infra.bgp.distro;
 import com.google.common.io.ByteStreams;
 import com.mashape.unirest.http.Unirest;
 import io.fd.honeycomb.infra.distro.Main;
+import io.fd.honeycomb.infra.distro.activation.ActivationModule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -61,7 +62,7 @@ public class BgpDistributionTest {
 
     @Test(timeout = 120000)
     public void test() throws Exception {
-        Main.init();
+        Main.init(new ActivationModule());
         LOG.info("Testing Honeycomb BGP distribution");
         assertBgp();
     }

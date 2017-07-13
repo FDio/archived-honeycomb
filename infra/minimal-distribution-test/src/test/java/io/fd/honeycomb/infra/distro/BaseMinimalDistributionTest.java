@@ -28,6 +28,7 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
+import io.fd.honeycomb.infra.distro.activation.ActivationModule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
@@ -76,7 +77,7 @@ public class BaseMinimalDistributionTest {
      */
     @Test(timeout = 120000)
     public void test() throws Exception {
-        Main.init();
+        Main.init(new ActivationModule());
 
         LOG.info("Testing Honeycomb base distribution");
         LOG.info("Testing NETCONF TCP");

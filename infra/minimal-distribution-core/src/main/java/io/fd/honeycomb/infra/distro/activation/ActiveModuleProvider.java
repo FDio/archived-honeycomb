@@ -20,6 +20,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Module;
 import com.google.inject.Provider;
+import io.fd.honeycomb.infra.distro.schema.ResourceLoader;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -27,7 +29,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -40,7 +42,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Provides list of active modules for distribution
  */
-class ActiveModuleProvider implements Provider<ActiveModules> {
+public class ActiveModuleProvider implements Provider<ActiveModules>, ResourceLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActiveModuleProvider.class);
 
@@ -50,7 +52,7 @@ class ActiveModuleProvider implements Provider<ActiveModules> {
     @Override
     public ActiveModules get() {
         return new ActiveModules(loadActiveModules(
-                aggregateResources(config.getModulesResourcePath(), Thread.currentThread().getContextClassLoader())));
+                aggregateResources(config.getModulesResourcePath())));
     }
 
     /**
@@ -77,20 +79,10 @@ class ActiveModuleProvider implements Provider<ActiveModules> {
     /**
      * Aggregate all resources from provided relative path into a {@code List<String>}
      */
-    public static List<String> aggregateResources(final String relativePath, final ClassLoader classLoader) {
-        try {
-            return Collections.list(classLoader.getResources(relativePath)).stream()
-                    .map(ActiveModuleProvider::toURI)
-                    .flatMap(ActiveModuleProvider::folderToFile)
-                    .map(File::toURI)
-                    .map(Paths::get)
-                    // readAll lines and add them to iteration
-                    .flatMap(ActiveModuleProvider::readLines)
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            LOG.error("Unable to load resources from relative path {}", relativePath, e);
-            throw new IllegalStateException("Unable to load resources from relative path " + relativePath, e);
-        }
+    public List<String> aggregateResources(final String relativePath) {
+        // must use universal approach of loading from folder/jar
+        // because of memory footprint benchmark
+        return new ArrayList<>(loadResourceContentsOnPath(relativePath));
     }
 
     private static Stream<File> folderToFile(final URI uri) {

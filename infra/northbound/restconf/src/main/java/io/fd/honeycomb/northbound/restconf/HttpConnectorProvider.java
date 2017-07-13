@@ -14,25 +14,33 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.restconf;
+package io.fd.honeycomb.northbound.restconf;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class HttpConnectorProvider extends ProviderTrait<ServerConnector> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(HttpConnectorProvider.class);
+
     @Inject
-    private HoneycombConfiguration cfg;
+    private RestconfConfiguration cfg;
     @Inject
     private Server server;
 
     @Override
     protected ServerConnector create() {
-        ServerConnector httpConnector =
-                new ServerConnector(server, cfg.acceptorsSize.get(), cfg.selectorsSize.get());
+        if (!cfg.isRestconfHttpEnabled()) {
+            LOG.debug("RESTCONF HTTP disabled, skipping initialization");
+            return null;
+        }
+
+        LOG.info("Starting RESTCONF HTTP");
+        ServerConnector httpConnector = new ServerConnector(server, cfg.acceptorsSize.get(), cfg.selectorsSize.get());
         httpConnector.setHost(cfg.restconfBindingAddress.get());
         httpConnector.setPort(cfg.restconfPort.get());
         server.addConnector(httpConnector);

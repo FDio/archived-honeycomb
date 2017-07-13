@@ -31,18 +31,6 @@ import net.jmob.guice.conf.core.Syntax;
 @BindConfig(value = "honeycomb", syntax = Syntax.JSON)
 public class HoneycombConfiguration {
 
-    public boolean isRestconfHttpEnabled() {
-        return Boolean.valueOf(restconfHttp);
-    }
-
-    public boolean isRestconfHttpsEnabled() {
-        return Boolean.valueOf(restconfHttps);
-    }
-
-    public boolean isRestconfEnabled() {
-        return isRestconfHttpEnabled() || isRestconfHttpsEnabled();
-    }
-
     public boolean isNetconfTcpEnabled() {
         return Boolean.valueOf(netconfTcp);
     }
@@ -76,52 +64,7 @@ public class HoneycombConfiguration {
     public String persistedConfigRestorationType;
     @InjectConfig("notification-service-queue-depth")
     public int notificationServiceQueueDepth;
-    @InjectConfig("restconf-http-enabled")
-    public String restconfHttp;
-    @InjectConfig("restconf-binding-address")
-    public Optional<String> restconfBindingAddress;
-    @InjectConfig("restconf-port")
-    public Optional<Integer> restconfPort;
-    @InjectConfig("restconf-https-enabled")
-    public String restconfHttps;
-    @InjectConfig("restconf-https-binding-address")
-    public Optional<String> restconfHttpsBindingAddress;
-    @InjectConfig("restconf-https-port")
-    public Optional<Integer> restconfHttpsPort;
-    /**
-     * Restconf keystore file name. It will be loaded from the classpath so must be present in one of the folders
-     * packaged with the distribution e.g. cert/
-     */
-    @InjectConfig("restconf-keystore")
-    public Optional<String> restconfKeystore = Optional.of("/honeycomb-keystore");
-    @InjectConfig("restconf-keystore-password")
-    public Optional<String> keystorePassword;
-    @InjectConfig("restconf-keystore-manager-password")
-    public Optional<String> keystoreManagerPassword;
-    /**
-     * Restconf truststore file name. It will be loaded from the classpath so must be present in one of the folders
-     * packaged with the distribution e.g. cert/
-     */
-    @InjectConfig("restconf-truststore")
-    public Optional<String> restconfTruststore;
-    @InjectConfig("restconf-truststore-password")
-    public Optional<String> truststorePassword;
-    @InjectConfig("restconf-websocket-port")
-    public Optional<Integer> restconfWebsocketPort = Optional.of(7779);
-    @InjectConfig("restconf-root-path")
-    public Optional<String> restconfRootPath = Optional.of("/restconf");
-    @InjectConfig("restconf-pool-max-size")
-    public Optional<Integer> restPoolMaxSize = Optional.of(10);
-    @InjectConfig("restconf-pool-min-size")
-    public Optional<Integer> restPoolMinSize = Optional.of(1);
-    @InjectConfig("restconf-acceptors-size")
-    public Optional<Integer> acceptorsSize = Optional.of(1);
-    @InjectConfig("restconf-selectors-size")
-    public Optional<Integer> selectorsSize = Optional.of(1);
-    @InjectConfig("restconf-https-acceptors-size")
-    public Optional<Integer> httpsAcceptorsSize = Optional.of(1);
-    @InjectConfig("restconf-https-selectors-size")
-    public Optional<Integer> httpsSelectorsSize = Optional.of(1);
+
     @InjectConfig("netconf-netty-threads")
     public Integer netconfNettyThreads;
     @InjectConfig("netconf-tcp-enabled")
@@ -147,25 +90,6 @@ public class HoneycombConfiguration {
                 .add("peristConfigPath", peristConfigPath)
                 .add("persistedConfigRestorationType", persistedConfigRestorationType)
                 .add("notificationServiceQueueDepth", notificationServiceQueueDepth)
-                .add("restconfHttp", restconfHttp)
-                .add("restconfBindingAddress", restconfBindingAddress)
-                .add("restconfPort", restconfPort)
-                .add("restconfHttps", restconfHttps)
-                .add("restconfHttpsBindingAddress", restconfHttpsBindingAddress)
-                .add("restconfHttpsPort", restconfHttpsPort)
-                .add("restconfKeystore", restconfKeystore)
-                .add("keystorePassword", keystorePassword)
-                .add("keystoreManagerPassword", keystoreManagerPassword)
-                .add("restconfTruststore", restconfTruststore)
-                .add("truststorePassword", truststorePassword)
-                .add("restconfWebsocketPort", restconfWebsocketPort)
-                .add("restconfRootPath", restconfRootPath)
-                .add("restPoolMaxSize", restPoolMaxSize)
-                .add("restPoolMinSize", restPoolMinSize)
-                .add("acceptorsSize", acceptorsSize)
-                .add("selectorsSize", selectorsSize)
-                .add("httpsAcceptorsSize", httpsAcceptorsSize)
-                .add("httpsSelectorsSize", httpsSelectorsSize)
                 .add("netconfNettyThreads", netconfNettyThreads)
                 .add("netconfTcp", netconfTcp)
                 .add("netconfTcpBindingAddress", netconfTcpBindingAddress)

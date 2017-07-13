@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.restconf;
+package io.fd.honeycomb.northbound.restconf;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import org.opendaylight.controller.sal.core.api.Broker;
 import org.opendaylight.netconf.sal.rest.api.RestConnector;
 import org.opendaylight.netconf.sal.restconf.impl.RestconfProviderImpl;
@@ -27,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 final class RestconfProvider extends ProviderTrait<RestConnector> {
 
     @Inject
-    private HoneycombConfiguration cfg;
+    private RestconfConfiguration cfg;
     @Inject
     private Broker domBroker;
 

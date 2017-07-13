@@ -39,7 +39,7 @@
             io.fd.honeycomb.northbound.CredentialsModule,
             io.fd.honeycomb.infra.distro.netconf.NetconfModule,
             io.fd.honeycomb.infra.distro.netconf.NetconfReadersModule,
-            io.fd.honeycomb.infra.distro.restconf.RestconfModule,
+            io.fd.honeycomb.northbound.restconf.RestconfModule,
             io.fd.honeycomb.infra.distro.cfgattrs.CfgAttrsModule,
             // io.fd.honeycomb.infra.bgp.BgpModule,
             // io.fd.honeycomb.infra.bgp.BgpReadersModule,
@@ -69,8 +69,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
+            <groupId>io.fd.honeycomb.northbound</groupId>
+            <artifactId>restconf</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.fd.honeycomb.northbound</groupId>

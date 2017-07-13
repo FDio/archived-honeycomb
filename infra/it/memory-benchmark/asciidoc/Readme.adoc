@@ -61,7 +61,11 @@ Committed will always be greater than or equal to used.
  A memory allocation may fail if it attempts to increase the used memory
  such that used > committed even if used <= max would still be true (for example, when the system is low on virtual memory).
 
+== Configuration
 
+Does not start any northbound interfaces, as they are not needed for this case.
+Benchmark with 0 data sample size is just to compare it to each other samples size to
+determine how much data each data sample takes in memory.
 
 
 

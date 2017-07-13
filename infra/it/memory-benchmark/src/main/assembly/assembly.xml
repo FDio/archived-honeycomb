@@ -18,6 +18,11 @@
         </dependencySet>
     </dependencySets>
     <fileSets>
+        <!-- To include resource files for benchmark, like module list,etc -->
+        <fileSet>
+            <directory>src/test/resources</directory>
+            <outputDirectory>${project.build.directory}</outputDirectory>
+        </fileSet>
         <fileSet>
             <directory>${project.build.directory}/test-classes</directory>
             <outputDirectory>/</outputDirectory>

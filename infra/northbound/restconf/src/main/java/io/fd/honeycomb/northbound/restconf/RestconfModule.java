@@ -14,26 +14,46 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.restconf;
+package io.fd.honeycomb.northbound.restconf;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
+import io.fd.honeycomb.northbound.NorthboundAbstractModule;
+import io.fd.honeycomb.northbound.restconf.JettyServerStarter.ServerInit;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.opendaylight.netconf.sal.rest.api.RestConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class RestconfModule extends AbstractModule {
+public class RestconfModule extends NorthboundAbstractModule<RestconfConfiguration> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RestconfModule.class);
 
     public static final String RESTCONF_HTTP = "restconf-http";
     public static final String RESTCONF_HTTPS = "restconf-https";
 
+    public RestconfModule() {
+        super(new RestconfConfigurationModule(), RestconfConfiguration.class);
+    }
+
+    @Override
     protected void configure() {
+        if (!getConfiguration().isRestconfEnabled()) {
+            LOG.info("Restconf is disabled, skipping configuration");
+            return;
+        }
+
+        LOG.info("Starting RESTCONF Northbound");
+        install(new RestconfConfigurationModule());
         bind(Server.class).toProvider(JettyServerProvider.class).in(Singleton.class);
-        bind(ServerConnector.class).annotatedWith(Names.named(RESTCONF_HTTP)).toProvider(HttpConnectorProvider.class)
+        bind(ServerConnector.class).annotatedWith(Names.named(RESTCONF_HTTP))
+                .toProvider(HttpConnectorProvider.class)
                 .in(Singleton.class);
-        bind(ServerConnector.class).annotatedWith(Names.named(RESTCONF_HTTPS)).toProvider(HttpsConnectorProvider.class)
+        bind(ServerConnector.class).annotatedWith(Names.named(RESTCONF_HTTPS))
+                .toProvider(HttpsConnectorProvider.class)
                 .in(Singleton.class);
         bind(RestConnector.class).toProvider(RestconfProvider.class).in(Singleton.class);
+        bind(ServerInit.class).toProvider(JettyServerStarter.class).asEagerSingleton();
     }
 }

@@ -18,20 +18,10 @@ package io.fd.honeycomb.benchmark.memory;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Injector;
-import com.google.inject.Module;
 import io.fd.honeycomb.benchmark.memory.config.BindableCfgAttrsModule;
-import io.fd.honeycomb.benchmark.memory.config.StaticHoneycombManagementModule;
-import io.fd.honeycomb.benchmark.memory.write.NoopWritersModule;
+import io.fd.honeycomb.benchmark.memory.config.StaticActivationModule;
 import io.fd.honeycomb.infra.distro.Main;
 import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
-import io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule;
-import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule;
-import io.fd.honeycomb.infra.distro.initializer.InitializerPipelineModule;
-import io.fd.honeycomb.infra.distro.netconf.NetconfModule;
-import io.fd.honeycomb.infra.distro.netconf.NetconfReadersModule;
-import io.fd.honeycomb.infra.distro.restconf.RestconfModule;
-import io.fd.honeycomb.infra.distro.schema.SchemaModule;
-import io.fd.honeycomb.infra.distro.schema.YangBindingProviderModule;
 import io.fd.honeycomb.management.jmx.JMXBeanProvider;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
@@ -49,23 +39,6 @@ import java.util.Set;
 public class MemoryFootprintBenchmark implements JMXBeanProvider, BenchmarkFilesProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(MemoryFootprintBenchmark.class);
-
-    /**
-     * All modules from infra to load.Not static to not persist state
-     */
-    private final Set<Module> BASE_MODULES = ImmutableSet.of(
-            new YangBindingProviderModule(),
-            new SchemaModule(),
-            new ConfigAndOperationalPipelineModule(),
-            new ContextPipelineModule(),
-            new InitializerPipelineModule(),
-            new NetconfModule(),
-            new NetconfReadersModule(),
-            new RestconfModule(),
-            // to enable jmx
-            new StaticHoneycombManagementModule(),
-            //adds noop writers
-            new NoopWritersModule());
 
     // configuration class used to run benchmark, allows us to switch between honeycomb with data, or on rest
     private final HoneycombConfiguration configuration;
@@ -94,9 +67,7 @@ public class MemoryFootprintBenchmark implements JMXBeanProvider, BenchmarkFiles
      */
     private Injector startHoneycomb() {
         LOG.info("Starting embedded server with configuration {}", configuration);
-        return Main.init(ImmutableSet.<Module>builder()
-                .add(new BindableCfgAttrsModule(configuration))
-                .addAll(BASE_MODULES).build());
+        return Main.init(new StaticActivationModule(new BindableCfgAttrsModule(configuration)));
     }
 
     /**

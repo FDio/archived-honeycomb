@@ -33,9 +33,6 @@
 
     <properties>
         <commons-io.version>2.5</commons-io.version>
-        <jersey.version>1.19.1</jersey.version>
-        <servlet.version>3.1.0</servlet.version>
-        <!-- Used by mdsal as provided/runtime dependency-->
         <osgi.core.version>5.0.0</osgi.core.version>
     </properties>
 
@@ -67,11 +64,6 @@
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-core-api</artifactId>
         </dependency>
-        <!-- ODL-Restconf -->
-        <dependency>
-            <groupId>org.opendaylight.netconf</groupId>
-            <artifactId>sal-rest-connector</artifactId>
-        </dependency>
         <!-- ODL-Netconf -->
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>
@@ -101,41 +93,8 @@
             <groupId>org.opendaylight.netconf</groupId>
             <artifactId>ietf-netconf-monitoring-extension</artifactId>
         </dependency>
-        <!-- Jersey + Jetty for RESTCONF -->
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>${servlet.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-webapp</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlets</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-server</artifactId>
-            <version>${jersey.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-core</artifactId>
-            <version>${jersey.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-servlet</artifactId>
-            <version>${jersey.version}</version>
-        </dependency>
+
+        <!-- Used by mdsal as provided/runtime dependency-->
         <!-- OSGI Even tough not running in OSGI, dependency needs to be here since some deprecated MD-SAL APIs rely on osgi core -->
         <dependency>
             <groupId>org.osgi</groupId>

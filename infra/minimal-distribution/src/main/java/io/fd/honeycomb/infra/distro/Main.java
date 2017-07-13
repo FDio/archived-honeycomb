@@ -18,7 +18,6 @@ package io.fd.honeycomb.infra.distro;
 
 import static com.google.inject.Guice.createInjector;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.ConfigurationException;
 import com.google.inject.CreationException;
@@ -37,11 +36,7 @@ import io.fd.honeycomb.infra.distro.netconf.HoneycombNotification2NetconfProvide
 import io.fd.honeycomb.infra.distro.netconf.NetconfModule;
 import io.fd.honeycomb.infra.distro.netconf.NetconfSshServerProvider;
 import io.fd.honeycomb.infra.distro.netconf.NetconfTcpServerProvider;
-import io.fd.honeycomb.infra.distro.restconf.RestconfModule;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory;
-import org.opendaylight.netconf.sal.rest.api.RestConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,16 +48,15 @@ public final class Main {
     }
 
     public static void main(String[] args) {
-        init();
+        init(new ActivationModule());
     }
 
     /**
      * Initialize the Honeycomb with provided modules
      */
-    public static Injector init() {
+    public static Injector init(final ActivationModule activationModule) {
         try {
             LOG.info("Starting honeycomb");
-            final ActivationModule activationModule = new ActivationModule();
             // creating child injector does not work in this case, so just create injector, and does not store ref
             // to it, or its active modules instance
             Injector injector = createInjector(ImmutableSet.<Module>builder()
@@ -77,31 +71,6 @@ public final class Main {
                     .forEach(e -> LOG.trace("Component available under: {} is {}", e.getKey(), e.getValue()));
 
             final HoneycombConfiguration cfgAttributes = injector.getInstance(HoneycombConfiguration.class);
-            Preconditions.checkArgument(cfgAttributes.isRestconfEnabled() || cfgAttributes.isNetconfEnabled(),
-                    "At least one interface(Restconf|Netconf) has to be enabled for Honeycomb");
-            // Now get instances for all dependency roots
-
-            if (cfgAttributes.isRestconfEnabled()) {
-                LOG.info("Starting RESTCONF");
-                final Server server = injector.getInstance(Server.class);
-                final RestConnector instance = injector.getInstance(RestConnector.class);
-
-                if (cfgAttributes.isRestconfHttpEnabled()) {
-                    LOG.info("Starting Restconf on http");
-                    injector.getInstance(Key.get(ServerConnector.class, Names.named(RestconfModule.RESTCONF_HTTP)));
-                }
-                if (cfgAttributes.isRestconfHttpsEnabled()) {
-                    LOG.info("Starting Restconf on https");
-                    injector.getInstance(Key.get(ServerConnector.class, Names.named(RestconfModule.RESTCONF_HTTPS)));
-                }
-
-                try {
-                    server.start();
-                } catch (Exception e) {
-                    LOG.error("Unable to start Restconf", e);
-                    throw new InitializationException("Unable to start Restconf", e);
-                }
-            }
 
             if (cfgAttributes.isNetconfEnabled()) {
                 LOG.info("Starting HONEYCOMB_NETCONF");
