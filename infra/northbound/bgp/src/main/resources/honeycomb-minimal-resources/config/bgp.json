@@ -4,6 +4,7 @@
   "bgp-as-number": 65000,
   "bgp-receive-multiple-paths": "true",
   "bgp-send-max-paths": 0,
+  "bgp-network-instance-name": "global-bgp",
   "bgp-protocol-instance-name": "hc-bgp-instance",
   "bgp-netty-threads": 2
 }

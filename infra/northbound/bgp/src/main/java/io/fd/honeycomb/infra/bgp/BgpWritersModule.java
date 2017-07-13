@@ -19,19 +19,34 @@ package io.fd.honeycomb.infra.bgp;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
+import io.fd.honeycomb.infra.bgp.neighbors.BgpPeerWriterFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
+import org.opendaylight.protocol.bgp.openconfig.impl.BGPOpenConfigMappingServiceImpl;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
+import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Provides integration of various BGP components with WriterRegistry
+ * in order to enable configuration updates/read via RESTCONF/NETCONF.
+ */
 public final class BgpWritersModule extends AbstractModule {
     private static final Logger LOG = LoggerFactory.getLogger(BgpWritersModule.class);
 
     protected void configure() {
-        LOG.debug("Initializing BgpReadersModule");
+        LOG.debug("Initializing BgpWritersModule");
         // This should be part of BgpModule, but that one is Private and Multibinders + private BASE_MODULES
         // do not work together, that's why there's a dedicated module here
         // https://github.com/google/guice/issues/906
+
+        // Configure peer registry
+        bind(BGPOpenConfigMappingService.class).toInstance(new BGPOpenConfigMappingServiceImpl());
+        bind(BGPPeerRegistry.class).toInstance(StrictBGPPeerRegistry.instance());
+
         final Multibinder<WriterFactory> binder = Multibinder.newSetBinder(binder(), WriterFactory.class);
-        binder.addBinding().toProvider(BgpWriterFactoryProvider.class).in(Singleton.class);
+        binder.addBinding().to(ApplicationRibWriterFactory.class).in(Singleton.class);
+        binder.addBinding().to(BgpPeerWriterFactory.class).in(Singleton.class);
     }
 }

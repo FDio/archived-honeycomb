@@ -16,14 +16,21 @@
 
 package io.fd.honeycomb.infra.bgp.distro;
 
+import static org.junit.Assert.assertTrue;
+
+import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
+import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import io.fd.honeycomb.infra.distro.Main;
 import io.fd.honeycomb.infra.distro.activation.ActivationModule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import javax.net.ssl.SSLContext;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
@@ -37,6 +44,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BgpDistributionTest {
+    private static final String BGP_HOST_ADDRESS = "127.0.0.1";
+    private static final int HTTP_PORT = 8182;
+    private static final String UNAME = "admin";
+    private static final String PASSWORD = "admin";
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpDistributionTest.class);
     private static final String CERT_PASSWORD = "testing";
@@ -67,18 +78,38 @@ public class BgpDistributionTest {
         assertBgp();
     }
 
-    private byte[] readMessage(final InputStream inputStream) throws IOException {
-        final int available = inputStream.available();
-        final byte[] msg = new byte[available];
-        ByteStreams.read(inputStream, msg, 0, available);
-        return msg;
-    }
-
     private void assertBgp() throws Exception {
         // Wait until BGP server is started
         Thread.sleep(HELLO_WAIT);
-        final InetAddress bgpHost = InetAddress.getByName("127.0.0.1");
-        final InetAddress bgpPeerAddress = InetAddress.getByName("127.0.0.2");
+
+        configureBgpPeers();
+
+        assertBgpOpenIsSent("127.0.0.2");
+        assertBgpOpenIsSent("127.0.0.3");
+    }
+
+    private void configureBgpPeers() throws UnirestException, IOException {
+        final String url =
+            "http://" + BGP_HOST_ADDRESS + ":" + HTTP_PORT
+                + "/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/"
+                + "openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/hc-bgp-instance/"
+                + "bgp/bgp-openconfig-extensions:neighbors";
+
+        final String request =
+            new String(Files.readAllBytes(Paths.get("src/test/resources/bgp-peers.json")), Charsets.UTF_8);
+        final HttpResponse<String> response =
+            Unirest.put(url)
+                .basicAuth(UNAME, PASSWORD)
+                .header("Content-Type", "application/json")
+                .body(request)
+                .asString();
+
+        assertSuccessStatus(response);
+    }
+
+    private void assertBgpOpenIsSent(final String peerAddress) throws IOException, InterruptedException {
+        final InetAddress bgpHost = InetAddress.getByName(BGP_HOST_ADDRESS);
+        final InetAddress bgpPeerAddress = InetAddress.getByName(peerAddress);
         try (final Socket localhost = new Socket(bgpHost, BGP_PORT, bgpPeerAddress, 0);
              final InputStream inputStream = localhost.getInputStream()) {
             // Wait until bgp message is sent
@@ -89,5 +120,17 @@ public class BgpDistributionTest {
 
             Assert.assertEquals(BGP_OPEN_MSG_TYPE, msg[BGP_MSG_TYPE_OFFSET]);
         }
+    }
+
+    private byte[] readMessage(final InputStream inputStream) throws IOException {
+        final int available = inputStream.available();
+        final byte[] msg = new byte[available];
+        ByteStreams.read(inputStream, msg, 0, available);
+        return msg;
+    }
+
+    private void assertSuccessStatus(final HttpResponse<String> jsonNodeHttpResponse) {
+        assertTrue(jsonNodeHttpResponse.getStatus() >= 200);
+        assertTrue(jsonNodeHttpResponse.getStatus() < 400);
     }
 }
