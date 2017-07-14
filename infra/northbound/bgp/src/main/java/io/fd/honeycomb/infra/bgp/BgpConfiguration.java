@@ -45,17 +45,20 @@ public class BgpConfiguration {
     public Optional<String> bgpMultiplePaths;
     @InjectConfig("bgp-send-max-paths")
     public Optional<Integer> bgpSendMaxMaths;
+    @InjectConfig("bgp-protocol-instance-name")
+    public Optional<String> bgpProtocolInstanceName;
     @InjectConfig("bgp-netty-threads")
     public Integer bgpNettyThreads;
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("bgpBindingAddress", bgpBindingAddress)
-                .add("bgpPort", bgpPort)
-                .add("bgp-as-number", bgpAsNumber)
-                .add("bgp-netty-threads", bgpNettyThreads)
-                .add("bgp-receive-multiple-paths", bgpMultiplePaths)
-                .add("bgp-send-max-paths", bgpSendMaxMaths)
-                .toString();
+            .add("bgpBindingAddress", bgpBindingAddress)
+            .add("bgpPort", bgpPort)
+            .add("bgpAsNumber", bgpAsNumber)
+            .add("bgpMultiplePaths", bgpMultiplePaths)
+            .add("bgpSendMaxMaths", bgpSendMaxMaths)
+            .add("bgpProtocolInstanceName", bgpProtocolInstanceName)
+            .add("bgpNettyThreads", bgpNettyThreads)
+            .toString();
     }
 }
