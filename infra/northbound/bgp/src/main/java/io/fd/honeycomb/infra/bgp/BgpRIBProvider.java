@@ -52,7 +52,6 @@ import org.slf4j.LoggerFactory;
 
 final class BgpRIBProvider extends ProviderTrait<RIB> {
     private static final Logger LOG = LoggerFactory.getLogger(BgpRIBProvider.class);
-    private static final String HC_BGP_INSTANCE_NAME = "hc-bgp-instance";
 
     @Inject
     private BgpConfiguration cfg;
@@ -93,9 +92,10 @@ final class BgpRIBProvider extends ProviderTrait<RIB> {
                 new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
         // based on RIBImpl.createRib
         final RIBImpl rib =
-            new RIBImpl(new NoopClusterSingletonServiceProvider(), new RibId(HC_BGP_INSTANCE_NAME), asNumber,
-            new BgpId(routerId), clusterId, extensions, dispatcher, codec, new PingPongDataBroker(domBroker),
-            mappingService.toTableTypes(afiSafi), pathSelectionModes, extensions.getClassLoadingStrategy(), null);
+            new RIBImpl(new NoopClusterSingletonServiceProvider(), new RibId(cfg.bgpProtocolInstanceName.get()),
+                asNumber, new BgpId(routerId), clusterId, extensions, dispatcher, codec,
+                new PingPongDataBroker(domBroker), mappingService.toTableTypes(afiSafi), pathSelectionModes,
+                extensions.getClassLoadingStrategy(), null);
 
         // required for proper RIB's CodecRegistry initialization (based on RIBImpl.start)
         schemaService.registerSchemaContextListener(rib);
