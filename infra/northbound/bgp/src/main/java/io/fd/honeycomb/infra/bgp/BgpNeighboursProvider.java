@@ -17,7 +17,6 @@
 package io.fd.honeycomb.infra.bgp;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static io.fd.honeycomb.translate.util.JsonUtils.readContainerEntryJson;
 import static org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil.APPLICATION_PEER_GROUP_NAME;
 import static org.opendaylight.yangtools.sal.binding.generator.impl.BindingSchemaContextUtils.findDataNodeContainer;
@@ -26,6 +25,7 @@ import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
@@ -40,6 +40,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNe
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.NeighborsBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceKey;
@@ -94,7 +95,10 @@ final class BgpNeighboursProvider extends ProviderTrait<BgpNeighbors> {
     private Neighbors readNeighbours() {
         LOG.debug("Reading BGP neighbours from {}", PEERS_CFG);
         final InputStream resourceStream = this.getClass().getResourceAsStream(PEERS_CFG);
-        checkState(resourceStream != null, "Resource %s not found", PEERS_CFG);
+        if (resourceStream == null) {
+            LOG.warn("Unable to open {}. Skipping BGP neighbour configuration.", PEERS_CFG);
+            return new NeighborsBuilder().setNeighbor(Collections.emptyList()).build();
+        }
 
         final InstanceIdentifier<Bgp> bgpII = InstanceIdentifier.create(NetworkInstances.class)
             .child(NetworkInstance.class, new NetworkInstanceKey("dummy-value")).child(Protocols.class)
