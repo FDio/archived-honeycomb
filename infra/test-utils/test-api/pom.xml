@@ -21,7 +21,7 @@
     <parent>
         <artifactId>api-parent</artifactId>
         <groupId>io.fd.honeycomb.common</groupId>
-        <version>1.17.07-SNAPSHOT</version>
+        <version>1.17.07-RC2</version>
         <relativePath>../../../common/api-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>

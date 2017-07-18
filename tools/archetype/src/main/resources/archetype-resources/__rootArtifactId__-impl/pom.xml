@@ -16,7 +16,7 @@
     <parent>
         <groupId>io.fd.honeycomb.common</groupId>
         <artifactId>impl-parent</artifactId>
-        <version>1.17.07-SNAPSHOT</version>
+        <version>1.17.07-RC2</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -27,7 +27,7 @@
     <packaging>bundle</packaging>
 
     <properties>
-        <honeycomb.infra.version>1.17.07-SNAPSHOT</honeycomb.infra.version>
+        <honeycomb.infra.version>1.17.07-RC2</honeycomb.infra.version>
     </properties>
 
     <dependencies>
