@@ -21,28 +21,25 @@ import static io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModu
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import io.fd.honeycomb.impl.NorthboundFacadeHoneycombDOMBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.impl.BindingDOMDataBrokerAdapter;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
-import org.opendaylight.controller.md.sal.dom.broker.impl.DOMNotificationRouter;
-import org.opendaylight.controller.sal.core.api.Broker;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
 
-final class HoneycombDOMBrokerProvider extends ProviderTrait<Broker> {
+/**
+ * Provides binding adapter for {@link io.fd.honeycomb.data.impl.DataBroker}.
+ */
+final class HoneycombBindingDataBrokerProvider extends ProviderTrait<DataBroker> {
 
     @Inject
     @Named(HONEYCOMB_CONFIG)
     private DOMDataBroker domDataBroker;
     @Inject
-    private SchemaService schemaService;
-    @Inject
-    private DOMNotificationRouter domNotificationService;
-    @Inject
-    private DOMRpcService domRpcService;
+    private BindingToNormalizedNodeCodec mappingService;
 
     @Override
-    protected NorthboundFacadeHoneycombDOMBroker create() {
-        return new NorthboundFacadeHoneycombDOMBroker(domDataBroker, schemaService, domNotificationService,
-            domRpcService);
+    protected BindingDOMDataBrokerAdapter create() {
+
+        return new BindingDOMDataBrokerAdapter(domDataBroker, mappingService);
     }
 }

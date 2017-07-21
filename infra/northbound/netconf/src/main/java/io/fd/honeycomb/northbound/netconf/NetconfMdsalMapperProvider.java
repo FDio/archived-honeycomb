@@ -16,14 +16,18 @@
 
 package io.fd.honeycomb.northbound.netconf;
 
+import static io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule.HONEYCOMB_CONFIG;
+
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import org.opendaylight.controller.sal.core.api.Broker;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
+import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactoryListener;
 import org.opendaylight.netconf.mdsal.connector.MdsalNetconfOperationServiceFactory;
-import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
 
 public final class NetconfMdsalMapperProvider extends ProviderTrait<NetconfOperationServiceFactory> {
 
@@ -34,14 +38,17 @@ public final class NetconfMdsalMapperProvider extends ProviderTrait<NetconfOpera
     @Inject
     private ModuleInfoBackedContext moduleInfoBackedContext;
     @Inject
-    private Broker domBroker;
+    @Named(HONEYCOMB_CONFIG)
+    private DOMDataBroker domBroker;
+    @Inject
+    private NetconfOperationServiceFactoryListener netconfOperationServiceFactoryListener;
+    @Inject
+    private DOMRpcService rpcService;
 
     @Override
     protected MdsalNetconfOperationServiceFactory create() {
         MdsalNetconfOperationServiceFactory mdsalNetconfOperationServiceFactory =
-                new MdsalNetconfOperationServiceFactory(schemaService, moduleInfoBackedContext);
-        domBroker.registerConsumer(mdsalNetconfOperationServiceFactory);
-        aggregator.onAddNetconfOperationServiceFactory(mdsalNetconfOperationServiceFactory);
+                new MdsalNetconfOperationServiceFactory(schemaService, moduleInfoBackedContext, netconfOperationServiceFactoryListener, domBroker, rpcService);
         return mdsalNetconfOperationServiceFactory;
     }
 }

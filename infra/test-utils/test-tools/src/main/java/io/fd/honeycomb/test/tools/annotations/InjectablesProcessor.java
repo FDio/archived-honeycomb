@@ -16,21 +16,20 @@
 
 package io.fd.honeycomb.test.tools.annotations;
 
+import static io.fd.honeycomb.test.tools.annotations.InjectTestData.NO_ID;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Parameter;
+import java.util.List;
+import java.util.Set;
+import javax.annotation.Nonnull;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.util.AbstractModuleStringInstanceIdentifierCodec;
-
-import javax.annotation.Nonnull;
-import java.lang.reflect.Field;
-import java.lang.reflect.Parameter;
-import java.util.List;
-import java.util.Set;
-
-import static io.fd.honeycomb.test.tools.annotations.InjectTestData.NO_ID;
 
 /**
  * Common logic for @InjectTestData

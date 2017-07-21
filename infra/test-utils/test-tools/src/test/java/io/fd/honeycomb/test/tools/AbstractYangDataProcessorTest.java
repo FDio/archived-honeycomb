@@ -18,14 +18,13 @@ package io.fd.honeycomb.test.tools;
 
 
 import io.fd.honeycomb.test.tools.annotations.InjectablesProcessor;
-import org.junit.Before;
-import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.$YangModuleInfoImpl;
-import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
-import org.opendaylight.yangtools.yang.data.util.AbstractModuleStringInstanceIdentifierCodec;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
+import org.junit.Before;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
+import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.$YangModuleInfoImpl;
+import org.opendaylight.yangtools.yang.data.util.AbstractModuleStringInstanceIdentifierCodec;
 
 abstract class AbstractYangDataProcessorTest implements InjectablesProcessor, YangContextProducer {
 

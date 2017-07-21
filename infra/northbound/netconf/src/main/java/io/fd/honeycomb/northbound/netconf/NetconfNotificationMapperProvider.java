@@ -19,22 +19,18 @@ package io.fd.honeycomb.northbound.netconf;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import java.lang.reflect.Constructor;
+import org.opendaylight.controller.config.yang.netconf.mdsal.notification.CapabilityChangeNotificationProducer;
+import org.opendaylight.controller.config.yang.netconf.mdsal.notification.NotificationToMdsalWriter;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
-import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactoryListener;
 import org.opendaylight.netconf.mdsal.notification.NetconfNotificationOperationServiceFactory;
-import org.opendaylight.netconf.notifications.BaseNotificationPublisherRegistration;
 import org.opendaylight.netconf.notifications.NetconfNotificationCollector;
 import org.opendaylight.netconf.notifications.NetconfNotificationRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.NetconfState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.netconf.state.Capabilities;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,38 +57,17 @@ public class NetconfNotificationMapperProvider extends ProviderTrait<NetconfOper
 
     @Override
     protected NetconfNotificationOperationServiceFactory create() {
-        try {
-            final Class<?> notificationWriter = Class.forName(
-                    "org.opendaylight.controller.config.yang.netconf.mdsal.notification.NotificationToMdsalWriter");
-            Constructor<?> declaredConstructor =
-                    notificationWriter.getDeclaredConstructor(NetconfNotificationCollector.class);
-            declaredConstructor.setAccessible(true);
-            final BindingAwareProvider writer =
-                    (BindingAwareProvider) declaredConstructor.newInstance(notificationCollector);
-            bindingAwareBroker.registerProvider(writer);
+        LOG.trace("Initializing NotificationToMdsalWriter");
+        final NotificationToMdsalWriter writer = new NotificationToMdsalWriter(notificationCollector, dataBroker);
+        writer.start();
 
-            final Class<?> notifPublisherCls = Class.forName(
-                    "org.opendaylight.controller.config.yang.netconf.mdsal.notification.CapabilityChangeNotificationProducer");
-            declaredConstructor =
-                    notifPublisherCls.getDeclaredConstructor(BaseNotificationPublisherRegistration.class);
-            declaredConstructor.setAccessible(true);
-            final DataTreeChangeListener<Capabilities> publisher =
-                    (DataTreeChangeListener<Capabilities>) declaredConstructor.newInstance(
-                            notificationCollector.registerBaseNotificationPublisher());
+        LOG.trace("Initializing CapabilityChangeNotificationProducer");
+        final DataTreeChangeListener<Capabilities> publisher =
+            new CapabilityChangeNotificationProducer(notificationCollector, dataBroker);
 
-            ListenerRegistration<DataTreeChangeListener<Capabilities>> capabilityChangeListenerRegistration = dataBroker
-                    .registerDataTreeChangeListener(
-                            new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, capabilitiesIdentifier),
-                            publisher);
-            NetconfNotificationOperationServiceFactory netconfNotificationOperationServiceFactory =
-                    new NetconfNotificationOperationServiceFactory(notificationRegistry);
-            aggregator.onAddNetconfOperationServiceFactory(netconfNotificationOperationServiceFactory);
-
+        LOG.trace("Providing NetconfNotificationOperationServiceFactory");
+        NetconfNotificationOperationServiceFactory netconfNotificationOperationServiceFactory =
+            new NetconfNotificationOperationServiceFactory(notificationRegistry, aggregator);
             return netconfNotificationOperationServiceFactory;
-        } catch (final ReflectiveOperationException e) {
-            final String msg = "Unable to instantiate notification mapper using reflection";
-            LOG.error(msg, e);
-            throw new IllegalStateException(msg, e);
-        }
     }
 }

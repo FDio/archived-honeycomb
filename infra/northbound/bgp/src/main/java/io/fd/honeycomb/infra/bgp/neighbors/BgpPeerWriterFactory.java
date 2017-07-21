@@ -23,7 +23,7 @@ import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import javax.annotation.Nonnull;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -63,7 +63,7 @@ public final class BgpPeerWriterFactory implements WriterFactory {
     @Inject
     private RIB globalRib;
     @Inject
-    private BGPOpenConfigMappingService mappingService;
+    private BGPTableTypeRegistryConsumer tableTypeRegistry;
     @Inject
     private BGPPeerRegistry peerRegistry;
 
@@ -104,7 +104,7 @@ public final class BgpPeerWriterFactory implements WriterFactory {
             ),
             new GenericListWriter<>(
                 NEIGHBOR_ID,
-                new NeighborCustomizer(globalRib, peerRegistry, mappingService)));
+                new NeighborCustomizer(globalRib, peerRegistry, tableTypeRegistry)));
     }
 }
 

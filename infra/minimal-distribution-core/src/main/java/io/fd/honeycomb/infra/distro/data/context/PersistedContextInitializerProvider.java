@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2017 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,34 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.distro.data;
+package io.fd.honeycomb.infra.distro.data.context;
 
 import static io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule.HONEYCOMB_CONFIG;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import io.fd.honeycomb.impl.NorthboundFacadeHoneycombDOMBroker;
+import io.fd.honeycomb.data.init.RestoringInitializer;
+import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
+import java.nio.file.Paths;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
-import org.opendaylight.controller.md.sal.dom.broker.impl.DOMNotificationRouter;
-import org.opendaylight.controller.sal.core.api.Broker;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 
-final class HoneycombDOMBrokerProvider extends ProviderTrait<Broker> {
+final class PersistedContextInitializerProvider extends ProviderTrait<RestoringInitializer> {
 
-    @Inject
-    @Named(HONEYCOMB_CONFIG)
-    private DOMDataBroker domDataBroker;
     @Inject
     private SchemaService schemaService;
     @Inject
-    private DOMNotificationRouter domNotificationService;
+    protected HoneycombConfiguration cfgAttributes;
     @Inject
-    private DOMRpcService domRpcService;
+    @Named(HONEYCOMB_CONFIG)
+    private DOMDataBroker domDataBroker;
 
     @Override
-    protected NorthboundFacadeHoneycombDOMBroker create() {
-        return new NorthboundFacadeHoneycombDOMBroker(domDataBroker, schemaService, domNotificationService,
-            domRpcService);
+    public RestoringInitializer create() {
+        return new RestoringInitializer(schemaService, Paths.get(cfgAttributes.peristContextPath), domDataBroker,
+                RestoringInitializer.RestorationType.valueOf(cfgAttributes.persistedContextRestorationType),
+                LogicalDatastoreType.OPERATIONAL);
     }
 }

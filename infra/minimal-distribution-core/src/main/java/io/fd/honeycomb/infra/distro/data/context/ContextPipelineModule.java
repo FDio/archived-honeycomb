@@ -24,7 +24,6 @@ import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.infra.distro.data.BindingDataBrokerProvider;
 import io.fd.honeycomb.infra.distro.data.DataTreeProvider;
 import io.fd.honeycomb.infra.distro.data.PersistingDataTreeProvider;
-import io.fd.honeycomb.infra.distro.initializer.PersistedFileInitializerProvider;
 import io.fd.honeycomb.translate.MappingContext;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
@@ -62,7 +61,7 @@ public class ContextPipelineModule extends PrivateModule {
 
         // Create initializer to init persisted config data
         bind(DataTreeInitializer.class).annotatedWith(Names.named(HONEYCOMB_CONTEXT))
-                .toProvider(PersistedFileInitializerProvider.PersistedContextInitializerProvider.class)
+                .toProvider(PersistedContextInitializerProvider.class)
                 .in(Singleton.class);
         expose(DataTreeInitializer.class).annotatedWith(Names.named(HONEYCOMB_CONTEXT));
 

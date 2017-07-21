@@ -22,42 +22,52 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.opendaylight.protocol.bgp.openconfig.impl.util.OpenConfigUtil.APPLICATION_PEER_GROUP_NAME;
 
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.config.PeerBean;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafisBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.PeerType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 public class NeighborCustomizerTest {
     private static final IpAddress IP = new IpAddress(new Ipv4Address("10.25.1.9"));
     private static final InstanceIdentifier<Neighbor> ID =
         InstanceIdentifier.create(Neighbors.class).child(Neighbor.class, new NeighborKey(IP));
+    private static final KeyedInstanceIdentifier<Rib, RibKey> RIB_IID =
+        InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(new RibId("test-rib-id")));
 
     @Mock
     private RIB globalRib;
     @Mock
     private BGPPeerRegistry peerRegistry;
     @Mock
-    private BGPOpenConfigMappingService mappingService;
+    private BGPTableTypeRegistryConsumer tableTypeRegistry;
     @Mock
     private WriteContext ctx;
 
@@ -68,7 +78,8 @@ public class NeighborCustomizerTest {
         initMocks(this);
         when(globalRib.getYangRibId()).thenReturn(YangInstanceIdentifier.EMPTY);
         when(globalRib.getRibIServiceGroupIdentifier()).thenReturn(ServiceGroupIdentifier.create("sgid"));
-        customizer = new NeighborCustomizer(globalRib, peerRegistry, mappingService);
+        when(globalRib.getInstanceIdentifier()).thenReturn(RIB_IID);
+        customizer = new NeighborCustomizer(globalRib, peerRegistry, tableTypeRegistry);
     }
 
     @Test
@@ -79,7 +90,7 @@ public class NeighborCustomizerTest {
                 new ConfigBuilder()
                     .addAugmentation(
                         Config2.class,
-                        new Config2Builder().setPeerGroup(APPLICATION_PEER_GROUP_NAME).build()
+                        new Config2Builder().setPeerGroup("application-peers").build()
                     ).build())
             .build();
         customizer.writeCurrentAttributes(ID, neighbor, ctx);
@@ -90,6 +101,10 @@ public class NeighborCustomizerTest {
     public void testAddInternalPeer() throws WriteFailedException {
         final Neighbor neighbor = new NeighborBuilder()
             .setNeighborAddress(IP)
+            .setAfiSafis(new AfiSafisBuilder()
+                .setAfiSafi(Collections.singletonList(
+                    new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build()
+                )).build())
             .setConfig(
                 new ConfigBuilder()
                     .setPeerType(PeerType.INTERNAL)
@@ -108,7 +123,7 @@ public class NeighborCustomizerTest {
         customizer.updateCurrentAttributes(ID, before, after, ctx);
         verify(peer).closeServiceInstance();
         verify(peer).close();
-        verify(peer).start(globalRib, after, mappingService, null);
+        verify(peer).start(globalRib, after, tableTypeRegistry, null);
     }
 
     @Test

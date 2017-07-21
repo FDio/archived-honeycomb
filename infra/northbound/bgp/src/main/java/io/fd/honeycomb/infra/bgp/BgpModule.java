@@ -57,9 +57,8 @@ public final class BgpModule extends PrivateModule {
         bind(RibWriter.class).toProvider(LocRibWriterProvider.class).asEagerSingleton();
         expose(RibWriter.class);
 
-        // install other BGP modules (hidden from HC user):
+        // install configuration module (hidden from HC user):
         install(new BgpConfigurationModule());
-        install(new BgpExtensionsModule());
     }
 
     private void configureRIB() {

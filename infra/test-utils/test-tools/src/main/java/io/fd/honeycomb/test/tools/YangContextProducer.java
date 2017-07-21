@@ -16,24 +16,23 @@
 
 package io.fd.honeycomb.test.tools;
 
-import io.fd.honeycomb.test.tools.annotations.SchemaContextProvider;
-import javassist.ClassPool;
-import org.apache.commons.lang3.reflect.MethodUtils;
-import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
-import org.opendaylight.yangtools.binding.data.codec.gen.impl.StreamWriterGenerator;
-import org.opendaylight.yangtools.binding.data.codec.impl.BindingNormalizedNodeCodecRegistry;
-import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
-import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeContext;
-import org.opendaylight.yangtools.sal.binding.generator.util.JavassistUtils;
-import org.opendaylight.yangtools.yang.data.codec.gson.JSONCodecFactory;
-import org.opendaylight.yangtools.yang.data.util.AbstractModuleStringInstanceIdentifierCodec;
-import org.opendaylight.yangtools.yang.model.api.SchemaContext;
+import static com.google.common.base.Preconditions.checkState;
 
+import io.fd.honeycomb.test.tools.annotations.SchemaContextProvider;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import static com.google.common.base.Preconditions.checkState;
+import javassist.ClassPool;
+import org.apache.commons.lang3.reflect.MethodUtils;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
+import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.mdsal.binding.generator.util.BindingRuntimeContext;
+import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
+import org.opendaylight.yangtools.binding.data.codec.gen.impl.StreamWriterGenerator;
+import org.opendaylight.yangtools.binding.data.codec.impl.BindingNormalizedNodeCodecRegistry;
+import org.opendaylight.yangtools.yang.data.codec.gson.JSONCodecFactory;
+import org.opendaylight.yangtools.yang.data.util.AbstractModuleStringInstanceIdentifierCodec;
+import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 /**
  * Common logic to initialize serializers/deserializers/etc while working with yang based data
@@ -74,7 +73,8 @@ interface YangContextProducer {
                 new BindingNormalizedNodeCodecRegistry(
                         StreamWriterGenerator.create(JavassistUtils.forClassPool(ClassPool.getDefault())));
         codecRegistry
-                .onBindingRuntimeContextUpdated(BindingRuntimeContext.create(moduleInfoBackedContext, moduleInfoBackedContext.getSchemaContext()));
+                .onBindingRuntimeContextUpdated(
+                    BindingRuntimeContext.create(moduleInfoBackedContext, moduleInfoBackedContext.getSchemaContext()));
         return new BindingToNormalizedNodeCodec(moduleInfoBackedContext, codecRegistry);
     }
 }

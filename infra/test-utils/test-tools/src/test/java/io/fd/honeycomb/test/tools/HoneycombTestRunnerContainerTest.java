@@ -16,24 +16,36 @@
 
 package io.fd.honeycomb.test.tools;
 
+import static io.fd.honeycomb.test.tools.InjectionTestData.AUGMENT_LIST_DATA_PATH;
+import static io.fd.honeycomb.test.tools.InjectionTestData.AUGMENT_LIST_RESOURCE;
+import static io.fd.honeycomb.test.tools.InjectionTestData.NESTED_LIST_DATA_PATH;
+import static io.fd.honeycomb.test.tools.InjectionTestData.NESTED_LIST_RESOURCE;
+import static io.fd.honeycomb.test.tools.InjectionTestData.ROOT_LIST_DATA_PATH;
+import static io.fd.honeycomb.test.tools.InjectionTestData.ROOT_LIST_RESOURCE;
+import static io.fd.honeycomb.test.tools.InjectionTestData.SIMPLES_LIST_RESOURCE;
+import static io.fd.honeycomb.test.tools.InjectionTestData.SIMPLE_LIST_DATA_PATH;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.test.tools.annotations.InjectablesProcessor;
 import io.fd.honeycomb.test.tools.annotations.SchemaContextProvider;
+import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.*;
+import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.$YangModuleInfoImpl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.AugContainerAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.RootList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.SimpleContainer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.SimpleContainerBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.simple.container.NestedContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.simple.container.SimpleList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.simple.container.augmented.container.ListInAugment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.simple.container.simple.list.ContUnderList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.simple.container.simple.list.ContUnderListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.simple.container.simple.list.NestedList;
-import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
-
-import java.util.Collections;
-
-import static io.fd.honeycomb.test.tools.InjectionTestData.*;
-import static org.junit.Assert.*;
 
 @RunWith(HoneycombTestRunner.class)
 public class HoneycombTestRunnerContainerTest implements InjectablesProcessor {

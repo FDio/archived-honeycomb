@@ -16,6 +16,19 @@
 
 package io.fd.honeycomb.test.tools;
 
+import static io.fd.honeycomb.test.tools.InjectionTestData.AUGMENT_LIST_DATA_PATH;
+import static io.fd.honeycomb.test.tools.InjectionTestData.AUGMENT_LIST_RESOURCE;
+import static io.fd.honeycomb.test.tools.InjectionTestData.CONTAINER_UNDER_LIST_DATA_PATH;
+import static io.fd.honeycomb.test.tools.InjectionTestData.NESTED_LIST_DATA_PATH;
+import static io.fd.honeycomb.test.tools.InjectionTestData.NESTED_LIST_RESOURCE;
+import static io.fd.honeycomb.test.tools.InjectionTestData.ROOT_LIST_DATA_PATH;
+import static io.fd.honeycomb.test.tools.InjectionTestData.ROOT_LIST_RESOURCE;
+import static io.fd.honeycomb.test.tools.InjectionTestData.SIMPLES_LIST_RESOURCE;
+import static io.fd.honeycomb.test.tools.InjectionTestData.SIMPLE_LIST_DATA_PATH;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.RootList;
@@ -24,9 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.simple.container.simple.list.NestedList;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-
-import static io.fd.honeycomb.test.tools.InjectionTestData.*;
-import static org.junit.Assert.*;
 
 public class ListNodeDataProcessorTest extends AbstractYangDataProcessorTest {
 

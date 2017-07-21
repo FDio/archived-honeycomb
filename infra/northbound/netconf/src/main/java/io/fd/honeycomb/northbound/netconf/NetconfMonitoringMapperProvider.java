@@ -19,16 +19,14 @@ package io.fd.honeycomb.northbound.netconf;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import java.lang.reflect.Constructor;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
-import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
+import org.opendaylight.controller.config.yang.netconf.mdsal.monitoring.MdsalMonitoringMapperFactory;
+import org.opendaylight.controller.config.yang.netconf.mdsal.monitoring.MonitoringToMdsalWriter;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netconf.api.monitoring.NetconfMonitoringService;
-import org.opendaylight.netconf.mapping.api.NetconfOperationService;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactoryListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 public final class NetconfMonitoringMapperProvider extends ProviderTrait<NetconfOperationServiceFactory> {
 
@@ -36,7 +34,7 @@ public final class NetconfMonitoringMapperProvider extends ProviderTrait<Netconf
 
     @Inject
     @Named(NetconfModule.HONEYCOMB_NETCONF)
-    private BindingAwareBroker bindingAwareBroker;
+    private DataBroker dataBroker;
     @Inject
     private NetconfOperationServiceFactoryListener aggregator;
     @Inject
@@ -44,40 +42,11 @@ public final class NetconfMonitoringMapperProvider extends ProviderTrait<Netconf
 
     @Override
     protected NetconfOperationServiceFactory create() {
-        try {
-            final Class<?> monitoringWriterCls = Class.forName(
-                    "org.opendaylight.controller.config.yang.netconf.mdsal.monitoring.MonitoringToMdsalWriter");
-            Constructor<?> declaredConstructor =
-                    monitoringWriterCls.getDeclaredConstructor(NetconfMonitoringService.class);
-            declaredConstructor.setAccessible(true);
-            final BindingAwareProvider writer = (BindingAwareProvider) declaredConstructor.newInstance(monitoringService);
-            bindingAwareBroker.registerProvider(writer);
+        LOG.trace("Initializing MonitoringToMdsalWriter");
+        final MonitoringToMdsalWriter writer = new MonitoringToMdsalWriter(monitoringService, dataBroker);
+        writer.start();
 
-            final Class<?> moduleClass = Class.forName(
-                    "org.opendaylight.controller.config.yang.netconf.mdsal.monitoring.NetconfMdsalMonitoringMapperModule");
-            final Class<?> monitoringMapperCls = Class.forName(
-                    "org.opendaylight.controller.config.yang.netconf.mdsal.monitoring.NetconfMdsalMonitoringMapperModule$MdsalMonitoringMapper");
-            declaredConstructor =
-                    monitoringMapperCls.getDeclaredConstructor(NetconfMonitoringService.class);
-            declaredConstructor.setAccessible(true);
-            final NetconfOperationService mdSalMonitoringMapper =
-                    (NetconfOperationService) declaredConstructor.newInstance(monitoringService);
-
-            final Class<?> monitoringMpperFactory = Class.forName(
-                    "org.opendaylight.controller.config.yang.netconf.mdsal.monitoring.NetconfMdsalMonitoringMapperModule$MdSalMonitoringMapperFactory");
-            declaredConstructor =
-                    monitoringMpperFactory.getDeclaredConstructor(NetconfOperationService.class, moduleClass, monitoringWriterCls);
-            declaredConstructor.setAccessible(true);
-            // The second argument is null, it should be the parent cfg-subsystem module class instance, that we dont have
-            // it's used only during close so dont close the factory using its close() method
-            final NetconfOperationServiceFactory mdSalMonitoringMapperFactory =
-                    (NetconfOperationServiceFactory) declaredConstructor.newInstance(mdSalMonitoringMapper, null, writer);
-            aggregator.onAddNetconfOperationServiceFactory(mdSalMonitoringMapperFactory);
-            return mdSalMonitoringMapperFactory;
-        } catch (final ReflectiveOperationException e) {
-            final String msg = "Unable to instantiate operation service factory using reflection";
-            LOG.error(msg, e);
-            throw new IllegalStateException(msg, e);
-        }
+        LOG.trace("Providing MdsalMonitoringMapperFactory");
+        return new MdsalMonitoringMapperFactory(aggregator, monitoringService, writer);
     }
 }

@@ -20,7 +20,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
-import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 
 public class SchemaModule extends AbstractModule {
 

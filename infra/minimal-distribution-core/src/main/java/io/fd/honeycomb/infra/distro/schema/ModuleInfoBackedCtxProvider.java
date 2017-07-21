@@ -22,7 +22,7 @@ import com.google.common.base.MoreObjects;
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
 import java.util.stream.Collectors;
-import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yangtools.yang.binding.YangModelBindingProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

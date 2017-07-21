@@ -18,22 +18,22 @@ package io.fd.honeycomb.infra.bgp;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import io.netty.channel.EventLoopGroup;
-import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
-import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
+import java.util.Set;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
+import org.opendaylight.protocol.bgp.openconfig.spi.SimpleBGPTableTypeRegistryProvider;
 
-final class BGPDispatcherImplProvider extends ProviderTrait<BGPDispatcher> {
+final class BGPTableTypeRegistryConsumerProvider extends ProviderTrait<BGPTableTypeRegistryConsumer> {
     @Inject
-    private BGPExtensionConsumerContext consumerContext;
-    @Inject
-    private EventLoopGroup threadGroup;
-    @Inject
-    private BGPPeerRegistry peerRegistry;
+    private Set<BGPTableType> tableTypes;
 
     @Override
-    protected BGPDispatcher create() {
-        return new BGPDispatcherImpl(consumerContext.getMessageRegistry(), threadGroup, threadGroup, peerRegistry);
+    protected BGPTableTypeRegistryConsumer create() {
+        final SimpleBGPTableTypeRegistryProvider registry = new SimpleBGPTableTypeRegistryProvider();
+        tableTypes.stream().forEach(tableType -> tableType.register(registry));
+        return registry;
+    }
+
+    interface BGPTableType {
+        void register(SimpleBGPTableTypeRegistryProvider registry);
     }
 }

@@ -19,12 +19,30 @@ package io.fd.honeycomb.infra.bgp;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4LABELLEDUNICAST;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6LABELLEDUNICAST;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6UNICAST;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.L2VPNEVPN;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.L3VPNIPV4UNICAST;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.L3VPNIPV6UNICAST;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.EvpnSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev160321.L2vpnAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.LabeledUnicastSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.LINKSTATE;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 /**
  * Registers BGP extensions provided by ODL implementation.
@@ -41,6 +59,7 @@ final class BgpExtensionsModule extends AbstractModule {
         // https://github.com/google/guice/issues/906
         configureRIBExtensions();
         configureBGPExtensions();
+        configureTableTypes();
     }
 
     private void configureRIBExtensions() {
@@ -67,6 +86,41 @@ final class BgpExtensionsModule extends AbstractModule {
         bgpExtensionBinder.addBinding().to(org.opendaylight.protocol.bgp.l3vpn.ipv4.BgpIpv4Activator.class);
         bgpExtensionBinder.addBinding().to(org.opendaylight.protocol.bgp.l3vpn.ipv6.BgpIpv6Activator.class);
         bind(BGPExtensionConsumerContext.class).toProvider(BGPExtensionConsumerContextProvider.class)
+            .in(Singleton.class);
+    }
+
+    private void configureTableTypes() {
+        final Multibinder<BGPTableTypeRegistryConsumerProvider.BGPTableType> tableTypeBinder =
+            Multibinder.newSetBinder(binder(),
+                BGPTableTypeRegistryConsumerProvider.BGPTableType.class);
+
+        tableTypeBinder.addBinding().toInstance(provider -> provider
+            .registerBGPTableType(L2vpnAddressFamily.class, EvpnSubsequentAddressFamily.class, L2VPNEVPN.class));
+
+        tableTypeBinder.addBinding().toInstance(provider -> provider
+            .registerBGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, IPV4UNICAST.class));
+        tableTypeBinder.addBinding().toInstance(provider -> provider
+            .registerBGPTableType(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, IPV6UNICAST.class));
+
+        tableTypeBinder.addBinding().toInstance(provider -> provider
+            .registerBGPTableType(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
+                L3VPNIPV4UNICAST.class));
+        tableTypeBinder.addBinding().toInstance(provider -> provider
+            .registerBGPTableType(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
+                L3VPNIPV6UNICAST.class));
+
+        tableTypeBinder.addBinding().toInstance(provider -> provider
+            .registerBGPTableType(Ipv4AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class,
+                IPV4LABELLEDUNICAST.class));
+        tableTypeBinder.addBinding().toInstance(provider -> provider
+            .registerBGPTableType(Ipv6AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class,
+                IPV6LABELLEDUNICAST.class));
+
+        tableTypeBinder.addBinding().toInstance(provider -> provider
+            .registerBGPTableType(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
+                LINKSTATE.class));
+
+        bind(BGPTableTypeRegistryConsumer.class).toProvider(BGPTableTypeRegistryConsumerProvider.class)
             .in(Singleton.class);
     }
 }

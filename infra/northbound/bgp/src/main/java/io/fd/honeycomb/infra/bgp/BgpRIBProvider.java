@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.infra.bgp;
 
+import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.toTableTypes;
+
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
@@ -30,8 +32,9 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
-import org.opendaylight.protocol.bgp.openconfig.spi.BGPOpenConfigMappingService;
+import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
+import org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
@@ -64,7 +67,7 @@ final class BgpRIBProvider extends ProviderTrait<RIB> {
     @Inject
     private DOMDataBroker domBroker;
     @Inject
-    private BGPOpenConfigMappingService mappingService;
+    private BGPTableTypeRegistryConsumer tableTypeRegistry;
     @Inject
     private SchemaService schemaService;
 
@@ -87,14 +90,15 @@ final class BgpRIBProvider extends ProviderTrait<RIB> {
                         .setSendMax(cfg.bgpSendMaxMaths.get().shortValue()).build())
                 .build()
             );
-        final Map<TablesKey, PathSelectionMode> pathSelectionModes = mappingService.toPathSelectionMode(afiSafi)
+        final Map<TablesKey, PathSelectionMode> pathSelectionModes =
+            OpenConfigMappingUtil.toPathSelectionMode(afiSafi, tableTypeRegistry)
             .entrySet().stream().collect(Collectors.toMap(entry ->
                 new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
-        // based on RIBImpl.createRib
+        // based on org.opendaylight.protocol.bgp.rib.impl.config.RibImpl.createRib
         final RIBImpl rib =
             new RIBImpl(new NoopClusterSingletonServiceProvider(), new RibId(cfg.bgpProtocolInstanceName.get()),
                 asNumber, new BgpId(routerId), clusterId, extensions, dispatcher, codec,
-                new PingPongDataBroker(domBroker), mappingService.toTableTypes(afiSafi), pathSelectionModes,
+                new PingPongDataBroker(domBroker), toTableTypes(afiSafi, tableTypeRegistry), pathSelectionModes,
                 extensions.getClassLoadingStrategy(), null);
 
         // required for proper RIB's CodecRegistry initialization (based on RIBImpl.start)

@@ -77,17 +77,6 @@
         <dependency>
             <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>bgp-rib-impl</artifactId>
-            <!-- TODO remove exclusion after bumping to Boron-SR4 -->
-            <exclusions>
-                <exclusion>
-                    <groupId>org.powermock</groupId>
-                    <artifactId>powermock</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.bgpcep</groupId>
-            <artifactId>bgp-openconfig-impl</artifactId>
         </dependency>
 
         <!-- ODL BGP extensions -->

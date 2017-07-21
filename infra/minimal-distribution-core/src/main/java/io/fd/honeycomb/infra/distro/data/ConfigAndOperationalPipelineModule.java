@@ -25,7 +25,6 @@ import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.infra.distro.data.config.WriterRegistryProvider;
 import io.fd.honeycomb.infra.distro.data.oper.ReadableDTDelegProvider;
 import io.fd.honeycomb.infra.distro.data.oper.ReaderRegistryProvider;
-import io.fd.honeycomb.infra.distro.initializer.PersistedFileInitializerProvider;
 import io.fd.honeycomb.rpc.RpcRegistry;
 import io.fd.honeycomb.rpc.RpcRegistryBuilder;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
@@ -66,16 +65,17 @@ public class ConfigAndOperationalPipelineModule extends PrivateModule {
 
         // DOMDataBroker wrapper on top of data tree managers
         HoneycombDOMDataBrokerProvider domBrokerProvider = new HoneycombDOMDataBrokerProvider();
-        bind(DOMDataBroker.class).toProvider(domBrokerProvider).in(Singleton.class);
+        bind(DOMDataBroker.class).annotatedWith(Names.named(HONEYCOMB_CONFIG)).toProvider(domBrokerProvider).in(Singleton.class);
+        expose(DOMDataBroker.class).annotatedWith(Names.named(HONEYCOMB_CONFIG));
 
         // BA version of data broker
-        bind(DataBroker.class).annotatedWith(Names.named(HONEYCOMB_CONFIG)).toProvider(BindingDataBrokerProvider.class)
+        bind(DataBroker.class).annotatedWith(Names.named(HONEYCOMB_CONFIG)).toProvider(HoneycombBindingDataBrokerProvider.class)
                 .in(Singleton.class);
         expose(DataBroker.class).annotatedWith(Names.named(HONEYCOMB_CONFIG));
 
         // Create initializer to init persisted config data
         bind(DataTreeInitializer.class).annotatedWith(Names.named(HONEYCOMB_CONFIG))
-                .toProvider(PersistedFileInitializerProvider.PersistedConfigInitializerProvider.class)
+                .toProvider(PersistedConfigInitializerProvider.class)
                 .in(Singleton.class);
         expose(DataTreeInitializer.class).annotatedWith(Names.named(HONEYCOMB_CONFIG));
 

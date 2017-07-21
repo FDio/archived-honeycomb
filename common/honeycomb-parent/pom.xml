@@ -43,21 +43,23 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- ODL dependencies -->
-        <yangtools.version>1.0.4-Boron-SR4</yangtools.version>
-        <mdsal.version>2.1.4-Boron-SR4</mdsal.version>
-        <mdsal.controller.version>1.4.4-Boron-SR4</mdsal.controller.version>
-        <mdsalmodel.version>0.9.4-Boron-SR4</mdsalmodel.version>
-        <netconf.version>1.1.4-Boron-SR4</netconf.version>
-        <restconf.version>1.4.4-Boron-SR4</restconf.version>
-        <salGenerator.version>0.9.4-Boron-SR4</salGenerator.version>
-        <bgpcep.version>0.6.4-Boron-SR4</bgpcep.version>
+        <yangtools.version>1.1.1-Carbon</yangtools.version>
+        <mdsal.version>2.2.1-Carbon</mdsal.version>
+        <mdsal.controller.version>1.5.1-Carbon</mdsal.controller.version>
+        <mdsalmodel.version>0.10.1-Carbon</mdsalmodel.version>
+        <netconf.version>1.2.1-Carbon</netconf.version>
+        <restconf.version>1.5.1-Carbon</restconf.version>
+        <salGenerator.version>0.10.1-Carbon</salGenerator.version>
+        <bgpcep.version>0.7.1-Carbon</bgpcep.version>
         <salGeneratorPath>target/generated-sources/mdsal-binding</salGeneratorPath>
 
-        <!-- dependencies -->
+        <!-- common dependencies -->
         <junit.version>4.11</junit.version>
         <mockito.version>2.2.9</mockito.version>
         <hamcrest.version>1.3</hamcrest.version>
         <guava.version>18.0</guava.version>
+        <jsr305.version>3.0.0</jsr305.version>
+        <slf4j.version>1.7.21</slf4j.version>
 
         <!-- plugins -->
         <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
@@ -180,6 +182,16 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>${jsr305.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
             </dependency>
 
             <!-- Testing Dependencies -->

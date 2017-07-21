@@ -57,7 +57,7 @@ public final class BgpServerProvider  extends ProviderTrait<BgpServerProvider.Bg
         }
         final InetSocketAddress address = new InetSocketAddress(bindingAddress, cfg.bgpPort.get());
         LOG.debug("Creating BgpServer for {}", address);
-        final ChannelFuture localServer = dispatcher.createServer(peerRegistry, address);
+        final ChannelFuture localServer = dispatcher.createServer(address);
         localServer.addListener(future -> {
             Preconditions.checkArgument(future.isSuccess(), "Unable to start bgp server on %s", address, future.cause());
             final Channel channel = localServer.channel();

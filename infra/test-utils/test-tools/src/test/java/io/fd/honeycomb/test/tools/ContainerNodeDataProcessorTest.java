@@ -16,12 +16,13 @@
 
 package io.fd.honeycomb.test.tools;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-
-import static org.junit.Assert.*;
 
 public class ContainerNodeDataProcessorTest extends AbstractYangDataProcessorTest {
 
