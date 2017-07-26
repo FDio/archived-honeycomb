@@ -107,6 +107,22 @@ Now, the producer code can be added:
 
 [source,java]
 ----
+/*
+ * Copyright (c) 2016 Cisco and/or its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.fd.honeycomb.tutorial.notif;
 
 import io.fd.honeycomb.notification.ManagedNotificationProducer;
@@ -200,9 +216,8 @@ A new maven module needs to be created. So in sample-plugin folder:
 
  mkdir sample-distribution
  cd sample-distribution
- mkdir -p src/main/java/io/fd/honeycomb/tutorial
 
-Then create the pom:
+Then create the pom.xml:
 
 [source,xml,subs="+attributes"]
 ----
@@ -222,9 +237,21 @@ Then create the pom:
 
   <properties>
     <exec.parameters>-Xms128m -Xmx128m</exec.parameters>
-    <main.class>io.fd.honeycomb.tutorial.Main</main.class>
+    <main.class>io.fd.honeycomb.infra.distro.Main</main.class>
     <interfaces.mapping.version>{project-version}</interfaces.mapping.version>
     <honeycomb.min.distro.version>{project-version}</honeycomb.min.distro.version>
+    <!--
+       Defines list of specific modules provided by the distribution
+       (adds them to base modules like NetconfModule and RestconfModule).
+
+       Module configuration is placed in 'modules' subdir of the target distro folder.
+       Modules can be disabled by commenting them out in the pom.xml
+       or modules configuration file.
+     -->
+    <distribution.modules>
+      io.fd.honeycomb.tutorial.Module
+      // some.module.DisabledByDefault
+    </distribution.modules>
   </properties>
 
   <build>
@@ -268,28 +295,6 @@ Then create the pom:
 </project>
 ----
 
-Now, Main class has to be added in folder src/main/java/io/fd/honeycomb/tutorial:
-
-[source,java]
-----
-package io.fd.honeycomb.tutorial;
-
-import com.google.common.collect.Lists;
-import com.google.inject.Module;
-import java.util.List;
-
-public class Main {
-
-    public static void main(String[] args) {
-        final List<Module> sampleModules = Lists.newArrayList(io.fd.honeycomb.infra.distro.Main.BASE_MODULES);
-
-        sampleModules.add(new io.fd.honeycomb.tutorial.Module());
-
-        io.fd.honeycomb.infra.distro.Main.init(sampleModules);
-    }
-}
-----
-
 Last thing to do is to update sample-plugin/pom.xml with:
 [source,xml]
 ----
@@ -313,11 +318,11 @@ So in order to add another existing sample (sample interface plugin from Honeyco
 </dependency>
 ----
 
-Now in main, add this line:
+Now in sample-distribution/pom.xml, add this line to distribution.modules:
 
 [source,java]
 ----
-    sampleModules.add(new SampleInterfaceModule());
+      io.fd.honeycomb.samples.interfaces.mapping.SampleInterfaceModule
 ----
 
 That's it, just rebuild.
@@ -346,7 +351,7 @@ and that means Honeycomb was started successfully.
 === Testing over RESTCONF
 Reading sample-plugin operational data:
 
- curl -u admin:admin http://localhost:8181/restconf/operational/sample-plugin:sample-plugin-state
+ curl -u admin:admin http://localhost:8183/restconf/operational/sample-plugin:sample-plugin-state
 
 Writing sample-plugin operational data:
 
@@ -354,15 +359,143 @@ Writing sample-plugin operational data:
 
 Writing sample-plugin config data:
 
- curl -H 'Content-Type: application/json' -H 'Accept: application/json' -u admin:admin -X PUT -d '{"sample-plugin":{"element":[{"id":10,"description":"This is a example of loaded data"}]}}' http://localhost:8181/restconf/config/sample-plugin:sample-plugin
+ curl -H 'Content-Type: application/json' -H 'Accept: application/json' -u admin:admin -X PUT -d '{"sample-plugin":{"element":[{"id":10,"description":"This is a example of loaded data"}]}}' http://localhost:8183/restconf/config/sample-plugin:sample-plugin
 
 Reading sample-plugin config data:
 
- curl -u admin:admin http://localhost:8181/restconf/config/sample-plugin:sample-plugin
+ curl -u admin:admin http://localhost:8183/restconf/config/sample-plugin:sample-plugin
 
 === Testing over NETCONF
-Netconf testing guide including Notifications, can be found in link:user_running_honeycomb.html[User guide]
+Netconf northbound can be easily tested manually using CLI SSH client. Initialize SSH connection by invoking:
 
-== Full working example
-Full working example on github: https://github.com/marosmars/honeycomb-samples
+ ssh admin@localhost -p 2831 -s netconf
+
+NOTE: Using default credentials admin/admin, default port 2831 and netconf SSH channel.
+Note: "Are you sure you want to continue connecting (yes/no)?". Answer yes
+
+Next thing to do is to provide client hello message to initialize netconf session.
+Following content must be copy&pasted into SSH session + hit enter:
+
+[source,xml]
+----
+<hello xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <capabilities>
+        <capability>urn:ietf:params:netconf:base:1.0</capability>
+    </capabilities>
+</hello>
+]]>]]>
+----
+
+This initializes netconf session silently. No response from Honeycomb will be provided
+
+To get all the configuration data using Honeycomb's netconf northbound interface,
+following content must be copy&pasted into SSH session + hit enter:
+
+[source,xml]
+----
+<rpc xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" message-id="101">
+    <get-config>
+        <source>
+            <running/>
+        </source>
+    </get-config>
+</rpc>
+]]>]]>
+----
+
+Honeycomb will respond will all the data currently configured, e.g.:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<rpc-reply xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" message-id="101">
+    <data>
+        <sample-plugin xmlns="urn:opendaylight:params:xml:ns:yang:sample-plugin">
+            <element>
+                <id>10</id>
+                <description>This is a example of loaded data</description>
+            </element>
+        </sample-plugin>
+    </data>
+</rpc-reply>
+]]>]]>
+----
+
+Next step is to get all the operational data using Honeycomb's netconf northbound interface.
+Following content must be copy&pasted into SSH session + hit enter:
+
+[source,xml]
+----
+<rpc xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" message-id="102">
+    <get/>
+</rpc>
+]]>]]>
+----
+
+Honeycomb will respond will all operational data present,
+including interfaces-state from sample interface plugin we included in the distro:
+
+[source,xml]
+----
+<interfaces-state xmlns="io:fd:honeycomb:samples:interfaces">
+    <interface>
+        <interface-id>ifc2</interface-id>
+        <counters>
+            <total-packets>500</total-packets>
+            <dropped-packets>50</dropped-packets>
+        </counters>
+        <mtu>66</mtu>
+    </interface>
+    <interface>
+        <interface-id>ifc1</interface-id>
+        <counters>
+            <total-packets>500</total-packets>
+            <dropped-packets>50</dropped-packets>
+        </counters>
+        <mtu>66</mtu>
+    </interface>
+</interfaces-state>
+----
+
+
+==== Listening for notifications
+
+Notifications over NETCONF are supported by Honeycomb.
+To test it out, open ssh NETCONF session and send hello message.
+Exactly as detailed above.
+
+Next thing to do is to activate honeycomb notification stream over NETCONF.
+So just send this rpc over ssh session:
+
+[source,xml]
+----
+<netconf:rpc netconf:message-id="101" xmlns:netconf="urn:ietf:params:xml:ns:netconf:base:1.0">
+<create-subscription xmlns="urn:ietf:params:xml:ns:netconf:notification:1.0">
+   <stream>honeycomb</stream>
+</create-subscription>
+</netconf:rpc>
+]]>]]>
+----
+
+From now on, all notifications from honeycomb will appear in the netconf session.
+
+
+If you added link:devel_plugin_tutorial.html#_adding_notifications[SampleNotificationProducer],
+notification should appear in opened NETCONF session every 2 seconds:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<notification xmlns="urn:ietf:params:netconf:capability:notification:1.0">
+    <sample-notification xmlns="urn:opendaylight:params:xml:ns:yang:sample-plugin">
+        <content>Hello world 1501081512690</content>
+    </sample-notification>
+    <eventTime>2017-07-26T17:05:12+02:00</eventTime>
+</notification>
+]]>]]>
+----
+
+
+== Full working example (outdated)
+Full working example (1.16.9) on github: https://github.com/marosmars/honeycomb-samples
 
