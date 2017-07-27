@@ -2,11 +2,11 @@
 
 Release notes for honeycomb {project-version}.
 
-Honeycomb is a generic NETCONF/RESTCONF management agent and provides a framework
-for building specialized agents.
+Honeycomb is a generic management agent and provides a framework
+for building specialized agents. Exposes NETCONF, RESTCONF and BGP as northbound interfaces.
 
 It uses many features and utilities from different http://www.opendaylight.org/[Opendaylight (ODL)] projects
-(e.g. yangtools, controller, mdsal and netconf).
+(e.g. yangtools, controller, mdsal, netconf, bgpcep).
 
 The biggest use case of honeycomb is VPP (fd.io's Vector packet processor).
 Honeycomb delivers a management agent to enable integration of VPP with e.g. SDN controllers such as Opendaylight.
@@ -21,9 +21,15 @@ Adding to the list of existing features: https://docs.fd.io/honeycomb/1.17.04/re
 
 === New features
 
+* https://jira.fd.io/browse/HONEYCOMB-66[BGP support]
+** BGP support was added to HC distribution
+
 === Removed features
 
 === Modified features
+
+* https://jira.fd.io/browse/HONEYCOMB-358[Yang loading improvements]
+** Yang models are loaded only if they are used by HC modules that are enabled (reduces footprint).
 
 === Deprecated features
 
