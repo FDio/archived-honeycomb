@@ -122,7 +122,7 @@ public class NetconfModule extends NorthboundPrivateModule<NetconfConfiguration>
         // Create HC notification manager + HC2Netconf translator
         bind(NotificationCollector.class).toProvider(HoneycombNotificationManagerProvider.class).in(Singleton.class);
         bind(HoneycombNotification2NetconfProvider.HoneycombNotification2Netconf.class)
-                .toProvider(HoneycombNotification2NetconfProvider.class).in(Singleton.class);
+                .toProvider(HoneycombNotification2NetconfProvider.class).asEagerSingleton();
         expose(HoneycombNotification2NetconfProvider.HoneycombNotification2Netconf.class);
 
         configureServer();
