@@ -18,6 +18,7 @@ package io.fd.honeycomb.infra.bgp;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
+import io.fd.honeycomb.data.init.ShutdownHandler;
 import java.util.ArrayList;
 import java.util.Set;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
@@ -32,6 +33,8 @@ public class RIBExtensionConsumerContextProvider extends ProviderTrait<RIBExtens
     private static final Logger LOG = LoggerFactory.getLogger(RIBExtensionConsumerContextProvider.class);
     @Inject
     private Set<RIBExtensionProviderActivator> activators;
+    @Inject
+    private ShutdownHandler shutdownHandler;
 
     @Override
     protected RIBExtensionConsumerContext create() {
@@ -40,6 +43,7 @@ public class RIBExtensionConsumerContextProvider extends ProviderTrait<RIBExtens
             new SimpleRIBExtensionProviderContextActivator(ctx, new ArrayList<>(activators));
         LOG.debug("Starting RIBExtensionConsumerContext with activators: {}", activators);
         activator.start();
+        shutdownHandler.register("rib-extension-consumer-context-activator", activator);
         return ctx;
     }
 }

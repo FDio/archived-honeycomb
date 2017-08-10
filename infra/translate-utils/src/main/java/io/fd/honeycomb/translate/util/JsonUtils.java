@@ -19,6 +19,12 @@ package io.fd.honeycomb.translate.util;
 import com.google.common.base.Charsets;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
@@ -38,9 +44,6 @@ import org.opendaylight.yangtools.yang.model.api.SchemaNode;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import java.io.*;
 
 public final class JsonUtils {
 
@@ -66,6 +69,8 @@ public final class JsonUtils {
         writeChildren(normalizedNodeWriter,(ContainerNode) rootData);
         jsonWriter.endObject();
         jsonWriter.flush();
+        normalizedNodeWriter.close();
+        jsonWriter.close();
     }
 
     /**
@@ -87,9 +92,9 @@ public final class JsonUtils {
                                          @Nonnull final SchemaNode parentSchema) {
         final DataContainerNodeAttrBuilder<YangInstanceIdentifier.NodeIdentifier, ContainerNode> builder =
             Builders.containerBuilder().withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(schemaContext.getQName()));
-        final NormalizedNodeStreamWriter writer = ImmutableNormalizedNodeStreamWriter.from(builder);
 
-        try (final JsonParserStream jsonParser = JsonParserStream.create(writer, schemaContext, parentSchema)) {
+        try (final NormalizedNodeStreamWriter writer = ImmutableNormalizedNodeStreamWriter.from(builder);
+             final JsonParserStream jsonParser = JsonParserStream.create(writer, schemaContext, parentSchema)) {
             final JsonReader reader = new JsonReader(new InputStreamReader(stream, Charsets.UTF_8));
             jsonParser.parse(reader);
         } catch (IOException e) {
@@ -105,9 +110,9 @@ public final class JsonUtils {
                                                        @Nonnull final YangInstanceIdentifier.NodeIdentifier nodeIdentifier) {
         final DataContainerNodeAttrBuilder<YangInstanceIdentifier.NodeIdentifier, ContainerNode> builder =
                 Builders.containerBuilder().withNodeIdentifier(nodeIdentifier);
-        final NormalizedNodeStreamWriter writer = ImmutableNormalizedNodeStreamWriter.from(builder);
 
-        try (final JsonParserStream jsonParser = JsonParserStream.create(writer, schemaContext, parentSchema)) {
+        try (final NormalizedNodeStreamWriter writer = ImmutableNormalizedNodeStreamWriter.from(builder);
+             final JsonParserStream jsonParser = JsonParserStream.create(writer, schemaContext, parentSchema)) {
             final JsonReader reader = new JsonReader(new InputStreamReader(stream, Charsets.UTF_8));
             jsonParser.parse(reader);
         } catch (IOException e) {
@@ -124,9 +129,8 @@ public final class JsonUtils {
         final DataContainerNodeAttrBuilder<YangInstanceIdentifier.NodeIdentifierWithPredicates, MapEntryNode> mapEntryBuilder = Builders.mapEntryBuilder()
                 .withNodeIdentifier(nodeIdentifier);
 
-
-        final NormalizedNodeStreamWriter writer = ImmutableNormalizedNodeStreamWriter.from(mapEntryBuilder);
-        try (final JsonParserStream jsonParser = JsonParserStream.create(writer, schemaContext, parentSchema)) {
+        try (final NormalizedNodeStreamWriter writer = ImmutableNormalizedNodeStreamWriter.from(mapEntryBuilder);
+             final JsonParserStream jsonParser = JsonParserStream.create(writer, schemaContext, parentSchema)) {
             final JsonReader reader = new JsonReader(new InputStreamReader(stream, Charsets.UTF_8));
             jsonParser.parse(reader);
         } catch (IOException e) {

@@ -21,6 +21,7 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUti
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
+import io.fd.honeycomb.data.init.ShutdownHandler;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -70,6 +71,8 @@ final class BgpRIBProvider extends ProviderTrait<RIB> {
     private BGPTableTypeRegistryConsumer tableTypeRegistry;
     @Inject
     private SchemaService schemaService;
+    @Inject
+    private ShutdownHandler shutdownHandler;
 
     @Override
     protected RIB create() {
@@ -79,48 +82,49 @@ final class BgpRIBProvider extends ProviderTrait<RIB> {
         LOG.debug("Creating BGP RIB: routerId={}, asNumber={}", routerId, asNumber);
         // TODO configure other BGP Multiprotocol extensions:
         final List<AfiSafi> afiSafi = ImmutableList.of(
-            new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
-            .addAugmentation(AfiSafi2.class,
-                new AfiSafi2Builder().setReceive(cfg.isBgpMultiplePathsEnabled())
-                    .setSendMax(cfg.bgpSendMaxMaths.get().shortValue()).build())
-            .build(),
-            new AfiSafiBuilder().setAfiSafiName(IPV4LABELLEDUNICAST.class)
-                .addAugmentation(AfiSafi2.class,
-                    new AfiSafi2Builder().setReceive(cfg.isBgpMultiplePathsEnabled())
-                        .setSendMax(cfg.bgpSendMaxMaths.get().shortValue()).build())
-                .build()
-            );
+                new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
+                        .addAugmentation(AfiSafi2.class,
+                                new AfiSafi2Builder().setReceive(cfg.isBgpMultiplePathsEnabled())
+                                        .setSendMax(cfg.bgpSendMaxMaths.get().shortValue()).build())
+                        .build(),
+                new AfiSafiBuilder().setAfiSafiName(IPV4LABELLEDUNICAST.class)
+                        .addAugmentation(AfiSafi2.class,
+                                new AfiSafi2Builder().setReceive(cfg.isBgpMultiplePathsEnabled())
+                                        .setSendMax(cfg.bgpSendMaxMaths.get().shortValue()).build())
+                        .build()
+        );
         final Map<TablesKey, PathSelectionMode> pathSelectionModes =
-            OpenConfigMappingUtil.toPathSelectionMode(afiSafi, tableTypeRegistry)
-            .entrySet().stream().collect(Collectors.toMap(entry ->
-                new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
+                OpenConfigMappingUtil.toPathSelectionMode(afiSafi, tableTypeRegistry)
+                        .entrySet().stream().collect(Collectors.toMap(entry ->
+                        new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
         // based on org.opendaylight.protocol.bgp.rib.impl.config.RibImpl.createRib
+        final PingPongDataBroker pingPongDataBroker = new PingPongDataBroker(domBroker);
         final RIBImpl rib =
-            new RIBImpl(new NoopClusterSingletonServiceProvider(), new RibId(cfg.bgpProtocolInstanceName.get()),
-                asNumber, new BgpId(routerId), clusterId, extensions, dispatcher, codec,
-                new PingPongDataBroker(domBroker), toTableTypes(afiSafi, tableTypeRegistry), pathSelectionModes,
-                extensions.getClassLoadingStrategy(), null);
+                new RIBImpl(new NoopClusterSingletonServiceProvider(), new RibId(cfg.bgpProtocolInstanceName.get()),
+                        asNumber, new BgpId(routerId), clusterId, extensions, dispatcher, codec,
+                        pingPongDataBroker, toTableTypes(afiSafi, tableTypeRegistry), pathSelectionModes,
+                        extensions.getClassLoadingStrategy(), null);
 
         // required for proper RIB's CodecRegistry initialization (based on RIBImpl.start)
         schemaService.registerSchemaContextListener(rib);
-
+        shutdownHandler.register("ping-pong-data-broker", pingPongDataBroker);
         LOG.debug("BGP RIB created successfully: {}", rib);
         return rib;
     }
 
     /**
-     * HC does not support clustering, but BGP uses {@link ClusterSingletonServiceProvider}
-     * to initialize {@link RIBImpl}. Therefore we provide this dummy implementation.
+     * HC does not support clustering, but BGP uses {@link ClusterSingletonServiceProvider} to initialize {@link
+     * RIBImpl}. Therefore we provide this dummy implementation.
      */
     private static final class NoopClusterSingletonServiceProvider implements ClusterSingletonServiceProvider {
         private static final Logger LOG = LoggerFactory.getLogger(NoopClusterSingletonServiceProvider.class);
 
         private static final ClusterSingletonServiceRegistration REGISTRATION =
-            () -> LOG.debug("Closing ClusterSingletonServiceRegistration");
+                () -> LOG.debug("Closing ClusterSingletonServiceRegistration");
 
         @Override
         public ClusterSingletonServiceRegistration registerClusterSingletonService(
-            final ClusterSingletonService clusterSingletonService) {
+                final ClusterSingletonService clusterSingletonService) {
             clusterSingletonService.instantiateServiceInstance();
             return REGISTRATION;
         }

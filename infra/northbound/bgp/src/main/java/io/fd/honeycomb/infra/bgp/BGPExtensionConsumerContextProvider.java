@@ -18,6 +18,7 @@ package io.fd.honeycomb.infra.bgp;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
+import io.fd.honeycomb.data.init.ShutdownHandler;
 import java.util.ArrayList;
 import java.util.Set;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
@@ -34,6 +35,9 @@ final class BGPExtensionConsumerContextProvider extends ProviderTrait<BGPExtensi
     @Inject
     private Set<BGPExtensionProviderActivator> activators;
 
+    @Inject
+    private ShutdownHandler shutdownHandler;
+
     @Override
     protected BGPExtensionConsumerContext create() {
         final BGPExtensionProviderContext ctx = new SimpleBGPExtensionProviderContext();
@@ -41,6 +45,7 @@ final class BGPExtensionConsumerContextProvider extends ProviderTrait<BGPExtensi
             new SimpleBGPExtensionProviderContextActivator(ctx, new ArrayList<>(activators));
         LOG.debug("Starting BGPExtensionConsumerContext with activators: {}", activators);
         activator.start();
+        shutdownHandler.register("bgp-extension-context-activator", activator);
         return ctx;
     }
 }

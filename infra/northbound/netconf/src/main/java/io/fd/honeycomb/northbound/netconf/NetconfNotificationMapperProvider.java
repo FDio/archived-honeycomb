@@ -19,6 +19,7 @@ package io.fd.honeycomb.northbound.netconf;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.binding.init.ProviderTrait;
+import io.fd.honeycomb.data.init.ShutdownHandler;
 import org.opendaylight.controller.config.yang.netconf.mdsal.notification.CapabilityChangeNotificationProducer;
 import org.opendaylight.controller.config.yang.netconf.mdsal.notification.NotificationToMdsalWriter;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -54,6 +55,8 @@ public class NetconfNotificationMapperProvider extends ProviderTrait<NetconfOper
     private DataBroker dataBroker;
     @Inject
     private NetconfOperationServiceFactoryListener aggregator;
+    @Inject
+    private ShutdownHandler shutdownHandler;
 
     @Override
     protected NetconfNotificationOperationServiceFactory create() {
@@ -68,6 +71,9 @@ public class NetconfNotificationMapperProvider extends ProviderTrait<NetconfOper
         LOG.trace("Providing NetconfNotificationOperationServiceFactory");
         NetconfNotificationOperationServiceFactory netconfNotificationOperationServiceFactory =
             new NetconfNotificationOperationServiceFactory(notificationRegistry, aggregator);
-            return netconfNotificationOperationServiceFactory;
+
+        shutdownHandler.register("netconf-notification-service-factory", netconfNotificationOperationServiceFactory);
+        shutdownHandler.register("notification-to-mdsal-writer", writer);
+        return netconfNotificationOperationServiceFactory;
     }
 }
