@@ -22,6 +22,8 @@ import com.google.inject.name.Names;
 import io.fd.honeycomb.data.ModifiableDataManager;
 import io.fd.honeycomb.data.ReadableDataManager;
 import io.fd.honeycomb.data.init.DataTreeInitializer;
+import io.fd.honeycomb.data.init.ShutdownHandler;
+import io.fd.honeycomb.impl.ShutdownHandlerImpl;
 import io.fd.honeycomb.infra.distro.data.config.WriterRegistryProvider;
 import io.fd.honeycomb.infra.distro.data.oper.ReadableDTDelegProvider;
 import io.fd.honeycomb.infra.distro.data.oper.ReaderRegistryProvider;
@@ -42,6 +44,9 @@ public class ConfigAndOperationalPipelineModule extends PrivateModule {
     public static final String HONEYCOMB_CONFIG = "honeycomb-config";
 
     protected void configure() {
+        bind(ShutdownHandler.class).to(ShutdownHandlerImpl.class).in(Singleton.class);
+        expose(ShutdownHandler.class);
+
         // Expose registries for plugin reader/writer factories
         bind(WriterRegistry.class).toProvider(WriterRegistryProvider.class).in(Singleton.class);
         expose(WriterRegistry.class);
