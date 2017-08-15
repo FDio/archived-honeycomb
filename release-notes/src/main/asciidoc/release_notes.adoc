@@ -20,6 +20,11 @@ https://wiki.fd.io/view/Honeycomb/Release_Plans/Release_Plan_{project-public-ver
 Adding to the list of existing features: https://docs.fd.io/honeycomb/1.17.07/release-notes-aggregator/release_notes.html#_features[1707 feature list]
 
 === New features
+* https://jira.fd.io/browse/HONEYCOMB-381[Shutdown handler] - Serves as an utility to properly close shutdown closeable resources(Everything that implements AutoCloseable).
+To use just @Inject ShutdownHandler and register resources with method *register()*
+* https://jira.fd.io/browse/HONEYCOMB-362[ODL carbon] - Honeycomb infrastracture has been updated to use ODL dependencies from Carbon version.
+* https://jira.fd.io/browse/HONEYCOMB-360[Separated Northbound Interfaces] - Every northbound interface now lives under separate module, which brings optimization
+improvement, as every interface uses different subset of YANG modules.
 
 === Removed features
 
