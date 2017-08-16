@@ -41,12 +41,19 @@ public interface WriterRegistry {
      * @throws BulkUpdateException in case bulk update fails
      * @throws TranslationException in case some other error occurs while processing update request
      */
-    void update(@Nonnull DataObjectUpdates updates,
-                @Nonnull WriteContext ctx) throws TranslationException;
+    void processModifications(@Nonnull DataObjectUpdates updates,
+                              @Nonnull WriteContext ctx) throws TranslationException;
 
     /**
-     * Simple DTO containing updates for {@link WriterRegistry}. Currently only deletes and updates (create + update)
-     * are distinguished.
+     * Indicates direct support for update operation on provided type
+     *
+     * @param type data object type
+     */
+    boolean writerSupportsUpdate(@Nonnull InstanceIdentifier<?> type);
+
+    /**
+     * Simple DTO containing updates for {@link WriterRegistry}. Currently only deletes and updates (create +
+     * update) are distinguished.
      */
     @Beta
     final class DataObjectUpdates {

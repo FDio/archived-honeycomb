@@ -87,9 +87,9 @@ public class FlatWriterRegistryBuilderTest {
                 Multimaps.forMap(Collections.singletonMap(id, update)),
                 Multimaps.forMap(Collections.emptyMap()));
         final WriteContext ctx = mock(WriteContext.class);
-        build.update(updates, ctx);
+        build.processModifications(updates, ctx);
 
-        verify(writer).update(id, before, after, ctx);
+        verify(writer).processModification(id, before, after, ctx);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -104,7 +104,7 @@ public class FlatWriterRegistryBuilderTest {
         final WriterRegistry.DataObjectUpdates updates = new WriterRegistry.DataObjectUpdates(
                 Multimaps.forMap(Collections.singletonMap(id2, update2)),
                 Multimaps.forMap(Collections.emptyMap()));
-        build.update(updates, mock(WriteContext.class));
+        build.processModifications(updates, mock(WriteContext.class));
     }
 
     @Test

@@ -176,22 +176,22 @@ public class HoneycombWriteInfraTest extends AbstractInfraTest {
         // verify(complexAugmentWriter).update(eq(COMPLEX_AUGMENT_ID), eq(null), eq(getComplexAugment()), any(WriteContext.class));
         // 1
         inOrder.verify(complexAugmentContainerWriter)
-                .update(eq(Ids.COMPLEX_AUGMENT_CONTAINER_ID), eq(null), eq(getComplexAugmentContainer()), any(WriteContext.class));
+                .processModification(eq(Ids.COMPLEX_AUGMENT_CONTAINER_ID), eq(null), eq(getComplexAugmentContainer()), any(WriteContext.class));
         // 2
         inOrder.verify(c3Writer)
-                .update(eq(Ids.C3_ID), eq(null), eq(getC3()), any(WriteContext.class));
+                .processModification(eq(Ids.C3_ID), eq(null), eq(getC3()), any(WriteContext.class));
         // 2
         verify(simpleAugmentWriter)
-                .update(eq(Ids.SIMPLE_AUGMENT_ID), eq(null), eq(getSimpleAugment()), any(WriteContext.class));
+                .processModification(eq(Ids.SIMPLE_AUGMENT_ID), eq(null), eq(getSimpleAugment()), any(WriteContext.class));
         // 3
         inOrder.verify(simpleContainerWriter)
-                .update(eq(Ids.SIMPLE_CONTAINER_ID), eq(null), eq(getSimpleContainer()), any(WriteContext.class));
+                .processModification(eq(Ids.SIMPLE_CONTAINER_ID), eq(null), eq(getSimpleContainer()), any(WriteContext.class));
         // 4
         inOrder.verify(containerWithChoiceWriter)
-                .update(eq(Ids.CONTAINER_WITH_CHOICE_ID), eq(null), eq(getContainerWithChoiceWithComplexCase()), any(WriteContext.class));
+                .processModification(eq(Ids.CONTAINER_WITH_CHOICE_ID), eq(null), eq(getContainerWithChoiceWithComplexCase()), any(WriteContext.class));
         // 5
         inOrder.verify(containerFromGroupingWriter)
-                .update(eq(Ids.CONTAINER_FROM_GROUPING_ID), eq(null), eq(getContainerFromGrouping()), any(WriteContext.class));
+                .processModification(eq(Ids.CONTAINER_FROM_GROUPING_ID), eq(null), eq(getContainerFromGrouping()), any(WriteContext.class));
 
         final KeyedInstanceIdentifier<ListInContainer, ListInContainerKey> keyedListInContainer1 =
                 Ids.CONTAINER_WITH_LIST_ID.child(ListInContainer.class, new ListInContainerKey((long) 1));
@@ -204,21 +204,21 @@ public class HoneycombWriteInfraTest extends AbstractInfraTest {
 
         // 6 - two items
         inOrder.verify(nestedListWriter)
-                .update(eq(keyedNestedList1), eq(null), eq(getSingleNestedList("1")), any(WriteContext.class));
+                .processModification(eq(keyedNestedList1), eq(null), eq(getSingleNestedList("1")), any(WriteContext.class));
         verify(nestedListWriter)
-                .update(eq(keyedNestedList2), eq(null), eq(getSingleNestedList("2")), any(WriteContext.class));
+                .processModification(eq(keyedNestedList2), eq(null), eq(getSingleNestedList("2")), any(WriteContext.class));
 
         // 7 - two items
         inOrder.verify(listInContainerWriter)
-                .update(eq(keyedListInContainer1), eq(null), eq(getSingleListInContainer((long)1)), any(WriteContext.class));
+                .processModification(eq(keyedListInContainer1), eq(null), eq(getSingleListInContainer((long)1)), any(WriteContext.class));
         verify(listInContainerWriter)
-                .update(eq(keyedListInContainer2), eq(null), eq(getSingleListInContainer((long)2)), any(WriteContext.class));
+                .processModification(eq(keyedListInContainer2), eq(null), eq(getSingleListInContainer((long)2)), any(WriteContext.class));
 
         // 8
         inOrder.verify(containerInListWriter)
-                .update(eq(keyedListInContainer1.child(ContainerInList.class)), eq(null), eq(getContainerInList("1")), any(WriteContext.class));
+                .processModification(eq(keyedListInContainer1.child(ContainerInList.class)), eq(null), eq(getContainerInList("1")), any(WriteContext.class));
         verify(containerInListWriter)
-                .update(eq(keyedListInContainer2.child(ContainerInList.class)), eq(null), eq(getContainerInList("2")), any(WriteContext.class));
+                .processModification(eq(keyedListInContainer2.child(ContainerInList.class)), eq(null), eq(getContainerInList("2")), any(WriteContext.class));
 
         // 9 - Ignored because the container has no leaves, only complex child nodes
         // inOrder.verify(containerWithListWriter)
@@ -280,39 +280,39 @@ public class HoneycombWriteInfraTest extends AbstractInfraTest {
         // Deletes are handled in reverse order
         // 1
         inOrder.verify(containerInListWriter)
-                .update(eq(keyedListInContainer1.child(ContainerInList.class)), eq(getContainerInList("1")), eq(null), any(WriteContext.class));
+                .processModification(eq(keyedListInContainer1.child(ContainerInList.class)), eq(getContainerInList("1")), eq(null), any(WriteContext.class));
         verify(containerInListWriter)
-                .update(eq(keyedListInContainer2.child(ContainerInList.class)), eq(getContainerInList("2")), eq(null), any(WriteContext.class));
+                .processModification(eq(keyedListInContainer2.child(ContainerInList.class)), eq(getContainerInList("2")), eq(null), any(WriteContext.class));
 
         // 2
         inOrder.verify(listInContainerWriter)
-                .update(eq(keyedListInContainer1), eq(getSingleListInContainer((long)1)), eq(null),  any(WriteContext.class));
+                .processModification(eq(keyedListInContainer1), eq(getSingleListInContainer((long)1)), eq(null),  any(WriteContext.class));
         verify(listInContainerWriter)
-                .update(eq(keyedListInContainer2), eq(getSingleListInContainer((long)2)), eq(null), any(WriteContext.class));
+                .processModification(eq(keyedListInContainer2), eq(getSingleListInContainer((long)2)), eq(null), any(WriteContext.class));
 
         // 3
         inOrder.verify(nestedListWriter)
-                .update(eq(keyedNestedList1), eq(getSingleNestedList("1")), eq(null), any(WriteContext.class));
+                .processModification(eq(keyedNestedList1), eq(getSingleNestedList("1")), eq(null), any(WriteContext.class));
         verify(nestedListWriter)
-                .update(eq(keyedNestedList2), eq(getSingleNestedList("2")), eq(null), any(WriteContext.class));
+                .processModification(eq(keyedNestedList2), eq(getSingleNestedList("2")), eq(null), any(WriteContext.class));
         // 4
         inOrder.verify(containerFromGroupingWriter)
-                .update(eq(Ids.CONTAINER_FROM_GROUPING_ID), eq(getContainerFromGrouping()), eq(null), any(WriteContext.class));
+                .processModification(eq(Ids.CONTAINER_FROM_GROUPING_ID), eq(getContainerFromGrouping()), eq(null), any(WriteContext.class));
         // 5
         inOrder.verify(containerWithChoiceWriter)
-                .update(eq(Ids.CONTAINER_WITH_CHOICE_ID), eq(getContainerWithChoiceWithComplexCase()), eq(null), any(WriteContext.class));
+                .processModification(eq(Ids.CONTAINER_WITH_CHOICE_ID), eq(getContainerWithChoiceWithComplexCase()), eq(null), any(WriteContext.class));
         // 6
         inOrder.verify(simpleContainerWriter)
-                .update(eq(Ids.SIMPLE_CONTAINER_ID), eq(getSimpleContainer()), eq(null), any(WriteContext.class));
+                .processModification(eq(Ids.SIMPLE_CONTAINER_ID), eq(getSimpleContainer()), eq(null), any(WriteContext.class));
         // 7
         verify(simpleAugmentWriter)
-                .update(eq(Ids.SIMPLE_AUGMENT_ID), eq(getSimpleAugment()), eq(null), any(WriteContext.class));
+                .processModification(eq(Ids.SIMPLE_AUGMENT_ID), eq(getSimpleAugment()), eq(null), any(WriteContext.class));
         // 8
         inOrder.verify(c3Writer)
-                .update(eq(Ids.C3_ID), eq(getC3()), eq(null), any(WriteContext.class));
+                .processModification(eq(Ids.C3_ID), eq(getC3()), eq(null), any(WriteContext.class));
         // 9
         inOrder.verify(complexAugmentContainerWriter)
-                .update(eq(Ids.COMPLEX_AUGMENT_CONTAINER_ID), eq(getComplexAugmentContainer()), eq(null), any(WriteContext.class));
+                .processModification(eq(Ids.COMPLEX_AUGMENT_CONTAINER_ID), eq(getComplexAugmentContainer()), eq(null), any(WriteContext.class));
 
         for (Writer<?> orderedWriter : orderedWriters) {
             verify(orderedWriter).getManagedDataObjectType();
@@ -493,7 +493,7 @@ public class HoneycombWriteInfraTest extends AbstractInfraTest {
 
         verify(containerWithChoiceWriter, atLeastOnce()).getManagedDataObjectType();
         verify(containerWithChoiceWriter)
-                .update(eq(Ids.CONTAINER_WITH_CHOICE_ID), eq(null), eq(containerWithChoice), any(WriteContext.class));
+                .processModification(eq(Ids.CONTAINER_WITH_CHOICE_ID), eq(null), eq(containerWithChoice), any(WriteContext.class));
         verifyNoMoreInteractions(containerWithChoiceWriter);
 
         // Test delete sub-node
@@ -504,7 +504,7 @@ public class HoneycombWriteInfraTest extends AbstractInfraTest {
 
         verify(containerWithChoiceWriter, atLeastOnce()).getManagedDataObjectType();
         verify(containerWithChoiceWriter)
-                .update(eq(Ids.CONTAINER_WITH_CHOICE_ID), eq(containerWithChoice), eq(containerWithChoiceEmpty), any(WriteContext.class));
+                .processModification(eq(Ids.CONTAINER_WITH_CHOICE_ID), eq(containerWithChoice), eq(containerWithChoiceEmpty), any(WriteContext.class));
         verifyNoMoreInteractions(containerWithChoiceWriter);
 
         // Test write with subtree node that's not handled by subtree writer

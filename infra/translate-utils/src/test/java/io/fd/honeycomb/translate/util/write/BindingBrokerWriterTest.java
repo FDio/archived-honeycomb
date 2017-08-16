@@ -58,7 +58,7 @@ public class BindingBrokerWriterTest {
     public void testWrite() throws Exception {
         assertEquals(id, bbWriter.getManagedDataObjectType());
 
-        bbWriter.update(id, data, data, ctx);
+        bbWriter.processModification(id, data, data, ctx);
         verify(broker).newWriteOnlyTransaction();
         verify(tx).put(LogicalDatastoreType.CONFIGURATION, id, data);
         verify(tx).submit();
@@ -67,6 +67,6 @@ public class BindingBrokerWriterTest {
     @Test(expected = io.fd.honeycomb.translate.write.WriteFailedException.class)
     public void testFailedWrite() throws Exception {
         when(tx.submit()).thenReturn(Futures.immediateFailedCheckedFuture(new TransactionCommitFailedException("failing")));
-        bbWriter.update(id, data, data, ctx);
+        bbWriter.processModification(id, data, data, ctx);
     }
 }

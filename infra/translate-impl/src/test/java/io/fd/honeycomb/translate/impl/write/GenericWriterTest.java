@@ -17,6 +17,8 @@
 package io.fd.honeycomb.translate.impl.write;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
@@ -53,13 +55,13 @@ public class GenericWriterTest {
     @Test
     public void testUpdate() throws Exception {
         assertEquals(DATA_OBJECT_ID, writer.getManagedDataObjectType());
-        writer.update(DATA_OBJECT_ID, before, after, ctx);
+        writer.processModification(DATA_OBJECT_ID, before, after, ctx);
         verify(customizer).updateCurrentAttributes(DATA_OBJECT_ID, before, after, ctx);
 
-        writer.update(DATA_OBJECT_ID, before, null, ctx);
+        writer.processModification(DATA_OBJECT_ID, before, null, ctx);
         verify(customizer).deleteCurrentAttributes(DATA_OBJECT_ID, before, ctx);
 
-        writer.update(DATA_OBJECT_ID, null, after, ctx);
+        writer.processModification(DATA_OBJECT_ID, null, after, ctx);
         verify(customizer).writeCurrentAttributes(DATA_OBJECT_ID, after, ctx);
     }
 
@@ -84,5 +86,12 @@ public class GenericWriterTest {
                 .deleteCurrentAttributes(DATA_OBJECT_ID, before, ctx);
         writer = new GenericWriter<>(DATA_OBJECT_ID, customizer);
         writer.deleteCurrentAttributes(DATA_OBJECT_ID, before, ctx);
+    }
+
+    @Test
+    public void testUpdateSupported() {
+        assertFalse(GenericWriter.isUpdateSupported(new NoopWriters.NonDirectUpdateWriterCustomizer()));
+        assertTrue(GenericWriter.isUpdateSupported(new NoopWriters.DirectUpdateWriterCustomizer()));
+        assertTrue(GenericWriter.isUpdateSupported(new NoopWriters.ParentImplDirectUpdateWriterCustomizer()));
     }
 }

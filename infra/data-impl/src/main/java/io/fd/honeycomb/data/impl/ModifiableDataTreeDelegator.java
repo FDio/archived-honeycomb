@@ -124,12 +124,13 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
             LOG.debug("ConfigDataTree.modify() diff: {}", modificationDiff);
 
             // Distinguish between updates (create + update) and deletes
-            final WriterRegistry.DataObjectUpdates baUpdates = toBindingAware(modificationDiff.getUpdates());
+            final WriterRegistry.DataObjectUpdates baUpdates =
+                    toBindingAware(writerRegistry, modificationDiff.getUpdates());
             LOG.debug("ConfigDataTree.modify() extracted updates={}", baUpdates);
 
             WriteContext ctx = getTransactionWriteContext();
             try {
-                writerRegistry.update(baUpdates, ctx);
+                writerRegistry.processModifications(baUpdates, ctx);
 
                 final CheckedFuture<Void, TransactionCommitFailedException> contextUpdateResult =
                     ((TransactionMappingContext) ctx.getMappingContext()).submit();
@@ -193,14 +194,15 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
             return new TransactionWriteContext(serializer, beforeTx, afterTx, mappingContext);
         }
 
-        private WriterRegistry.DataObjectUpdates toBindingAware(
+        private WriterRegistry.DataObjectUpdates toBindingAware(final WriterRegistry registry,
                 final Map<YangInstanceIdentifier, NormalizedNodeUpdate> biNodes) {
-            return ModifiableDataTreeDelegator.toBindingAware(biNodes, serializer);
+            return ModifiableDataTreeDelegator.toBindingAware(registry, biNodes, serializer);
         }
     }
 
     @VisibleForTesting
     static WriterRegistry.DataObjectUpdates toBindingAware(
+            final WriterRegistry registry,
             final Map<YangInstanceIdentifier, NormalizedNodeUpdate> biNodes,
             final BindingNormalizedNodeSerializer serializer) {
 
@@ -209,15 +211,27 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
                 HashMultimap.create();
 
         for (Map.Entry<YangInstanceIdentifier, NormalizedNodeUpdate> biEntry : biNodes.entrySet()) {
+            final InstanceIdentifier<?> keyedId = serializer.fromYangInstanceIdentifier(biEntry.getKey());
             final InstanceIdentifier<?> unkeyedIid =
-                    RWUtils.makeIidWildcarded(serializer.fromYangInstanceIdentifier(biEntry.getKey()));
+                    RWUtils.makeIidWildcarded(keyedId);
 
             NormalizedNodeUpdate normalizedNodeUpdate = biEntry.getValue();
             final DataObjectUpdate dataObjectUpdate = toDataObjectUpdate(normalizedNodeUpdate, serializer);
             if (dataObjectUpdate != null) {
                 if (dataObjectUpdate instanceof DataObjectUpdate.DataObjectDelete) {
+                    // is delete
                     dataObjectDeletes.put(unkeyedIid, (DataObjectUpdate.DataObjectDelete) dataObjectUpdate);
+                } else if (dataObjectUpdate.getDataBefore() != null && !registry.writerSupportsUpdate(unkeyedIid)) {
+                    // is update and direct update operation is not supported
+                    // breaks update to delete + create pair
+
+                    dataObjectDeletes.put(unkeyedIid,
+                            (DataObjectUpdate.DataObjectDelete) DataObjectUpdate.DataObjectDelete
+                                    .create(keyedId, dataObjectUpdate.getDataBefore(), null));
+                    dataObjectUpdates
+                            .put(unkeyedIid, DataObjectUpdate.create(keyedId, null, dataObjectUpdate.getDataAfter()));
                 } else {
+                    // is create
                     dataObjectUpdates.put(unkeyedIid, dataObjectUpdate);
                 }
             }

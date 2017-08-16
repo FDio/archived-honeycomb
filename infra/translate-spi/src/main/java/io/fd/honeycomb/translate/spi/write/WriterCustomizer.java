@@ -46,6 +46,8 @@ public interface WriterCustomizer<D extends DataObject> {
 
     /**
      * Handle update operation. U from CRUD.
+     * By default, updates will be broken into delete + create.
+     * Override this if there is a direct support for updates on lower level
      *
      * @param id Identifier(from root) of data being written
      * @param dataBefore Old data
@@ -54,10 +56,14 @@ public interface WriterCustomizer<D extends DataObject> {
      *
      * @throws WriteFailedException if update was unsuccessful
      */
-    void updateCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
-                                 @Nonnull final D dataBefore,
-                                 @Nonnull final D dataAfter,
-                                 @Nonnull final WriteContext writeContext) throws WriteFailedException;
+    default void updateCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
+                                         @Nonnull final D dataBefore,
+                                         @Nonnull final D dataAfter,
+                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
+        throw new UnsupportedOperationException(
+                "Default implementation of updateCurrentAttributes should not be invoked." +
+                        "Either override this method or do not invoke it directly");
+    }
 
     /**
      * Handle delete operation. D from CRUD.

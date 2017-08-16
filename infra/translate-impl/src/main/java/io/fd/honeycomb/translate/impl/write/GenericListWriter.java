@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.translate.impl.write;
 
+import static io.fd.honeycomb.translate.impl.write.GenericWriter.isUpdateSupported;
+
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.write.AbstractGenericWriter;
@@ -39,7 +41,7 @@ public final class GenericListWriter<D extends DataObject & Identifiable<K>, K e
 
     public GenericListWriter(@Nonnull final InstanceIdentifier<D> type,
                              @Nonnull final ListWriterCustomizer<D, K> customizer) {
-        super(type);
+        super(type, isUpdateSupported(customizer));
         this.customizer = customizer;
     }
 

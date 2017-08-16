@@ -51,7 +51,7 @@ public class AbstractGenericWriterTest {
     @Test
     public void testDelete() throws Exception {
         before = mock(DataObject.class);
-        t.update(id, before, null, ctx);
+        t.processModification(id, before, null, ctx);
 
         verify(t).deleteCurrentAttributes(id, before, ctx);
     }
@@ -59,7 +59,7 @@ public class AbstractGenericWriterTest {
     @Test
     public void testUpdate() throws Exception {
         before = mock(DataObject.class);
-        t.update(id, before, after, ctx);
+        t.processModification(id, before, after, ctx);
 
         verify(t).updateCurrentAttributes(id, before, after, ctx);
     }
@@ -67,7 +67,7 @@ public class AbstractGenericWriterTest {
     @Test
     public void testNoUpdate() throws Exception {
         before = mock(DataObject.class);
-        t.update(id, before, before, ctx);
+        t.processModification(id, before, before, ctx);
 
         verify(t, times(0)).updateCurrentAttributes(id, before, after, ctx);
     }
@@ -75,7 +75,7 @@ public class AbstractGenericWriterTest {
     @Test
     public void testCreate() throws Exception {
         before = mock(DataObject.class);
-        t.update(id, null, after, ctx);
+        t.processModification(id, null, after, ctx);
 
         verify(t).writeCurrentAttributes(id, after, ctx);
     }
@@ -83,7 +83,7 @@ public class AbstractGenericWriterTest {
     private static class TestingWriter extends AbstractGenericWriter<DataObject> {
 
         TestingWriter() {
-            super(InstanceIdentifier.create(DataObject.class));
+            super(InstanceIdentifier.create(DataObject.class), false);
         }
 
         @Override

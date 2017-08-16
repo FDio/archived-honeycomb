@@ -71,13 +71,13 @@ public class GenericListWriterTest {
                 (InstanceIdentifier<IdentifiableDataObject>) InstanceIdentifier.create(Collections
                         .singleton(new InstanceIdentifier.IdentifiableItem<>(IdentifiableDataObject.class, keyAfter)));
 
-        writer.update(DATA_OBJECT_ID, before, after, ctx);
+        writer.processModification(DATA_OBJECT_ID, before, after, ctx);
         verify(customizer).updateCurrentAttributes(keyedIdBefore, before, after, ctx);
 
-        writer.update(DATA_OBJECT_ID, before, null, ctx);
+        writer.processModification(DATA_OBJECT_ID, before, null, ctx);
         verify(customizer).deleteCurrentAttributes(keyedIdBefore, before, ctx);
 
-        writer.update(DATA_OBJECT_ID, null, after, ctx);
+        writer.processModification(DATA_OBJECT_ID, null, after, ctx);
         verify(customizer).writeCurrentAttributes(keyedIdAfter, after, ctx);
     }
 

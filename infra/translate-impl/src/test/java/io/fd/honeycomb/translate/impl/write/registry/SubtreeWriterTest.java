@@ -16,15 +16,21 @@
 
 package io.fd.honeycomb.translate.impl.write.registry;
 
-import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Sets;
+import io.fd.honeycomb.translate.impl.write.GenericWriter;
+import io.fd.honeycomb.translate.impl.write.NoopWriters.DirectUpdateWriterCustomizer;
+import io.fd.honeycomb.translate.impl.write.NoopWriters.NonDirectUpdateWriterCustomizer;
+import io.fd.honeycomb.translate.impl.write.NoopWriters.ParentImplDirectUpdateWriterCustomizer;
 import io.fd.honeycomb.translate.util.DataObjects;
 import io.fd.honeycomb.translate.write.Writer;
 import java.util.Collections;
+import java.util.Set;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,7 +85,28 @@ public class SubtreeWriterTest {
 
         assertEquals(writer.getManagedDataObjectType(), forWriter.getManagedDataObjectType());
         assertEquals(1, forWriter.getHandledChildTypes().size());
-        assertThat(forWriter.getHandledChildTypes(), CoreMatchers.hasItem(DataObjects.DataObject4.DataObject41.DataObject411.IID));
+        assertThat(forWriter.getHandledChildTypes(),
+                CoreMatchers.hasItem(DataObjects.DataObject4.DataObject41.DataObject411.IID));
+    }
+
+    @Test
+    public void testUpdateSupported() {
+        // test supportsDirectUpdate(), because subtree writer overrides this method and delegate call on delegate writer
+        final InstanceIdentifier<DataObject> fakeIID = InstanceIdentifier.create(DataObject.class);
+        final Set<InstanceIdentifier<?>> handledChildren = Collections.emptySet();
+
+        final NonDirectUpdateWriterCustomizer nonDirectCustomizer = new NonDirectUpdateWriterCustomizer();
+        final DirectUpdateWriterCustomizer directCustomizer = new DirectUpdateWriterCustomizer();
+        final ParentImplDirectUpdateWriterCustomizer parentImplCustomizer =
+                new ParentImplDirectUpdateWriterCustomizer();
+
+        final GenericWriter<DataObject> nonDirectWriter = new GenericWriter<>(fakeIID, nonDirectCustomizer);
+        final GenericWriter<DataObject> directWriter = new GenericWriter<>(fakeIID, directCustomizer);
+        final GenericWriter<DataObject> parentImplWriter = new GenericWriter<>(fakeIID, parentImplCustomizer);
+
+        assertFalse(SubtreeWriter.createForWriter(handledChildren, nonDirectWriter).supportsDirectUpdate());
+        assertTrue(SubtreeWriter.createForWriter(handledChildren, directWriter).supportsDirectUpdate());
+        assertTrue(SubtreeWriter.createForWriter(handledChildren, parentImplWriter).supportsDirectUpdate());
     }
 
 }

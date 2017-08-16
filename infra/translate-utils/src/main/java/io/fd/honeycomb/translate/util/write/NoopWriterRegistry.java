@@ -20,6 +20,7 @@ import io.fd.honeycomb.translate.TranslationException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
 import javax.annotation.Nonnull;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Empty registry that does not perform any changes. Can be used in data layer, if we want to disable passing data to
@@ -28,9 +29,15 @@ import javax.annotation.Nonnull;
 public class NoopWriterRegistry implements WriterRegistry, AutoCloseable {
 
     @Override
-    public void update(@Nonnull final DataObjectUpdates updates,
-                       @Nonnull final WriteContext ctx) throws TranslationException {
+    public void processModifications(@Nonnull final DataObjectUpdates updates,
+                                     @Nonnull final WriteContext ctx) throws TranslationException {
         // NOOP
+    }
+
+    @Override
+    public boolean writerSupportsUpdate(@Nonnull final InstanceIdentifier<?> type) {
+        // returns true to make higher level performance better(does not have to break updates to delete+create pairs)
+        return true;
     }
 
     @Override

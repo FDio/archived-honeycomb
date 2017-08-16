@@ -33,7 +33,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public interface Writer<D extends DataObject> extends SubtreeManager<D> {
 
     /**
-     * Handle update operation. U from CRUD.
+     * Process modifications and translate them as create/update/delete operations to lower level
      *
      * @param id         Identifier of data being written
      * @param dataBefore Old data
@@ -41,8 +41,14 @@ public interface Writer<D extends DataObject> extends SubtreeManager<D> {
      * @param ctx        Write context enabling writer to get information about candidate data as well as current data
      * @throws WriteFailedException if update failed
      */
-    void update(@Nonnull final InstanceIdentifier<? extends DataObject> id,
-                @Nullable final DataObject dataBefore,
-                @Nullable final DataObject dataAfter,
-                @Nonnull final WriteContext ctx) throws WriteFailedException;
+    void processModification(@Nonnull final InstanceIdentifier<? extends DataObject> id,
+                             @Nullable final DataObject dataBefore,
+                             @Nullable final DataObject dataAfter,
+                             @Nonnull final WriteContext ctx) throws WriteFailedException;
+
+    /**
+     * Indicates whether there is direct support for updating nodes handled by this writer,
+     * or they must be broken up to individual deletes and creates.
+     */
+    boolean supportsDirectUpdate();
 }

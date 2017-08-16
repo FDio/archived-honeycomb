@@ -92,8 +92,8 @@ final class FlatWriterRegistry implements WriterRegistry {
     }
 
     @Override
-    public void update(@Nonnull final DataObjectUpdates updates,
-                       @Nonnull final WriteContext ctx) throws TranslationException {
+    public void processModifications(@Nonnull final DataObjectUpdates updates,
+                                     @Nonnull final WriteContext ctx) throws TranslationException {
         if (updates.isEmpty()) {
             return;
         }
@@ -113,6 +113,17 @@ final class FlatWriterRegistry implements WriterRegistry {
 
         LOG.debug("Update successful for types: {}", updates.getTypeIntersection());
         LOG.trace("Update successful for: {}", updates);
+    }
+
+    @Override
+    public boolean writerSupportsUpdate(@Nonnull final InstanceIdentifier<?> type) {
+        Writer writer = getWriter(type);
+
+        if(writer == null){
+            writer = getSubtreeWriterResponsible(type);
+        }
+
+        return checkNotNull(writer, "Unable to find writer for %s", type).supportsDirectUpdate();
     }
 
     private void singleUpdate(@Nonnull final Multimap<InstanceIdentifier<?>, ? extends DataObjectUpdate> updates,
@@ -136,16 +147,17 @@ final class FlatWriterRegistry implements WriterRegistry {
 
         LOG.trace("Performing single type update with writer: {}", writer);
         for (DataObjectUpdate singleUpdate : singleTypeUpdates) {
-            writer.update(singleUpdate.getId(), singleUpdate.getDataBefore(), singleUpdate.getDataAfter(), ctx);
+            writer.processModification(singleUpdate.getId(), singleUpdate.getDataBefore(), singleUpdate.getDataAfter(), ctx);
         }
     }
 
+    @Nullable
     private Writer<?> getSubtreeWriterResponsible(final InstanceIdentifier<?> singleType) {
         return writers.values().stream()
                 .filter(w -> w instanceof SubtreeWriter)
                 .filter(w -> ((SubtreeWriter<?>) w).getHandledChildTypes().contains(singleType))
                 .findFirst()
-                .get();
+                .orElse(null);
     }
 
     private Collection<DataObjectUpdate> getParentDataObjectUpdate(final WriteContext ctx,
@@ -208,7 +220,7 @@ final class FlatWriterRegistry implements WriterRegistry {
 
             for (DataObjectUpdate singleUpdate : writersData) {
                 try {
-                    writer.update(singleUpdate.getId(), singleUpdate.getDataBefore(), singleUpdate.getDataAfter(), ctx);
+                    writer.processModification(singleUpdate.getId(), singleUpdate.getDataBefore(), singleUpdate.getDataAfter(), ctx);
                     processedNodes.add(singleUpdate.getId());
                     LOG.trace("Update successful for type: {}", writerType);
                     LOG.debug("Update successful for: {}", singleUpdate);

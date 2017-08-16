@@ -49,9 +49,9 @@ public final class BindingBrokerWriter<D extends DataObject> implements Writer<D
     }
 
     @Override
-    public void update(@Nonnull final InstanceIdentifier<? extends DataObject> id,
-                       @Nullable final DataObject dataBefore, @Nullable final DataObject dataAfter,
-                       @Nonnull final WriteContext ctx) throws WriteFailedException {
+    public void processModification(@Nonnull final InstanceIdentifier<? extends DataObject> id,
+                                    @Nullable final DataObject dataBefore, @Nullable final DataObject dataAfter,
+                                    @Nonnull final WriteContext ctx) throws WriteFailedException {
         final WriteTransaction writeTransaction = dataBroker.newWriteOnlyTransaction();
         writeTransaction.put(CONFIGURATION, (InstanceIdentifier<DataObject>) id, dataAfter);
         final CheckedFuture<Void, TransactionCommitFailedException> result = writeTransaction.submit();
@@ -60,5 +60,10 @@ public final class BindingBrokerWriter<D extends DataObject> implements Writer<D
         } catch (TransactionCommitFailedException e) {
             throw new WriteFailedException(id, e);
         }
+    }
+
+    @Override
+    public boolean supportsDirectUpdate() {
+        return false;
     }
 }

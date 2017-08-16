@@ -18,8 +18,8 @@ package io.fd.honeycomb.translate.util.write;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.util.RWUtils;
+import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.translate.write.Writer;
 import javax.annotation.Nonnull;
@@ -34,9 +34,11 @@ public abstract class AbstractGenericWriter<D extends DataObject> implements Wri
     private static final Logger LOG = LoggerFactory.getLogger(AbstractGenericWriter.class);
 
     private final InstanceIdentifier<D> instanceIdentifier;
+    private final boolean supportsUpdate;
 
-    protected AbstractGenericWriter(final InstanceIdentifier<D> type) {
+    protected AbstractGenericWriter(final InstanceIdentifier<D> type, final boolean supportsUpdate) {
         this.instanceIdentifier = RWUtils.makeIidWildcarded(type);
+        this.supportsUpdate = supportsUpdate;
     }
 
     protected void writeCurrent(final InstanceIdentifier<D> id, final D data, final WriteContext ctx)
@@ -67,10 +69,10 @@ public abstract class AbstractGenericWriter<D extends DataObject> implements Wri
 
     @SuppressWarnings("unchecked")
     @Override
-    public void update(@Nonnull final InstanceIdentifier<? extends DataObject> id,
-                       @Nullable final DataObject dataBefore,
-                       @Nullable final DataObject dataAfter,
-                       @Nonnull final WriteContext ctx) throws WriteFailedException {
+    public void processModification(@Nonnull final InstanceIdentifier<? extends DataObject> id,
+                                    @Nullable final DataObject dataBefore,
+                                    @Nullable final DataObject dataAfter,
+                                    @Nonnull final WriteContext ctx) throws WriteFailedException {
         LOG.debug("{}: Updating : {}", this, id);
         LOG.trace("{}: Updating : {}, from: {} to: {}", this, id, dataBefore, dataAfter);
 
@@ -133,5 +135,10 @@ public abstract class AbstractGenericWriter<D extends DataObject> implements Wri
     @Override
     public String toString() {
         return String.format("Writer[%s]", getManagedDataObjectType().getTargetType().getSimpleName());
+    }
+
+    @Override
+    public boolean supportsDirectUpdate() {
+        return supportsUpdate;
     }
 }

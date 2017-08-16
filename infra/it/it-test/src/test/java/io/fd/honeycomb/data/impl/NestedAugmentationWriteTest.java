@@ -162,7 +162,7 @@ public class NestedAugmentationWriteTest extends AbstractInfraTest {
 
         dataModification.commit();
 
-        verify(simpleAugmentWriter).update(eq(SIMPLE_AUGMENT_ID), eq(null), eq(simpleAugment()), any(WriteContext.class));
+        verify(simpleAugmentWriter).processModification(eq(SIMPLE_AUGMENT_ID), eq(null), eq(simpleAugment()), any(WriteContext.class));
     }
 
     @Test
@@ -181,9 +181,9 @@ public class NestedAugmentationWriteTest extends AbstractInfraTest {
 
         dataModification.commit();
 
-        verify(augTargetWriter).update(eq(AUG_TARGET_ID), eq(null), eq(data), any(WriteContext.class));
-        verify(fromAugmentWriter).update(eq(FROM_AUGMENT_ID), eq(null), eq(fromAugmentSimple(augData)), any(WriteContext.class));
-        verify(simpleNestedAugmentWriter).update(eq(SIMPLE_NESTED_AUGMENT_ID), eq(null), eq(augData), any(WriteContext.class));
+        verify(augTargetWriter).processModification(eq(AUG_TARGET_ID), eq(null), eq(data), any(WriteContext.class));
+        verify(fromAugmentWriter).processModification(eq(FROM_AUGMENT_ID), eq(null), eq(fromAugmentSimple(augData)), any(WriteContext.class));
+        verify(simpleNestedAugmentWriter).processModification(eq(SIMPLE_NESTED_AUGMENT_ID), eq(null), eq(augData), any(WriteContext.class));
     }
 
     private SimpleAugment simpleAugment() {
@@ -204,9 +204,9 @@ public class NestedAugmentationWriteTest extends AbstractInfraTest {
 
         dataModification.commit();
 
-        verify(augTargetWriter).update(eq(AUG_TARGET_ID), eq(null), eq(data), any(WriteContext.class));
-        verify(fromAugmentWriter).update(eq(FROM_AUGMENT_ID), eq(null), eq(fromAugment()), any(WriteContext.class));
-        verify(fromAugment2Writer).update(eq(FROM_AUGMENT2_ID), eq(null), eq(fromAugment2()), any(WriteContext.class));
+        verify(augTargetWriter).processModification(eq(AUG_TARGET_ID), eq(null), eq(data), any(WriteContext.class));
+        verify(fromAugmentWriter).processModification(eq(FROM_AUGMENT_ID), eq(null), eq(fromAugment()), any(WriteContext.class));
+        verify(fromAugment2Writer).processModification(eq(FROM_AUGMENT2_ID), eq(null), eq(fromAugment2()), any(WriteContext.class));
     }
 
     @Test
@@ -228,10 +228,10 @@ public class NestedAugmentationWriteTest extends AbstractInfraTest {
         dataModification.commit();
 
         final ArgumentCaptor<DataObject> doCaptor = ArgumentCaptor.forClass(DataObject.class);
-        verify(augTargetWriter).update(eq(AUG_TARGET_ID), eq(null), doCaptor.capture(), any(WriteContext.class));
+        verify(augTargetWriter).processModification(eq(AUG_TARGET_ID), eq(null), doCaptor.capture(), any(WriteContext.class));
         assertEquals(data.getSomeLeaf(), ((AugTarget)doCaptor.getValue()).getSomeLeaf());
 
-        verify(fromAugmentWriter).update(eq(FROM_AUGMENT_ID), eq(null), doCaptor.capture(), any(WriteContext.class));
+        verify(fromAugmentWriter).processModification(eq(FROM_AUGMENT_ID), eq(null), doCaptor.capture(), any(WriteContext.class));
         assertEquals(fromAugment.getSomeLeaf(), ((FromAugment)doCaptor.getValue()).getSomeLeaf());
 
 
@@ -241,9 +241,9 @@ public class NestedAugmentationWriteTest extends AbstractInfraTest {
             FROM_AUGMENT_LIST_AUGMENT_ID.child(FromAugmentEntry.class, new FromAugmentEntryKey("2"));
 
         verify(fromAugmentListWriter)
-            .update(eq(keyedNestedList1), eq(null), eq(entries.get(0)), any(WriteContext.class));
+            .processModification(eq(keyedNestedList1), eq(null), eq(entries.get(0)), any(WriteContext.class));
         verify(fromAugmentListWriter)
-            .update(eq(keyedNestedList2), eq(null), eq(entries.get(1)), any(WriteContext.class));
+            .processModification(eq(keyedNestedList2), eq(null), eq(entries.get(1)), any(WriteContext.class));
     }
 
     @Test
@@ -270,19 +270,19 @@ public class NestedAugmentationWriteTest extends AbstractInfraTest {
         dataModification.commit();
 
         // verify aug target update:
-        verify(augTargetWriter).update(eq(AUG_TARGET_ID), eq(null), eq(data), any(WriteContext.class));
+        verify(augTargetWriter).processModification(eq(AUG_TARGET_ID), eq(null), eq(data), any(WriteContext.class));
 
         // verify list customizer update:
         final KeyedInstanceIdentifier<ListFromAugment, ListFromAugmentKey> keyedNestedList =
             LIST_AUGMENT_ID.child(ListFromAugment.class, new ListFromAugmentKey("some-leaf-val"));
         final ArgumentCaptor<DataObject> doCaptor = ArgumentCaptor.forClass(DataObject.class);
         verify(listFromAugmentWriter)
-            .update(eq(keyedNestedList), eq(null), doCaptor.capture(), any(WriteContext.class));
+            .processModification(eq(keyedNestedList), eq(null), doCaptor.capture(), any(WriteContext.class));
         assertEquals(list.get(0).getSomeLeaf(), ((ListFromAugment) doCaptor.getValue()).getSomeLeaf());
 
         // verify list augmentation customizer update:
         verify(listFromAugmentAugmentWriter)
-            .update(eq(keyedNestedList.augmentation(ListFromAugmentAugment.class)), eq(null), doCaptor.capture(),
+            .processModification(eq(keyedNestedList.augmentation(ListFromAugmentAugment.class)), eq(null), doCaptor.capture(),
                 any(WriteContext.class));
         assertEquals(listAugmentation.getNewLeaf(), ((ListFromAugmentAugment) doCaptor.getValue()).getNewLeaf());
     }

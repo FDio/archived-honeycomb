@@ -23,7 +23,7 @@ public class NoopWriterRegistryTest {
     @Test
     public void testNoop() throws Exception {
         final NoopWriterRegistry noopWriterRegistry = new NoopWriterRegistry();
-        noopWriterRegistry.update(null, null);
+        noopWriterRegistry.processModifications(null, null);
         noopWriterRegistry.close();
     }
 }

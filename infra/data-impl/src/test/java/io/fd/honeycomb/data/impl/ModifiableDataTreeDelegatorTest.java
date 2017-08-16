@@ -128,8 +128,9 @@ public class ModifiableDataTreeDelegatorTest extends ModificationBaseTest {
         dataModification.commit();
 
         final Multimap<InstanceIdentifier<?>, DataObjectUpdate> map = HashMultimap.create();
-        map.put(DEFAULT_ID, DataObjectUpdate.create(DEFAULT_ID, DEFAULT_DATA_OBJECT, DEFAULT_DATA_OBJECT));
-        verify(writer).update(eq(new WriterRegistry.DataObjectUpdates(map, ImmutableMultimap.of())), any(WriteContext.class));
+        // data before should be null as it is create
+        map.put(DEFAULT_ID, DataObjectUpdate.create(DEFAULT_ID, null, DEFAULT_DATA_OBJECT));
+        verify(writer).processModifications(eq(new WriterRegistry.DataObjectUpdates(map, ImmutableMultimap.of())), any(WriteContext.class));
         assertEquals(nestedList, dataTree.takeSnapshot().readNode(NESTED_LIST_ID).get());
     }
 
@@ -147,7 +148,7 @@ public class ModifiableDataTreeDelegatorTest extends ModificationBaseTest {
         final WriterRegistry.Reverter reverter = mock(WriterRegistry.Reverter.class);
         final TranslationException failedOnUpdateException = new TranslationException("update failed");
         doThrow(new WriterRegistry.BulkUpdateException(DEFAULT_ID, update, Collections.singleton(DEFAULT_ID), reverter, failedOnUpdateException))
-                .when(writer).update(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
+                .when(writer).processModifications(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
 
         try {
             // Run the test
@@ -157,7 +158,7 @@ public class ModifiableDataTreeDelegatorTest extends ModificationBaseTest {
             dataModification.commit();
             fail("WriterRegistry.RevertSuccessException was expected");
         } catch (WriterRegistry.Reverter.RevertSuccessException e) {
-            verify(writer).update(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
+            verify(writer).processModifications(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
             assertThat(e.getFailedIds(), hasItem(DEFAULT_ID));
             verify(reverter).revert(any(WriteContext.class));
         }
@@ -173,7 +174,7 @@ public class ModifiableDataTreeDelegatorTest extends ModificationBaseTest {
         final WriterRegistry.BulkUpdateException bulkFailEx =
                 new WriterRegistry.BulkUpdateException(DEFAULT_ID, update, Collections.singleton(DEFAULT_ID), reverter,
                         failedOnUpdateException);
-        doThrow(bulkFailEx).when(writer).update(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
+        doThrow(bulkFailEx).when(writer).processModifications(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
 
         // Fail on revert:
         doThrow(new WriterRegistry.Reverter.RevertFailedException(bulkFailEx))
@@ -187,7 +188,7 @@ public class ModifiableDataTreeDelegatorTest extends ModificationBaseTest {
             dataModification.commit();
             fail("WriterRegistry.Reverter.RevertFailedException was expected");
         } catch (WriterRegistry.Reverter.RevertFailedException e) {
-            verify(writer).update(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
+            verify(writer).processModifications(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
             verify(reverter).revert(any(WriteContext.class));
             assertEquals(bulkFailEx, e.getCause());
         }
@@ -200,7 +201,7 @@ public class ModifiableDataTreeDelegatorTest extends ModificationBaseTest {
     @Test
     public void testToBindingAware() throws Exception {
         when(serializer.fromNormalizedNode(any(YangInstanceIdentifier.class), eq(null))).thenReturn(null);
-
+        when(writer.writerSupportsUpdate(any())).thenReturn(true);
         final Map<YangInstanceIdentifier, NormalizedNodeUpdate> biNodes = new HashMap<>();
         // delete
         final QName nn1 = QName.create("namespace", "nn1");
@@ -229,7 +230,7 @@ public class ModifiableDataTreeDelegatorTest extends ModificationBaseTest {
         biNodes.put(yid3, NormalizedNodeUpdate.create(yid3, nn3B, nn3A));
 
         final WriterRegistry.DataObjectUpdates dataObjectUpdates =
-                ModifiableDataTreeDelegator.toBindingAware(biNodes, serializer);
+                ModifiableDataTreeDelegator.toBindingAware(writer, biNodes, serializer);
 
         assertThat(dataObjectUpdates.getDeletes().size(), is(1));
         assertThat(dataObjectUpdates.getDeletes().keySet(), hasItem(((InstanceIdentifier<?>) iid1)));
@@ -241,6 +242,57 @@ public class ModifiableDataTreeDelegatorTest extends ModificationBaseTest {
         assertThat(dataObjectUpdates.getUpdates().values(), hasItems(
                 DataObjectUpdate.create(iid2, null, do2A),
                 DataObjectUpdate.create(iid3, do3B, do3A)));
+
+        assertThat(dataObjectUpdates.getTypeIntersection().size(), is(3));
+    }
+
+    @Test
+    public void testToBindingAwareUpdateNotSupported() throws Exception {
+        when(serializer.fromNormalizedNode(any(YangInstanceIdentifier.class), eq(null))).thenReturn(null);
+        when(writer.writerSupportsUpdate(any())).thenReturn(false);
+        final Map<YangInstanceIdentifier, NormalizedNodeUpdate> biNodes = new HashMap<>();
+        // delete
+        final QName nn1 = QName.create("namespace", "nn1");
+        final YangInstanceIdentifier yid1 = mockYid(nn1);
+        final InstanceIdentifier iid1 = mockIid(yid1, DataObject1.class);
+        final NormalizedNode nn1B = mockNormalizedNode(nn1);
+        final DataObject1 do1B = mockDataObject(yid1, iid1, nn1B, DataObject1.class);
+        biNodes.put(yid1, NormalizedNodeUpdate.create(yid1, nn1B, null));
+
+        // create
+        final QName nn2 = QName.create("namespace", "nn1");
+        final YangInstanceIdentifier yid2 = mockYid(nn2);
+        final InstanceIdentifier iid2 = mockIid(yid2, DataObject2.class);;
+        final NormalizedNode nn2A = mockNormalizedNode(nn2);
+        final DataObject2 do2A = mockDataObject(yid2, iid2, nn2A, DataObject2.class);
+        biNodes.put(yid2, NormalizedNodeUpdate.create(yid2, null, nn2A));
+
+        // processModifications
+        final QName nn3 = QName.create("namespace", "nn1");
+        final YangInstanceIdentifier yid3 = mockYid(nn3);
+        final InstanceIdentifier iid3 = mockIid(yid3, DataObject3.class);
+        final NormalizedNode nn3B = mockNormalizedNode(nn3);
+        final DataObject3 do3B = mockDataObject(yid3, iid3, nn3B, DataObject3.class);
+        final NormalizedNode nn3A = mockNormalizedNode(nn3);
+        final DataObject3 do3A = mockDataObject(yid3, iid3, nn3A, DataObject3.class);;
+        biNodes.put(yid3, NormalizedNodeUpdate.create(yid3, nn3B, nn3A));
+
+        final WriterRegistry.DataObjectUpdates dataObjectUpdates =
+                ModifiableDataTreeDelegator.toBindingAware(writer, biNodes, serializer);
+
+        // should have also id and data for delete as delete + create pair was created
+        assertThat(dataObjectUpdates.getDeletes().size(), is(2));
+        assertThat(dataObjectUpdates.getDeletes().keySet(),
+                hasItems(((InstanceIdentifier<?>) iid1), (InstanceIdentifier<?>) iid3));
+        assertThat(dataObjectUpdates.getDeletes().values(), hasItems(
+                ((DataObjectUpdate.DataObjectDelete) DataObjectUpdate.create(iid1, do1B, null)),
+                ((DataObjectUpdate.DataObjectDelete) DataObjectUpdate.create(iid3, do3B, null))));
+
+        assertThat(dataObjectUpdates.getUpdates().size(), is(2));
+        assertThat(dataObjectUpdates.getUpdates().keySet(), hasItems( (InstanceIdentifier<?>) iid2, (InstanceIdentifier<?>) iid3));
+        assertThat(dataObjectUpdates.getUpdates().values(), hasItems(
+                DataObjectUpdate.create(iid2, null, do2A),
+                DataObjectUpdate.create(iid3, null, do3A)));
 
         assertThat(dataObjectUpdates.getTypeIntersection().size(), is(3));
     }

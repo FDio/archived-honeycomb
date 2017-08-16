@@ -54,15 +54,15 @@ public class InterfaceWriterCustomizer implements ListWriterCustomizer<Interface
         }
     }
 
+    /*
+     * For nodes that does not have support for update operation directly, there's no need to override
+     * updateCurrentAttributes method. Updates will be handlers as combination of delete + create. If you want to
+     * implement update directly, override method updateCurrentAttributes
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Interface> id,
                                         @Nonnull final Interface dataBefore, @Nonnull final Interface dataAfter,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        // There are cases when lower layer does not support all of the CRUD operations, in which case, the handler
-        // should look like this (This will reject configuration from upper layers, returning error/rpc-error):
-        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-                new UnsupportedOperationException("Unable to update interface data, unsupported at lower layer"));
-    }
+    }*/
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Interface> id,

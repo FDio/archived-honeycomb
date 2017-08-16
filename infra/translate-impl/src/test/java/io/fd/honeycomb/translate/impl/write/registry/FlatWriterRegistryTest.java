@@ -84,10 +84,10 @@ public class FlatWriterRegistryTest {
         final DataObject1 dataObject = mock(DataObject1.class);
         updates.put(DataObject1.IID, DataObjectUpdate.create(iid, dataObject, dataObject));
         updates.put(DataObject1.IID, DataObjectUpdate.create(iid2, dataObject, dataObject));
-        flatWriterRegistry.update(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
+        flatWriterRegistry.processModifications(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
 
-        verify(writer1).update(iid, dataObject, dataObject, ctx);
-        verify(writer1).update(iid2, dataObject, dataObject, ctx);
+        verify(writer1).processModification(iid, dataObject, dataObject, ctx);
+        verify(writer1).processModification(iid2, dataObject, dataObject, ctx);
         // Invoked when registry is being created
         verifyNoMoreInteractions(writer1);
         verifyZeroInteractions(writer2);
@@ -105,11 +105,11 @@ public class FlatWriterRegistryTest {
         final InstanceIdentifier<DataObject2> iid2 = InstanceIdentifier.create(DataObject2.class);
         final DataObject2 dataObject2 = mock(DataObject2.class);
         updates.put(DataObject2.IID, DataObjectUpdate.create(iid2, dataObject2, dataObject2));
-        flatWriterRegistry.update(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
+        flatWriterRegistry.processModifications(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
 
         final InOrder inOrder = inOrder(writer1, writer2);
-        inOrder.verify(writer1).update(iid, dataObject, dataObject, ctx);
-        inOrder.verify(writer2).update(iid2, dataObject2, dataObject2, ctx);
+        inOrder.verify(writer1).processModification(iid, dataObject, dataObject, ctx);
+        inOrder.verify(writer2).processModification(iid2, dataObject2, dataObject2, ctx);
 
         verifyNoMoreInteractions(writer1);
         verifyNoMoreInteractions(writer2);
@@ -128,12 +128,12 @@ public class FlatWriterRegistryTest {
         final DataObject2 dataObject2 = mock(DataObject2.class);
         deletes.put(
                 DataObject2.IID, ((DataObjectUpdate.DataObjectDelete) DataObjectUpdate.create(iid2, dataObject2, null)));
-        flatWriterRegistry.update(new WriterRegistry.DataObjectUpdates(ImmutableMultimap.of(), deletes), ctx);
+        flatWriterRegistry.processModifications(new WriterRegistry.DataObjectUpdates(ImmutableMultimap.of(), deletes), ctx);
 
         final InOrder inOrder = inOrder(writer1, writer2);
         // Reversed order of invocation, first writer2 and then writer1
-        inOrder.verify(writer2).update(iid2, dataObject2, null, ctx);
-        inOrder.verify(writer1).update(iid, dataObject, null, ctx);
+        inOrder.verify(writer2).processModification(iid2, dataObject2, null, ctx);
+        inOrder.verify(writer1).processModification(iid, dataObject, null, ctx);
 
         verifyNoMoreInteractions(writer1);
         verifyNoMoreInteractions(writer2);
@@ -159,15 +159,15 @@ public class FlatWriterRegistryTest {
                 DataObject2.IID, ((DataObjectUpdate.DataObjectDelete) DataObjectUpdate.create(iid2, dataObject2, null)));
         // Writer 2 update
         updates.put(DataObject2.IID, DataObjectUpdate.create(iid2, dataObject2, dataObject2));
-        flatWriterRegistry.update(new WriterRegistry.DataObjectUpdates(updates, deletes), ctx);
+        flatWriterRegistry.processModifications(new WriterRegistry.DataObjectUpdates(updates, deletes), ctx);
 
         final InOrder inOrder = inOrder(writer1, writer2);
         // Reversed order of invocation, first writer2 and then writer1 for deletes
-        inOrder.verify(writer2).update(iid2, dataObject2, null, ctx);
-        inOrder.verify(writer1).update(iid, dataObject, null, ctx);
+        inOrder.verify(writer2).processModification(iid2, dataObject2, null, ctx);
+        inOrder.verify(writer1).processModification(iid, dataObject, null, ctx);
         // Then also updates are processed
-        inOrder.verify(writer1).update(iid, dataObject, dataObject, ctx);
-        inOrder.verify(writer2).update(iid2, dataObject2, dataObject2, ctx);
+        inOrder.verify(writer1).processModification(iid, dataObject, dataObject, ctx);
+        inOrder.verify(writer2).processModification(iid2, dataObject2, dataObject2, ctx);
 
         verifyNoMoreInteractions(writer1);
         verifyNoMoreInteractions(writer2);
@@ -181,7 +181,7 @@ public class FlatWriterRegistryTest {
         final Multimap<InstanceIdentifier<?>, DataObjectUpdate> updates = HashMultimap.create();
         addUpdate(updates, DataObject1.class);
         addUpdate(updates, DataObject2.class);
-        flatWriterRegistry.update(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
+        flatWriterRegistry.processModifications(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
     }
 
     @Test
@@ -191,14 +191,14 @@ public class FlatWriterRegistryTest {
 
         // Writer1 always fails
         doThrow(new RuntimeException()).when(writer1)
-                .update(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
+                .processModification(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
 
         final Multimap<InstanceIdentifier<?>, DataObjectUpdate> updates = HashMultimap.create();
         addUpdate(updates, DataObject1.class);
         addUpdate(updates, DataObject2.class);
 
         try {
-            flatWriterRegistry.update(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
+            flatWriterRegistry.processModifications(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
             fail("Bulk update should have failed on writer1");
         } catch (WriterRegistry.BulkUpdateException e) {
             assertThat(e.getUnrevertedSubtrees(), hasSize(2));
@@ -215,7 +215,7 @@ public class FlatWriterRegistryTest {
 
         // Writer1 always fails
         doThrow(new RuntimeException()).when(writer3)
-                .update(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
+                .processModification(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
 
         final Multimap<InstanceIdentifier<?>, DataObjectUpdate> updates = HashMultimap.create();
         addUpdate(updates, DataObject1.class);
@@ -226,26 +226,26 @@ public class FlatWriterRegistryTest {
         updates.put(DataObject2.IID, DataObjectUpdate.create(iid2, before2, after2));
 
         try {
-            flatWriterRegistry.update(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
+            flatWriterRegistry.processModifications(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
             fail("Bulk update should have failed on writer1");
         } catch (WriterRegistry.BulkUpdateException e) {
             assertThat(e.getUnrevertedSubtrees().size(), is(1));
 
             final InOrder inOrder = inOrder(writer1, writer2, writer3);
             inOrder.verify(writer1)
-                .update(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
+                .processModification(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
             inOrder.verify(writer2)
-                .update(iid2, before2, after2, ctx);
+                .processModification(iid2, before2, after2, ctx);
             inOrder.verify(writer3)
-                .update(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
+                .processModification(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
 
             e.revertChanges(revertWriteContext);
             // Revert changes. Successful updates are iterated in reverse
             // also binding other write context,to verify if update context is not reused
             inOrder.verify(writer2)
-                    .update(iid2, after2, before2, revertWriteContext);
+                    .processModification(iid2, after2, before2, revertWriteContext);
             inOrder.verify(writer1)
-                    .update(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), eq(revertWriteContext));
+                    .processModification(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), eq(revertWriteContext));
             verifyNoMoreInteractions(writer3);
         }
     }
@@ -258,7 +258,7 @@ public class FlatWriterRegistryTest {
 
         // Writer1 always fails
         doThrow(new RuntimeException()).when(writer3)
-                .update(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
+                .processModification(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
 
         final Multimap<InstanceIdentifier<?>, DataObjectUpdate> updates = HashMultimap.create();
         addUpdate(updates, DataObject1.class);
@@ -266,12 +266,12 @@ public class FlatWriterRegistryTest {
         addUpdate(updates, DataObjects.DataObject3.class);
 
         try {
-            flatWriterRegistry.update(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
+            flatWriterRegistry.processModifications(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
             fail("Bulk update should have failed on writer1");
         } catch (WriterRegistry.BulkUpdateException e) {
             // Writer1 always fails from now
             doThrow(new RuntimeException()).when(writer1)
-                    .update(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
+                    .processModification(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
             try {
                 e.revertChanges(revertWriteContext);
             } catch (WriterRegistry.Reverter.RevertFailedException e1) {
@@ -293,19 +293,19 @@ public class FlatWriterRegistryTest {
 
         // Writer1 always fails
         doThrow(new RuntimeException()).when(writer1)
-                .update(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class),
+                .processModification(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class),
                         any(WriteContext.class));
 
         final Multimap<InstanceIdentifier<?>, DataObjectUpdate> updates = HashMultimap.create();
         addKeyedUpdate(updates,DataObjects.DataObject1ChildK.class);
         addUpdate(updates, DataObject1.class);
         try {
-            flatWriterRegistry.update(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
+            flatWriterRegistry.processModifications(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
             fail("Bulk update should have failed on writer1");
         } catch (WriterRegistry.BulkUpdateException e) {
             // Writer1 always fails from now
             doThrow(new RuntimeException()).when(writer1)
-                    .update(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class),
+                    .processModification(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class),
                             any(WriteContext.class));
             try {
                 e.revertChanges(revertWriteContext);

@@ -23,18 +23,40 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Generic writer with customizable behavior thanks to injected customizer.
  */
 public final class GenericWriter<D extends DataObject> extends AbstractGenericWriter<D> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(GenericWriter.class);
+    private static final String UPDATE_M = "updateCurrentAttributes";
     private final WriterCustomizer<D> customizer;
 
     public GenericWriter(@Nonnull final InstanceIdentifier<D> type,
                          @Nonnull final WriterCustomizer<D> customizer) {
-        super(type);
+        super(type, isUpdateSupported(customizer));
         this.customizer = customizer;
+
+    }
+
+    static boolean isUpdateSupported(final @Nonnull WriterCustomizer<?> customizer) {
+        try {
+            // if customizer overrides updateCurrentAttributes method, it will be used, otherwise updates will be broken into individual
+            // delete + create pairs
+            final Class<? extends WriterCustomizer> customizerClass = customizer.getClass();
+            final Class<?> updateDeclaringClass = customizerClass
+                    .getMethod(UPDATE_M, InstanceIdentifier.class, DataObject.class, DataObject.class, WriteContext.class)
+                    .getDeclaringClass();
+            final boolean supportsUpdate = !WriterCustomizer.class.equals(updateDeclaringClass);
+            LOG.debug("Customizer {} update support : {}|Update declaring class {}", customizerClass, supportsUpdate,
+                    updateDeclaringClass);
+            return supportsUpdate;
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException("Unable to detect if customizer supports update", e);
+        }
     }
 
     @Override

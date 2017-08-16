@@ -62,11 +62,16 @@ final class SubtreeWriter<D extends DataObject> implements Writer<D> {
     }
 
     @Override
-    public void update(
+    public void processModification(
             @Nonnull final InstanceIdentifier<? extends DataObject> id,
             @Nullable final DataObject dataBefore,
             @Nullable final DataObject dataAfter, @Nonnull final WriteContext ctx) throws WriteFailedException {
-        delegate.update(id, dataBefore, dataAfter, ctx);
+        delegate.processModification(id, dataBefore, dataAfter, ctx);
+    }
+
+    @Override
+    public boolean supportsDirectUpdate() {
+        return delegate.supportsDirectUpdate();
     }
 
     @Override
