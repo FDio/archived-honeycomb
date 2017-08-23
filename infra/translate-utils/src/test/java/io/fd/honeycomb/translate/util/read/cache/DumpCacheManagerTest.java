@@ -86,7 +86,7 @@ public class DumpCacheManagerTest {
         // executor cant return null data
         when(executor.executeDump(identifier, NO_PARAMS)).thenReturn(new IpDetailsReplyDump());
 
-        final Optional<IpDetailsReplyDump> stage1Optional = managerNegative.getDump(identifier, cache, NO_PARAMS);
+        final Optional<IpDetailsReplyDump> stage1Optional = managerNegative.getDump(identifier, cache);
 
         // this is first call so instance should be from executor
         // and it should be cached after calling executor
@@ -99,7 +99,7 @@ public class DumpCacheManagerTest {
         IpDetailsReplyDump stage2LoadedDump = new IpDetailsReplyDump();
         when(executor.executeDump(identifier, NO_PARAMS)).thenReturn(stage2LoadedDump);
 
-        final Optional<IpDetailsReplyDump> stage2Optional = managerPositive.getDump(identifier, cache, NO_PARAMS);
+        final Optional<IpDetailsReplyDump> stage2Optional = managerPositive.getDump(identifier, cache);
 
         assertEquals(true, stage2Optional.isPresent());
         assertEquals(stage2LoadedDump, stage2Optional.get());
@@ -108,7 +108,7 @@ public class DumpCacheManagerTest {
         IpDetailsReplyDump stage3LoadedDump = new IpDetailsReplyDump();
         when(executor.executeDump(identifier, NO_PARAMS)).thenReturn(stage3LoadedDump);
 
-        final Optional<IpDetailsReplyDump> stage3Optional = managerPositive.getDump(identifier, cache, NO_PARAMS);
+        final Optional<IpDetailsReplyDump> stage3Optional = managerPositive.getDump(identifier, cache);
         assertEquals(true, stage3Optional.isPresent());
         //check if it returns instance cached from previous stage
         assertEquals(stage2LoadedDump, stage3Optional.get());
@@ -124,7 +124,7 @@ public class DumpCacheManagerTest {
         when(executor.executeDump(identifier, null)).thenReturn(dump);
 
         Optional<IpDetailsReplyDump> optionalDump =
-                managerPositiveWithPostProcessing.getDump(identifier, cache, NO_PARAMS);
+                managerPositiveWithPostProcessing.getDump(identifier, cache);
 
         assertEquals(true, optionalDump.isPresent());
         assertEquals(1, optionalDump.get().ipDetails.size());
@@ -143,8 +143,8 @@ public class DumpCacheManagerTest {
             .acceptOnly(Integer.class)
             .withExecutor((InstanceIdentifier, Void) -> 3).build();
 
-        final Optional<String> stringDump = stringManager.getDump(identifier, cache, NO_PARAMS);
-        final Optional<Integer> integerDump = intManager.getDump(identifier, cache, NO_PARAMS);
+        final Optional<String> stringDump = stringManager.getDump(identifier, cache);
+        final Optional<Integer> integerDump = intManager.getDump(identifier, cache);
 
         assertTrue(stringDump.isPresent());
         assertTrue(integerDump.isPresent());
