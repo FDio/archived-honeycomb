@@ -46,14 +46,14 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- ODL dependencies -->
-        <yangtools.version>1.1.1-Carbon</yangtools.version>
-        <mdsal.version>2.2.1-Carbon</mdsal.version>
-        <mdsal.controller.version>1.5.1-Carbon</mdsal.controller.version>
-        <mdsalmodel.version>0.10.1-Carbon</mdsalmodel.version>
-        <netconf.version>1.2.1-Carbon</netconf.version>
-        <restconf.version>1.5.1-Carbon</restconf.version>
-        <salGenerator.version>0.10.1-Carbon</salGenerator.version>
-        <bgpcep.version>0.7.1-Carbon</bgpcep.version>
+        <yangtools.version>1.1.2-Carbon</yangtools.version>
+        <mdsal.version>2.2.2-Carbon</mdsal.version>
+        <mdsal.controller.version>1.5.2-Carbon</mdsal.controller.version>
+        <mdsalmodel.version>0.10.2-Carbon</mdsalmodel.version>
+        <netconf.version>1.2.2-Carbon</netconf.version>
+        <restconf.version>1.5.2-Carbon</restconf.version>
+        <salGenerator.version>0.10.2-Carbon</salGenerator.version>
+        <bgpcep.version>0.7.2-Carbon</bgpcep.version>
         <salGeneratorPath>target/generated-sources/mdsal-binding</salGeneratorPath>
 
         <!-- common dependencies -->
