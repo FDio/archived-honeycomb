@@ -16,10 +16,7 @@
 
 package io.fd.honeycomb.infra.distro.data.context;
 
-import static io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule.HONEYCOMB_CONFIG;
-
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.data.init.RestoringInitializer;
 import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
@@ -34,8 +31,8 @@ final class PersistedContextInitializerProvider extends ProviderTrait<RestoringI
     private SchemaService schemaService;
     @Inject
     protected HoneycombConfiguration cfgAttributes;
+    // injects data broker from within context of private module
     @Inject
-    @Named(HONEYCOMB_CONFIG)
     private DOMDataBroker domDataBroker;
 
     @Override
