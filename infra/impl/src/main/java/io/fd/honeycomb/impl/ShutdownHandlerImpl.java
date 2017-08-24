@@ -16,8 +16,7 @@
 
 package io.fd.honeycomb.impl;
 
-import static java.lang.String.format;
-
+import com.google.common.annotations.VisibleForTesting;
 import io.fd.honeycomb.data.init.ShutdownHandler;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -25,7 +24,7 @@ import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ShutdownHandlerImpl implements ShutdownHandler {
+public final class ShutdownHandlerImpl implements ShutdownHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(ShutdownHandlerImpl.class);
 
@@ -33,17 +32,7 @@ public class ShutdownHandlerImpl implements ShutdownHandler {
 
     public ShutdownHandlerImpl() {
         components = new LinkedList<>();
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            // close components in reverse order that they were registered
-            components.descendingIterator().forEachRemaining(closeable -> {
-                LOG.info("Closing component {}", closeable.getName());
-                try {
-                    closeable.getComponent().close();
-                } catch (Exception e) {
-                    throw new IllegalStateException(format("Unable to close component %s", closeable.getName()), e);
-                }
-            });
-        }));
+        Runtime.getRuntime().addShutdownHook(new Thread((this::performShutdown)));
     }
 
     @Override
@@ -69,5 +58,19 @@ public class ShutdownHandlerImpl implements ShutdownHandler {
         private AutoCloseable getComponent() {
             return component;
         }
+    }
+
+    @VisibleForTesting
+    void performShutdown() {
+        // close components in reverse order that they were registered
+        components.descendingIterator().forEachRemaining(closeable -> {
+            LOG.info("Closing component {}", closeable.getName());
+            try {
+                closeable.getComponent().close();
+            } catch (Exception e) {
+                // We can't do much here, so logging exception and moving to the next closable component
+                LOG.warn("Unable to close component {}", closeable.getName(), e);
+            }
+        });
     }
 }
