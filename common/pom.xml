@@ -37,6 +37,7 @@
     <module>impl-parent</module>
     <module>minimal-assembly-descriptor</module>
     <module>minimal-distribution-parent</module>
+    <module>yang-whitelist</module>
   </modules>
 
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->

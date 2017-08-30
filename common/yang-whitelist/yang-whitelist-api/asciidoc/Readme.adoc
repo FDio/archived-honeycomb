@@ -1,0 +1,4 @@
+= whitelist-api
+
+Defines general api to whitelist list of yang modules that will be loaded to SchemaContext
+per maven module

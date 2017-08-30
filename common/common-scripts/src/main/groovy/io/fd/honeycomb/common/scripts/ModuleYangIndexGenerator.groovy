@@ -50,6 +50,12 @@ class ModuleYangIndexGenerator {
     private static final YANG_MODULES_INDEX_FILE_NAME = "yang-modules-index"
 
     public static void generateIndexForPresentModules(project, log) {
+        String skip = project.getProperties().get("skip.module.list.generation")
+        if (Boolean.parseBoolean(skip)) {
+            log.info "Skipping yang modules list generation for project ${project.getName()}"
+            return
+        }
+
         log.info "Checking module providers for project ${project.getName()}"
         // checks module provides from dependencies
         // folder with extracted libs
@@ -59,7 +65,7 @@ class ModuleYangIndexGenerator {
             // therefore it will run also for parent, that does not have any depedencies(just dep management)
             // so lib folder wont be created
             log.info "Folder ${libsFolder} does not exist - No dependencies to process"
-            return;
+            return
         }
 
         String yangModules = java.nio.file.Files.walk(libsFolder)

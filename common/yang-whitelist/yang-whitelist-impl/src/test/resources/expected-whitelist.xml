@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><yangModuleWhitelist><modules><module><description>desc</description><package>module.a.package</package></module><module><package>module.b.package</package></module></modules></yangModuleWhitelist>

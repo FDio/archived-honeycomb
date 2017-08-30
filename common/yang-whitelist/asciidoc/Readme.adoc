@@ -1,0 +1,33 @@
+= whitelist-aggregator
+
+Yang whitelist's are used to restrict list of modules that will be loaded to SchemaContext
+per maven module.
+
+== Usage
+
+Two steps are required to use this feature.
+
+ * Define ***.xml file that defines whitelist itself like so:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<yangModuleWhitelist>
+     <modules>
+         <module>
+             <package>Package name of YangModuleProvider class generated for respective yang model</package>
+             <description>General description for model</description>
+         </module>
+     ...
+     </modules>
+</yangModuleWhitelist>
+----
+
+ * Define *yang.modules.whitelist* property in you project pom
+
+[source,xml]
+----
+<yang.modules.whitelist>
+  ${project.basedir}/src/main/resources/honeycomb-minimal-resources/config/restconf-whitelist.xml
+</yang.modules.whitelist>
+----
