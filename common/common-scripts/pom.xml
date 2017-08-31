@@ -94,6 +94,11 @@
             <artifactId>commons-io</artifactId>
             <version>${commons-io.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.fd.honeycomb.yang</groupId>
+            <artifactId>yang-whitelist-impl</artifactId>
+            <version>1.17.10-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 </project>

@@ -34,6 +34,9 @@
         <jersey.version>1.19.1</jersey.version>
         <servlet.version>3.1.0</servlet.version>
         <jetty.version>9.3.11.v20160721</jetty.version>
+        <yang.modules.whitelist>
+            ${project.basedir}/src/main/resources/honeycomb-minimal-resources/config/restconf-whitelist.xml
+        </yang.modules.whitelist>
     </properties>
 
     <dependencies>

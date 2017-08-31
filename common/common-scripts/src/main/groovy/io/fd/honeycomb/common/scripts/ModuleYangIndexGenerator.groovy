@@ -18,6 +18,7 @@ package io.fd.honeycomb.common.scripts
 
 import com.google.common.base.Strings
 import com.google.common.io.Files
+import io.fd.honeycomb.yang.YangModuleWhitelistReader
 import org.apache.commons.io.FileUtils
 import org.opendaylight.yangtools.yang.binding.YangModelBindingProvider
 
@@ -56,32 +57,50 @@ class ModuleYangIndexGenerator {
             return
         }
 
-        log.info "Checking module providers for project ${project.getName()}"
-        // checks module provides from dependencies
-        // folder with extracted libs
-        def libsFolder = Paths.get(project.getBuild().getDirectory(), "lib")
-        if (!libsFolder.toFile().exists()) {
-            // Plugin for collecting dependencies is executed from parent project,
-            // therefore it will run also for parent, that does not have any depedencies(just dep management)
-            // so lib folder wont be created
-            log.info "Folder ${libsFolder} does not exist - No dependencies to process"
-            return
+        String whitelist = project.getProperties().get("yang.modules.whitelist")
+        String yangModules;
+        if (whitelist != null) {
+            log.info "Using whitelist configuration for project ${project.getName()}"
+            def whiteListPath = Paths.get(whitelist)
+            if (!whiteListPath.toFile().exists()) {
+                throw new IllegalStateException(format("Whitelist file on path %s does not exist", whitelist));
+            }
+
+            def reader = new YangModuleWhitelistReader()
+            def yangModuleWhitelist = reader.read(whiteListPath);
+            yangModules = yangModuleWhitelist.getModules().stream()
+                    .map { module -> module.getBindingProviderName().trim()}
+                    .collect()
+                    .join(MODULES_DELIMITER)
+        } else {
+            log.info "Checking module providers for project ${project.getName()}"
+            // checks module provides from dependencies
+            // folder with extracted libs
+            def libsFolder = Paths.get(project.getBuild().getDirectory(), "lib")
+            if (!libsFolder.toFile().exists()) {
+                // Plugin for collecting dependencies is executed from parent project,
+                // therefore it will run also for parent, that does not have any depedencies(just dep management)
+                // so lib folder wont be created
+                log.info "Folder ${libsFolder} does not exist - No dependencies to process"
+                return
+            }
+
+            yangModules = java.nio.file.Files.walk(libsFolder)
+                    .map { path -> path.toFile() }
+                    .filter { file -> file.isFile() }
+                    .filter { file -> file.getName().endsWith(".jar") }
+                    .map { file -> getModuleProviderContentFromApiJar(new JarFile(file), log) }
+                    .filter { content -> !Strings.isNullOrEmpty(content.trim()) }
+                    .collect().join(MODULES_DELIMITER)
         }
 
-        String yangModules = java.nio.file.Files.walk(libsFolder)
-                .map { path -> path.toFile() }
-                .filter { file -> file.isFile() }
-                .filter { file -> file.getName().endsWith(".jar") }
-                .map { file -> getModuleProviderContentFromApiJar(new JarFile(file), log) }
-                .filter { content -> !Strings.isNullOrEmpty(content.trim()) }
-                .collect().join(MODULES_DELIMITER)
-        log.info "Yang yangModules found : $yangModules"
+        log.info "Yang modules found : $yangModules"
         def outputDir = Paths.get(project.getBuild().getOutputDirectory(), YANG_MODULES_FOLDER).toFile()
         outputDir.mkdirs()
         def outputFile = Paths.get(outputDir.getPath(), YANG_MODULES_FILE_NAME).toFile()
         outputFile.createNewFile()
         Files.write(yangModules, outputFile, StandardCharsets.UTF_8)
-        log.info "Yang yangModules configuration successfully written to ${outputFile.getPath()}"
+        log.info "Yang modules configuration successfully written to ${outputFile.getPath()}"
     }
 
     /**
@@ -101,7 +120,6 @@ class ModuleYangIndexGenerator {
         log.info "Pairing against dependencies"
         // The rest of the modules is looked up in dependencies
         pairAgainsDependencyArtifacts(project, modules, log, moduleToYangModulesIndex)
-
         // for ex.: /target/honeycomb-minimal-resources/yang-mapping
         def yangMappingFolder = Paths.get(project.getBuild().getOutputDirectory(), StartupScriptGenerator.MINIMAL_RESOURCES_FOLDER, YANG_MAPPING_FOLDER).toFile()
 
