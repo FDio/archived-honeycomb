@@ -30,6 +30,12 @@
     <artifactId>netconf</artifactId>
     <version>1.17.10-SNAPSHOT</version>
 
+    <properties>
+        <yang.modules.whitelist>
+            ${project.basedir}/src/main/resources/honeycomb-minimal-resources/config/netconf-whitelist.xml
+        </yang.modules.whitelist>
+    </properties>
+
     <dependencies>
         <!-- DI-->
         <dependency>
