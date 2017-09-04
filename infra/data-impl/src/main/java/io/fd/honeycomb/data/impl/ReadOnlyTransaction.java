@@ -25,6 +25,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import io.fd.honeycomb.data.DataModification;
 import io.fd.honeycomb.data.ReadableDataManager;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,7 +44,7 @@ final class ReadOnlyTransaction implements DOMDataReadOnlyTransaction {
     @Nullable
     private ReadableDataManager operationalData;
     @Nullable
-    private ReadableDataManager configSnapshot;
+    private DataModification configSnapshot;
 
     private boolean closed = false;
 
@@ -51,7 +52,7 @@ final class ReadOnlyTransaction implements DOMDataReadOnlyTransaction {
      * @param configData config data tree manager. Null if config reads are not to be supported
      * @param operationalData operational data tree manager. Null if operational reads are not to be supported
      */
-    private ReadOnlyTransaction(@Nullable final ReadableDataManager configData,
+    private ReadOnlyTransaction(@Nullable final DataModification configData,
                                 @Nullable final ReadableDataManager operationalData) {
         this.configSnapshot = configData;
         this.operationalData = operationalData;
@@ -59,6 +60,10 @@ final class ReadOnlyTransaction implements DOMDataReadOnlyTransaction {
 
     @Override
     public synchronized void close() {
+        if(configSnapshot != null) {
+            configSnapshot.close();
+        }
+
         closed = true;
         configSnapshot = null;
         operationalData = null;
@@ -101,12 +106,12 @@ final class ReadOnlyTransaction implements DOMDataReadOnlyTransaction {
     }
 
     @Nonnull
-    static ReadOnlyTransaction createConfigOnly(@Nonnull final ReadableDataManager configData) {
+    static ReadOnlyTransaction createConfigOnly(@Nonnull final DataModification configData) {
         return new ReadOnlyTransaction(requireNonNull(configData), null);
     }
 
     @Nonnull
-    static ReadOnlyTransaction create(@Nonnull final ReadableDataManager configData,
+    static ReadOnlyTransaction create(@Nonnull final DataModification configData,
                                       @Nonnull final ReadableDataManager operationalData) {
         return new ReadOnlyTransaction(requireNonNull(configData), requireNonNull(operationalData));
     }

@@ -104,6 +104,9 @@ final class WriteTransaction implements DOMDataWriteTransaction {
             // only NEW transactions can be cancelled
             return false;
         } else {
+            if (configModification != null) {
+                configModification.close();
+            }
             status = CANCELED;
             return true;
         }

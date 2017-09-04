@@ -26,7 +26,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailed
  * Modification of a {@link ModifiableDataManager}.
  */
 @Beta
-public interface DataModification extends ReadableDataManager {
+public interface DataModification extends ReadableDataManager, AutoCloseable {
 
     /**
      * Delete the node at specified path.
@@ -67,4 +67,12 @@ public interface DataModification extends ReadableDataManager {
      * @throws DataValidationFailedException if modification data is not valid
      */
     void validate() throws DataValidationFailedException;
+
+    /**
+     * Perform cleanup if necessary.
+     */
+    @Override
+    default void close() {
+        // by default, no cleanup is required
+    }
 }
