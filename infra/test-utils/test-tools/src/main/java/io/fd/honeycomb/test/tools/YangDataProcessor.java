@@ -78,7 +78,7 @@ interface YangDataProcessor {
         try {
             parentInstanceId = serializer.toBinding(parentYangId);
         } catch (DeserializationException e) {
-            throw new IllegalArgumentException(String.format("Unable to deserialize %s", parentYangId));
+            throw new IllegalArgumentException(String.format("Unable to deserialize %s", parentYangId), e);
         }
 
         if (!parentInstanceId.isPresent()) {
@@ -108,7 +108,7 @@ interface YangDataProcessor {
                         throw new IllegalArgumentException(String.format("Unable to create node binding  for %s|%s", identifier, data));
                     });
         } catch (DeserializationException e) {
-            throw new IllegalArgumentException(String.format("Unable to deserialize node %s|%s", identifier, data));
+            throw new IllegalArgumentException(String.format("Unable to deserialize node %s|%s", identifier, data), e);
         }
     }
 
@@ -121,7 +121,7 @@ interface YangDataProcessor {
                         throw new IllegalArgumentException(String.format("Unable convert %s to binding", identifier));
                     });
         } catch (DeserializationException e) {
-            throw new IllegalArgumentException(String.format("Unable to deserialize %s", identifier));
+            throw new IllegalArgumentException(String.format("Unable to deserialize %s", identifier), e);
         }
     }
 }

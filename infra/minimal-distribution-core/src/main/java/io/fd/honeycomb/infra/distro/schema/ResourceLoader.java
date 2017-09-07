@@ -104,7 +104,7 @@ interface ResourceLoader {
             try {
                 return jar.getInputStream(jarEntry);
             } catch (IOException e) {
-                throw new IllegalStateException(format("Unable to get stream for entry %s | jar %s", jar, jarEntry));
+                throw new IllegalStateException(format("Unable to get stream for entry %s | jar %s", jar, jarEntry), e);
             }
         }
 
@@ -112,7 +112,7 @@ interface ResourceLoader {
             try {
                 return url.toURI();
             } catch (URISyntaxException e) {
-                throw new IllegalStateException(format("Unable to convert URL %s to URI", url));
+                throw new IllegalStateException(format("Unable to convert URL %s to URI", url), e);
             }
         }
 
