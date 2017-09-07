@@ -66,7 +66,7 @@ public class YangModuleWhitelistWriter extends JAXBContextHolder {
         try {
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, value);
         } catch (PropertyException e) {
-            throw new IllegalStateException("Unable to setup pretty print");
+            throw new IllegalStateException("Unable to setup pretty print", e);
         }
     }
 

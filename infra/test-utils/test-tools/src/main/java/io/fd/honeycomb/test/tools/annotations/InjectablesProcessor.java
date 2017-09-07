@@ -77,7 +77,7 @@ public interface InjectablesProcessor {
         try {
             FieldUtils.writeField(field, testInstance, data);
         } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Unable to access field " + field);
+            throw new IllegalStateException("Unable to access field " + field, e);
         }
     }
 
@@ -85,9 +85,9 @@ public interface InjectablesProcessor {
         try {
             return YangInstanceIdentifier.of(QName.class.cast(type.getField("QNAME").get(null)));
         } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Constant QNAME not accessible for type" + type);
+            throw new IllegalStateException("Constant QNAME not accessible for type" + type, e);
         } catch (NoSuchFieldException e) {
-            throw new IllegalStateException("Class " + type + " does not have QName defined");
+            throw new IllegalStateException("Class " + type + " does not have QName defined", e);
         }
     }
 
