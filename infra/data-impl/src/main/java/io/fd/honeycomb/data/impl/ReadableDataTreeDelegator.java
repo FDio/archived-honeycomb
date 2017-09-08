@@ -131,9 +131,11 @@ public final class ReadableDataTreeDelegator implements ReadableDataManager {
         checkNotNull(path, "Invalid instance identifier %s. Cannot create BA equivalent.", yangInstanceIdentifier);
         LOG.debug("OperationalDataTree.readNode(), path={}", path);
 
-        final Optional<? extends DataObject> dataObject;
+        final Optional<? extends DataObject> dataObject = readerRegistry.read(path, ctx);
 
-        dataObject = readerRegistry.read(path, ctx);
+        // Modification cache should not be used after DOs are read, so we can clear it now to reduce peak footprint.
+        ctx.getModificationCache().close();
+
         if (dataObject.isPresent()) {
             final NormalizedNode<?, ?> value = toNormalizedNodeFunction(path).apply(dataObject.get());
             return Optional.<NormalizedNode<?, ?>>fromNullable(value);
@@ -151,6 +153,10 @@ public final class ReadableDataTreeDelegator implements ReadableDataManager {
 
         final Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> dataObjects =
                 readerRegistry.readAll(ctx);
+
+        // Modification cache should not be used after DOs are read, so we can clear it now to reduce peak footprint.
+        // Even greater reduction can be achieved with HONEYCOMB-361.
+        ctx.getModificationCache().close();
 
         for (final InstanceIdentifier<? extends DataObject> instanceIdentifier : dataObjects.keySet()) {
             final YangInstanceIdentifier rootElementId = serializer.toYangInstanceIdentifier(instanceIdentifier);
