@@ -43,7 +43,8 @@
             io.fd.honeycomb.infra.distro.cfgattrs.CfgAttrsModule,
             // io.fd.honeycomb.infra.bgp.BgpModule,
             // io.fd.honeycomb.infra.bgp.BgpReadersModule,
-            // io.fd.honeycomb.infra.bgp.BgpWritersModule
+            // io.fd.honeycomb.infra.bgp.BgpWritersModule,
+            // io.fd.honeycomb.footprint.FootprintModule
         </distribution.modules>
     </properties>
 
@@ -81,6 +82,11 @@
         <dependency>
             <groupId>io.fd.honeycomb.northbound</groupId>
             <artifactId>bgp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.honeycomb.footprint</groupId>
+            <artifactId>impl</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

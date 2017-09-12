@@ -1,0 +1,28 @@
+module footprint {
+  yang-version 1;
+  namespace "urn:opendaylight:params:xml:ns:yang:footprint";
+  prefix "footprint";
+
+  revision "2017-08-30" {
+    description "HC model for requesting current memory consumption";
+  }
+
+  container memory-footprint-state {
+    config false;
+
+    leaf footprint {
+        type uint32;
+        description "Memory footprint in kilobytes. Footprint is parsed as output of ps command, where RSS field is
+         read.
+
+         RSS is the Resident Set Size and is used to show how much memory is allocated to that process and is in RAM.
+         It does not include memory that is swapped out. It does include memory from shared libraries
+         as long as the pages from those libraries are actually in memory. It does include all stack and heap memory.";
+    }
+
+    leaf pid {
+        type uint32;
+        description "Process id of honeycomb";
+    }
+  }
+}

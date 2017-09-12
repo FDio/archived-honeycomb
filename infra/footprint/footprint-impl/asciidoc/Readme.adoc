@@ -1,0 +1,19 @@
+= impl
+
+== To read footprint
+
+[source,java]
+----
+HttpResponse<String> response = Unirest.get("http://localhost:8183/restconf/operational/footprint:memory-footprint-state")
+  .header("authorization", "Basic YWRtaW46YWRtaW4=")
+  .header("content-type", "application/json")
+  .asString();
+----
+
+[source,shell]
+----
+curl --request GET \
+  --url http://localhost:8183/restconf/operational/footprint:memory-footprint-state \
+  --header 'authorization: Basic YWRtaW46YWRtaW4=' \
+  --header 'content-type: application/json'
+----

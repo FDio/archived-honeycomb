@@ -1,0 +1,3 @@
+= api
+
+Provides api for reading honeycomb memory footprint.
