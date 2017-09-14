@@ -31,7 +31,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <exec.parameters>-Xms32m -Xmx128m -XX:MetaspaceSize=32m -XX:MaxMetaspaceSize=128m</exec.parameters>
+        <exec.parameters>-Xms32m -Xmn90m -Xmx128m -XX:MetaspaceSize=32m -XX:MaxMetaspaceSize=128m</exec.parameters>
         <exec.parameters.minimal>-client -Xms20m -Xmx32m -XX:MetaspaceSize=5m -XX:MaxMetaspaceSize=32m -XX:MaxMetaspaceExpansion=1m -Xss512k -XX:+UseSerialGC -Djava.compiler=NONE -Xverify:none -noverify</exec.parameters.minimal>
 
         <!-- Use /dev/urandom instead of /dev/random during tests to speed up execution
