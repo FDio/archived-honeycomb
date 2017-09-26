@@ -43,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.LINKSTATE;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
@@ -74,7 +75,8 @@ final class BgpRIBProvider extends ProviderTrait<RIB> {
         final Ipv4Address routerId = new Ipv4Address(cfg.bgpBindingAddress.get());
         final ClusterIdentifier clusterId = new ClusterIdentifier(routerId);
         LOG.debug("Creating BGP RIB: routerId={}, asNumber={}", routerId, asNumber);
-        // TODO configure other BGP Multiprotocol extensions:
+        // TODO(HONEYCOMB-395): should all afi-safis use the same send-max value?
+        // TODO(HONEYCOMB-363): configure other BGP Multiprotocol extensions:
         final List<AfiSafi> afiSafi = ImmutableList.of(
             new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
             .addAugmentation(AfiSafi2.class,
@@ -82,6 +84,11 @@ final class BgpRIBProvider extends ProviderTrait<RIB> {
                     .setSendMax(cfg.bgpSendMaxMaths.get().shortValue()).build())
             .build(),
             new AfiSafiBuilder().setAfiSafiName(IPV4LABELLEDUNICAST.class)
+                .addAugmentation(AfiSafi2.class,
+                    new AfiSafi2Builder().setReceive(cfg.isBgpMultiplePathsEnabled())
+                        .setSendMax(cfg.bgpSendMaxMaths.get().shortValue()).build())
+                .build(),
+            new AfiSafiBuilder().setAfiSafiName(LINKSTATE.class)
                 .addAugmentation(AfiSafi2.class,
                     new AfiSafi2Builder().setReceive(cfg.isBgpMultiplePathsEnabled())
                         .setSendMax(cfg.bgpSendMaxMaths.get().shortValue()).build())
