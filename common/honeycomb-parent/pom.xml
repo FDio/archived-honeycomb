@@ -34,6 +34,13 @@
         <!-- Sonar configuration -->
         <!-- Note: This list should match jacoco-maven-plugin's exclusion list below -->
         <sonar.exclusions>**/gen/**,**/generated-sources/**,**/yang-gen**</sonar.exclusions>
+        <!-- https://github.com/SonarSource/sonar-scanning-examples/blob/master/sonarqube-scanner-maven/pom.xml#L24 -->
+        <!-- The destination file for the code coverage report has to be set to the same value
+             in the parent pom and in each module pom. Then JaCoCo will add up information in
+             the same report, so that, it will give the cross-module code coverage. -->
+        <!-- We store jacoco-it.exec in honeycomb-parent because it is built first,
+             so mvn clean won't remove aggregated report. -->
+        <sonar.jacoco.itReportPath>${maven.multiModuleProjectDirectory}/common/honeycomb-parent/target/jacoco-it.exec</sonar.jacoco.itReportPath>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -311,19 +318,28 @@
                     <version>${jacoco.version}</version>
                     <executions>
                         <execution>
-                            <id>pre-unit-test</id>
+                            <id>agent-for-ut</id>
                             <goals>
                                 <goal>prepare-agent</goal>
                             </goals>
                         </execution>
                         <execution>
-                            <id>post-unit-test</id>
+                            <id>agent-for-it</id>
+                            <goals>
+                                <goal>prepare-agent-integration</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>jacoco-site</id>
                             <goals>
                                 <goal>report</goal>
                             </goals>
                         </execution>
                     </executions>
                     <configuration>
+                        <!-- Appends data to existing JaCoCo execution file. Required for IT coverage.
+                             Will not affect UT which use separate files. -->
+                        <append>true</append>
                         <excludes>
                             <exclude>**/gen/**</exclude>
                             <exclude>**/generated-sources/**</exclude>
