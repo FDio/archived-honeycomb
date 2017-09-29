@@ -96,4 +96,17 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Include module's tests in IT coverage report -->
+                    <destFile>${sonar.jacoco.itReportPath}</destFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
