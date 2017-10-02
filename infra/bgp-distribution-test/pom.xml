@@ -65,7 +65,7 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <configuration>
                     <!-- Include module's tests in IT coverage report -->
-                    <destFile>${sonar.jacoco.itReportPath}</destFile>
+                    <destFile>../../common/honeycomb-parent/target/jacoco-it.exec</destFile>
                 </configuration>
             </plugin>
         </plugins>
