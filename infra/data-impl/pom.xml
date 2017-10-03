@@ -20,7 +20,7 @@
     <parent>
         <artifactId>impl-parent</artifactId>
         <groupId>io.fd.honeycomb.common</groupId>
-        <version>1.17.10-SNAPSHOT</version>
+        <version>1.18.01-SNAPSHOT</version>
         <relativePath>../../common/impl-parent</relativePath>
     </parent>
 
@@ -28,7 +28,7 @@
     <groupId>io.fd.honeycomb</groupId>
     <artifactId>data-impl</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.17.10-SNAPSHOT</version>
+    <version>1.18.01-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <dependencies>
