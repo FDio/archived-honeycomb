@@ -4,7 +4,7 @@ Honeycomb Plugin Archetype
 
 How to use it :
 
-    archetype:generate -DarchetypeGroupId=io.fd.honeycomb.tools -DarchetypeArtifactId=honeycomb-plugin-archetype -DarchetypeVersion=1.17.10-RC1
+    archetype:generate -DarchetypeGroupId=io.fd.honeycomb.tools -DarchetypeArtifactId=honeycomb-plugin-archetype -DarchetypeVersion=1.17.10-SNAPSHOT
 
 This will generate main aggregator project containing two sub-projects
 

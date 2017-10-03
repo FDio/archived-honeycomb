@@ -21,7 +21,7 @@
     <parent>
         <artifactId>infra-aggregator</artifactId>
         <groupId>io.fd.honeycomb</groupId>
-        <version>1.17.10-RC1</version>
+        <version>1.17.10-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
