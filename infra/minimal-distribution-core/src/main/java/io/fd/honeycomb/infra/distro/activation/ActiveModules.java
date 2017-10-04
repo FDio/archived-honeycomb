@@ -16,11 +16,12 @@
 
 package io.fd.honeycomb.infra.distro.activation;
 
-import static java.lang.String.format;
-
 import com.google.inject.Module;
+
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 /**
  * Provides static set of active activeModulesClasses

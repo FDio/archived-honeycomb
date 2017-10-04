@@ -1,0 +1,1 @@
+GUICE_MODULE:io.fd.honeycomb.infra.distro.schema.SchemaModule|YANG_MODULES:org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.$YangModelBindingProvider

@@ -33,11 +33,16 @@ public final class NoopWriter<T extends DataObject> implements Writer<T> {
     }
 
     @Override
-    public void update(@Nonnull final InstanceIdentifier<? extends DataObject> id,
+    public void processModification(@Nonnull final InstanceIdentifier<? extends DataObject> id,
                        @Nullable final DataObject dataBefore,
                        @Nullable final DataObject dataAfter,
                        @Nonnull final WriteContext ctx) throws WriteFailedException {
         // NOOP
+    }
+
+    @Override
+    public boolean supportsDirectUpdate() {
+        return true;
     }
 
     @Nonnull
