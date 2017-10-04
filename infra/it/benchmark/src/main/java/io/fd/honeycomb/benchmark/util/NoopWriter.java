@@ -19,11 +19,12 @@ package io.fd.honeycomb.benchmark.util;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.translate.write.Writer;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Noop writer suitable for lists as well.
@@ -39,7 +40,7 @@ public final class NoopWriter<T extends DataObject> implements Writer<T> {
     }
 
     @Override
-    public void update(@Nonnull final InstanceIdentifier<? extends DataObject> id,
+    public void processModification(@Nonnull final InstanceIdentifier<? extends DataObject> id,
                        @Nullable final DataObject dataBefore,
                        @Nullable final DataObject dataAfter,
                        @Nonnull final WriteContext ctx) throws WriteFailedException {
@@ -59,5 +60,10 @@ public final class NoopWriter<T extends DataObject> implements Writer<T> {
                 id.getTargetType().getSimpleName() +
                 ", counter=" + counter +
                 '}';
+    }
+
+    @Override
+    public boolean supportsDirectUpdate() {
+        return true;
     }
 }

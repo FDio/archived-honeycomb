@@ -17,21 +17,18 @@
 package io.fd.honeycomb.infra.distro.schema;
 
 
-import static java.lang.String.format;
-
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import io.fd.honeycomb.infra.distro.activation.ActivationConfig;
 import io.fd.honeycomb.infra.distro.activation.ActiveModules;
-import java.io.IOException;
-import java.net.URL;
+import org.opendaylight.yangtools.yang.binding.YangModelBindingProvider;
+
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import org.opendaylight.yangtools.yang.binding.YangModelBindingProvider;
+
+import static java.lang.String.format;
 
 /**
  * Loads active yang modules
@@ -59,10 +56,10 @@ public class YangModulesProvider implements Provider<YangModulesProvider.YangMod
                 .collect(Collectors.toSet()));
     }
 
-    static class YangModules {
+    public static class YangModules {
         private final Set<Class<? extends YangModelBindingProvider>> yangBindings;
 
-        YangModules(final Set<Class<? extends YangModelBindingProvider>> yangBindings) {
+        public YangModules(final Set<Class<? extends YangModelBindingProvider>> yangBindings) {
             this.yangBindings = yangBindings;
         }
 
@@ -84,14 +81,6 @@ public class YangModulesProvider implements Provider<YangModulesProvider.YangMod
             return Class.forName(className);
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("Unable to load class: " + className, e);
-        }
-    }
-
-    static String urlToString(@Nonnull final URL url) {
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Unable to read resource from: " + url, e);
         }
     }
 }

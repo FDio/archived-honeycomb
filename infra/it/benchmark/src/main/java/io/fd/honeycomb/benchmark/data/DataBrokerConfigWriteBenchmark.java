@@ -16,27 +16,19 @@
 
 package io.fd.honeycomb.benchmark.data;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.Module;
+import com.google.inject.*;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import io.fd.honeycomb.benchmark.util.DataProvider;
 import io.fd.honeycomb.benchmark.util.DataSubmitter;
 import io.fd.honeycomb.benchmark.util.FileManager;
 import io.fd.honeycomb.benchmark.util.NoopWriter;
+import io.fd.honeycomb.infra.distro.activation.ActivationConfig;
+import io.fd.honeycomb.infra.distro.activation.ActiveModules;
 import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -46,21 +38,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.container.with.list.list.in.container.ContainerInList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.container.with.list.list.in.container.container.in.list.NestedList;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Level;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.Param;
+import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.TearDown;
-import org.openjdk.jmh.annotations.Timeout;
-import org.openjdk.jmh.annotations.Warmup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 /**
  * Measures the performance of CONFIG writes into BA DataBroker, backed by HC infrastructure and then NOOP writers.
@@ -162,6 +152,8 @@ public class DataBrokerConfigWriteBenchmark extends AbstractModule implements Fi
         try {
             instance = getHoneycombConfiguration(persistence);
             bind(HoneycombConfiguration.class).toInstance(instance);
+            bind(ActivationConfig.class).toInstance(getActivationConfig());
+            bind(ActiveModules.class).toInstance(new ActiveModules(Arrays.stream(modules).map(Module::getClass).collect(Collectors.toSet())));
         } catch (IOException e) {
             throw new RuntimeException("Unable to prepare configuration", e);
         }
@@ -195,5 +187,11 @@ public class DataBrokerConfigWriteBenchmark extends AbstractModule implements Fi
         instance.peristConfigPath = FileManager.INSTANCE.createTempFile("config").toString();
         instance.peristContextPath = FileManager.INSTANCE.createTempFile("context").toString();
         return instance;
+    }
+
+    private static ActivationConfig getActivationConfig(){
+        final ActivationConfig activationConfig = new ActivationConfig();
+        activationConfig.yangModulesIndexPath = "yang-mapping";
+        return activationConfig;
     }
 }

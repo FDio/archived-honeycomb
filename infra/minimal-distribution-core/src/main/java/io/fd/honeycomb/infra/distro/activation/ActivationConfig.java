@@ -16,19 +16,20 @@
 
 package io.fd.honeycomb.infra.distro.activation;
 
-import java.util.Optional;
 import net.jmob.guice.conf.core.BindConfig;
 import net.jmob.guice.conf.core.InjectConfig;
 import net.jmob.guice.conf.core.Syntax;
+
+import java.util.Optional;
 
 @BindConfig(value = "activation", syntax = Syntax.JSON)
 public class ActivationConfig {
 
     @InjectConfig("modules-resource-path")
-    private String modulesResourcePath;
+    public String modulesResourcePath;
 
     @InjectConfig("yang-modules-index-path")
-    private String yangModulesIndexPath;
+    public String yangModulesIndexPath;
 
     public String getModulesResourcePath() {
         return Optional.ofNullable(modulesResourcePath).orElse("../modules/");
