@@ -524,9 +524,9 @@
                     </executions>
                     <dependencies>
                         <dependency>
-                            <groupId>io.fd.honeycomb.common</groupId>
-                            <artifactId>common-scripts</artifactId>
-                            <version>1.18.01-SNAPSHOT</version>
+                            <groupId>io.fd.honeycomb.doc</groupId>
+                            <artifactId>asciidoc-scripts</artifactId>
+                            <version>${project.version}</version>
                         </dependency>
                     </dependencies>
                 </plugin>

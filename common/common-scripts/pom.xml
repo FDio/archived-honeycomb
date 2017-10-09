@@ -18,6 +18,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+    <parent>
+        <groupId>io.fd.honeycomb.scripts</groupId>
+        <artifactId>scripts-parent</artifactId>
+        <version>1.18.01-SNAPSHOT</version>
+        <relativePath>../scripts-parent</relativePath>
+    </parent>
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>common-scripts</artifactId>
@@ -26,68 +33,17 @@
     <packaging>jar</packaging>
 
     <properties>
-        <!-- groovy -->
-        <maven.groovy.version>2.0</maven.groovy.version>
-        <groovy.version>2.4.7</groovy.version>
-        <groovy.eclipse.compiler.version>2.9.2-01</groovy.eclipse.compiler.version>
-        <groovy.eclipse.batch.version>2.4.3-01</groovy.eclipse.batch.version>
         <commons-io.version>2.5</commons-io.version>
-        <yang-binding.version>0.10.1-Carbon</yang-binding.version>
     </properties>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <configuration>
-                        <skip>true</skip>
-                        <skipDeploy>true</skipDeploy>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-eclipse-compiler</artifactId>
-                <version>${groovy.eclipse.compiler.version}</version>
-                <extensions>true</extensions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <!-- 2.8.0-01 and later require maven-compiler-plugin 3.1 or higher -->
-                <configuration>
-                    <compilerId>groovy-eclipse-compiler</compilerId>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-eclipse-compiler</artifactId>
-                        <version>${groovy.eclipse.compiler.version}</version>
-                    </dependency>
-                    <!-- for 2.8.0-01 and later you must have an explicit dependency on groovy-eclipse-batch -->
-                    <dependency>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-eclipse-batch</artifactId>
-                        <version>${groovy.eclipse.batch.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
-    </build>
 
     <dependencies>
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
-            <version>${groovy.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>yang-binding</artifactId>
-            <version>${yang-binding.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -97,7 +53,7 @@
         <dependency>
             <groupId>io.fd.honeycomb.yang</groupId>
             <artifactId>yang-whitelist-impl</artifactId>
-            <version>1.18.01-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
