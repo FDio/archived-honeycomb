@@ -1,0 +1,5 @@
+= bgp-extensions
+
+Contains extension modules for all BGP extensions.
+Each extension can be enabled separately by including its Module class in startup modules
+configuration.

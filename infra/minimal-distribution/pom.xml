@@ -44,6 +44,12 @@
             // io.fd.honeycomb.infra.bgp.BgpModule,
             // io.fd.honeycomb.infra.bgp.BgpReadersModule,
             // io.fd.honeycomb.infra.bgp.BgpWritersModule,
+            // io.fd.honeycomb.northbound.bgp.extension.EvpnModule,
+            // io.fd.honeycomb.northbound.bgp.extension.InetModule,
+            // io.fd.honeycomb.northbound.bgp.extension.L3VpnV4Module,
+            // io.fd.honeycomb.northbound.bgp.extension.L3VpnV6Module,
+            // io.fd.honeycomb.northbound.bgp.extension.LabeledUnicastModule,
+            // io.fd.honeycomb.northbound.bgp.extension.LinkstateModule,
             // io.fd.honeycomb.footprint.FootprintModule
         </distribution.modules>
     </properties>
@@ -84,6 +90,51 @@
             <artifactId>bgp</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- Bgp extension modules -->
+        <dependency>
+            <groupId>io.fd.honeycomb.northbound.bgp</groupId>
+            <artifactId>extension-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.fd.honeycomb.northbound.bgp</groupId>
+            <artifactId>evpn</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.fd.honeycomb.northbound.bgp</groupId>
+            <artifactId>inet</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.fd.honeycomb.northbound.bgp</groupId>
+            <artifactId>l3-vpn-v4</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.fd.honeycomb.northbound.bgp</groupId>
+            <artifactId>l3-vpn-v6</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.fd.honeycomb.northbound.bgp</groupId>
+            <artifactId>linkstate</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.fd.honeycomb.northbound.bgp</groupId>
+            <artifactId>labeled-unicast</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Footprint api -->
         <dependency>
             <groupId>io.fd.honeycomb.footprint</groupId>
             <artifactId>impl</artifactId>

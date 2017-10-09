@@ -1,0 +1,5 @@
+= extension-common
+
+Contains common features used by BGP extension modules.
+
+To create new BGP extension module, use parent class *AbstractBgpExtensionModule*

@@ -19,23 +19,28 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>honeycomb-parent</artifactId>
+        <artifactId>impl-parent</artifactId>
         <groupId>io.fd.honeycomb.common</groupId>
         <version>1.18.01-SNAPSHOT</version>
-        <relativePath>../../common/honeycomb-parent</relativePath>
+        <relativePath>../../../../common/impl-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.fd.honeycomb.northbound</groupId>
-    <artifactId>northbound-aggegator</artifactId>
-    <packaging>pom</packaging>
+    <groupId>io.fd.honeycomb.northbound.bgp</groupId>
+    <artifactId>evpn</artifactId>
+    <version>1.18.01-SNAPSHOT</version>
 
-    <modules>
-        <module>common</module>
-        <module>bgp</module>
-        <module>restconf</module>
-        <module>netconf</module>
-        <module>bgp-extensions</module>
-    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>io.fd.honeycomb.northbound.bgp</groupId>
+            <artifactId>extension-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-evpn</artifactId>
+            <version>${bgpcep.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

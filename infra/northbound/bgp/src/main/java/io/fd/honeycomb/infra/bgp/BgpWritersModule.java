@@ -20,6 +20,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import io.fd.honeycomb.infra.bgp.neighbors.BgpPeerWriterFactory;
+import io.fd.honeycomb.northbound.bgp.extension.CommonBgpExtensionsModule;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -42,8 +43,8 @@ public final class BgpWritersModule extends AbstractModule {
         // Configure peer registry
         bind(BGPPeerRegistry.class).toInstance(StrictBGPPeerRegistry.instance());
 
-        // install extensions module (hidden from HC user until HONEYCOMB-363 is fixed):
-        install(new BgpExtensionsModule());
+        // install common binding for extensions
+        install(new CommonBgpExtensionsModule());
 
         final Multibinder<WriterFactory> binder = Multibinder.newSetBinder(binder(), WriterFactory.class);
         binder.addBinding().to(ApplicationRibWriterFactory.class).in(Singleton.class);

@@ -1,0 +1,11 @@
+= Inet
+
+Configure http://docs.opendaylight.org/en/${project-odl-branch}/user-guide/bgp-user-guide.html#evpn-family[Inet] extension for ODL BGP
+
+Handles following table types:
+
+* Ipv4Unicast
+* Ipv6Unicast
+
+Enable by including InetModule in /opt/honeycomb/modules configuration
+

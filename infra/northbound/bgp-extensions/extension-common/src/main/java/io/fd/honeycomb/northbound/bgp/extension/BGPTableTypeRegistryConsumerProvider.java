@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.bgp;
+package io.fd.honeycomb.northbound.bgp.extension;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import java.util.Set;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.openconfig.spi.SimpleBGPTableTypeRegistryProvider;
+
+import java.util.Set;
 
 final class BGPTableTypeRegistryConsumerProvider extends ProviderTrait<BGPTableTypeRegistryConsumer> {
     @Inject

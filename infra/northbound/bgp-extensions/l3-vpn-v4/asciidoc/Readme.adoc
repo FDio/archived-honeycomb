@@ -1,0 +1,9 @@
+= L3-vpn-v4
+
+Configure v4 part of  http://docs.opendaylight.org/en/${project-odl-branch}/user-guide/bgp-user-guide.html#ip-l3vpn-family[L3Vpn] extension for ODL BGP
+
+Handles following table types:
+
+* L3VpnIpv4Unicast
+
+Enable by including L3VpnV4Module in /opt/honeycomb/modules configuration

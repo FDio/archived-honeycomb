@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.bgp;
+package io.fd.honeycomb.northbound.bgp.extension;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.data.init.ShutdownHandler;
-import java.util.ArrayList;
-import java.util.Set;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -28,6 +26,9 @@ import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderC
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContextActivator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Set;
 
 final class BGPExtensionConsumerContextProvider extends ProviderTrait<BGPExtensionConsumerContext> {
     private static final Logger LOG = LoggerFactory.getLogger(BGPExtensionConsumerContextProvider.class);

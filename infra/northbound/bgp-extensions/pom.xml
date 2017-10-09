@@ -22,20 +22,22 @@
         <artifactId>honeycomb-parent</artifactId>
         <groupId>io.fd.honeycomb.common</groupId>
         <version>1.18.01-SNAPSHOT</version>
-        <relativePath>../../common/honeycomb-parent</relativePath>
+        <relativePath>../../../common/honeycomb-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.fd.honeycomb.northbound</groupId>
-    <artifactId>northbound-aggegator</artifactId>
-    <packaging>pom</packaging>
-
+    <groupId>io.fd.honeycomb.northbound.bgp</groupId>
+    <artifactId>bgp-extensions</artifactId>
+    <version>1.18.01-SNAPSHOT</version>
     <modules>
-        <module>common</module>
-        <module>bgp</module>
-        <module>restconf</module>
-        <module>netconf</module>
-        <module>bgp-extensions</module>
+        <module>evpn</module>
+        <module>inet</module>
+        <module>l3-vpn-v4</module>
+        <module>l3-vpn-v6</module>
+        <module>labeled-unicast</module>
+        <module>linkstate</module>
+        <module>extension-common</module>
     </modules>
+    <packaging>pom</packaging>
 
 </project>

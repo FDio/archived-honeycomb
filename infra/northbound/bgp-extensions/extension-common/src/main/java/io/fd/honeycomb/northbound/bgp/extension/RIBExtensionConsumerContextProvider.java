@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.infra.bgp;
+package io.fd.honeycomb.northbound.bgp.extension;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.data.init.ShutdownHandler;
-import java.util.ArrayList;
-import java.util.Set;
-import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
-import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
-import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
-import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
-import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContextActivator;
+import org.opendaylight.protocol.bgp.rib.spi.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Set;
 
 public class RIBExtensionConsumerContextProvider extends ProviderTrait<RIBExtensionConsumerContext> {
     private static final Logger LOG = LoggerFactory.getLogger(RIBExtensionConsumerContextProvider.class);

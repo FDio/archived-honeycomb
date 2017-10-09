@@ -1,0 +1,9 @@
+= Linkstate
+
+Configure http://docs.opendaylight.org/en/${project-odl-branch}/user-guide/bgp-user-guide.html#link-state-family[Linkstate] extension for ODL BGP
+
+Handles following table types:
+
+* Linkstate
+
+Enable by including LinkstateModule in /opt/honeycomb/modules configuration
