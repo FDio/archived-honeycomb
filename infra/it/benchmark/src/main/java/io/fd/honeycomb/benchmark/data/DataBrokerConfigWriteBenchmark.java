@@ -16,7 +16,11 @@
 
 package io.fd.honeycomb.benchmark.data;
 
-import com.google.inject.*;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.Module;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import io.fd.honeycomb.benchmark.util.DataProvider;
@@ -29,6 +33,14 @@ import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -38,52 +50,95 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.container.with.list.list.in.container.ContainerInList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.container.with.list.list.in.container.container.in.list.NestedList;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Level;
+import org.openjdk.jmh.annotations.Measurement;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
+import org.openjdk.jmh.annotations.Timeout;
+import org.openjdk.jmh.annotations.Warmup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 /**
  * Measures the performance of CONFIG writes into BA DataBroker, backed by HC infrastructure and then NOOP writers.
  */
-@Timeout(time = 20)
-@Warmup(iterations = 2, time = 10)
-@Measurement(iterations = 2, time = 10)
-@Fork(2)
+/*
+ * Timeout for one run of benchmark method
+ * */
+@Timeout(time = 1)
+
+/*
+* 20 warmup iterations, each will run for 1 second. Serves to get more real-life results, as jvm has many internal
+* optimizations that takes time to create profiles for.
+* */
+@Warmup(iterations = 20, time = 1)
+
+/*
+ 100 measurement iteration, each will run for 1 second.
+ It means that there will be 100 iterations, each will run tested method for 1 second and see how many iterations were
+ possible
+ */
+@Measurement(iterations = 100, time = 1)
+
+/*
+* An instance will be allocated for each thread running the given test.
+* */
 @State(Scope.Thread)
+
+/*
+* Control code runs on one jvm, benchmark runs on different one to have isolation
+* */
+@Fork(1)
+
+/*
+* Measuring Maximum throughput of operations
+* */
 @BenchmarkMode(Mode.Throughput)
 public class DataBrokerConfigWriteBenchmark extends AbstractModule implements FileManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(DataBrokerConfigWriteBenchmark.class);
 
+    /*
+    * This params says after how many operations should commit to data tree be executed
+    * */
     @Param({"1", "10"/*, "100"*/})
     private int submitFrequency;
 
+    /*
+    * Enables/disables persisting content of transaction
+    * */
     @Param({"true", "false"})
     private boolean persistence;
 
+    /*
+    * Crud operation used in benchmark
+    * */
     @Param({"put"/*, "merge"*/})
     private String operation;
     private DataSubmitter submitter;
 
+    /*
+    * Type of data used
+    * */
     @Param({"CONFIGURATION"})
     private LogicalDatastoreType dsType;
 
-    @Param({DataProvider.SIMPLE_CONTAINER, DataProvider.LIST_IN_CONTAINER , DataProvider.COMPLEX_LIST_IN_CONTAINER})
+    /*
+    * Data sample type used
+    * */
+    @Param({DataProvider.SIMPLE_CONTAINER, DataProvider.LIST_IN_CONTAINER, DataProvider.COMPLEX_LIST_IN_CONTAINER})
     private String data;
     private DataProvider dataProvider;
 
     // Infra modules to load
-    private final Module[] modules = new Module[] {
+    private final Module[] modules = new Module[]{
             new io.fd.honeycomb.infra.distro.schema.YangBindingProviderModule(),
             new io.fd.honeycomb.infra.distro.schema.SchemaModule(),
             new io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule(),
@@ -153,7 +208,8 @@ public class DataBrokerConfigWriteBenchmark extends AbstractModule implements Fi
             instance = getHoneycombConfiguration(persistence);
             bind(HoneycombConfiguration.class).toInstance(instance);
             bind(ActivationConfig.class).toInstance(getActivationConfig());
-            bind(ActiveModules.class).toInstance(new ActiveModules(Arrays.stream(modules).map(Module::getClass).collect(Collectors.toSet())));
+            bind(ActiveModules.class).toInstance(
+                    new ActiveModules(Arrays.stream(modules).map(Module::getClass).collect(Collectors.toSet())));
         } catch (IOException e) {
             throw new RuntimeException("Unable to prepare configuration", e);
         }
@@ -189,7 +245,7 @@ public class DataBrokerConfigWriteBenchmark extends AbstractModule implements Fi
         return instance;
     }
 
-    private static ActivationConfig getActivationConfig(){
+    private static ActivationConfig getActivationConfig() {
         final ActivationConfig activationConfig = new ActivationConfig();
         activationConfig.yangModulesIndexPath = "yang-mapping";
         return activationConfig;

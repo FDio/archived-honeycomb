@@ -54,16 +54,45 @@ import java.util.stream.Collectors;
 /**
  * Measures the performance of CONFIG writes into BA DataBroker, backed by HC infrastructure and then NOOP writers.
  */
-@Timeout(time = 20)
-@Warmup(iterations = 2, time = 10)
-@Measurement(iterations = 2, time = 10)
-@Fork(2)
+/*
+ * Timeout for one run of benchmark method
+ * */
+@Timeout(time = 1)
+
+/*
+* 20 warmup iterations, each will run for 1 second. Serves to get more real-life results, as jvm has many internal
+* optimizations that takes time to create profiles for.
+* */
+@Warmup(iterations = 20, time = 1)
+
+/*
+ 100 measurement iteration, each will run for 1 second.
+ It means that there will be 100 iterations, each will run tested method for 1 second and see how many iterations were
+ possible
+ */
+@Measurement(iterations = 100, time = 1)
+
+/*
+* An instance will be allocated for each thread running the given test.
+* */
 @State(Scope.Thread)
+
+/*
+* Control code runs on one jvm, benchmark runs on different one to have isolation
+* */
+@Fork(1)
+
+/*
+* Measuring Maximum throughput of operations
+* */
 @BenchmarkMode(Mode.Throughput)
 public class DataBrokerOperReadBenchmark extends AbstractModule implements FileManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(DataBrokerOperReadBenchmark.class);
 
+    /*
+    * Type of data used in benchmark
+    * */
     @Param({"OPERATIONAL"})
     private LogicalDatastoreType dsType;
 
@@ -71,12 +100,15 @@ public class DataBrokerOperReadBenchmark extends AbstractModule implements FileM
     @Param({"false"})
     private boolean persistence;
 
+    /*
+    * Data sample type used
+    * */
     @Param({DataProvider.SIMPLE_CONTAINER, DataProvider.LIST_IN_CONTAINER, DataProvider.COMPLEX_LIST_IN_CONTAINER})
     private String data;
     private DataProvider dataProvider;
 
     // Infra modules to load
-    private final Module[] modules = new Module[] {
+    private final Module[] modules = new Module[]{
             new io.fd.honeycomb.infra.distro.schema.YangBindingProviderModule(),
             new io.fd.honeycomb.infra.distro.schema.SchemaModule(),
             new ConfigAndOperationalPipelineModule(),
@@ -133,7 +165,8 @@ public class DataBrokerOperReadBenchmark extends AbstractModule implements FileM
             instance = getHoneycombConfiguration(persistence);
             bind(HoneycombConfiguration.class).toInstance(instance);
             bind(ActivationConfig.class).toInstance(getActivationConfig());
-            bind(ActiveModules.class).toInstance(new ActiveModules(Arrays.stream(modules).map(Module::getClass).collect(Collectors.toSet())));
+            bind(ActiveModules.class).toInstance(
+                    new ActiveModules(Arrays.stream(modules).map(Module::getClass).collect(Collectors.toSet())));
         } catch (IOException e) {
             throw new RuntimeException("Unable to prepare configuration", e);
         }
@@ -182,7 +215,7 @@ public class DataBrokerOperReadBenchmark extends AbstractModule implements FileM
         return instance;
     }
 
-    private static ActivationConfig getActivationConfig(){
+    private static ActivationConfig getActivationConfig() {
         final ActivationConfig activationConfig = new ActivationConfig();
         activationConfig.yangModulesIndexPath = "yang-mapping";
         return activationConfig;
