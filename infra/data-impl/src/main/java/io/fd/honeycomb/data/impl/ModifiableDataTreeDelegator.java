@@ -33,8 +33,12 @@ import io.fd.honeycomb.translate.util.TransactionMappingContext;
 import io.fd.honeycomb.translate.util.write.TransactionWriteContext;
 import io.fd.honeycomb.translate.write.DataObjectUpdate;
 import io.fd.honeycomb.translate.write.WriteContext;
+import io.fd.honeycomb.translate.write.registry.UpdateFailedException;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -136,33 +140,37 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
                     ((TransactionMappingContext) ctx.getMappingContext()).submit();
                 // Blocking on context data update
                 contextUpdateResult.checkedGet();
-
-            } catch (WriterRegistry.BulkUpdateException e) {
+            } catch (UpdateFailedException e) {
+                // TODO - HONEYCOMB-411
                 LOG.warn("Failed to apply all changes", e);
-                LOG.info("Trying to revert successful changes for current transaction");
-
-                try {
-                    // attempt revert with fresh context, to allow write logic used context-binded data
-                    e.revertChanges(getRevertTransactionContext(ctx.getMappingContext()));
-                    LOG.info("Changes successfully reverted");
-                } catch (WriterRegistry.Reverter.RevertFailedException revertFailedException) {
-                    // fail with failed revert
-                    LOG.error("Failed to revert successful(comitted) changes, failure occurred for: {}. State might be corrupted.",
-                            revertFailedException.getFailedUpdate(), revertFailedException);
-                    throw revertFailedException;
+                final List<DataObjectUpdate> processed = e.getProcessed();
+                if (processed.isEmpty()) {
+                    // nothing was processed, which means either very first operation failed, or it was single operation
+                    // update. In both cases, no revert is needed
+                    LOG.info("Nothing to revert");
+                    throw e;
+                } else {
+                    LOG.info("Trying to revert successful changes for current transaction");
+                    try {
+                        // attempt revert with fresh context, to allow write logic used context-binded data
+                        new Reverter(processed, writerRegistry)
+                                .revert(getRevertTransactionContext(ctx.getMappingContext()));
+                        LOG.info("Changes successfully reverted");
+                    } catch (Reverter.RevertFailedException revertFailedException) {
+                        // fail with failed revert
+                        LOG.error("Failed to revert successful(comitted) changes", revertFailedException);
+                        throw revertFailedException;
+                    }
                 }
                 // fail with success revert
                 // not passing the cause,its logged above and it would be logged after transaction
                 // ended again(prevent double logging of same error
-                throw new WriterRegistry.Reverter.RevertSuccessException(e.getUnrevertedSubtrees());
+                throw new Reverter.RevertSuccessException(getNonProcessedNodes(baUpdates, processed));
             } catch (TransactionCommitFailedException e) {
                 // TODO HONEYCOMB-162 revert should probably occur when context is not written successfully
                 final String msg = "Error while updating mapping context data";
                 LOG.error(msg, e);
                 throw new TranslationException(msg, e);
-            } catch (TranslationException e) {
-                LOG.error("Error while processing data change (updates={})", baUpdates, e);
-                throw e;
             } finally {
                 // Using finally instead of try-with-resources in order to leave ctx open for BulkUpdateException catch
                 // block. The context is needed there, but try-with-resources closes the resource before handling ex.
@@ -198,6 +206,14 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
                 final Map<YangInstanceIdentifier, NormalizedNodeUpdate> biNodes) {
             return ModifiableDataTreeDelegator.toBindingAware(registry, biNodes, serializer);
         }
+    }
+
+    private static Set<InstanceIdentifier<?>> getNonProcessedNodes(final WriterRegistry.DataObjectUpdates allUpdates,
+                                                                   final List<DataObjectUpdate> alreadyProcessed) {
+        return allUpdates.getAllModifications().stream()
+                .filter(update -> !alreadyProcessed.contains(update))
+                .map(DataObjectUpdate::getId)
+                .collect(Collectors.toSet());
     }
 
     @VisibleForTesting

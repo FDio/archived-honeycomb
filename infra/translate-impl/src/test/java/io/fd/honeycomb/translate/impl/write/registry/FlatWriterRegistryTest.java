@@ -16,13 +16,12 @@
 
 package io.fd.honeycomb.translate.impl.write.registry;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -41,7 +40,9 @@ import io.fd.honeycomb.translate.util.DataObjects.DataObject2;
 import io.fd.honeycomb.translate.write.DataObjectUpdate;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.Writer;
+import io.fd.honeycomb.translate.write.registry.UpdateFailedException;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -185,7 +186,7 @@ public class FlatWriterRegistryTest {
     }
 
     @Test
-    public void testMultipleUpdatesOneFailing() throws Exception {
+    public void testMultipleUpdatesFirstFailing() throws Exception {
         final FlatWriterRegistry flatWriterRegistry =
                 new FlatWriterRegistry(ImmutableMap.of(DataObject1.IID, writer1, DataObject2.IID, writer2));
 
@@ -199,59 +200,38 @@ public class FlatWriterRegistryTest {
 
         try {
             flatWriterRegistry.processModifications(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
-            fail("Bulk update should have failed on writer1");
-        } catch (WriterRegistry.BulkUpdateException e) {
-            assertThat(e.getUnrevertedSubtrees(), hasSize(2));
-            assertThat(e.getUnrevertedSubtrees(), hasItem(InstanceIdentifier.create(DataObject2.class)));
-            assertThat(e.getUnrevertedSubtrees(), hasItem(InstanceIdentifier.create(DataObject1.class)));
+            fail("Bulk update should have failed on writer1 with UpdateFailedException");
+        } catch (UpdateFailedException e) {
+            assertThat(e.getProcessed(), hasSize(0));// very first update failed
         }
     }
 
     @Test
-    public void testMultipleUpdatesOneFailingThenRevertWithSuccess() throws Exception {
+    public void testMultipleUpdatesSecondFailing() throws Exception {
         final FlatWriterRegistry flatWriterRegistry =
-                new FlatWriterRegistry(
-                        ImmutableMap.of(DataObject1.IID, writer1, DataObject2.IID, writer2, DataObjects.DataObject3.IID, writer3));
+                new FlatWriterRegistry(ImmutableMap.of(DataObject1.IID, writer1, DataObject2.IID, writer2));
 
-        // Writer1 always fails
-        doThrow(new RuntimeException()).when(writer3)
+        // Writer2 always fails
+        doThrow(new RuntimeException()).when(writer2)
                 .processModification(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
 
         final Multimap<InstanceIdentifier<?>, DataObjectUpdate> updates = HashMultimap.create();
         addUpdate(updates, DataObject1.class);
-        addUpdate(updates, DataObjects.DataObject3.class);
-        final InstanceIdentifier<DataObject2> iid2 = InstanceIdentifier.create(DataObject2.class);
-        final DataObject2 before2 = mock(DataObject2.class);
-        final DataObject2 after2 = mock(DataObject2.class);
-        updates.put(DataObject2.IID, DataObjectUpdate.create(iid2, before2, after2));
+        addUpdate(updates, DataObject2.class);
 
         try {
             flatWriterRegistry.processModifications(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
-            fail("Bulk update should have failed on writer1");
-        } catch (WriterRegistry.BulkUpdateException e) {
-            assertThat(e.getUnrevertedSubtrees().size(), is(1));
-
-            final InOrder inOrder = inOrder(writer1, writer2, writer3);
-            inOrder.verify(writer1)
-                .processModification(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
-            inOrder.verify(writer2)
-                .processModification(iid2, before2, after2, ctx);
-            inOrder.verify(writer3)
-                .processModification(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
-
-            e.revertChanges(revertWriteContext);
-            // Revert changes. Successful updates are iterated in reverse
-            // also binding other write context,to verify if update context is not reused
-            inOrder.verify(writer2)
-                    .processModification(iid2, after2, before2, revertWriteContext);
-            inOrder.verify(writer1)
-                    .processModification(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), eq(revertWriteContext));
-            verifyNoMoreInteractions(writer3);
+            fail("Bulk update should have failed on writer1 with UpdateFailedException");
+        } catch (UpdateFailedException e) {
+            final List<DataObjectUpdate> alreadyProcessed = e.getProcessed();
+            assertThat(alreadyProcessed, hasSize(1));// very first update failed
+            assertEquals(updateData(DataObject1.class, DataObject1.IID),
+                    e.getProcessed().iterator().next());
         }
     }
 
     @Test
-    public void testMultipleUpdatesOneFailingThenRevertWithFail() throws Exception {
+    public void testMultipleUpdatesLastFailing() throws Exception {
         final FlatWriterRegistry flatWriterRegistry =
                 new FlatWriterRegistry(
                         ImmutableMap.of(DataObject1.IID, writer1, DataObject2.IID, writer2, DataObjects.DataObject3.IID, writer3));
@@ -267,18 +247,12 @@ public class FlatWriterRegistryTest {
 
         try {
             flatWriterRegistry.processModifications(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
-            fail("Bulk update should have failed on writer1");
-        } catch (WriterRegistry.BulkUpdateException e) {
-            // Writer1 always fails from now
-            doThrow(new RuntimeException()).when(writer1)
-                    .processModification(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class), any(WriteContext.class));
-            try {
-                e.revertChanges(revertWriteContext);
-            } catch (WriterRegistry.Reverter.RevertFailedException e1) {
-                assertThat(e1.getNotRevertedChanges().size(), is(1));
-                assertThat(e1.getNotRevertedChanges(),
-                        hasItem(InstanceIdentifier.create(DataObject1.class)));
-            }
+            fail("Bulk update should have failed on writer1 with UpdateFailedException");
+        } catch (UpdateFailedException e) {
+            final List<DataObjectUpdate> alreadyProcessed = e.getProcessed();
+            assertEquals(2, alreadyProcessed.size());
+            assertTrue(alreadyProcessed.contains(updateData(DataObject1.class, DataObject1.IID)));
+            assertTrue(alreadyProcessed.contains(updateData(DataObject2.class, DataObject2.IID)));
         }
     }
 
@@ -289,7 +263,7 @@ public class FlatWriterRegistryTest {
 
         final FlatWriterRegistry flatWriterRegistry =
                 new FlatWriterRegistry(
-                        ImmutableMap.of(DataObject1.IID, writer1, DataObjects.DataObject1ChildK.IID,writer4));
+                        ImmutableMap.of(DataObject1.IID, writer1, DataObjects.DataObject1ChildK.IID, writer4));
 
         // Writer1 always fails
         doThrow(new RuntimeException()).when(writer1)
@@ -297,23 +271,13 @@ public class FlatWriterRegistryTest {
                         any(WriteContext.class));
 
         final Multimap<InstanceIdentifier<?>, DataObjectUpdate> updates = HashMultimap.create();
-        addKeyedUpdate(updates,DataObjects.DataObject1ChildK.class);
+        addKeyedUpdate(updates, DataObjects.DataObject1ChildK.class);
         addUpdate(updates, DataObject1.class);
         try {
             flatWriterRegistry.processModifications(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
-            fail("Bulk update should have failed on writer1");
-        } catch (WriterRegistry.BulkUpdateException e) {
-            // Writer1 always fails from now
-            doThrow(new RuntimeException()).when(writer1)
-                    .processModification(any(InstanceIdentifier.class), any(DataObject.class), any(DataObject.class),
-                            any(WriteContext.class));
-            try {
-                e.revertChanges(revertWriteContext);
-            } catch (WriterRegistry.Reverter.RevertFailedException e1) {
-                assertThat(e1.getNotRevertedChanges().size(), is(1));
-                assertThat(e1.getNotRevertedChanges(),
-                        hasItem(InstanceIdentifier.create(DataObject1.class)));
-            }
+            fail("Bulk update should have failed on writer1 with UpdateFailedException");
+        } catch (UpdateFailedException e) {
+            assertTrue(e.getProcessed().isEmpty());
         }
     }
 
@@ -325,8 +289,13 @@ public class FlatWriterRegistryTest {
     }
 
     private <D extends DataObject> void addUpdate(final Multimap<InstanceIdentifier<?>, DataObjectUpdate> updates,
-                           final Class<D> type) throws Exception {
+                                                  final Class<D> type) throws Exception {
         final InstanceIdentifier<D> iid = (InstanceIdentifier<D>) type.getDeclaredField("IID").get(null);
-        updates.put(iid, DataObjectUpdate.create(iid, mock(type), mock(type)));
+        updates.put(iid, updateData(type, iid));
+    }
+
+    private static <D extends DataObject> DataObjectUpdate updateData(final Class<D> type,
+                                                                      final InstanceIdentifier<D> iid) {
+        return DataObjectUpdate.create(iid, mock(type), mock(type));
     }
 }
