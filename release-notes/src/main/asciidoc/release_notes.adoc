@@ -25,10 +25,14 @@ To use just @Inject ShutdownHandler and register resources with method *register
 * https://jira.fd.io/browse/HONEYCOMB-362[ODL carbon] - Honeycomb infrastracture has been updated to use ODL dependencies from Carbon version.
 * https://jira.fd.io/browse/HONEYCOMB-360[Separated Northbound Interfaces] - Every northbound interface now lives under separate module, which brings optimization
 improvement, as every interface uses different subset of YANG modules.
+* https://jira.fd.io/browse/HONEYCOMB-372[Optimize ODL dependencies] - another footprint related optimization,
+which provides whitelist of ODL's YANG modules exposed by HC.
 
 === Removed features
 
 === Modified features
+* https://jira.fd.io/browse/HONEYCOMB-386[WriterCustomizer's update is optional] - added generic update support as
+delete + create on infra level.
 
 === Deprecated features
 
