@@ -22,19 +22,16 @@ import io.fd.honeycomb.translate.util.write.BindingBrokerWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.labeled.unicast.ipv6.routes.LabeledUnicastIpv6Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.labeled.unicast.routes.LabeledUnicastRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev150210.linkstate.routes.LinkstateRoutes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 import javax.annotation.Nonnull;
 
 import static io.fd.honeycomb.northbound.bgp.extension.AbstractBgpExtensionModule.TABLES_IID;
 
+public class LinkstateWriterFactory implements WriterFactory {
 
-public class LabeledUnicastWriterFactory implements WriterFactory {
-
-    private static final InstanceIdentifier<LabeledUnicastRoutes> LABELED_UNICAST_ROUTES_IID = TABLES_IID.child((Class) LabeledUnicastRoutes.class);
-    private static final InstanceIdentifier<LabeledUnicastRoutes> LABELED_UNICAST_V6_ROUTES_IID = TABLES_IID.child((Class) LabeledUnicastIpv6Routes.class);
+    private static final InstanceIdentifier<LinkstateRoutes> LINKSTATE_ROUTES_IID = TABLES_IID.child((Class) LinkstateRoutes.class);
 
     @Inject
     @Named("honeycomb-bgp")
@@ -42,7 +39,6 @@ public class LabeledUnicastWriterFactory implements WriterFactory {
 
     @Override
     public void init(@Nonnull ModifiableWriterRegistryBuilder registry) {
-        registry.wildcardedSubtreeAdd(new BindingBrokerWriter<>(LABELED_UNICAST_ROUTES_IID, dataBroker));
-        registry.wildcardedSubtreeAdd(new BindingBrokerWriter<>(LABELED_UNICAST_V6_ROUTES_IID, dataBroker));
+        registry.wildcardedSubtreeAdd(new BindingBrokerWriter<>(LINKSTATE_ROUTES_IID, dataBroker));
     }
 }

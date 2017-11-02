@@ -35,7 +35,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.Set;
 
 import static io.fd.honeycomb.northbound.bgp.extension.AbstractBgpExtensionModule.TableTypeRegistration.tableType;
@@ -67,8 +66,7 @@ public class LinkstateModule extends AbstractBgpExtensionModule {
 
     @Override
     public Set<Class<? extends WriterFactory>> getApplicationRibWriters() {
-        //TODO - HONEYCOMB-359 - use wildcarded subtree writer
-        return Collections.emptySet();
+        return ImmutableSet.of(LinkstateWriterFactory.class);
     }
 
     @Override

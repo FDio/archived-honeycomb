@@ -61,8 +61,7 @@ public class EvpnModule extends AbstractBgpExtensionModule {
 
     @Override
     public Set<Class<? extends WriterFactory>> getApplicationRibWriters() {
-        //TODO - HONEYCOMB-359 - use wildcaded subtree writer
-        return Collections.emptySet();
+        return ImmutableSet.of(EvpnWriterFactory.class);
     }
 
     @Override

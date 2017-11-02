@@ -63,8 +63,7 @@ public class L3VpnV4Module extends AbstractBgpExtensionModule {
 
     @Override
     public Set<Class<? extends WriterFactory>> getApplicationRibWriters() {
-        //TODO - HONEYCOMB-359 - use wildcarded subtree writer
-        return Collections.emptySet();
+        return ImmutableSet.of(L3VpnV4WriterFactory.class);
     }
 
     @Override
