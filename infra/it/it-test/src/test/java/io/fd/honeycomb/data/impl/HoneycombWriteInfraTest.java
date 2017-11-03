@@ -22,6 +22,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.fd.honeycomb.data.DataModification;
+import io.fd.honeycomb.test.model.Ids;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
 import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.write.WriteContext;
@@ -40,6 +42,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.ComplexAugment;
@@ -75,7 +79,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.TipProducingDataTree;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.TreeType;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.InMemoryDataTreeFactory;
-import io.fd.honeycomb.test.model.Ids;
 
 /**
  * Testing honeycomb writes from data tree up to mocked writers.
@@ -103,6 +106,31 @@ public class HoneycombWriteInfraTest extends AbstractInfraTest {
     private static <D extends DataObject> Writer<D> mockWriter(final InstanceIdentifier<D> id) {
         final Writer<D> mock = (Writer<D>) mock(Writer.class);
         when(mock.getManagedDataObjectType()).thenReturn(id);
+        //TODO - HONEYCOMB-412 - to call default impl of canProcess()
+        when(mock.canProcess(any())).thenAnswer(invocationOnMock -> {
+            final Writer writer = Writer.class.cast(invocationOnMock.getMock());
+            final Writer delegatingWriter = new Writer() {
+                @Nonnull
+                @Override
+                public InstanceIdentifier getManagedDataObjectType() {
+                    return writer.getManagedDataObjectType();
+                }
+
+                @Override
+                public boolean supportsDirectUpdate() {
+                    return writer.supportsDirectUpdate();
+                }
+
+                @Override
+                public void processModification(@Nonnull final InstanceIdentifier id,
+                                                @Nullable final DataObject dataBefore,
+                                                @Nullable final DataObject dataAfter, @Nonnull final WriteContext ctx)
+                        throws WriteFailedException {
+                    writer.processModification(id, dataBefore, dataAfter, ctx);
+                }
+            };
+            return delegatingWriter.canProcess(InstanceIdentifier.class.cast(invocationOnMock.getArguments()[0]));
+        });
         return mock;
     }
 
@@ -226,8 +254,19 @@ public class HoneycombWriteInfraTest extends AbstractInfraTest {
 
         for (Writer<?> orderedWriter : orderedWriters) {
             verify(orderedWriter).getManagedDataObjectType();
-            verifyNoMoreInteractions(orderedWriter);
+            //TODO - HONEYCOMB-412
+            //verifyNoMoreInteractions(orderedWriter);
         }
+
+        verify(complexAugmentContainerWriter, times(1)).processModification(any(), any(), any(), any());
+        verify(c3Writer, times(1)).processModification(any(), any(), any(), any());
+        verify(simpleAugmentWriter, times(1)).processModification(any(), any(), any(), any());
+        verify(simpleContainerWriter, times(1)).processModification(any(), any(), any(), any());
+        verify(containerWithChoiceWriter, times(1)).processModification(any(), any(), any(), any());
+        verify(containerFromGroupingWriter, times(1)).processModification(any(), any(), any(), any());
+        verify(nestedListWriter, times(2)).processModification(any(), any(), any(), any());
+        verify(listInContainerWriter, times(2)).processModification(any(), any(), any(), any());
+        verify(containerInListWriter, times(2)).processModification(any(), any(), any(), any());
     }
 
     private Writer<?>[] getOrderedWriters() {
@@ -316,8 +355,19 @@ public class HoneycombWriteInfraTest extends AbstractInfraTest {
 
         for (Writer<?> orderedWriter : orderedWriters) {
             verify(orderedWriter).getManagedDataObjectType();
-            verifyNoMoreInteractions(orderedWriter);
+            //TODO - HONEYCOMB-412
+            // verifyNoMoreInteractions(orderedWriter);
         }
+
+        verify(complexAugmentContainerWriter, times(2)).processModification(any(), any(), any(), any());
+        verify(c3Writer, times(2)).processModification(any(), any(), any(), any());
+        verify(simpleAugmentWriter, times(2)).processModification(any(), any(), any(), any());
+        verify(simpleContainerWriter, times(2)).processModification(any(), any(), any(), any());
+        verify(containerWithChoiceWriter, times(2)).processModification(any(), any(), any(), any());
+        verify(containerFromGroupingWriter, times(2)).processModification(any(), any(), any(), any());
+        verify(nestedListWriter, times(4)).processModification(any(), any(), any(), any());
+        verify(listInContainerWriter, times(4)).processModification(any(), any(), any(), any());
+        verify(containerInListWriter, times(4)).processModification(any(), any(), any(), any());
     }
 
     private void writeContainerWithList(final DataModification dataModification) {

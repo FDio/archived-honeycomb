@@ -56,10 +56,10 @@ public class YangModulesProvider implements Provider<YangModulesProvider.YangMod
                 .collect(Collectors.toSet()));
     }
 
-    public static class YangModules {
+    static class YangModules {
         private final Set<Class<? extends YangModelBindingProvider>> yangBindings;
 
-        public YangModules(final Set<Class<? extends YangModelBindingProvider>> yangBindings) {
+        YangModules(final Set<Class<? extends YangModelBindingProvider>> yangBindings) {
             this.yangBindings = yangBindings;
         }
 

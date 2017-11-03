@@ -37,20 +37,26 @@ final class SubtreeWriter<D extends DataObject> implements Writer<D> {
 
     private final Writer<D> delegate;
     private final Set<InstanceIdentifier<?>> handledChildTypes = new HashSet<>();
+    private boolean isWildcarded = false;
 
-    private SubtreeWriter(final Writer<D> delegate, Set<InstanceIdentifier<?>> handledTypes) {
+    private SubtreeWriter(final Writer<D> delegate, final Set<InstanceIdentifier<?>> handledTypes) {
         this.delegate = delegate;
         for (InstanceIdentifier<?> handledType : handledTypes) {
             // Iid has to start with writer's handled root type
             checkArgument(delegate.getManagedDataObjectType().getTargetType().equals(
                     handledType.getPathArguments().iterator().next().getType()),
                     "Handled node from subtree has to be identified by an instance identifier starting from: %s."
-                    + "Instance identifier was: %s", getManagedDataObjectType().getTargetType(), handledType);
+                            + "Instance identifier was: %s", getManagedDataObjectType().getTargetType(), handledType);
             checkArgument(Iterables.size(handledType.getPathArguments()) > 1,
                     "Handled node from subtree identifier too short: %s", handledType);
             handledChildTypes.add(InstanceIdentifier.create(Iterables.concat(
                     getManagedDataObjectType().getPathArguments(), Iterables.skip(handledType.getPathArguments(), 1))));
         }
+    }
+
+    private SubtreeWriter(final Writer<D> delegate) {
+        this.delegate = delegate;
+        this.isWildcarded = true;
     }
 
     /**
@@ -75,6 +81,20 @@ final class SubtreeWriter<D extends DataObject> implements Writer<D> {
     }
 
     @Override
+    public boolean canProcess(@Nonnull InstanceIdentifier<?> instanceIdentifier) {
+        if (isWildcarded) {
+            final Class<D> parent = delegate.getManagedDataObjectType().getTargetType();
+            for (InstanceIdentifier.PathArgument pathArgument : instanceIdentifier.getPathArguments()) {
+                if (pathArgument.getType().equals(parent)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return handledChildTypes.contains(instanceIdentifier);
+    }
+
+    @Override
     @Nonnull
     public InstanceIdentifier<D> getManagedDataObjectType() {
         return delegate.getManagedDataObjectType();
@@ -86,5 +106,12 @@ final class SubtreeWriter<D extends DataObject> implements Writer<D> {
     static Writer<?> createForWriter(@Nonnull final Set<InstanceIdentifier<?>> handledChildren,
                                      @Nonnull final Writer<? extends DataObject> writer) {
         return new SubtreeWriter<>(writer, handledChildren);
+    }
+
+    /**
+     * Wrap a writer as a subtree writer.
+     */
+    static Writer<?> createWildcardedForWriter(@Nonnull final Writer<? extends DataObject> writer) {
+        return new SubtreeWriter<>(writer);
     }
 }

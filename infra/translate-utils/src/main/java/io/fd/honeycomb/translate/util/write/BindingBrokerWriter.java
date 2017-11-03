@@ -16,19 +16,20 @@
 
 package io.fd.honeycomb.translate.util.write;
 
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
-
 import com.google.common.util.concurrent.CheckedFuture;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.translate.write.Writer;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 
 /**
  * Simple DataBroker backed writer allowing to delegate writes to different brokers.

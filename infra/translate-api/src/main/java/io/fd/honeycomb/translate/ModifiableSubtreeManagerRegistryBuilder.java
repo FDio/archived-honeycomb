@@ -16,11 +16,12 @@
 
 package io.fd.honeycomb.translate;
 
-import java.util.Collection;
-import java.util.Set;
-import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.Set;
 
 /**
  * Registry builder where {@link SubtreeManager}s can be added with or without relationships between them.
@@ -42,6 +43,11 @@ public interface ModifiableSubtreeManagerRegistryBuilder<S extends SubtreeManage
                                                           @Nonnull S handler);
 
     /**
+     * Add a handler responsible for writing all complex nodes within a subtree its responsible for.
+     */
+    ModifiableSubtreeManagerRegistryBuilder<S> wildcardedSubtreeAdd(@Nonnull S handler);
+
+    /**
      * Add a handler and make sure it will be executed before handler identifier by relatedType is executed.
      */
     ModifiableSubtreeManagerRegistryBuilder<S> addBefore(@Nonnull S handler,
@@ -49,6 +55,12 @@ public interface ModifiableSubtreeManagerRegistryBuilder<S extends SubtreeManage
 
     ModifiableSubtreeManagerRegistryBuilder<S> addBefore(@Nonnull S handler,
                                                          @Nonnull Collection<InstanceIdentifier<?>> relatedTypes);
+
+    ModifiableSubtreeManagerRegistryBuilder<S> wildcardedSubtreeAddBefore(@Nonnull S handler,
+                                                                          @Nonnull InstanceIdentifier<?> relatedType);
+
+    ModifiableSubtreeManagerRegistryBuilder<S> wildcardedSubtreeAddBefore(@Nonnull S handler,
+                                                                          @Nonnull Collection<InstanceIdentifier<?>> relatedTypes);
 
     ModifiableSubtreeManagerRegistryBuilder<S> subtreeAddBefore(@Nonnull Set<InstanceIdentifier<?>> handledChildren,
                                                                 @Nonnull S handler,
@@ -66,6 +78,12 @@ public interface ModifiableSubtreeManagerRegistryBuilder<S extends SubtreeManage
 
     ModifiableSubtreeManagerRegistryBuilder<S> addAfter(@Nonnull S handler,
                                                         @Nonnull Collection<InstanceIdentifier<?>> relatedTypes);
+
+    ModifiableSubtreeManagerRegistryBuilder<S> wildcardedSubtreeAddAfter(@Nonnull S handler,
+                                                                         @Nonnull InstanceIdentifier<?> relatedType);
+
+    ModifiableSubtreeManagerRegistryBuilder<S> wildcardedSubtreeAddAfter(@Nonnull S handler,
+                                                                         @Nonnull Collection<InstanceIdentifier<?>> relatedTypes);
 
     ModifiableSubtreeManagerRegistryBuilder<S> subtreeAddAfter(@Nonnull Set<InstanceIdentifier<?>> handledChildren,
                                                                @Nonnull S handler,

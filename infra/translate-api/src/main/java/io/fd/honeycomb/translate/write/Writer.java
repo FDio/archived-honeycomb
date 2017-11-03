@@ -47,8 +47,17 @@ public interface Writer<D extends DataObject> extends SubtreeManager<D> {
                              @Nonnull final WriteContext ctx) throws WriteFailedException;
 
     /**
-     * Indicates whether there is direct support for updating nodes handled by this writer,
+     * Indicates whether there is direct support for updating nodes handled by writer,
      * or they must be broken up to individual deletes and creates.
      */
     boolean supportsDirectUpdate();
+
+    /**
+     * Returns true if node identified by this identifier can be processes by this writer
+     *
+     * @param instanceIdentifier identifier to be checked
+     */
+    default boolean canProcess(@Nonnull final InstanceIdentifier<? extends DataObject> instanceIdentifier) {
+        return getManagedDataObjectType().equals(instanceIdentifier);
+    }
 }

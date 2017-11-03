@@ -21,13 +21,14 @@ import com.google.common.collect.ImmutableMap;
 import io.fd.honeycomb.translate.ModifiableSubtreeManagerRegistryBuilder;
 import io.fd.honeycomb.translate.SubtreeManager;
 import io.fd.honeycomb.translate.SubtreeManagerRegistryBuilder;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public abstract class AbstractSubtreeManagerRegistryBuilderBuilder<S extends SubtreeManager<? extends DataObject>, R>
         implements ModifiableSubtreeManagerRegistryBuilder<S>, SubtreeManagerRegistryBuilder<R> {
@@ -61,6 +62,12 @@ public abstract class AbstractSubtreeManagerRegistryBuilderBuilder<S extends Sub
     public AbstractSubtreeManagerRegistryBuilderBuilder<S, R> subtreeAdd(@Nonnull final Set<InstanceIdentifier<?>> handledChildren,
                                                                          @Nonnull final S handler) {
         add(getSubtreeHandler(handledChildren, handler));
+        return this;
+    }
+
+    @Override
+    public ModifiableSubtreeManagerRegistryBuilder<S> wildcardedSubtreeAdd(@Nonnull S handler) {
+        add(getWildcardedSubtreeHandler(handler));
         return this;
     }
 
@@ -110,6 +117,12 @@ public abstract class AbstractSubtreeManagerRegistryBuilderBuilder<S extends Sub
     }
 
     @Override
+    public ModifiableSubtreeManagerRegistryBuilder<S> wildcardedSubtreeAddBefore(@Nonnull final S handler,
+                                                                                 @Nonnull final InstanceIdentifier<?> relatedType) {
+        return addBefore(getWildcardedSubtreeHandler(handler), relatedType);
+    }
+
+    @Override
     public AbstractSubtreeManagerRegistryBuilderBuilder<S, R> subtreeAddBefore(
             @Nonnull final Set<InstanceIdentifier<?>> handledChildren,
             @Nonnull final S handler,
@@ -117,8 +130,16 @@ public abstract class AbstractSubtreeManagerRegistryBuilderBuilder<S extends Sub
         return addBefore(getSubtreeHandler(handledChildren, handler), relatedTypes);
     }
 
+    @Override
+    public ModifiableSubtreeManagerRegistryBuilder<S> wildcardedSubtreeAddBefore(@Nonnull final S handler,
+                                                                                 @Nonnull final Collection<InstanceIdentifier<?>> relatedTypes) {
+        return addBefore(getWildcardedSubtreeHandler(handler), relatedTypes);
+    }
+
     protected abstract S getSubtreeHandler(@Nonnull final Set<InstanceIdentifier<?>> handledChildren,
                                            @Nonnull final S handler);
+
+    protected abstract S getWildcardedSubtreeHandler(@Nonnull final S handler);
 
     /**
      * Add handler with relationship: to be executed after handler handling relatedType.
@@ -163,11 +184,22 @@ public abstract class AbstractSubtreeManagerRegistryBuilderBuilder<S extends Sub
     }
 
     @Override
+    public ModifiableSubtreeManagerRegistryBuilder<S> wildcardedSubtreeAddAfter(@Nonnull final S handler,
+                                                                                @Nonnull final InstanceIdentifier<?> relatedType) {
+        return addAfter(getWildcardedSubtreeHandler(handler), relatedType);
+    }
+
+    @Override
     public AbstractSubtreeManagerRegistryBuilderBuilder<S, R> subtreeAddAfter(
             @Nonnull final Set<InstanceIdentifier<?>> handledChildren,
             @Nonnull final S handler,
             @Nonnull final Collection<InstanceIdentifier<?>> relatedTypes) {
         return addAfter(getSubtreeHandler(handledChildren, handler), relatedTypes);
+    }
+
+    @Override
+    public ModifiableSubtreeManagerRegistryBuilder<S> wildcardedSubtreeAddAfter(@Nonnull S handler, @Nonnull Collection<InstanceIdentifier<?>> relatedTypes) {
+        return addAfter(getWildcardedSubtreeHandler(handler), relatedTypes);
     }
 
     protected ImmutableMap<InstanceIdentifier<?>, S> getMappedHandlers() {

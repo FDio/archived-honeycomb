@@ -16,18 +16,19 @@
 
 package io.fd.honeycomb.translate.util.write;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.translate.write.Writer;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public abstract class AbstractGenericWriter<D extends DataObject> implements Writer<D> {
 

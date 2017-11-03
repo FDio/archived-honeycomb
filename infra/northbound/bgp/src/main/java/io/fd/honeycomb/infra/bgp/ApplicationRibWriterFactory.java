@@ -45,14 +45,6 @@ final class ApplicationRibWriterFactory implements WriterFactory {
             InstanceIdentifier.create(ApplicationRib.class);
     private static final InstanceIdentifier<Tables> TABLES_IID = AR_IID.child(Tables.class);
 
-
-    // TODO (HONEYCOMB-359):
-    // BGP models are huge, we need some kind of wildcarded subtree writer, that works for whole subtree.
-    // 1) we can either move checking handledTypes to writers (getHandledTypes, isAffected, writer.getHandedTypes, ...)
-    // but then precondition check in flatWriterRegistry might be slower (we need to check if we have all writers
-    // in order to avoid unnecessary reverts).
-    //
-    // 2) alternative is to compute all child nodes during initialization (might introduce some footprint penalty).
     @Override
     public void init(final ModifiableWriterRegistryBuilder registry) {
         registry.subtreeAdd(ImmutableSet.of(TABLES_IID), new BindingBrokerWriter<>(InstanceIdentifier.create(ApplicationRib.class), dataBroker)

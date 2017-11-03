@@ -25,6 +25,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -39,15 +40,19 @@ import io.fd.honeycomb.translate.util.DataObjects.DataObject1;
 import io.fd.honeycomb.translate.util.DataObjects.DataObject2;
 import io.fd.honeycomb.translate.write.DataObjectUpdate;
 import io.fd.honeycomb.translate.write.WriteContext;
+import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.translate.write.Writer;
 import io.fd.honeycomb.translate.write.registry.UpdateFailedException;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
 import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.stubbing.Answer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -72,6 +77,18 @@ public class FlatWriterRegistryTest {
         when(writer1.getManagedDataObjectType()).thenReturn(DataObject1.IID);
         when(writer2.getManagedDataObjectType()).thenReturn(DataObject2.IID);
         when(writer3.getManagedDataObjectType()).thenReturn(DataObjects.DataObject3.IID);
+        when(writer4.getManagedDataObjectType()).thenReturn(DataObjects.DataObject1ChildK.IID);
+        // TODO - HONEYCOMB-412 - thenCallRealMethod doest work with default methods
+        // https://stackoverflow.com/questions/27663252/can-you-make-mockito-1-10-17-work-with-default-methods-in-interfaces
+        when(writer1.canProcess(any())).thenAnswer(answerWithImpl());
+        when(writer2.canProcess(any())).thenAnswer(answerWithImpl());
+        when(writer3.canProcess(any())).thenAnswer(answerWithImpl());
+        when(writer4.canProcess(any())).thenAnswer(answerWithImpl());
+    }
+
+    private static Answer<Object> answerWithImpl() {
+        return invocationOnMock -> new CheckedMockWriter(Writer.class.cast(invocationOnMock.getMock())).canProcess(
+                InstanceIdentifier.class.cast(invocationOnMock.getArguments()[0]));
     }
 
     @Test
@@ -112,8 +129,12 @@ public class FlatWriterRegistryTest {
         inOrder.verify(writer1).processModification(iid, dataObject, dataObject, ctx);
         inOrder.verify(writer2).processModification(iid2, dataObject2, dataObject2, ctx);
 
-        verifyNoMoreInteractions(writer1);
-        verifyNoMoreInteractions(writer2);
+        // TODO - HONEYCOMB-412 -reintroduce verifyNoMoreInteractions and remove manual verify
+        // we are really interested just in invocations of processModification(),so adding specific verify to check that
+        verify(writer1,times(1)).processModification(any(),any(),any(),any());
+        verify(writer2,times(1)).processModification(any(),any(),any(),any());
+        //verifyNoMoreInteractions(writer1);
+        //verifyNoMoreInteractions(writer2);
     }
 
     @Test
@@ -136,8 +157,12 @@ public class FlatWriterRegistryTest {
         inOrder.verify(writer2).processModification(iid2, dataObject2, null, ctx);
         inOrder.verify(writer1).processModification(iid, dataObject, null, ctx);
 
-        verifyNoMoreInteractions(writer1);
-        verifyNoMoreInteractions(writer2);
+        // TODO - HONEYCOMB-412 -reintroduce verifyNoMoreInteractions and remove manual verify
+        // we are really interested just in invocations of processModification(),so adding specific verify to check that
+        verify(writer1,times(1)).processModification(any(),any(),any(),any());
+        verify(writer2,times(1)).processModification(any(),any(),any(),any());
+        //verifyNoMoreInteractions(writer1);
+        //verifyNoMoreInteractions(writer2);
     }
 
     @Test
@@ -170,8 +195,12 @@ public class FlatWriterRegistryTest {
         inOrder.verify(writer1).processModification(iid, dataObject, dataObject, ctx);
         inOrder.verify(writer2).processModification(iid2, dataObject2, dataObject2, ctx);
 
-        verifyNoMoreInteractions(writer1);
-        verifyNoMoreInteractions(writer2);
+        // TODO - HONEYCOMB-412 -reintroduce verifyNoMoreInteractions and remove manual verify
+        // we are really interested just in invocations of processModification(),so adding specific verify to check that
+        verify(writer1,times(2)).processModification(any(),any(),any(),any());
+        verify(writer2,times(2)).processModification(any(),any(),any(),any());
+        //verifyNoMoreInteractions(writer1);
+        //verifyNoMoreInteractions(writer2);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -297,5 +326,36 @@ public class FlatWriterRegistryTest {
     private static <D extends DataObject> DataObjectUpdate updateData(final Class<D> type,
                                                                       final InstanceIdentifier<D> iid) {
         return DataObjectUpdate.create(iid, mock(type), mock(type));
+    }
+
+    //TODO - HONEYCOMB-412 - remove after
+    /**
+     * Used to utilize default implementation of canProcess()
+     * */
+    static class CheckedMockWriter implements Writer{
+
+        private final Writer mockedWriter;
+
+        CheckedMockWriter(final Writer mockedWriter) {
+            this.mockedWriter = mockedWriter;
+        }
+
+        @Override
+        public void processModification(@Nonnull final InstanceIdentifier id, @Nullable final DataObject dataBefore,
+                                        @Nullable final DataObject dataAfter, @Nonnull final WriteContext ctx)
+                throws WriteFailedException {
+            mockedWriter.processModification(id,dataBefore,dataAfter,ctx);
+        }
+
+        @Override
+        public boolean supportsDirectUpdate() {
+            return mockedWriter.supportsDirectUpdate();
+        }
+
+        @Nonnull
+        @Override
+        public InstanceIdentifier getManagedDataObjectType() {
+            return mockedWriter.getManagedDataObjectType();
+        }
     }
 }

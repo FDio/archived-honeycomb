@@ -16,21 +16,14 @@
 
 package io.fd.honeycomb.infra.bgp.neighbors;
 
-import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import io.fd.honeycomb.infra.bgp.BgpConfiguration;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
-import javax.annotation.Nonnull;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafis;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Timers;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Transport;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
@@ -38,25 +31,24 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.Protocols;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.AfiSafi1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Protocol1;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import javax.annotation.Nonnull;
 
 /**
  * Initializes writer for Bgp Neighbors ({@link Neighbor} node) and all its parents required by HC infra.
  */
 public final class BgpPeerWriterFactory implements WriterFactory {
     private static final InstanceIdentifier<NetworkInstance> NETWORK_INSTANCE_ID =
-        InstanceIdentifier.create(NetworkInstances.class)
-            .child(NetworkInstance.class);
+            InstanceIdentifier.create(NetworkInstances.class)
+                    .child(NetworkInstance.class);
 
     private static final InstanceIdentifier<Protocol> PROTOCOL_ID =
-        NETWORK_INSTANCE_ID.child(Protocols.class).child(Protocol.class);
+            NETWORK_INSTANCE_ID.child(Protocols.class).child(Protocol.class);
 
     private static final InstanceIdentifier<Neighbor> NEIGHBOR_ID =
-        PROTOCOL_ID.augmentation(Protocol1.class).child(Bgp.class).child(Neighbors.class).child(Neighbor.class);
+            PROTOCOL_ID.augmentation(Protocol1.class).child(Bgp.class).child(Neighbors.class).child(Neighbor.class);
 
     @Inject
     private BgpConfiguration configuration;
@@ -72,39 +64,18 @@ public final class BgpPeerWriterFactory implements WriterFactory {
         // NetworkInstances
         //  NetworkInstance =
         registry.add(new GenericListWriter<>(NETWORK_INSTANCE_ID,
-            new NetworkInstanceCustomizer(configuration.bgpNetworkInstanceName)));
+                new NetworkInstanceCustomizer(configuration.bgpNetworkInstanceName)));
 
         //   Protocols
         //    Protocol =
         registry.add(
-            new GenericListWriter<>(PROTOCOL_ID, new ProtocolCustomizer(configuration.bgpProtocolInstanceName.get())));
+                new GenericListWriter<>(PROTOCOL_ID, new ProtocolCustomizer(configuration.bgpProtocolInstanceName.get())));
 
         //     Protocol1 augmentation (from bgp-openconfig-extensions)
         //      Bgp
         //       Neighbors
         //        Neighbor=
-        final InstanceIdentifier<Neighbor> neighbor = InstanceIdentifier.create(Neighbor.class);
-        registry.subtreeAdd(
-            // TODO (HONEYCOMB-359): there might be more subnodes that needs to be handled
-            Sets.newHashSet(
-                neighbor.child(Config.class),
-                neighbor.child(Config.class).augmentation(Config2.class),
-                neighbor.child(AfiSafis.class),
-                neighbor.child(AfiSafis.class).child(AfiSafi.class),
-                neighbor.child(AfiSafis.class).child(AfiSafi.class).augmentation(AfiSafi1.class),
-                neighbor.child(Timers.class),
-                neighbor.child(Timers.class).child(
-                    org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers.Config.class),
-                neighbor.child(Transport.class),
-                neighbor.child(Transport.class).child(
-                    org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.Config.class),
-                neighbor.child(Transport.class).child(
-                    org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.transport.Config.class)
-                    .augmentation(Config1.class)
-            ),
-            new GenericListWriter<>(
-                NEIGHBOR_ID,
-                new NeighborCustomizer(globalRib, peerRegistry, tableTypeRegistry)));
+        registry.wildcardedSubtreeAdd(new GenericListWriter<>(NEIGHBOR_ID, new NeighborCustomizer(globalRib, peerRegistry, tableTypeRegistry)));
     }
 }
 

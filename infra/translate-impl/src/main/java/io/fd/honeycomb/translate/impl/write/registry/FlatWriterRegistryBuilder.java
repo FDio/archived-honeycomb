@@ -24,14 +24,15 @@ import io.fd.honeycomb.translate.write.Writer;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
 import io.fd.honeycomb.translate.write.registry.WriterRegistryBuilder;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Builder for {@link FlatWriterRegistry} allowing users to specify inter-writer relationships.
@@ -51,6 +52,11 @@ public final class FlatWriterRegistryBuilder
     protected Writer<? extends DataObject> getSubtreeHandler(final @Nonnull Set<InstanceIdentifier<?>> handledChildren,
                                                              final @Nonnull Writer<? extends DataObject> writer) {
         return SubtreeWriter.createForWriter(handledChildren, writer);
+    }
+
+    @Override
+    protected Writer<? extends DataObject> getWildcardedSubtreeHandler(@Nonnull Writer<? extends DataObject> handler) {
+        return SubtreeWriter.createWildcardedForWriter(handler);
     }
 
     /**

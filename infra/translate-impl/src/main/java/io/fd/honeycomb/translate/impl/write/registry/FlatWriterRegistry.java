@@ -21,7 +21,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
@@ -32,12 +31,15 @@ import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.Writer;
 import io.fd.honeycomb.translate.write.registry.UpdateFailedException;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -54,39 +56,23 @@ final class FlatWriterRegistry implements WriterRegistry {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlatWriterRegistry.class);
 
-    // All types handled by writers directly or as children
-    private final ImmutableSet<InstanceIdentifier<?>> handledTypes;
-
     private final Set<InstanceIdentifier<?>> writersOrderReversed;
     private final Set<InstanceIdentifier<?>> writersOrder;
-    private final Map<InstanceIdentifier<?>, Writer<?>> writers;
+    private final Map<InstanceIdentifier<?>, Writer<?>> writersById;
+    private final Set<? extends Writer<?>> writers;
 
     /**
      * Create flat registry instance.
      *
-     * @param writers immutable, ordered map of writers to use to process updates. Order of the writers has to be one in
+     * @param writersById immutable, ordered map of writers to use to process updates. Order of the writers has to be one in
      *                which create and update operations should be handled. Deletes will be handled in reversed order.
      *                All deletes are handled before handling all the updates.
      */
-    FlatWriterRegistry(@Nonnull final ImmutableMap<InstanceIdentifier<?>, Writer<?>> writers) {
-        this.writers = writers;
-        this.writersOrderReversed = Sets.newLinkedHashSet(Lists.reverse(Lists.newArrayList(writers.keySet())));
-        this.writersOrder = writers.keySet();
-        this.handledTypes = getAllHandledTypes(writers);
-    }
-
-    private static ImmutableSet<InstanceIdentifier<?>> getAllHandledTypes(
-            @Nonnull final ImmutableMap<InstanceIdentifier<?>, Writer<?>> writers) {
-        final ImmutableSet.Builder<InstanceIdentifier<?>> handledTypesBuilder = ImmutableSet.builder();
-        for (Map.Entry<InstanceIdentifier<?>, Writer<?>> writerEntry : writers.entrySet()) {
-            final InstanceIdentifier<?> writerType = writerEntry.getKey();
-            final Writer<?> writer = writerEntry.getValue();
-            handledTypesBuilder.add(writerType);
-            if (writer instanceof SubtreeWriter) {
-                handledTypesBuilder.addAll(((SubtreeWriter<?>) writer).getHandledChildTypes());
-            }
-        }
-        return handledTypesBuilder.build();
+    FlatWriterRegistry(@Nonnull final ImmutableMap<InstanceIdentifier<?>, Writer<?>> writersById) {
+        this.writersById = writersById;
+        this.writersOrderReversed = Sets.newLinkedHashSet(Lists.reverse(Lists.newArrayList(writersById.keySet())));
+        this.writersOrder = writersById.keySet();
+        this.writers = writersById.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toSet());
     }
 
     @Override
@@ -145,9 +131,9 @@ final class FlatWriterRegistry implements WriterRegistry {
 
         if (writer == null) {
             // This node must be handled by a subtree writer, find it and call it or else fail
-            checkArgument(handledTypes.contains(singleType), "Unable to process update. Missing writers for: %s",
-                    singleType);
             writer = getSubtreeWriterResponsible(singleType);
+            checkArgument(writer != null, "Unable to process update. Missing writers for: %s",
+                    singleType);
             singleTypeUpdates = getParentDataObjectUpdate(ctx, updates, writer);
         }
 
@@ -168,9 +154,9 @@ final class FlatWriterRegistry implements WriterRegistry {
 
     @Nullable
     private Writer<?> getSubtreeWriterResponsible(final InstanceIdentifier<?> singleType) {
-        return writers.values().stream()
+        return writersById.values().stream()
                 .filter(w -> w instanceof SubtreeWriter)
-                .filter(w -> ((SubtreeWriter<?>) w).getHandledChildTypes().contains(singleType))
+                .filter(w -> w.canProcess(singleType))
                 .findFirst()
                 .orElse(null);
     }
@@ -249,10 +235,23 @@ final class FlatWriterRegistry implements WriterRegistry {
 
     private void checkAllTypesCanBeHandled(
             @Nonnull final Multimap<InstanceIdentifier<?>, ? extends DataObjectUpdate> updates) {
-        if (!handledTypes.containsAll(updates.keySet())) {
-            final Sets.SetView<InstanceIdentifier<?>> missingWriters = Sets.difference(updates.keySet(), handledTypes);
-            LOG.warn("Unable to process update. Missing writers for: {}", missingWriters);
-            throw new IllegalArgumentException("Unable to process update. Missing writers for: " + missingWriters);
+
+        List<InstanceIdentifier<?>> noWriterNodes = new ArrayList<>();
+        for (InstanceIdentifier<?> id : updates.keySet()) {
+            // either there is direct writer for the iid
+            if (writersById.containsKey(id)) {
+                continue;
+            } else {
+                // or subtree one
+                if (writers.stream().anyMatch(o -> o.canProcess(id))) {
+                    continue;
+                }
+            }
+            noWriterNodes.add(id);
+        }
+
+        if (!noWriterNodes.isEmpty()) {
+            throw new IllegalArgumentException("Unable to process update. Missing writers for: " + noWriterNodes);
         }
     }
 
@@ -269,7 +268,7 @@ final class FlatWriterRegistry implements WriterRegistry {
 
     @Nullable
     private Writer<?> getWriter(@Nonnull final InstanceIdentifier<?> singleType) {
-        return writers.get(singleType);
+        return writersById.get(singleType);
     }
 
 }
