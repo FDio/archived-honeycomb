@@ -81,11 +81,6 @@
             <artifactId>common</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.fd.honeycomb.northbound</groupId>
-            <artifactId>restconf</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
         <!-- HC -->
         <dependency>
