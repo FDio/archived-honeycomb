@@ -46,21 +46,21 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- ODL dependencies -->
-        <yangtools.version>1.1.2-Carbon</yangtools.version>
-        <mdsal.version>2.2.2-Carbon</mdsal.version>
-        <mdsal.controller.version>1.5.2-Carbon</mdsal.controller.version>
-        <mdsalmodel.version>0.10.2-Carbon</mdsalmodel.version>
-        <netconf.version>1.2.2-Carbon</netconf.version>
-        <restconf.version>1.5.2-Carbon</restconf.version>
-        <salGenerator.version>0.10.2-Carbon</salGenerator.version>
-        <bgpcep.version>0.7.2-Carbon</bgpcep.version>
+        <odl.yangtools.version>1.2.0</odl.yangtools.version>
+        <odl.mdsal.version>2.3.0</odl.mdsal.version>
+        <odl.mdsal.controller.version>1.6.0</odl.mdsal.controller.version>
+        <odl.mdsalmodel.version>0.11.0</odl.mdsalmodel.version>
+        <odl.netconf.version>1.3.0</odl.netconf.version>
+        <odl.restconf.version>1.6.0</odl.restconf.version>
+        <odl.salGenerator.version>0.11.0</odl.salGenerator.version>
+        <odl.bgpcep.version>0.8.0</odl.bgpcep.version>
         <salGeneratorPath>target/generated-sources/mdsal-binding</salGeneratorPath>
 
         <!-- common dependencies -->
         <junit.version>4.11</junit.version>
         <mockito.version>2.2.9</mockito.version>
         <hamcrest.version>1.3</hamcrest.version>
-        <guava.version>18.0</guava.version>
+        <guava.version>22.0</guava.version>
         <jsr305.version>3.0.0</jsr305.version>
         <slf4j.version>1.7.21</slf4j.version>
 
@@ -133,49 +133,49 @@
             <dependency>
                 <groupId>org.opendaylight.yangtools</groupId>
                 <artifactId>yangtools-artifacts</artifactId>
-                <version>${yangtools.version}</version>
+                <version>${odl.yangtools.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>mdsal-artifacts</artifactId>
-                <version>${mdsal.controller.version}</version>
+                <version>${odl.mdsal.controller.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.mdsal</groupId>
                 <artifactId>mdsal-artifacts</artifactId>
-                <version>${mdsal.version}</version>
+                <version>${odl.mdsal.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.netconf</groupId>
                 <artifactId>netconf-artifacts</artifactId>
-                <version>${netconf.version}</version>
+                <version>${odl.netconf.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.netconf</groupId>
                 <artifactId>restconf-artifacts</artifactId>
-                <version>${restconf.version}</version>
+                <version>${odl.restconf.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.mdsal.model</groupId>
                 <artifactId>mdsal-model-artifacts</artifactId>
-                <version>${mdsalmodel.version}</version>
+                <version>${odl.mdsalmodel.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>bgpcep-artifacts</artifactId>
-                <version>${bgpcep.version}</version>
+                <version>${odl.bgpcep.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -295,7 +295,7 @@
                         <dependency>
                             <groupId>org.opendaylight.yangtools</groupId>
                             <artifactId>checkstyle-logging</artifactId>
-                            <version>${yangtools.version}</version>
+                            <version>${odl.yangtools.version}</version>
                         </dependency>
                         <!-- Needed by ODL's checkstyle-logging -->
                         <dependency>

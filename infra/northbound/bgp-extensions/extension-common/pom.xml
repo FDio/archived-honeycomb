@@ -39,17 +39,17 @@
         <dependency>
             <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>bgp-rib-spi</artifactId>
-            <version>${bgpcep.version}</version>
+            <version>${odl.bgpcep.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>bgp-openconfig-api</artifactId>
-            <version>${bgpcep.version}</version>
+            <version>${odl.bgpcep.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>bgp-openconfig-spi</artifactId>
-            <version>${bgpcep.version}</version>
+            <version>${odl.bgpcep.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>bgp-parser-impl</artifactId>
-            <version>${bgpcep.version}</version>
+            <version>${odl.bgpcep.version}</version>
         </dependency>
     </dependencies>
 

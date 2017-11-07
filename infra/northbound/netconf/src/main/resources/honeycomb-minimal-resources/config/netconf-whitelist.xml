@@ -75,50 +75,6 @@
         </module>
         <module>
             <package>
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.netconf.northbound.notification.rev150806
-            </package>
-            <description>
-                This module contains the base YANG definitions for
-                netconf northbound notifications API
-
-                Directly used for netconf notification binding
-            </description>
-        </module>
-        <module>
-            <package>
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.protocol.framework.rev140313
-            </package>
-            <description>
-                This module contains the base YANG definitions for
-                protocol framework.
-
-                Required for mounting of netconf devices(Operational read does not work without it)
-            </description>
-        </module>
-        <module>
-            <package>
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.netconf.north.mapper.rev150114
-            </package>
-            <description>
-                This module contains the base YANG definitions for
-                mapping services plugged into a netconf northbound server
-
-                Required for mounting of netconf devices(Operational read does not work without it)
-            </description>
-        </module>
-        <module>
-            <package>
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.netconf.auth.rev150715
-            </package>
-            <description>
-                This module contains the base YANG definitions for
-                netconf northbound server API
-
-                Required for mounting of netconf devices(Operational read does not work without it)
-            </description>
-        </module>
-        <module>
-            <package>
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.extension.rev131210
             </package>
             <description>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Cisco and/or its affiliates.
+ * Copyright (c) 2015, 2017 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,20 @@
 
 package io.fd.honeycomb.impl;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.Futures;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMMountPoint;
 import org.opendaylight.controller.md.sal.dom.api.DOMMountPointService;
 import org.opendaylight.controller.md.sal.dom.api.DOMNotificationPublishService;
 import org.opendaylight.controller.md.sal.dom.api.DOMNotificationService;
-import org.opendaylight.controller.md.sal.dom.api.DOMRpcAvailabilityListener;
-import org.opendaylight.controller.md.sal.dom.api.DOMRpcException;
-import org.opendaylight.controller.md.sal.dom.api.DOMRpcImplementationNotAvailableException;
-import org.opendaylight.controller.md.sal.dom.api.DOMRpcResult;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
 import org.opendaylight.controller.sal.core.api.Broker;
 import org.opendaylight.controller.sal.core.api.BrokerService;
 import org.opendaylight.controller.sal.core.api.Consumer;
 import org.opendaylight.controller.sal.core.api.Provider;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
-import org.opendaylight.controller.sal.core.api.mount.MountProvisionListener;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -51,14 +37,13 @@ import org.osgi.framework.BundleContext;
  */
 public class NorthboundFacadeHoneycombDOMBroker implements AutoCloseable, Broker {
 
-    private static final BrokerService EMPTY_DOM_MOUNT_SERVICE = new EmptyDomMountService();
-
     private Map<Class<? extends BrokerService>, BrokerService> services;
 
     public NorthboundFacadeHoneycombDOMBroker(@Nonnull final DOMDataBroker domDataBrokerDependency,
                                               @Nonnull final SchemaService schemaBiService,
                                               @Nonnull final DOMNotificationService domNotificatioNService,
-                                              @Nonnull final DOMRpcService domRpcService) {
+                                              @Nonnull final DOMRpcService domRpcService,
+                                              @Nonnull final DOMMountPointService domMountPointService) {
         services = Maps.newHashMap();
         services.put(DOMDataBroker.class, domDataBrokerDependency);
         services.put(SchemaService.class, schemaBiService);
@@ -66,7 +51,7 @@ public class NorthboundFacadeHoneycombDOMBroker implements AutoCloseable, Broker
         services.put(DOMNotificationPublishService.class, domNotificatioNService);
         services.put(DOMRpcService.class, domRpcService);
         // Required to be present by Restconf northbound even if not used:
-        services.put(DOMMountPointService.class, EMPTY_DOM_MOUNT_SERVICE);
+        services.put(DOMMountPointService.class, domMountPointService);
     }
 
     @Override
@@ -145,60 +130,6 @@ public class NorthboundFacadeHoneycombDOMBroker implements AutoCloseable, Broker
         @Override
         public void close() {
             closed = true;
-        }
-    }
-
-    private static class EmptyDomRpcService implements DOMRpcService {
-        @Nonnull
-        @Override
-        public CheckedFuture<DOMRpcResult, DOMRpcException> invokeRpc(@Nonnull final SchemaPath schemaPath,
-                                                                      @Nullable final NormalizedNode<?, ?> normalizedNode) {
-            return Futures.<DOMRpcResult, DOMRpcException>immediateFailedCheckedFuture(
-                new DOMRpcImplementationNotAvailableException("RPCs not supported"));
-        }
-
-        @Nonnull
-        @Override
-        public <T extends DOMRpcAvailabilityListener> ListenerRegistration<T> registerRpcListener(@Nonnull final T t) {
-            return new ListenerRegistration<T>() {
-                @Override
-                public void close() {
-                    // Noop
-                }
-
-                @Override
-                public T getInstance() {
-                    return t;
-                }
-            };
-        }
-    }
-
-    private static class EmptyDomMountService implements DOMMountPointService {
-        @Override
-        public Optional<DOMMountPoint> getMountPoint(final YangInstanceIdentifier yangInstanceIdentifier) {
-            return Optional.absent();
-        }
-
-        @Override
-        public DOMMountPointBuilder createMountPoint(final YangInstanceIdentifier yangInstanceIdentifier) {
-            throw new UnsupportedOperationException("No mountpoint support");
-        }
-
-        @Override
-        public ListenerRegistration<MountProvisionListener> registerProvisionListener(
-            final MountProvisionListener mountProvisionListener) {
-            return new ListenerRegistration<MountProvisionListener>() {
-                @Override
-                public void close() {
-                    // Noop
-                }
-
-                @Override
-                public MountProvisionListener getInstance() {
-                    return mountProvisionListener;
-                }
-            };
         }
     }
 }

@@ -46,6 +46,11 @@ public final class NetconfSshServerProvider extends ProviderTrait<NetconfSshServ
 
     private static final Logger LOG = LoggerFactory.getLogger(NetconfSshServerProvider.class);
 
+    // Use RSA for ssh server, see https://git.opendaylight.org/gerrit/#/c/60138/
+    private static final String DEFAULT_PRIVATE_KEY_PATH = null; // disable private key serialization
+    private static final String DEFAULT_ALGORITHM = "RSA";
+    private static final int DEFAULT_KEY_SIZE = 4096;
+
     @Inject
     private NetconfServerDispatcher dispatcher;
     @Inject
@@ -65,6 +70,10 @@ public final class NetconfSshServerProvider extends ProviderTrait<NetconfSshServ
             return null;
         }
         LOG.info("Starting NETCONF SSH");
+
+        // TODO(HONEYCOMB-414):  the logic below is very similar to
+        // org.opendaylight.netconf.ssh.NetconfNorthboundSshServer (introduced in Carbon), so consider reusing it
+        // (requires fixing hardcoded private key path).
         InetAddress sshBindingAddress = null;
         try {
             sshBindingAddress = InetAddress.getByName(cfgAttributes.netconfSshBindingAddress.get());
@@ -86,7 +95,8 @@ public final class NetconfSshServerProvider extends ProviderTrait<NetconfSshServ
         // Only simple authProvider checking ConfigAttributes, checking the config file
         sshConfigBuilder.setAuthenticator(new SimplelAuthProvider(credentialsCfg));
         sshConfigBuilder.setIdleTimeout(Integer.MAX_VALUE);
-        sshConfigBuilder.setKeyPairProvider(new PEMGeneratorHostKeyProvider());
+        sshConfigBuilder.setKeyPairProvider(new PEMGeneratorHostKeyProvider(DEFAULT_PRIVATE_KEY_PATH,
+            DEFAULT_ALGORITHM, DEFAULT_KEY_SIZE));
 
         localServer.addListener(new SshServerBinder(sshProxyServer, sshConfigBuilder, bindingAddress));
 

@@ -103,7 +103,7 @@
         <dependency>
             <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>rsvp-api</artifactId>
-            <version>${bgpcep.version}</version>
+            <version>${odl.bgpcep.version}</version>
         </dependency>
     </dependencies>
 

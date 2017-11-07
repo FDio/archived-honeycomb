@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>bgp-l3vpn</artifactId>
-            <version>${bgpcep.version}</version>
+            <version>${odl.bgpcep.version}</version>
         </dependency>
     </dependencies>
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2016, 2017 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ public class BaseMinimalDistributionTest {
     /**
      * Start base distribution and check all northbound interfaces
      */
-    @Test(timeout = 120000)
+    @Test(timeout = 180000)
     public void test() throws Exception {
         Main.init(new ActivationModule());
 
@@ -121,14 +121,14 @@ public class BaseMinimalDistributionTest {
         Properties config = new Properties();
         config.put("StrictHostKeyChecking", "no");
         session.setConfig(config);
-        session.connect(20000);
+        session.connect(60000);
 
         Channel channel = session.openChannel("subsystem");
 
         ((ChannelSubsystem) channel).setSubsystem("netconf");
         ((ChannelSubsystem) channel).setPty(true);
         final InputStream inputStream = channel.getInputStream();
-        channel.connect(20000);
+        channel.connect(60000);
 
         // Wait until hello msg is sent from server
         Thread.sleep(HELLO_WAIT);

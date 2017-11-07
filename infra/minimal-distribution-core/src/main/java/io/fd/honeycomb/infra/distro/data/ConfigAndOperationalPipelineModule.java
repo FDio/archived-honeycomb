@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2016, 2017 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import io.fd.honeycomb.data.ModifiableDataManager;
 import io.fd.honeycomb.data.ReadableDataManager;
 import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.data.init.ShutdownHandler;
+import io.fd.honeycomb.impl.EmptyDomMountService;
 import io.fd.honeycomb.impl.ShutdownHandlerImpl;
 import io.fd.honeycomb.infra.distro.data.config.WriterRegistryProvider;
 import io.fd.honeycomb.infra.distro.data.oper.ReadableDTDelegProvider;
@@ -33,6 +34,7 @@ import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
+import org.opendaylight.controller.md.sal.dom.api.DOMMountPointService;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
 import org.opendaylight.controller.md.sal.dom.broker.impl.DOMNotificationRouter;
 import org.opendaylight.controller.sal.core.api.Broker;
@@ -46,6 +48,10 @@ public class ConfigAndOperationalPipelineModule extends PrivateModule {
     protected void configure() {
         bind(ShutdownHandler.class).to(ShutdownHandlerImpl.class).in(Singleton.class);
         expose(ShutdownHandler.class);
+
+        // Mount point service is required by notification service and restconf
+        bind(DOMMountPointService.class).to(EmptyDomMountService.class).in(Singleton.class);
+        expose(DOMMountPointService.class);
 
         // Expose registries for plugin reader/writer factories
         bind(WriterRegistry.class).toProvider(WriterRegistryProvider.class).in(Singleton.class);

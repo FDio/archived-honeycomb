@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2016, 2017 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.google.inject.name.Named;
 import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.impl.NorthboundFacadeHoneycombDOMBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
+import org.opendaylight.controller.md.sal.dom.api.DOMMountPointService;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
 import org.opendaylight.controller.md.sal.dom.broker.impl.DOMNotificationRouter;
 import org.opendaylight.controller.sal.core.api.Broker;
@@ -39,10 +40,12 @@ final class HoneycombDOMBrokerProvider extends ProviderTrait<Broker> {
     private DOMNotificationRouter domNotificationService;
     @Inject
     private DOMRpcService domRpcService;
+    @Inject
+    private DOMMountPointService domMountPointService;
 
     @Override
     protected NorthboundFacadeHoneycombDOMBroker create() {
         return new NorthboundFacadeHoneycombDOMBroker(domDataBroker, schemaService, domNotificationService,
-            domRpcService);
+            domRpcService, domMountPointService);
     }
 }
