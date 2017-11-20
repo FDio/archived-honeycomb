@@ -16,6 +16,7 @@
 
 package io.fd.honeycomb.northbound.netconf;
 
+import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
@@ -30,7 +31,6 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import org.apache.sshd.server.keyprovider.PEMGeneratorHostKeyProvider;
@@ -74,13 +74,7 @@ public final class NetconfSshServerProvider extends ProviderTrait<NetconfSshServ
         // TODO(HONEYCOMB-414):  the logic below is very similar to
         // org.opendaylight.netconf.ssh.NetconfNorthboundSshServer (introduced in Carbon), so consider reusing it
         // (requires fixing hardcoded private key path).
-        InetAddress sshBindingAddress = null;
-        try {
-            sshBindingAddress = InetAddress.getByName(cfgAttributes.netconfSshBindingAddress.get());
-        } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("Illegal binding address", e);
-        }
-
+        final InetAddress sshBindingAddress = InetAddresses.forString(cfgAttributes.netconfSshBindingAddress.get());
         final InetSocketAddress bindingAddress =
                 new InetSocketAddress(sshBindingAddress, cfgAttributes.netconfSshBindingPort.get());
 

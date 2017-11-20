@@ -17,6 +17,7 @@
 package io.fd.honeycomb.infra.bgp;
 
 import com.google.common.base.Preconditions;
+import com.google.common.net.InetAddresses;
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.netty.channel.Channel;
@@ -26,7 +27,6 @@ import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -49,12 +49,7 @@ public final class BgpServerProvider  extends ProviderTrait<BgpServerProvider.Bg
     @Override
     protected BgpServer create() {
         // code based on org.opendaylight.controller.config.yang.bgp.rib.impl.BGPPeerAcceptorModule from Boron-SR3
-        final InetAddress bindingAddress;
-        try {
-            bindingAddress = InetAddress.getByName(cfg.bgpBindingAddress.get());
-        } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("Illegal BGP binding address", e);
-        }
+        final InetAddress bindingAddress = InetAddresses.forString(cfg.bgpBindingAddress.get());
         final InetSocketAddress address = new InetSocketAddress(bindingAddress, cfg.bgpPort.get());
         LOG.debug("Creating BgpServer for {}", address);
         final ChannelFuture localServer = dispatcher.createServer(address);

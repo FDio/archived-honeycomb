@@ -16,6 +16,7 @@
 
 package io.fd.honeycomb.northbound.netconf;
 
+import com.google.common.net.InetAddresses;
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.infra.distro.InitializationException;
@@ -24,7 +25,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.GenericFutureListener;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import org.opendaylight.netconf.api.NetconfServerDispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,13 +45,7 @@ public final class NetconfTcpServerProvider extends ProviderTrait<NetconfTcpServ
             return null;
         }
         LOG.info("Starting NETCONF TCP");
-        InetAddress name = null;
-        try {
-            name = InetAddress.getByName(cfgAttributes.netconfTcpBindingAddress.get());
-        } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("Illegal binding address", e);
-        }
-
+        final InetAddress name = InetAddresses.forString(cfgAttributes.netconfTcpBindingAddress.get());
         final InetSocketAddress unresolved = new InetSocketAddress(name, cfgAttributes.netconfTcpBindingPort.get());
 
         ChannelFuture tcpServer = dispatcher.createServer(unresolved);

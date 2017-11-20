@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
+import com.google.common.net.InetAddresses;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -108,8 +109,8 @@ public class BgpDistributionTest {
     }
 
     private void assertBgpOpenIsSent(final String peerAddress) throws IOException, InterruptedException {
-        final InetAddress bgpHost = InetAddress.getByName(BGP_HOST_ADDRESS);
-        final InetAddress bgpPeerAddress = InetAddress.getByName(peerAddress);
+        final InetAddress bgpHost = InetAddresses.forString(BGP_HOST_ADDRESS);
+        final InetAddress bgpPeerAddress = InetAddresses.forString(peerAddress);
         try (final Socket localhost = new Socket(bgpHost, BGP_PORT, bgpPeerAddress, 0);
              final InputStream inputStream = localhost.getInputStream()) {
             // Wait until bgp message is sent
