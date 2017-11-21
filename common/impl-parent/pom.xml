@@ -117,7 +117,7 @@
             <dependency>
               <groupId>io.fd.honeycomb.common</groupId>
               <artifactId>common-scripts</artifactId>
-              <version>${project.version}</version>
+              <version>1.18.01-SNAPSHOT</version>
             </dependency>
           </dependencies>
         </plugin>
