@@ -23,12 +23,15 @@ import javax.annotation.Nonnull;
 
 /**
  * Thrown when CRUD operation fails.
+ *
+ * Serialization/deserialization of this exception would cause
+ * {@link #getProcessed()} and {@link #getFailed()} to return null.
  */
 public class UpdateFailedException extends TranslationException {
 
     private static final long serialVersionUID = 896331856485410043L;
-    private final List<DataObjectUpdate> processed;
-    private final DataObjectUpdate failed;
+    private transient final List<DataObjectUpdate> processed;
+    private transient final DataObjectUpdate failed;
 
     /**
      * @param cause     original cause of failure
