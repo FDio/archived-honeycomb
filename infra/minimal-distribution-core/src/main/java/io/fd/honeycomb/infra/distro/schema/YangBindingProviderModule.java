@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 public class YangBindingProviderModule extends AbstractModule {
     private static final Logger LOG = LoggerFactory.getLogger(YangBindingProviderModule.class);
 
+    @Override
     protected void configure() {
         LOG.info("Configuring YangBindingProviderModule");
         bind(YangModulesProvider.YangModules.class).toProvider(YangModulesProvider.class).asEagerSingleton();

@@ -30,6 +30,7 @@ public final class SchemaServiceProvider extends ProviderTrait<SchemaService> {
     @Inject
     private ModuleInfoBackedContext mibCtx;
 
+    @Override
     public StaticSchemaService create() {
         return new StaticSchemaService(mibCtx.getSchemaContext());
     }
@@ -69,8 +70,10 @@ public final class SchemaServiceProvider extends ProviderTrait<SchemaService> {
                 final SchemaContextListener listener) {
             listener.onGlobalContextUpdated(schemaContext);
             return new ListenerRegistration<SchemaContextListener>() {
+                @Override
                 public void close() {}
 
+                @Override
                 public SchemaContextListener getInstance() {
                     return listener;
                 }

@@ -122,6 +122,7 @@ public final class KeepaliveReaderWrapper<D extends DataObject, B extends Builde
         @Override
         public <T extends DataObject> void put(final InstanceIdentifier<T> path, final T data) {}
 
+        @Override
         public void close() {}
     }
 

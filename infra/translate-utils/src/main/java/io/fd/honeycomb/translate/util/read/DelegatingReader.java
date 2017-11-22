@@ -36,23 +36,27 @@ public interface DelegatingReader<D extends DataObject, B extends Builder<D>> ex
 
     Reader<D, B> getDelegate();
 
+    @Override
     @Nonnull
     default Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
                                                 @Nonnull final ReadContext ctx) throws ReadFailedException {
         return getDelegate().read(id, ctx);
     }
 
+    @Override
     default void readCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
-                                      @Nonnull final B builder,
-                                      @Nonnull final ReadContext ctx) throws ReadFailedException {
+                                       @Nonnull final B builder,
+                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
         getDelegate().readCurrentAttributes(id, builder, ctx);
     }
 
+    @Override
     @Nonnull
     default B getBuilder(final InstanceIdentifier<D> id) {
         return getDelegate().getBuilder(id);
     }
 
+    @Override
     default void merge(@Nonnull final Builder<? extends DataObject> parentBuilder,
                        @Nonnull final D readValue) {
         getDelegate().merge(parentBuilder, readValue);
@@ -63,6 +67,7 @@ public interface DelegatingReader<D extends DataObject, B extends Builder<D>> ex
         return getDelegate().isPresent(id, built, ctx);
     }
 
+    @Override
     @Nonnull
     default InstanceIdentifier<D> getManagedDataObjectType() {
         return getDelegate().getManagedDataObjectType();
@@ -74,6 +79,7 @@ public interface DelegatingReader<D extends DataObject, B extends Builder<D>> ex
     interface DelegatingListReader<D extends DataObject & Identifiable<K>, K extends Identifier<D>, B extends Builder<D>>
             extends DelegatingReader<D, B>, ListReader<D, K, B> {
 
+        @Override
         ListReader<D, K, B> getDelegate();
 
         @Override

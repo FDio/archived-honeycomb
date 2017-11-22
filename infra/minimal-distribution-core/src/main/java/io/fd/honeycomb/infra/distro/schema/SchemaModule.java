@@ -24,6 +24,7 @@ import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 
 public class SchemaModule extends AbstractModule {
 
+    @Override
     protected void configure() {
         bind(ModuleInfoBackedContext.class).toProvider(ModuleInfoBackedCtxProvider.class).in(Singleton.class);
         bind(SchemaService.class).toProvider(SchemaServiceProvider.class).in(Singleton.class);

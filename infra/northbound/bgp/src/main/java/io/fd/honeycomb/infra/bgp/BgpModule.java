@@ -41,6 +41,7 @@ public final class BgpModule extends PrivateModule {
 
     static final String HONEYCOMB_BGP = "honeycomb-bgp";
 
+    @Override
     protected void configure() {
         LOG.debug("Initializing BgpModule");
         // Create BGPDispatcher BGPDispatcher for creating BGP clients

@@ -27,6 +27,7 @@ public final class HoneycombContextDOMDataBrokerProvider extends ProviderTrait<D
     @Inject
     private ModifiableDataManager modDataManager;
 
+    @Override
     public DataBroker create() {
         return DataBroker.create(modDataManager);
     }

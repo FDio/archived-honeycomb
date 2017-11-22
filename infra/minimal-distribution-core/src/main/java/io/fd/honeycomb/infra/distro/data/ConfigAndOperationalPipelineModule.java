@@ -45,6 +45,7 @@ public class ConfigAndOperationalPipelineModule extends PrivateModule {
     public static final String HONEYCOMB_CONFIG_NONPERSIST = "honeycomb-config-nopersist";
     public static final String HONEYCOMB_CONFIG = "honeycomb-config";
 
+    @Override
     protected void configure() {
         bind(ShutdownHandler.class).to(ShutdownHandlerImpl.class).in(Singleton.class);
         expose(ShutdownHandler.class);

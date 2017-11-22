@@ -30,6 +30,7 @@ public final class InitializerPipelineModule extends PrivateModule {
 
     public static final String HONEYCOMB_INITIALIZER = "honeycomb-initializer";
 
+    @Override
     protected void configure() {
         // Create data tree manager on top of non-persisting config data tree
         bind(ModifiableDataManager.class).toProvider(ModifiableDTDelegInitProvider.class).in(Singleton.class);

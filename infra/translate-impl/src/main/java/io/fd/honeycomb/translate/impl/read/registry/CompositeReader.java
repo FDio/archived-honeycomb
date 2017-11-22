@@ -187,6 +187,7 @@ class CompositeReader<D extends DataObject, B extends Builder<D>>
             this.delegate = reader;
         }
 
+        @Override
         public ListReader<D, K, B> getDelegate() {
             return delegate;
         }

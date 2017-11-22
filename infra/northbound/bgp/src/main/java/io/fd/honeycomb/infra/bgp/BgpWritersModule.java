@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 public final class BgpWritersModule extends AbstractModule {
     private static final Logger LOG = LoggerFactory.getLogger(BgpWritersModule.class);
 
+    @Override
     protected void configure() {
         LOG.debug("Initializing BgpWritersModule");
         // This should be part of BgpModule, but that one is Private and Multibinders + private BASE_MODULES

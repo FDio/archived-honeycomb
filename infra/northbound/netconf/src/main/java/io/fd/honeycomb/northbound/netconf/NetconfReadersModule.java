@@ -32,6 +32,7 @@ public class NetconfReadersModule extends NorthboundAbstractModule<NetconfConfig
         super(new NetconfConfigurationModule(), NetconfConfiguration.class);
     }
 
+    @Override
     protected void configure() {
         if (!getConfiguration().isNetconfEnabled()) {
             LOG.debug("NETCONF Northbound disabled, skipping readers initialization");

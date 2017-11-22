@@ -24,6 +24,7 @@ import net.jmob.guice.conf.core.ConfigurationModule;
  */
 final class BgpConfigurationModule extends AbstractModule {
 
+    @Override
     protected void configure() {
         install(ConfigurationModule.create());
         // Inject non-dependency configuration

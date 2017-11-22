@@ -32,6 +32,7 @@ public abstract class DataTreeProvider extends ProviderTrait<DataTree> {
     @Inject
     private HoneycombConfiguration config;
 
+    @Override
     public TipProducingDataTree create() {
         TipProducingDataTree delegate = InMemoryDataTreeFactory.getInstance().create(getType());
         delegate.setSchemaContext(schemaService.getGlobalContext());
@@ -41,6 +42,7 @@ public abstract class DataTreeProvider extends ProviderTrait<DataTree> {
     public abstract TreeType getType();
 
     public static class ConfigDataTreeProvider extends DataTreeProvider {
+        @Override
         public TreeType getType() {
             return TreeType.CONFIGURATION;
         }
@@ -48,6 +50,7 @@ public abstract class DataTreeProvider extends ProviderTrait<DataTree> {
     }
 
     public static class ContextDataTreeProvider extends DataTreeProvider {
+        @Override
         public TreeType getType() {
             return TreeType.OPERATIONAL;
         }

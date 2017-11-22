@@ -30,6 +30,7 @@ public final class HoneycombDOMDataBrokerProvider extends ProviderTrait<DOMDataB
     @Inject(optional = true)
     private ReadableDataManager readDataManager;
 
+    @Override
     protected DataBroker create() {
         return readDataManager != null
                 ? DataBroker.create(modDataManager, readDataManager)

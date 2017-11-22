@@ -24,6 +24,7 @@ import net.jmob.guice.conf.core.ConfigurationModule;
  */
 public class CfgAttrsModule extends AbstractModule {
 
+    @Override
     protected void configure() {
         install(ConfigurationModule.create());
         // Inject non-dependency configuration

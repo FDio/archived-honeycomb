@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 public final class BgpReadersModule extends AbstractModule {
     private static final Logger LOG = LoggerFactory.getLogger(BgpReadersModule.class);
 
+    @Override
     protected void configure() {
         LOG.debug("Initializing BgpReadersModule");
         // This should be part of BgpModule, but that one is Private and Multibinders + private BASE_MODULES
