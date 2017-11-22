@@ -194,8 +194,6 @@ final class FlatWriterRegistry implements WriterRegistry {
         checkAllTypesCanBeHandled(updates);
 
         LOG.debug("Performing bulk update for: {}", updates.keySet());
-        DataObjectUpdate current = null;
-
         // Iterate over all writers and call update if there are any related updates
         for (InstanceIdentifier<?> writerType : writersOrder) {
             Collection<? extends DataObjectUpdate> writersData = updates.get(writerType);
@@ -218,12 +216,11 @@ final class FlatWriterRegistry implements WriterRegistry {
             LOG.trace("Performing update with writer: {}", writer);
 
             for (DataObjectUpdate singleUpdate : writersData) {
-                current = singleUpdate;
                 try {
                     writer.processModification(singleUpdate.getId(), singleUpdate.getDataBefore(),
                             singleUpdate.getDataAfter(), ctx);
                 } catch (Exception e) {
-                    throw new UpdateFailedException(e, alreadyProcessed, current);
+                    throw new UpdateFailedException(e, alreadyProcessed, singleUpdate);
                 }
                 alreadyProcessed.add(singleUpdate);
                 LOG.trace("Update successful for type: {}", writerType);
@@ -238,13 +235,9 @@ final class FlatWriterRegistry implements WriterRegistry {
         List<InstanceIdentifier<?>> noWriterNodes = new ArrayList<>();
         for (InstanceIdentifier<?> id : updates.keySet()) {
             // either there is direct writer for the iid
-            if (writersById.containsKey(id)) {
-                continue;
-            } else {
-                // or subtree one
-                if (writers.stream().anyMatch(o -> o.canProcess(id))) {
+            // or subtree one
+            if (writersById.containsKey(id) || writers.stream().anyMatch(o -> o.canProcess(id))) {
                     continue;
-                }
             }
             noWriterNodes.add(id);
         }
