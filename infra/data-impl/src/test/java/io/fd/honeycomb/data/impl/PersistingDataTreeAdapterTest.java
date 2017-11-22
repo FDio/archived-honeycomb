@@ -135,8 +135,7 @@ public class PersistingDataTreeAdapterTest {
     public void testPersisterCreateFile() throws Exception {
         // Delete to test file creation
         Files.delete(tmpPersistFile);
-        final PersistingDataTreeAdapter.JsonPersister jsonPersister =
-                new PersistingDataTreeAdapter.JsonPersister(tmpPersistFile, schemaService);
+        new PersistingDataTreeAdapter.JsonPersister(tmpPersistFile, schemaService);
         assertTrue(Files.exists(tmpPersistFile));
    }
 }

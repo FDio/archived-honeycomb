@@ -16,25 +16,14 @@
 
 package io.fd.honeycomb.infra.distro.activation;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Module;
 import com.google.inject.Provider;
 import io.fd.honeycomb.infra.distro.schema.ResourceLoader;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,44 +74,12 @@ public class ActiveModuleProvider implements Provider<ActiveModules>, ResourceLo
         return new ArrayList<>(loadResourceContentsOnPath(relativePath));
     }
 
-    private static Stream<File> folderToFile(final URI uri) {
-        final File[] files = new File(uri).listFiles(File::isFile);
-
-        return files != null
-                ? ImmutableList.copyOf(files).stream()
-                : Collections.<File>emptyList().stream();
-    }
-
     private static boolean filterNonModules(final Class<?> clazz) {
         final boolean isModule = Module.class.isAssignableFrom(clazz);
         if (!isModule) {
             LOG.warn("Class {} is provided in modules configuration, but is not a Module and will be ignored", clazz);
         }
         return isModule;
-    }
-
-    /**
-     * Read lines from {@code Path}
-     */
-    private static Stream<String> readLines(final Path path) {
-        try {
-            return Files.readAllLines(path).stream();
-        } catch (IOException e) {
-            LOG.error("Unable to read content of {}", path, e);
-            throw new IllegalStateException("Unable to read content of " + path, e);
-        }
-    }
-
-    /**
-     * Converts {@code URL} to {@code URI}
-     */
-    private static URI toURI(final URL url) {
-        try {
-            return url.toURI();
-        } catch (URISyntaxException e) {
-            LOG.error("Unable to convert {} to uri", url);
-            throw new IllegalStateException("Unable to convert " + url + " to uri", e);
-        }
     }
 
     /**

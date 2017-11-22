@@ -287,9 +287,6 @@ public class FlatWriterRegistryTest {
 
     @Test
     public void testMutlipleUpdatesWithOneKeyedContainer() throws Exception {
-        final InstanceIdentifier internallyKeyedIdentifier = InstanceIdentifier.create(DataObject1.class)
-                .child(DataObjects.DataObject1ChildK.class, new DataObjects.DataObject1ChildKey());
-
         final FlatWriterRegistry flatWriterRegistry =
                 new FlatWriterRegistry(
                         ImmutableMap.of(DataObject1.IID, writer1, DataObjects.DataObject1ChildK.IID, writer4));

@@ -22,9 +22,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import io.fd.honeycomb.data.ReadableDataManager;
-import io.fd.honeycomb.data.ModifiableDataManager;
 import io.fd.honeycomb.data.DataModification;
+import io.fd.honeycomb.data.ModifiableDataManager;
+import io.fd.honeycomb.data.ReadableDataManager;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +36,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadWriteTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 public class DataBrokerTest {
@@ -69,7 +68,7 @@ public class DataBrokerTest {
 
     @Test
     public void testNewWriteOnlyTransaction() {
-        final DOMDataWriteTransaction writeTx = broker.newWriteOnlyTransaction();
+        broker.newWriteOnlyTransaction();
 
         // verify that write transactions use config snapshot
         verify(confiDataTree).newModification();

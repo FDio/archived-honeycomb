@@ -18,15 +18,13 @@ package io.fd.honeycomb.data.impl;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.util.concurrent.Futures.immediateCheckedFuture;
-import static org.apache.commons.lang3.builder.ToStringStyle.MULTI_LINE_STYLE;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.data.ModifiableDataManager;
 import io.fd.honeycomb.data.DataModification;
+import io.fd.honeycomb.data.ModifiableDataManager;
 import io.fd.honeycomb.translate.TranslationException;
 import javax.annotation.Nonnull;
-
 import org.apache.commons.lang3.builder.RecursiveToStringStyle;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
