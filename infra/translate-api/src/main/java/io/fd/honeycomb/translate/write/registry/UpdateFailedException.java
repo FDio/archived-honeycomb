@@ -26,6 +26,7 @@ import javax.annotation.Nonnull;
  */
 public class UpdateFailedException extends TranslationException {
 
+    private static final long serialVersionUID = 896331856485410043L;
     private final List<DataObjectUpdate> processed;
     private final DataObjectUpdate failed;
 
