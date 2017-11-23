@@ -323,6 +323,17 @@
                         </execution>
                     </executions>
                 </plugin>
+                <!-- Sonar -->
+                <!-- If Maven encounters a plugin with no version declaration, it will use the LATEST version.
+                     which might not be compatible with Sonar server (fd.io uses 5.6 currently).
+                     Therefore it is recommended to lock down version of Sonar plugin:
+                     http://blog.sonatype.com/2008/04/maven-209-released/
+                     -->
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>3.3.0.603</version>
+                </plugin>
                 <!-- jacoco test coverage for sonar -->
                 <plugin>
                     <groupId>org.jacoco</groupId>
