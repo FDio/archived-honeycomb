@@ -25,18 +25,6 @@ import net.jmob.guice.conf.core.Syntax;
 @BindConfig(value = "restconf", syntax = Syntax.JSON)
 public class RestconfConfiguration {
 
-    public boolean isRestconfHttpEnabled() {
-        return Boolean.valueOf(restconfHttp);
-    }
-
-    public boolean isRestconfHttpsEnabled() {
-        return Boolean.valueOf(restconfHttps);
-    }
-
-    public boolean isRestconfEnabled() {
-        return isRestconfHttpEnabled() || isRestconfHttpsEnabled();
-    }
-
     @InjectConfig("restconf-http-enabled")
     public String restconfHttp;
     @InjectConfig("restconf-binding-address")
@@ -49,7 +37,6 @@ public class RestconfConfiguration {
     public Optional<String> restconfHttpsBindingAddress;
     @InjectConfig("restconf-https-port")
     public Optional<Integer> restconfHttpsPort;
-
     /**
      * Restconf keystore file name. It will be loaded from the classpath so must be present in one of the folders
      * packaged with the distribution e.g. cert/
@@ -60,7 +47,6 @@ public class RestconfConfiguration {
     public Optional<String> keystorePassword;
     @InjectConfig("restconf-keystore-manager-password")
     public Optional<String> keystoreManagerPassword;
-
     /**
      * Restconf truststore file name. It will be loaded from the classpath so must be present in one of the folders
      * packaged with the distribution e.g. cert/
@@ -86,28 +72,40 @@ public class RestconfConfiguration {
     @InjectConfig("restconf-https-selectors-size")
     public Optional<Integer> httpsSelectorsSize = Optional.of(1);
 
+    public boolean isRestconfHttpEnabled() {
+        return Boolean.valueOf(restconfHttp);
+    }
+
+    public boolean isRestconfHttpsEnabled() {
+        return Boolean.valueOf(restconfHttps);
+    }
+
+    public boolean isRestconfEnabled() {
+        return isRestconfHttpEnabled() || isRestconfHttpsEnabled();
+    }
+
     @Override
     public String toString() {
         return "RestconfConfiguration{" +
-                "restconfHttp='" + restconfHttp + '\'' +
-                ", restconfBindingAddress=" + restconfBindingAddress +
-                ", restconfPort=" + restconfPort +
-                ", restconfHttps='" + restconfHttps + '\'' +
-                ", restconfHttpsBindingAddress=" + restconfHttpsBindingAddress +
-                ", restconfHttpsPort=" + restconfHttpsPort +
-                ", restconfKeystore=" + restconfKeystore +
-                ", keystorePassword=" + keystorePassword +
-                ", keystoreManagerPassword=" + keystoreManagerPassword +
-                ", restconfTruststore=" + restconfTruststore +
-                ", truststorePassword=" + truststorePassword +
-                ", restconfWebsocketPort=" + restconfWebsocketPort +
-                ", restconfRootPath=" + restconfRootPath +
-                ", restPoolMaxSize=" + restPoolMaxSize +
-                ", restPoolMinSize=" + restPoolMinSize +
-                ", acceptorsSize=" + acceptorsSize +
-                ", selectorsSize=" + selectorsSize +
-                ", httpsAcceptorsSize=" + httpsAcceptorsSize +
-                ", httpsSelectorsSize=" + httpsSelectorsSize +
-                '}';
+            "restconfHttp='" + restconfHttp + '\'' +
+            ", restconfBindingAddress=" + restconfBindingAddress +
+            ", restconfPort=" + restconfPort +
+            ", restconfHttps='" + restconfHttps + '\'' +
+            ", restconfHttpsBindingAddress=" + restconfHttpsBindingAddress +
+            ", restconfHttpsPort=" + restconfHttpsPort +
+            ", restconfKeystore=" + restconfKeystore +
+            ", keystorePassword=" + keystorePassword +
+            ", keystoreManagerPassword=" + keystoreManagerPassword +
+            ", restconfTruststore=" + restconfTruststore +
+            ", truststorePassword=" + truststorePassword +
+            ", restconfWebsocketPort=" + restconfWebsocketPort +
+            ", restconfRootPath=" + restconfRootPath +
+            ", restPoolMaxSize=" + restPoolMaxSize +
+            ", restPoolMinSize=" + restPoolMinSize +
+            ", acceptorsSize=" + acceptorsSize +
+            ", selectorsSize=" + selectorsSize +
+            ", httpsAcceptorsSize=" + httpsAcceptorsSize +
+            ", httpsSelectorsSize=" + httpsSelectorsSize +
+            '}';
     }
 }

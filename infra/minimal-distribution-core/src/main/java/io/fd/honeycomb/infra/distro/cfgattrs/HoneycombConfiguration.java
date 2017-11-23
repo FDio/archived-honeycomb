@@ -31,13 +31,6 @@ import net.jmob.guice.conf.core.Syntax;
 @BindConfig(value = "honeycomb", syntax = Syntax.JSON)
 public class HoneycombConfiguration {
 
-    public boolean isConfigPersistenceEnabled() {
-        return persistConfig.isPresent() && Boolean.valueOf(persistConfig.get());
-    }
-    public boolean isContextPersistenceEnabled() {
-        return persistContext.isPresent() && Boolean.valueOf(persistContext.get());
-    }
-
     @InjectConfig("persist-context")
     public Optional<String> persistContext = Optional.of("true");
     @InjectConfig("persisted-context-path")
@@ -53,14 +46,22 @@ public class HoneycombConfiguration {
     @InjectConfig("notification-service-queue-depth")
     public int notificationServiceQueueDepth;
 
+    public boolean isConfigPersistenceEnabled() {
+        return persistConfig.isPresent() && Boolean.valueOf(persistConfig.get());
+    }
+
+    public boolean isContextPersistenceEnabled() {
+        return persistContext.isPresent() && Boolean.valueOf(persistContext.get());
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("peristContextPath", peristContextPath)
-                .add("persistedContextRestorationType", persistedContextRestorationType)
-                .add("peristConfigPath", peristConfigPath)
-                .add("persistedConfigRestorationType", persistedConfigRestorationType)
-                .add("notificationServiceQueueDepth", notificationServiceQueueDepth)
-                .toString();
+            .add("peristContextPath", peristContextPath)
+            .add("persistedContextRestorationType", persistedContextRestorationType)
+            .add("peristConfigPath", peristConfigPath)
+            .add("persistedConfigRestorationType", persistedConfigRestorationType)
+            .add("notificationServiceQueueDepth", notificationServiceQueueDepth)
+            .toString();
     }
 }

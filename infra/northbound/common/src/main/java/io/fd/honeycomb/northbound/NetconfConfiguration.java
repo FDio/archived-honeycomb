@@ -24,18 +24,6 @@ import net.jmob.guice.conf.core.Syntax;
 @BindConfig(value = "netconf", syntax = Syntax.JSON)
 public class NetconfConfiguration {
 
-    public boolean isNetconfTcpEnabled() {
-        return Boolean.valueOf(netconfTcp);
-    }
-
-    public boolean isNetconfSshEnabled() {
-        return Boolean.valueOf(netconfSsh);
-    }
-
-    public boolean isNetconfEnabled() {
-        return isNetconfTcpEnabled() || isNetconfSshEnabled();
-    }
-
     @InjectConfig("netconf-netty-threads")
     public Integer netconfNettyThreads;
     @InjectConfig("netconf-tcp-enabled")
@@ -53,17 +41,29 @@ public class NetconfConfiguration {
     @InjectConfig("netconf-notification-stream-name")
     public Optional<String> netconfNotificationStreamName = Optional.of("honeycomb");
 
+    public boolean isNetconfTcpEnabled() {
+        return Boolean.valueOf(netconfTcp);
+    }
+
+    public boolean isNetconfSshEnabled() {
+        return Boolean.valueOf(netconfSsh);
+    }
+
+    public boolean isNetconfEnabled() {
+        return isNetconfTcpEnabled() || isNetconfSshEnabled();
+    }
+
     @Override
     public String toString() {
-        return "NetconfConfiguration{" +
-                "netconfNettyThreads=" + netconfNettyThreads +
-                ", netconfTcp='" + netconfTcp + '\'' +
-                ", netconfTcpBindingAddress=" + netconfTcpBindingAddress +
-                ", netconfTcpBindingPort=" + netconfTcpBindingPort +
-                ", netconfSsh='" + netconfSsh + '\'' +
-                ", netconfSshBindingAddress=" + netconfSshBindingAddress +
-                ", netconfSshBindingPort=" + netconfSshBindingPort +
-                ", netconfNotificationStreamName=" + netconfNotificationStreamName +
-                '}';
+        return "NetconfConfiguration{"
+            + "netconfNettyThreads=" + netconfNettyThreads
+            + ", netconfTcp='" + netconfTcp + '\''
+            + ", netconfTcpBindingAddress=" + netconfTcpBindingAddress
+            + ", netconfTcpBindingPort=" + netconfTcpBindingPort
+            + ", netconfSsh='" + netconfSsh + '\''
+            + ", netconfSshBindingAddress=" + netconfSshBindingAddress
+            + ", netconfSshBindingPort=" + netconfSshBindingPort
+            + ", netconfNotificationStreamName=" + netconfNotificationStreamName
+            + '}';
     }
 }

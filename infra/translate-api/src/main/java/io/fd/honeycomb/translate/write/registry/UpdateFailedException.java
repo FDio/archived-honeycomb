@@ -30,8 +30,8 @@ import javax.annotation.Nonnull;
 public class UpdateFailedException extends TranslationException {
 
     private static final long serialVersionUID = 896331856485410043L;
-    private transient final List<DataObjectUpdate> processed;
-    private transient final DataObjectUpdate failed;
+    private final transient  List<DataObjectUpdate> processed;
+    private final transient DataObjectUpdate failed;
 
     /**
      * @param cause     original cause of failure

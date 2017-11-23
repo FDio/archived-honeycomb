@@ -23,17 +23,13 @@ import net.jmob.guice.conf.core.InjectConfig;
 import net.jmob.guice.conf.core.Syntax;
 
 /**
- * This is the Java equivalent for bgp.json file. We use guice-config library to load all the config attributes
- * into this class instance.
+ * This is the Java equivalent for bgp.json file. We use guice-config library to load all the config attributes into
+ * this class instance.
  *
  * The BindConfig annotation tells that bgp.json file should be looked up on classpath root.
  */
 @BindConfig(value = "bgp", syntax = Syntax.JSON)
 public class BgpConfiguration {
-
-    public boolean isBgpMultiplePathsEnabled() {
-        return Boolean.valueOf(bgpMultiplePaths.get());
-    }
 
     @InjectConfig("bgp-binding-address")
     public Optional<String> bgpBindingAddress;
@@ -51,6 +47,11 @@ public class BgpConfiguration {
     public Optional<String> bgpProtocolInstanceName;
     @InjectConfig("bgp-netty-threads")
     public Integer bgpNettyThreads;
+
+    public boolean isBgpMultiplePathsEnabled() {
+        return Boolean.valueOf(bgpMultiplePaths.get());
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)

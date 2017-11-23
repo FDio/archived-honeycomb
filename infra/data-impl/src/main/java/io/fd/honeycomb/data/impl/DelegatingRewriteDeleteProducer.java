@@ -60,8 +60,8 @@ abstract class DelegatingRewriteDeleteProducer implements RewriteDeleteProducer 
                 node.getIdentifier(), node);
     }
 
-    private static YangInstanceIdentifier childYangId(final @Nonnull YangInstanceIdentifier topLevelIdentifier,
-                                                      final @Nonnull Map.Entry<YangInstanceIdentifier.PathArgument, DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?>> entry) {
+    private static YangInstanceIdentifier childYangId(@Nonnull final YangInstanceIdentifier topLevelIdentifier,
+                                                      @Nonnull final Map.Entry<YangInstanceIdentifier.PathArgument, DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?>> entry) {
         return YangInstanceIdentifier.builder(topLevelIdentifier)
                 .node(entry.getKey()).build();
     }
