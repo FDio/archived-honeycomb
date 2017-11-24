@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2016, 2017 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,12 +132,13 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
                     toBindingAware(writerRegistry, modificationDiff.getUpdates());
             LOG.debug("ConfigDataTree.modify() extracted updates={}", baUpdates);
 
-            WriteContext ctx = getTransactionWriteContext();
+            final WriteContext ctx = getTransactionWriteContext();
+            final MappingContext mappingContext = ctx.getMappingContext();
             try {
                 writerRegistry.processModifications(baUpdates, ctx);
 
                 final CheckedFuture<Void, TransactionCommitFailedException> contextUpdateResult =
-                    ((TransactionMappingContext) ctx.getMappingContext()).submit();
+                    ((TransactionMappingContext) mappingContext).submit();
                 // Blocking on context data update
                 contextUpdateResult.checkedGet();
             } catch (UpdateFailedException e) {
@@ -151,10 +152,9 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
                     throw e;
                 } else {
                     LOG.info("Trying to revert successful changes for current transaction");
-                    try {
-                        // attempt revert with fresh context, to allow write logic used context-binded data
-                        new Reverter(processed, writerRegistry)
-                                .revert(getRevertTransactionContext(ctx.getMappingContext()));
+                    // attempt revert with fresh context, to allow write logic used context-binded data
+                    try (final TransactionWriteContext txContext = getRevertTransactionContext(mappingContext)) {
+                        new Reverter(processed, writerRegistry).revert(txContext);
                         LOG.info("Changes successfully reverted");
                     } catch (Reverter.RevertFailedException revertFailedException) {
                         // fail with failed revert
@@ -184,7 +184,13 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
          * Invert before/after transaction and reuse affected mapping context created by previous updates
          * to access all data created by previous updates
          * */
-        private TransactionWriteContext getRevertTransactionContext(final MappingContext affectedMappingContext){
+        // Sonar reports unclosed resources, but everything is closed by TransactionWriteContext.close()
+        // This is known SonarJava issue
+        // https://jira.sonarsource.com/browse/SONARJAVA-1670
+        // Fixed in SonarJava 4.0 (requires SonarCube 5.6).
+        // TODO(HONEYCOMB-419): remove after LF upgrades SonarCube
+        @SuppressWarnings("squid:S2095")
+        private TransactionWriteContext getRevertTransactionContext(final MappingContext affectedMappingContext) {
             // Before Tx == after partial update
             final DOMDataReadOnlyTransaction beforeTx = ReadOnlyTransaction.create(this, EMPTY_OPERATIONAL);
             // After Tx == before partial update
@@ -192,6 +198,9 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
             return new TransactionWriteContext(serializer, beforeTx, afterTx, affectedMappingContext);
         }
 
+        // Sonar reports unclosed resources, but everything is closed by TransactionWriteContext.close()
+        // TODO(HONEYCOMB-419): remove after LF upgrades SonarCube
+        @SuppressWarnings("squid:S2095")
         private TransactionWriteContext getTransactionWriteContext() {
             // Before Tx must use modification
             final DOMDataReadOnlyTransaction beforeTx = ReadOnlyTransaction.create(untouchedModification, EMPTY_OPERATIONAL);
