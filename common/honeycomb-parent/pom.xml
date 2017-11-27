@@ -537,7 +537,7 @@
                         <dependency>
                             <groupId>io.fd.honeycomb.doc</groupId>
                             <artifactId>asciidoc-scripts</artifactId>
-                            <version>${project.version}</version>
+                            <version>1.18.01-SNAPSHOT</version>
                         </dependency>
                     </dependencies>
                 </plugin>
