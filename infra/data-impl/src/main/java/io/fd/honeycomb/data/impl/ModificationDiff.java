@@ -18,6 +18,7 @@ package io.fd.honeycomb.data.impl;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType.DELETE;
+import static org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType.SUBTREE_MODIFIED;
 import static org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType.WRITE;
 
 import com.google.common.collect.ImmutableMap;
@@ -50,6 +51,7 @@ final class ModificationDiff {
 
     private static final ModificationDiff EMPTY_DIFF = new ModificationDiff(Collections.emptyMap());
     private static final EnumSet VALID_MODIFICATIONS = EnumSet.of(WRITE, DELETE);
+    private static final EnumSet LEAF_VALID_MODIFICATIONS = EnumSet.of(WRITE, DELETE, SUBTREE_MODIFIED);
 
     private final Map<YangInstanceIdentifier, NormalizedNodeUpdate> updates;
 
@@ -194,7 +196,7 @@ final class ModificationDiff {
                     // For some reason, we get modifications on unmodified list keys
                     // and that messes up our modifications collection here, so we need to skip
                     .filter(Modification::isBeforeAndAfterDifferent)
-                    .filter(child -> VALID_MODIFICATIONS.contains(child.getModificationType()))
+                    .filter(child -> LEAF_VALID_MODIFICATIONS.contains(child.getModificationType()))
                     .findFirst()
                     .isPresent();
 
