@@ -55,6 +55,8 @@ public class RestconfConfiguration {
     public Optional<String> restconfTruststore;
     @InjectConfig("restconf-truststore-password")
     public Optional<String> truststorePassword;
+    @InjectConfig("restconf-websocket-address")
+    public Optional<String> restconfWebsocketAddress = Optional.of("0.0.0.0");
     @InjectConfig("restconf-websocket-port")
     public Optional<Integer> restconfWebsocketPort = Optional.of(7779);
     @InjectConfig("restconf-root-path")
@@ -98,6 +100,7 @@ public class RestconfConfiguration {
             ", keystoreManagerPassword=" + keystoreManagerPassword +
             ", restconfTruststore=" + restconfTruststore +
             ", truststorePassword=" + truststorePassword +
+            ", restconfWebsocketAddress=" + restconfWebsocketAddress +
             ", restconfWebsocketPort=" + restconfWebsocketPort +
             ", restconfRootPath=" + restconfRootPath +
             ", restPoolMaxSize=" + restPoolMaxSize +

@@ -28,6 +28,7 @@ import org.opendaylight.controller.md.sal.dom.broker.impl.DOMNotificationRouter;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.netconf.sal.rest.api.RestConnector;
 import org.opendaylight.netconf.sal.restconf.impl.RestconfProviderImpl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 
 final class RestconfProvider extends ProviderTrait<RestConnector> {
@@ -51,7 +52,9 @@ final class RestconfProvider extends ProviderTrait<RestConnector> {
     @Override
     protected RestconfProviderImpl create() {
         final RestconfProviderImpl instance = new RestconfProviderImpl(domDataBroker, schemaService, rpcService,
-            notificationService, mountPointService, new PortNumber(cfg.restconfWebsocketPort.get()));
+            notificationService, mountPointService,
+            IpAddressBuilder.getDefaultInstance(cfg.restconfWebsocketAddress.get()),
+            new PortNumber(cfg.restconfWebsocketPort.get()));
 
         // Required to properly initialize restconf (broker, schema ctx, etc.).
         // Without that restconf would fail with 503 (service not available).

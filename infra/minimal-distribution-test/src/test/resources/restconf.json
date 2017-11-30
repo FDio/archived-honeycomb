@@ -11,6 +11,7 @@
   "restconf-keystore-manager-password": "testing",
   "restconf-truststore": "/honeycomb-keystore",
   "restconf-truststore-password": "testing",
+  "restconf-websocket-address": "0.0.0.0",
   "restconf-websocket-port": 7780,
   "restconf-pool-max-size": 10,
   "restconf-pool-min-size": 1,
