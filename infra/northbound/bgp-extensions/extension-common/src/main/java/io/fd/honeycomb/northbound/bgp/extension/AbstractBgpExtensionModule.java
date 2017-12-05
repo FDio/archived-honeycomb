@@ -98,7 +98,7 @@ public abstract class AbstractBgpExtensionModule extends AbstractModule implemen
                 .forEach(aClass -> applicationRibWritersBinder.addBinding().to(aClass));
     }
 
-    static final class TableTypeRegistration {
+    public static final class TableTypeRegistration {
         private final Class<? extends AddressFamily> addressFamily;
         private final Class<? extends SubsequentAddressFamily> subsequentAddressFamily;
         private final Class<? extends AfiSafiType> afiSafiType;
@@ -111,7 +111,7 @@ public abstract class AbstractBgpExtensionModule extends AbstractModule implemen
             this.afiSafiType = afiSafiType;
         }
 
-        static TableTypeRegistration tableType(@Nonnull final Class<? extends AddressFamily> addressFamily,
+        public static TableTypeRegistration tableType(@Nonnull final Class<? extends AddressFamily> addressFamily,
                                                       @Nonnull final Class<? extends SubsequentAddressFamily> subsequentAddressFamily,
                                                       @Nonnull final Class<? extends AfiSafiType> afiSafiType) {
             return new TableTypeRegistration(addressFamily, subsequentAddressFamily, afiSafiType);
