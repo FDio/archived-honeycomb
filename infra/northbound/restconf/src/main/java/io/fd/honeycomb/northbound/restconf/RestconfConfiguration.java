@@ -56,9 +56,9 @@ public class RestconfConfiguration {
     @InjectConfig("restconf-truststore-password")
     public Optional<String> truststorePassword;
     @InjectConfig("restconf-websocket-address")
-    public Optional<String> restconfWebsocketAddress = Optional.of("0.0.0.0");
+    public Optional<String> restconfWebsocketAddress;
     @InjectConfig("restconf-websocket-port")
-    public Optional<Integer> restconfWebsocketPort = Optional.of(7779);
+    public Optional<Integer> restconfWebsocketPort;
     @InjectConfig("restconf-root-path")
     public Optional<String> restconfRootPath = Optional.of("/restconf");
     @InjectConfig("restconf-pool-max-size")
