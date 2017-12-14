@@ -25,6 +25,8 @@ import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcImplementationNotAvailableException;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class RpcRegistryBuilder {
 
@@ -40,6 +42,7 @@ public final class RpcRegistryBuilder {
 
 
     private static final class RpcRegistryImpl implements RpcRegistry {
+        private static final Logger LOG = LoggerFactory.getLogger(RpcRegistryImpl.class);
         private final Map<SchemaPath, RpcService> services;
 
         private RpcRegistryImpl(@Nonnull final Map<SchemaPath, RpcService> services) {
@@ -51,11 +54,13 @@ public final class RpcRegistryBuilder {
         public CompletionStage invoke(@Nonnull final SchemaPath schemaPath, @Nullable final DataObject request) {
             final RpcService rpcService = services.get(schemaPath);
             if (rpcService == null) {
+                LOG.error("Missing Rpc service for schemaPath: {}", schemaPath);
                 final CompletableFuture<DataObject> result = new CompletableFuture<>();
                 result.completeExceptionally(
                     new DOMRpcImplementationNotAvailableException("Service not found: %s", schemaPath));
                 return result;
             }
+            LOG.debug("Delegating rpcRequest: {} to rpcService: {}", request, rpcService);
             return rpcService.invoke(request);
 
         }

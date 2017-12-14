@@ -48,6 +48,10 @@
             <artifactId>future-converter-java8-guava</artifactId>
             <version>0.3.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
 
         <!-- tests -->
         <dependency>
@@ -63,11 +67,6 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
