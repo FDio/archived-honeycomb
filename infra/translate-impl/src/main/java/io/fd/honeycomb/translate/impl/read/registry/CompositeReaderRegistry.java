@@ -117,7 +117,7 @@ public final class CompositeReaderRegistry implements ReaderRegistry {
                 Iterables.getFirst(id.getPathArguments(), null), "Empty id");
         final Reader<? extends DataObject, ? extends Builder<?>> reader = rootReaders.get(first.getType());
         checkNotNull(reader,
-                "Unable to read %s. Missing reader. Current readers for: %s", id, rootReaders.keySet());
+                "Read failed. Missing reader for %s. Current readers for: %s", id, rootReaders.keySet());
         LOG.debug("Reading from delegate: {}", reader);
         return reader.read(id, ctx);
     }
