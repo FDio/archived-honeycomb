@@ -16,6 +16,7 @@
 
 package io.fd.honeycomb.translate.impl.read.registry;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import io.fd.honeycomb.translate.impl.read.GenericListReader;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
@@ -131,8 +132,13 @@ public final class CompositeReaderRegistryBuilder
         }
 
         final ImmutableMap<Class<?>, Reader<?, ? extends Builder<?>>> childReadersMap = childReadersMapB.build();
-        return childReadersMap.isEmpty()
-                ? mappedReaders.get(instanceIdentifier)
-                : CompositeReader.createForReader(mappedReaders.get(instanceIdentifier), childReadersMap);
+
+        if (childReadersMap.isEmpty()) {
+            return mappedReaders.get(instanceIdentifier);
+        } else {
+            final Reader<?, ?> reader = Preconditions.checkNotNull(mappedReaders.get(instanceIdentifier),
+                    "Missing reader for %s", instanceIdentifier);
+            return CompositeReader.createForReader(reader, childReadersMap);
+        }
     }
 }
