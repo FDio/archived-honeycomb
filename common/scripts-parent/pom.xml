@@ -32,7 +32,7 @@
         <groovy.version>2.4.7</groovy.version>
         <groovy.eclipse.compiler.version>2.9.2-01</groovy.eclipse.compiler.version>
         <groovy.eclipse.batch.version>2.4.3-01</groovy.eclipse.batch.version>
-        <odl.yang-binding.version>0.11.1</odl.yang-binding.version>
+        <odl.yang-binding.version>0.11.2</odl.yang-binding.version>
     </properties>
 
     <dependencyManagement>
