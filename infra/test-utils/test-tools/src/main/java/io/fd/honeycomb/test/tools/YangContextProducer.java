@@ -61,7 +61,7 @@ interface YangContextProducer {
 
         final JSONCodecFactory jsonCodecFactory = JSONCodecFactory.create(ctx.getSchemaContext());
         final Constructor<?> cstr =
-                Class.forName("org.opendaylight.yangtools.yang.data.codec.gson.JSONStringInstanceIdentifierCodec")
+                Class.forName("org.opendaylight.yangtools.yang.data.codec.gson.JSONInstanceIdentifierCodec")
                         .getDeclaredConstructor(SchemaContext.class, JSONCodecFactory.class);
         cstr.setAccessible(true);
         return (AbstractModuleStringInstanceIdentifierCodec) cstr.newInstance(ctx.getSchemaContext(), jsonCodecFactory);
