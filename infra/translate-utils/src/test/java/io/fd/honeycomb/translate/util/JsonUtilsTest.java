@@ -52,7 +52,7 @@ public class JsonUtilsTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         tmpPersistFile = Files.createTempFile("testing-hc-persistence", "json");
-        schemaContext = YangParserTestUtils.parseYangSources(Collections.singletonList("/test-persistence.yang"));
+        schemaContext = YangParserTestUtils.parseYangResource("/test-persistence.yang");
     }
 
     @Test

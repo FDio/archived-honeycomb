@@ -18,22 +18,29 @@ package io.fd.honeycomb.infra.bgp.neighbors;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import com.google.common.util.concurrent.CheckedFuture;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.config.PeerBean;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.ImportPolicyPeerTracker;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.AfiSafisBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder;
@@ -45,12 +52,12 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.PeerType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev160614.Config2Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.Config2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.Config2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.BgpRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.RibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.RibKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -70,6 +77,12 @@ public class NeighborCustomizerTest {
     private BGPTableTypeRegistryConsumer tableTypeRegistry;
     @Mock
     private WriteContext ctx;
+    @Mock
+    private DOMTransactionChain chain;
+    @Mock
+    private DOMDataWriteTransaction tx;
+    @Mock
+    private BGPDispatcher dispatcher;
 
     private NeighborCustomizer customizer;
 
@@ -77,8 +90,15 @@ public class NeighborCustomizerTest {
     public void setUp() {
         initMocks(this);
         when(globalRib.getYangRibId()).thenReturn(YangInstanceIdentifier.EMPTY);
-        when(globalRib.getRibIServiceGroupIdentifier()).thenReturn(ServiceGroupIdentifier.create("sgid"));
         when(globalRib.getInstanceIdentifier()).thenReturn(RIB_IID);
+        when(globalRib.createPeerChain(any())).thenReturn(chain);
+        when(chain.newWriteOnlyTransaction()).thenReturn(tx);
+        when(tx.submit()).thenReturn(mock(CheckedFuture.class));
+        when(globalRib.getImportPolicyPeerTracker()).thenReturn(mock(ImportPolicyPeerTracker.class));
+        when(globalRib.getRibSupportContext()).thenReturn(mock(RIBSupportContextRegistry.class));
+        when(globalRib.getService()).thenReturn(mock(DOMDataTreeChangeService.class));
+        when(globalRib.getDispatcher()).thenReturn(dispatcher);
+        when(dispatcher.getBGPPeerRegistry()).thenReturn(peerRegistry);
         customizer = new NeighborCustomizer(globalRib, peerRegistry, tableTypeRegistry);
     }
 
@@ -123,7 +143,7 @@ public class NeighborCustomizerTest {
         customizer.updateCurrentAttributes(ID, before, after, ctx);
         verify(peer).closeServiceInstance();
         verify(peer).close();
-        verify(peer).start(globalRib, after, tableTypeRegistry, null);
+        verify(peer).start(globalRib, after, tableTypeRegistry);
     }
 
     @Test

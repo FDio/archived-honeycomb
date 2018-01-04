@@ -45,8 +45,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.subtr
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.subtree.test.rev180116.c1.C4Builder;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.TipProducingDataTree;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.TreeType;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeConfiguration;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.InMemoryDataTreeFactory;
 
 /**
@@ -54,14 +54,14 @@ import org.opendaylight.yangtools.yang.data.impl.schema.tree.InMemoryDataTreeFac
  */
 public final class SubtreeWriteTest extends AbstractInfraTest {
 
-    private TipProducingDataTree dataTree;
+    private DataTree dataTree;
 
     @Mock
     private Writer<C1> c1Writer;
 
     @Override
     void postSetup() {
-        dataTree = InMemoryDataTreeFactory.getInstance().create(TreeType.CONFIGURATION);
+        dataTree = new InMemoryDataTreeFactory().create(DataTreeConfiguration.DEFAULT_CONFIGURATION);
         dataTree.setSchemaContext(schemaContext);
     }
 

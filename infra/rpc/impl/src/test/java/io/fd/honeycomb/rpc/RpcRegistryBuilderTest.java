@@ -19,6 +19,7 @@ package io.fd.honeycomb.rpc;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.net.URI;
 import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,8 +38,10 @@ public class RpcRegistryBuilderTest {
     private RpcService service1;
     @Mock
     private RpcService service2;
-    private static final SchemaPath ID1 = SchemaPath.ROOT.createChild(QName.create("a"));
-    private static final SchemaPath ID2 = SchemaPath.ROOT.createChild(QName.create("b"));
+
+    private static final URI namespace = URI.create("urn:foo");
+    private static final SchemaPath ID1 = SchemaPath.ROOT.createChild(QName.create(namespace, "a"));
+    private static final SchemaPath ID2 = SchemaPath.ROOT.createChild(QName.create(namespace, "b"));
 
     @Before
     public void setUp() {
@@ -66,7 +69,7 @@ public class RpcRegistryBuilderTest {
 
     @Test
     public void testServiceNotFound() throws ExecutionException, InterruptedException {
-        final SchemaPath id = SchemaPath.ROOT.createChild(QName.create("c"));
+        final SchemaPath id = SchemaPath.ROOT.createChild(QName.create(namespace, "c"));
         final DataObject request = Mockito.mock(DataObject.class);
 
         try {

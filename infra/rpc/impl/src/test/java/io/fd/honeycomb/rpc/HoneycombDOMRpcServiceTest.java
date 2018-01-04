@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.net.URI;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +50,7 @@ public class HoneycombDOMRpcServiceTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        node = mockContainerNode(QName.create("a"));
+        node = mockContainerNode(QName.create(URI.create("urn:foo"), "a"));
         service = new HoneycombDOMRpcService(serializer, registry);
         when(serializer.fromNormalizedNodeRpcData(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(input);
     }

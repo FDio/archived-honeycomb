@@ -22,19 +22,19 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.Test;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateTip;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.TipProducingDataTree;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
@@ -46,7 +46,7 @@ public class ModificationDiffTest extends ModificationBaseTest {
 
     @Test
     public void testInitialWrite() throws Exception {
-        final TipProducingDataTree dataTree = getDataTree();
+        final DataTree dataTree = getDataTree();
         final DataTreeModification dataTreeModification = getModification(dataTree);
         final NormalizedNode<?, ?> topContainer = getTopContainer("string1");
         final YangInstanceIdentifier TOP_CONTAINER_ID = YangInstanceIdentifier.of(TOP_CONTAINER_QNAME);
@@ -62,7 +62,7 @@ public class ModificationDiffTest extends ModificationBaseTest {
 
     @Test
     public void testLeafList() throws Exception {
-        final TipProducingDataTree dataTree = getDataTree();
+        final DataTree dataTree = getDataTree();
         final DataTreeModification dataTreeModification = getModification(dataTree);
         final ContainerNode topContainer = getTopContainerWithLeafList("string1", "string2");
         final YangInstanceIdentifier TOP_CONTAINER_ID = YangInstanceIdentifier.of(TOP_CONTAINER_QNAME);
@@ -80,7 +80,7 @@ public class ModificationDiffTest extends ModificationBaseTest {
 
     @Test
     public void testWritePresenceEmptyContainer() throws Exception {
-        final TipProducingDataTree dataTree = getDataTree();
+        final DataTree dataTree = getDataTree();
         final DataTreeModification dataTreeModification = getModification(dataTree);
         final NormalizedNode<?, ?> presenceContainer = Builders.containerBuilder()
                 .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(PRESENCE_CONTAINER_QNAME))
@@ -104,7 +104,7 @@ public class ModificationDiffTest extends ModificationBaseTest {
 
     @Test
     public void testInitialWriteForContainerWithChoice() throws Exception {
-        final TipProducingDataTree dataTree = getDataTree();
+        final DataTree dataTree = getDataTree();
         final DataTreeModification dataTreeModification = getModification(dataTree);
         final ContainerNode containerWithChoice = Builders.containerBuilder()
                 .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(WITH_CHOICE_CONTAINER_QNAME))
@@ -128,7 +128,7 @@ public class ModificationDiffTest extends ModificationBaseTest {
 
     @Test
     public void testWriteNonPresenceEmptyContainer() throws Exception {
-        final TipProducingDataTree dataTree = getDataTree();
+        final DataTree dataTree = getDataTree();
         final DataTreeModification dataTreeModification = getModification(dataTree);
         final NormalizedNode<?, ?> topContainer = ImmutableNodes.containerNode(TOP_CONTAINER_QNAME);
         dataTreeModification.write(TOP_CONTAINER_ID, topContainer);
@@ -144,7 +144,7 @@ public class ModificationDiffTest extends ModificationBaseTest {
      */
     @Test
     public void testWriteNonPresenceNonEmptyContainer() throws Exception {
-        final TipProducingDataTree dataTree = getDataTree();
+        final DataTree dataTree = getDataTree();
         final DataTreeModification dataTreeModification = getModification(dataTree);
         // non presence ,but with valid child list
         final NormalizedNode<?, ?> topContainer = Builders.containerBuilder()
@@ -167,7 +167,7 @@ public class ModificationDiffTest extends ModificationBaseTest {
      */
     @Test
     public void testWriteNonPresenceNonEmptyContainerPreviousData() throws Exception {
-        final TipProducingDataTree dataTree = getDataTree();
+        final DataTree dataTree = getDataTree();
         final DataTreeModification dataTreeModificationOriginal = getModification(dataTree);
         // non presence, but with valid child list
         final MapEntryNode alreadyPresent = getNestedListEntry("value", "txt");
@@ -200,7 +200,7 @@ public class ModificationDiffTest extends ModificationBaseTest {
 
     @Test
     public void testWriteNonPresenceEmptyNestedContainer() throws Exception {
-        final TipProducingDataTree dataTree = getDataTree();
+        final DataTree dataTree = getDataTree();
         final DataTreeModification dataTreeModification = getModification(dataTree);
         final NormalizedNode<?, ?> topContainer = Builders.containerBuilder()
                 .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
@@ -220,7 +220,7 @@ public class ModificationDiffTest extends ModificationBaseTest {
 
     @Test
     public void testUpdateWrite() throws Exception {
-        final TipProducingDataTree dataTree = getDataTree();
+        final DataTree dataTree = getDataTree();
         final ContainerNode topContainer = getTopContainer("string1");
         addNodeToTree(dataTree, topContainer, TOP_CONTAINER_ID);
 
@@ -239,7 +239,7 @@ public class ModificationDiffTest extends ModificationBaseTest {
 
     @Test
     public void testUpdateMerge() throws Exception {
-        final TipProducingDataTree dataTree = getDataTree();
+        final DataTree dataTree = getDataTree();
         final ContainerNode topContainer = getTopContainer("string1");
         addNodeToTree(dataTree, topContainer, TOP_CONTAINER_ID);
 
@@ -256,7 +256,7 @@ public class ModificationDiffTest extends ModificationBaseTest {
 
     @Test
     public void testUpdateDelete() throws Exception {
-        final TipProducingDataTree dataTree = getDataTree();
+        final DataTree dataTree = getDataTree();
         final ContainerNode topContainer = getTopContainer("string1");
         addNodeToTree(dataTree, topContainer, TOP_CONTAINER_ID);
 
@@ -272,7 +272,7 @@ public class ModificationDiffTest extends ModificationBaseTest {
 
     @Test
     public void testWriteAndUpdateInnerList() throws Exception {
-        final TipProducingDataTree dataTree = getDataTree();
+        final DataTree dataTree = getDataTree();
 
         DataTreeSnapshot dataTreeSnapshot = dataTree.takeSnapshot();
         DataTreeModification dataTreeModification = dataTreeSnapshot.newModification();
@@ -316,7 +316,7 @@ public class ModificationDiffTest extends ModificationBaseTest {
 
     @Test
     public void testWriteTopContainerAndInnerList() throws Exception {
-        final TipProducingDataTree dataTree = getDataTree();
+        final DataTree dataTree = getDataTree();
 
         DataTreeSnapshot dataTreeSnapshot = dataTree.takeSnapshot();
         DataTreeModification dataTreeModification = dataTreeSnapshot.newModification();
@@ -353,7 +353,7 @@ public class ModificationDiffTest extends ModificationBaseTest {
 
     @Test
     public void testWriteDeepList() throws Exception {
-        final TipProducingDataTree dataTree = getDataTree();
+        final DataTree dataTree = getDataTree();
 
         DataTreeSnapshot dataTreeSnapshot = dataTree.takeSnapshot();
         DataTreeModification dataTreeModification = dataTreeSnapshot.newModification();
@@ -412,7 +412,7 @@ public class ModificationDiffTest extends ModificationBaseTest {
 
     @Test
     public void testDeleteInnerListItem() throws Exception {
-        final TipProducingDataTree dataTree = getDataTree();
+        final DataTree dataTree = getDataTree();
 
         DataTreeSnapshot dataTreeSnapshot = dataTree.takeSnapshot();
         DataTreeModification dataTreeModification = dataTreeSnapshot.newModification();

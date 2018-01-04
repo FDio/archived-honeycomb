@@ -29,7 +29,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MixinNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
-import org.opendaylight.yangtools.yang.model.api.AugmentationSchema;
+import org.opendaylight.yangtools.yang.model.api.AugmentationSchemaNode;
 import org.opendaylight.yangtools.yang.model.api.AugmentationTarget;
 import org.opendaylight.yangtools.yang.model.api.ChoiceSchemaNode;
 import org.opendaylight.yangtools.yang.model.api.DataNodeContainer;
@@ -89,11 +89,13 @@ final class Modification {
     }
 
     com.google.common.base.Optional<NormalizedNode<?, ?>> getDataBefore() {
-        return dataCandidate.getDataBefore();
+        // FIXME switch to java.util.Optional when rest of ODL infra does
+        return com.google.common.base.Optional.fromNullable(dataCandidate.getDataBefore().orElse(null));
     }
 
     com.google.common.base.Optional<NormalizedNode<?, ?>> getDataAfter() {
-        return dataCandidate.getDataAfter();
+        // FIXME switch to java.util.Optional when rest of ODL infra does
+        return com.google.common.base.Optional.fromNullable(dataCandidate.getDataAfter().orElse(null));
     }
 
     Object getSchemaNode() {
@@ -107,25 +109,25 @@ final class Modification {
     boolean isMixin() {
         // Checking whether node is a mixin is not performed on schema, but on data since mixin is
         // only a NormalizedNode concept, not a schema concept
-        return dataCandidate.getDataBefore().orNull() instanceof MixinNode ||
-                dataCandidate.getDataAfter().orNull() instanceof MixinNode;
+        return dataCandidate.getDataBefore().orElse(null) instanceof MixinNode ||
+                dataCandidate.getDataAfter().orElse(null) instanceof MixinNode;
     }
 
     boolean isBeforeAndAfterDifferent() {
         if (dataCandidate.getDataBefore().isPresent()) {
-            return !dataCandidate.getDataBefore().get().equals(dataCandidate.getDataAfter().orNull());
+            return !dataCandidate.getDataBefore().get().equals(dataCandidate.getDataAfter().orElse(null));
         }
 
         // considering not a modification if data after is also null
         return dataCandidate.getDataAfter().isPresent();
     }
 
-    private AugmentationSchema findAugmentation(Object currentNode,
-                                                final YangInstanceIdentifier.AugmentationIdentifier identifier) {
+    private AugmentationSchemaNode findAugmentation(Object currentNode,
+                                                    final YangInstanceIdentifier.AugmentationIdentifier identifier) {
         if (currentNode != null) {
             // check if identifier points to some augmentation of currentNode
             if (currentNode instanceof AugmentationTarget) {
-                Optional<AugmentationSchema> augmentationSchema =
+                Optional<AugmentationSchemaNode> augmentationSchema =
                     ((AugmentationTarget) currentNode).getAvailableAugmentations().stream()
                         .filter(aug -> identifier.equals(new YangInstanceIdentifier.AugmentationIdentifier(
                             aug.getChildNodes().stream()
@@ -142,7 +144,7 @@ final class Modification {
             if (currentNode instanceof DataNodeContainer) {
                 childNodes = ((DataNodeContainer) currentNode).getChildNodes();
             } else if (currentNode instanceof ChoiceSchemaNode) {
-                childNodes = ((ChoiceSchemaNode) currentNode).getCases().stream()
+                childNodes = ((ChoiceSchemaNode) currentNode).getCases().values().stream()
                     .flatMap(cas -> cas.getChildNodes().stream()).collect(Collectors.toList());
             }
             return childNodes.stream().map(n -> findAugmentation(n, identifier)).filter(n -> n != null).findFirst()
@@ -161,7 +163,7 @@ final class Modification {
                 // An augment cannot change other augment, so we do not update parent node if we are streaming
                 // children of AugmentationSchema (otherwise we would fail to find schema for nested augmentations):
                 if (updateParentNode) {
-                    if (schemaNode instanceof AugmentationSchema) {
+                    if (schemaNode instanceof AugmentationSchemaNode) {
                         // child nodes would not have nested augmentations, so we stop moving parentNode:
                         return new Modification(childId, child, parentNode, schemaChild, false);
                     } else {
@@ -218,7 +220,7 @@ final class Modification {
             }
         } else if (schemaNode instanceof ChoiceSchemaNode) {
             // For choices, iterate through all the cases
-            final Optional<DataSchemaNode> maybeChild = ((ChoiceSchemaNode) schemaNode).getCases().stream()
+            final Optional<DataSchemaNode> maybeChild = ((ChoiceSchemaNode) schemaNode).getCases().values().stream()
                     .flatMap(cas -> cas.getChildNodes().stream())
                     .filter(child -> child.getQName().equals(identifier.getNodeType()))
                     .findFirst();

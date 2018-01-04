@@ -25,6 +25,7 @@ import org.opendaylight.yangtools.yang.model.api.Module;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 
+// TODO: provide DOMSchemaService instead, but first Netconf's RestconfProviderImpl should not use it
 public final class SchemaServiceProvider extends ProviderTrait<SchemaService> {
 
     @Inject

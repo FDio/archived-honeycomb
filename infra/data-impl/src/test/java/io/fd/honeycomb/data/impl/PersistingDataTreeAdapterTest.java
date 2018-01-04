@@ -27,10 +27,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -83,7 +83,7 @@ public class PersistingDataTreeAdapterTest {
     public void testPersist() throws Exception {
         persistingDataTreeAdapter = new PersistingDataTreeAdapter(delegatingDataTree, persister);
         final DataTreeSnapshot snapshot = mock(DataTreeSnapshot.class);
-        when(snapshot.readNode(any())).thenReturn(Optional.absent());
+        when(snapshot.readNode(any())).thenReturn(Optional.empty());
         when(delegatingDataTree.takeSnapshot()).thenReturn(snapshot);
         persistingDataTreeAdapter.commit(mock(DataTreeCandidate.class));
         verify(delegatingDataTree).takeSnapshot();
@@ -126,7 +126,7 @@ public class PersistingDataTreeAdapterTest {
         final PersistingDataTreeAdapter.JsonPersister jsonPersister =
                 new PersistingDataTreeAdapter.JsonPersister(tmpPersistFile, schemaService);
         // Nothing
-        jsonPersister.persistCurrentData(Optional.absent());
+        jsonPersister.persistCurrentData(Optional.empty());
         // Exception
         jsonPersister.persistCurrentData(Optional.of(ImmutableNodes.leafNode(QName.create("namespace", "leaf"), "value")));
     }

@@ -16,18 +16,17 @@
 
 package io.fd.honeycomb.northbound.bgp.extension;
 
+import static io.fd.honeycomb.northbound.bgp.extension.AbstractBgpExtensionModule.TABLES_IID;
+
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.translate.util.write.BindingBrokerWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev160210.l3vpn.ipv4.routes.VpnIpv4Routes;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
 import javax.annotation.Nonnull;
-
-import static io.fd.honeycomb.northbound.bgp.extension.AbstractBgpExtensionModule.TABLES_IID;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev171207.l3vpn.ipv4.routes.VpnIpv4Routes;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class L3VpnV4WriterFactory implements WriterFactory {
 

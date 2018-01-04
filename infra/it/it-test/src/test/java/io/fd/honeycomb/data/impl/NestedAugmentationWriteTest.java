@@ -67,8 +67,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.TipProducingDataTree;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.TreeType;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeConfiguration;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.InMemoryDataTreeFactory;
 
 /**
@@ -101,7 +101,7 @@ public class NestedAugmentationWriteTest extends AbstractInfraTest {
     private static final InstanceIdentifier<FromAugmentEntry> FROM_AUGMENT_ENTRY_ID =
         FROM_AUGMENT_LIST_AUGMENT_ID.child(FromAugmentEntry.class);
 
-    private TipProducingDataTree dataTree;
+    private DataTree dataTree;
     private WriterRegistry writerRegistry;
 
     private final Writer<AugTarget> augTargetWriter = mockWriter(AUG_TARGET_ID);
@@ -128,7 +128,7 @@ public class NestedAugmentationWriteTest extends AbstractInfraTest {
     }
 
     private void initDataTree() {
-        dataTree = InMemoryDataTreeFactory.getInstance().create(TreeType.CONFIGURATION);
+        dataTree = new InMemoryDataTreeFactory().create(DataTreeConfiguration.DEFAULT_CONFIGURATION);
         dataTree.setSchemaContext(schemaContext);
     }
 

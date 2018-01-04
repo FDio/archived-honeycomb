@@ -23,8 +23,8 @@ import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateTip;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.TipProducingDataTree;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ public class ModificationDiffRewriteDeleteTest extends ModificationBaseTest {
     @Test
     public void testWriteNonPresenceNonEmptyContainerPreviousDataOverrideByEmpty() throws Exception {
         final MapEntryNode alreadyPresent = getNestedListEntry("value", "txt");
-        final TipProducingDataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
+        final DataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
                 .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
                 .withChild(getNestedList(alreadyPresent))
                 .build());
@@ -66,7 +66,7 @@ public class ModificationDiffRewriteDeleteTest extends ModificationBaseTest {
     @Test
     public void testWriteNonPresenceMultipleNonEmptyContainerPreviousDataOverrideByEmpty() throws Exception {
         final MapEntryNode alreadyPresent = getNestedListInContainerEntry("key");
-        final TipProducingDataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
+        final DataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
                 .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
                 // another non-presence container with list entry
                 .withChild(Builders.containerBuilder()
@@ -97,7 +97,7 @@ public class ModificationDiffRewriteDeleteTest extends ModificationBaseTest {
      */
     @Test
     public void testWriteNonPresenceNonEmptyContainerLeaf() throws Exception {
-        final TipProducingDataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
+        final DataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
                 .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
                 // another non-presence container with leaf
                 .withChild(Builders.containerBuilder()
@@ -127,7 +127,7 @@ public class ModificationDiffRewriteDeleteTest extends ModificationBaseTest {
      */
     @Test
     public void testWriteNonPresenceNonEmptyContainerLeafList() throws Exception {
-        final TipProducingDataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
+        final DataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
                 .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
                 // another non-presence container with leaf
                 .withChild(getNestedContainerWithLeafList())
@@ -152,7 +152,7 @@ public class ModificationDiffRewriteDeleteTest extends ModificationBaseTest {
      */
     @Test
     public void testWriteNonPresenceNonEmptyContainerWithChoice() throws Exception {
-        final TipProducingDataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
+        final DataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
                 .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
                 // another non-presence container with leaf
                 .withChild(getNestedContainerWithChoice("val"))

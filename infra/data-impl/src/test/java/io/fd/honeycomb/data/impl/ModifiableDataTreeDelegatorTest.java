@@ -63,7 +63,8 @@ public class ModifiableDataTreeDelegatorTest extends ModifiableDataTreeDelegator
         assertEquals(normalizedNodeOptional, normalizedNodeOptional2);
         assertTrue(normalizedNodeOptional.isPresent());
         assertEquals(topContainer, normalizedNodeOptional.get());
-        assertEquals(dataTree.takeSnapshot().readNode(TOP_CONTAINER_ID), normalizedNodeOptional);
+        // FIXMe use toJavaUtil everywhere
+        assertEquals(dataTree.takeSnapshot().readNode(TOP_CONTAINER_ID), Optional.toJavaUtil(normalizedNodeOptional));
     }
 
     @Test

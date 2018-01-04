@@ -70,7 +70,7 @@
         <!-- ODL-Restconf -->
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>
-            <artifactId>sal-rest-connector</artifactId>
+            <artifactId>restconf-nb-bierman02</artifactId>
         </dependency>
 
         <!-- Jersey + Jetty for RESTCONF -->

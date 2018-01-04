@@ -47,8 +47,9 @@ public final class InmemoryDOMDataBrokerProvider extends ProviderTrait<DOMDataBr
     protected SerializedDOMDataBroker create() {
         // This Databroker is dedicated for netconf metadata, not expected to be under heavy load
         ExecutorService listenableFutureExecutor =
-                SpecialExecutors.newBlockingBoundedCachedThreadPool(1, 100, "commits");
-        ExecutorService commitExecutor = SpecialExecutors.newBoundedSingleThreadExecutor(100, "WriteTxCommit");
+            SpecialExecutors.newBlockingBoundedCachedThreadPool(1, 100, "commits", getClass());
+        ExecutorService commitExecutor =
+            SpecialExecutors.newBoundedSingleThreadExecutor(100, "WriteTxCommit", getClass());
         // TODO HONEYCOMB-164 try to provide more lightweight implementation of DataBroker
 
         Map<LogicalDatastoreType, DOMStore> map = new LinkedHashMap<>();
@@ -56,6 +57,6 @@ public final class InmemoryDOMDataBrokerProvider extends ProviderTrait<DOMDataBr
         map.put(LogicalDatastoreType.OPERATIONAL, operDataStore);
 
         return new SerializedDOMDataBroker(map, new DeadlockDetectingListeningExecutorService(commitExecutor,
-                TransactionCommitDeadlockException.DEADLOCK_EXCEPTION_SUPPLIER, listenableFutureExecutor));
+            TransactionCommitDeadlockException.DEADLOCK_EXCEPTION_SUPPLIER, listenableFutureExecutor));
     }
 }

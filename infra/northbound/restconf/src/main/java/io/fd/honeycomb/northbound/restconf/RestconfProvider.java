@@ -53,6 +53,7 @@ final class RestconfProvider extends ProviderTrait<RestConnector> {
     protected RestconfProviderImpl create() {
         final RestconfProviderImpl instance = new RestconfProviderImpl(domDataBroker, schemaService, rpcService,
             notificationService, mountPointService,
+            schemaService,
             IpAddressBuilder.getDefaultInstance(cfg.restconfWebsocketAddress.get()),
             new PortNumber(cfg.restconfWebsocketPort.get()));
 

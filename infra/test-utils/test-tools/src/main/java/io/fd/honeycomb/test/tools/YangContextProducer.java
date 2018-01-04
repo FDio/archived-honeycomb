@@ -25,12 +25,13 @@ import java.lang.reflect.Method;
 import javassist.ClassPool;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
+import org.opendaylight.mdsal.binding.dom.codec.gen.impl.StreamWriterGenerator;
+import org.opendaylight.mdsal.binding.dom.codec.impl.BindingNormalizedNodeCodecRegistry;
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.mdsal.binding.generator.util.BindingRuntimeContext;
 import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
-import org.opendaylight.yangtools.binding.data.codec.gen.impl.StreamWriterGenerator;
-import org.opendaylight.yangtools.binding.data.codec.impl.BindingNormalizedNodeCodecRegistry;
 import org.opendaylight.yangtools.yang.data.codec.gson.JSONCodecFactory;
+import org.opendaylight.yangtools.yang.data.codec.gson.JSONCodecFactorySupplier;
 import org.opendaylight.yangtools.yang.data.util.AbstractModuleStringInstanceIdentifierCodec;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
@@ -59,7 +60,8 @@ interface YangContextProducer {
             java.lang.reflect.InvocationTargetException {
         // Reusing codec for JSON ... not public so here goes reflection
 
-        final JSONCodecFactory jsonCodecFactory = JSONCodecFactory.create(ctx.getSchemaContext());
+        final JSONCodecFactory jsonCodecFactory = JSONCodecFactorySupplier.DRAFT_LHOTKA_NETMOD_YANG_JSON_02
+            .getShared(ctx.getSchemaContext());
         final Constructor<?> cstr =
                 Class.forName("org.opendaylight.yangtools.yang.data.codec.gson.JSONInstanceIdentifierCodec")
                         .getDeclaredConstructor(SchemaContext.class, JSONCodecFactory.class);

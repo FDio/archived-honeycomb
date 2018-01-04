@@ -22,9 +22,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateTip;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.TipProducingDataTree;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.parser.spi.meta.ReactorException;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ public class ModificationDiffNestedAugRewriteDeleteTest extends ModificationBase
     @Test
     public void testWriteNonPresenceNonEmptyContainerNestedAugWithContainer()
             throws DataValidationFailedException, ReactorException {
-        final TipProducingDataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
+        final DataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
                 .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
                 .withChild(getNestedContWithContainerUnderNestedAug("val"))
                 .build());
@@ -58,7 +58,7 @@ public class ModificationDiffNestedAugRewriteDeleteTest extends ModificationBase
     @Test
     public void testWriteNonPresenceNonEmptyContainerNestedAugWithLeafList()
             throws DataValidationFailedException, ReactorException {
-        final TipProducingDataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
+        final DataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
                 .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
                 .withChild(getNestedContWithLeafListUnderNestedAug("val"))
                 .build());
@@ -79,7 +79,7 @@ public class ModificationDiffNestedAugRewriteDeleteTest extends ModificationBase
     @Test
     public void testWriteNonPresenceNonEmptyContainerNestedAugWithList()
             throws DataValidationFailedException, ReactorException {
-        final TipProducingDataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
+        final DataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
                 .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
                 .withChild(getNestedContWithListUnderNestedAug("val"))
                 .build());
@@ -100,7 +100,7 @@ public class ModificationDiffNestedAugRewriteDeleteTest extends ModificationBase
     @Test
     public void testWriteNonPresenceNonEmptyContainerNestedAugWithLeaf()
             throws DataValidationFailedException, ReactorException {
-        final TipProducingDataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
+        final DataTree dataTree = prepareStateBeforeWithTopContainer(Builders.containerBuilder()
                 .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
                 .withChild(getNestedContWithLeafUnderNestedAug("val"))
                 .build());

@@ -32,7 +32,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.stream.NormalizedNodeStreamWriter;
 import org.opendaylight.yangtools.yang.data.api.schema.stream.NormalizedNodeWriter;
-import org.opendaylight.yangtools.yang.data.codec.gson.JSONCodecFactory;
+import org.opendaylight.yangtools.yang.data.codec.gson.JSONCodecFactorySupplier;
 import org.opendaylight.yangtools.yang.data.codec.gson.JSONNormalizedNodeStreamWriter;
 import org.opendaylight.yangtools.yang.data.codec.gson.JsonParserStream;
 import org.opendaylight.yangtools.yang.data.codec.gson.JsonWriterFactory;
@@ -62,7 +62,8 @@ public final class JsonUtils {
         final JsonWriter
             jsonWriter = createJsonWriter(outputStream, true);
         final NormalizedNodeStreamWriter streamWriter = JSONNormalizedNodeStreamWriter
-            .createNestedWriter(JSONCodecFactory.create(schemaContext), SchemaPath.ROOT, null, jsonWriter);
+            .createNestedWriter(JSONCodecFactorySupplier.DRAFT_LHOTKA_NETMOD_YANG_JSON_02.getShared(schemaContext),
+                SchemaPath.ROOT, null, jsonWriter);
         final NormalizedNodeWriter normalizedNodeWriter =
             NormalizedNodeWriter.forStreamWriter(streamWriter, true);
         jsonWriter.beginObject();

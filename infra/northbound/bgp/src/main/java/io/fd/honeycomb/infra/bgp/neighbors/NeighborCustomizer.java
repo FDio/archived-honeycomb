@@ -88,7 +88,8 @@ final class NeighborCustomizer implements ListWriterCustomizer<Neighbor, Neighbo
             peer = new BgpPeer(null);
         }
         LOG.debug("Starting bgp peer for {}", id);
-        peer.start(globalRib, neighbor, tableTypeRegistry, null);
+        peer.start(globalRib, neighbor, tableTypeRegistry);
+        peer.instantiateServiceInstance();
         addPeer(id, peer);
     }
 
@@ -102,7 +103,8 @@ final class NeighborCustomizer implements ListWriterCustomizer<Neighbor, Neighbo
         final PeerBean peer = peers.get(id);
         checkState(peer != null, "Could not find peer bean while updating neighbor {}", id);
         closePeerBean(peer);
-        peer.start(globalRib, dataAfter, tableTypeRegistry, null);
+        peer.start(globalRib, dataAfter, tableTypeRegistry);
+        peer.instantiateServiceInstance();
         LOG.debug("Peer instance updated {}", peer);
     }
 

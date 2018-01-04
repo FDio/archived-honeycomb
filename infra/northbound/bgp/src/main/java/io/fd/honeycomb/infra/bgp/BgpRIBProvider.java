@@ -16,9 +16,15 @@
 
 package io.fd.honeycomb.infra.bgp;
 
+import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.toTableTypes;
+
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.data.init.ShutdownHandler;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.broker.impl.PingPongDataBroker;
@@ -36,19 +42,12 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.RibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.toTableTypes;
 
 final class BgpRIBProvider extends ProviderTrait<RIB> {
     private static final Logger LOG = LoggerFactory.getLogger(BgpRIBProvider.class);
@@ -89,10 +88,11 @@ final class BgpRIBProvider extends ProviderTrait<RIB> {
         // based on org.opendaylight.protocol.bgp.rib.impl.config.RibImpl.createRib
         final PingPongDataBroker pingPongDataBroker = new PingPongDataBroker(domBroker);
         final RIBImpl rib =
-                new RIBImpl(new NoopClusterSingletonServiceProvider(), new RibId(cfg.bgpProtocolInstanceName.get()),
+                new RIBImpl(new RibId(cfg.bgpProtocolInstanceName.get()),
                         asNumber, new BgpId(routerId), clusterId, extensions, dispatcher, codec,
                         pingPongDataBroker, toTableTypes(afiSafiList, tableTypeRegistry), pathSelectionModes,
-                        extensions.getClassLoadingStrategy(), null);
+                        extensions.getClassLoadingStrategy());
+        rib.instantiateServiceInstance();
 
         // required for proper RIB's CodecRegistry initialization (based on RIBImpl.start)
         schemaService.registerSchemaContextListener(rib);

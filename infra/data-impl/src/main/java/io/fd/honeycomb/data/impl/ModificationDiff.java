@@ -33,7 +33,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MixinNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.nodes.AbstractImmutableDataContainerNode;
-import org.opendaylight.yangtools.yang.model.api.AugmentationSchema;
+import org.opendaylight.yangtools.yang.model.api.AugmentationSchemaNode;
 import org.opendaylight.yangtools.yang.model.api.ChoiceSchemaNode;
 import org.opendaylight.yangtools.yang.model.api.ContainerSchemaNode;
 import org.opendaylight.yangtools.yang.model.api.LeafListSchemaNode;
@@ -176,7 +176,7 @@ final class ModificationDiff {
             // APPEAR/DISAPPEAR are not valid modifications, but some of the children can be modified
             // aka. list entry added to nested list under non-presence container, which would be resolved as APPEAR for
             // that container, but MERGE for nested list
-            if (modification.isMixin() && !modification.is(AugmentationSchema.class)) {
+            if (modification.isMixin() && !modification.is(AugmentationSchemaNode.class)) {
                 return false;
             } else {
                 return isCurrentModified(modification);

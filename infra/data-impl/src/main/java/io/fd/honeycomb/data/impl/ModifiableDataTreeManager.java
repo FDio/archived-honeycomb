@@ -75,7 +75,8 @@ public class ModifiableDataTreeManager implements ModifiableDataManager {
         @Override
         public CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read(
                 @Nonnull final YangInstanceIdentifier path) {
-            final Optional<NormalizedNode<?, ?>> node = modification.readNode(path);
+            // FIXME switch to java.util.Optional when rest of ODL infra does
+            final Optional<NormalizedNode<?, ?>> node = Optional.fromNullable(modification.readNode(path).orElse(null));
             if (LOG.isTraceEnabled() && node.isPresent()) {
                 LOG.trace("ConfigSnapshot.read: {}", node.get());
             }

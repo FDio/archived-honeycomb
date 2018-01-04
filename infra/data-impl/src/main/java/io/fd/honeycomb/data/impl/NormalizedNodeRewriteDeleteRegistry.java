@@ -28,7 +28,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafSetNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
-import org.opendaylight.yangtools.yang.model.api.ChoiceCaseNode;
+import org.opendaylight.yangtools.yang.model.api.CaseSchemaNode;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +86,7 @@ final class NormalizedNodeRewriteDeleteRegistry implements RewriteDeleteProducer
             return choiceDeleteProducer.normalizedUpdates(topLevelIdentifier, entry);
         }
 
-        if (entry.getValue() instanceof ChoiceCaseNode) {
+        if (entry.getValue() instanceof CaseSchemaNode) {
             LOG.debug("Processing case {}", topLevelIdentifier);
             return caseDeleteProducer.normalizedUpdates(topLevelIdentifier, entry);
         }

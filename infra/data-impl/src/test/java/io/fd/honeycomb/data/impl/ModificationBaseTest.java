@@ -36,11 +36,10 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateTip;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeConfiguration;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.TipProducingDataTree;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.TreeType;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.ListNodeBuilder;
@@ -63,8 +62,8 @@ abstract class ModificationBaseTest extends ModificationMetadata {
         dataTree.commit(prepare);
     }
 
-    protected TipProducingDataTree getDataTree() throws ReactorException {
-        final TipProducingDataTree dataTree = InMemoryDataTreeFactory.getInstance().create(TreeType.CONFIGURATION);
+    protected DataTree getDataTree() throws ReactorException {
+        final DataTree dataTree = new InMemoryDataTreeFactory().create(DataTreeConfiguration.DEFAULT_CONFIGURATION);
         dataTree.setSchemaContext(getSchemaCtx());
         return dataTree;
     }
@@ -126,16 +125,16 @@ abstract class ModificationBaseTest extends ModificationMetadata {
     }
 
     SchemaContext getSchemaCtx() throws ReactorException {
-        return YangParserTestUtils.parseYangSources(Collections.singletonList("/test-diff.yang"));
+        return YangParserTestUtils.parseYangResource("/test-diff.yang");
     }
 
-    DataTreeModification getModification(final TipProducingDataTree dataTree) {
+    DataTreeModification getModification(final DataTree dataTree) {
         final DataTreeSnapshot dataTreeSnapshot = dataTree.takeSnapshot();
         return dataTreeSnapshot.newModification();
     }
 
 
-    DataTreeCandidateTip prepareModification(final TipProducingDataTree dataTree,
+    DataTreeCandidateTip prepareModification(final DataTree dataTree,
                                              final DataTreeModification dataTreeModification)
             throws DataValidationFailedException {
         dataTreeModification.ready();
@@ -329,9 +328,9 @@ abstract class ModificationBaseTest extends ModificationMetadata {
                                 .build()).build()).build();
     }
 
-    TipProducingDataTree prepareStateBeforeWithTopContainer(final NormalizedNode<?, ?> topContainerData)
+    DataTree prepareStateBeforeWithTopContainer(final NormalizedNode<?, ?> topContainerData)
             throws ReactorException, DataValidationFailedException {
-        final TipProducingDataTree dataTree = getDataTree();
+        final DataTree dataTree = getDataTree();
         final DataTreeModification dataTreeModificationOriginal = getModification(dataTree);
         // non presence, but with valid child list
         dataTreeModificationOriginal.write(TOP_CONTAINER_ID, topContainerData);
@@ -340,7 +339,7 @@ abstract class ModificationBaseTest extends ModificationMetadata {
         return dataTree;
     }
 
-    DataTreeCandidateTip prepareStateAfterEmpty(final TipProducingDataTree dataTree)
+    DataTreeCandidateTip prepareStateAfterEmpty(final DataTree dataTree)
             throws DataValidationFailedException {
         final NormalizedNode<?, ?> topContainerModified = Builders.containerBuilder()
                 .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME))
