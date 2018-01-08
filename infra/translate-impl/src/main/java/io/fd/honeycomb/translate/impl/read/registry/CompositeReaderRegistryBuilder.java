@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.translate.impl.read.registry;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import io.fd.honeycomb.translate.impl.read.GenericListReader;
@@ -28,6 +30,13 @@ import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistryBuilder;
 import io.fd.honeycomb.translate.util.AbstractSubtreeManagerRegistryBuilderBuilder;
 import io.fd.honeycomb.translate.util.YangDAG;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
@@ -35,15 +44,6 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.NotThreadSafe;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 @NotThreadSafe
 public final class CompositeReaderRegistryBuilder
@@ -112,8 +112,8 @@ public final class CompositeReaderRegistryBuilder
 
         // We are violating the ordering from mappedReaders, since we are forming a composite structure
         // but at least order root writers
-        orderedRootReaders.sort((reader1, reader2) -> readerOrder.indexOf(reader1.getManagedDataObjectType())
-                - readerOrder.indexOf(reader2.getManagedDataObjectType()));
+        orderedRootReaders.sort(
+            Comparator.comparingInt(reader -> readerOrder.indexOf(reader.getManagedDataObjectType())));
 
         return new CompositeReaderRegistry(orderedRootReaders);
     }
