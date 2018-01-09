@@ -17,13 +17,13 @@
   <parent>
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>honeycomb-parent</artifactId>
-    <version>1.18.01-SNAPSHOT</version>
+    <version>1.18.01-RC1</version>
     <relativePath>common/honeycomb-parent</relativePath>
   </parent>
 
   <groupId>io.fd.honeycomb</groupId>
   <artifactId>honeycomb-aggregator</artifactId>
-  <version>1.18.01-SNAPSHOT</version>
+  <version>1.18.01-RC1</version>
   <name>honeycomb</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
