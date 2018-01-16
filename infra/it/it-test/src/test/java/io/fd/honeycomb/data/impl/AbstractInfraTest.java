@@ -71,7 +71,8 @@ abstract class AbstractInfraTest {
         final ModuleInfoBackedContext moduleInfoBackedContext = ModuleInfoBackedContext.create();
         moduleInfoBackedContext.addModuleInfos(Arrays.asList(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.$YangModuleInfoImpl.getInstance(),
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.$YangModuleInfoImpl.getInstance()
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.aug.test.rev161222.$YangModuleInfoImpl.getInstance(),
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.subtree.test.rev180116.$YangModuleInfoImpl.getInstance()
 
         ));
         return moduleInfoBackedContext;

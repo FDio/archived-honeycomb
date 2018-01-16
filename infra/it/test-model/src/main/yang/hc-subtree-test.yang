@@ -1,0 +1,30 @@
+module hc-subtree-test {
+  yang-version 1;
+  namespace "urn:opendaylight:params:xml:ns:yang:hc:subtree:test";
+  prefix "hc-subtree-test";
+
+  revision "2018-01-16" {
+    description "HC model for testing subtree writers.";
+  }
+
+  container c1 {
+    leaf leaf1 {
+      type string;
+    }
+    container c2 {
+      leaf leaf2 {
+        type int32;
+      }
+    }
+    container c3 {
+      leaf leaf3 {
+        type int32;
+      }
+    }
+    container c4 {
+      leaf leaf4 {
+        type int32;
+      }
+    }
+  }
+}
