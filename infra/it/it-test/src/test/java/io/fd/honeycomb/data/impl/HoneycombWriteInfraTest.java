@@ -16,10 +16,8 @@
 
 package io.fd.honeycomb.data.impl;
 
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -521,54 +519,5 @@ public class HoneycombWriteInfraTest extends AbstractInfraTest {
         verify(simpleContainerWriter).getManagedDataObjectType();
         // No modification
         verifyNoMoreInteractions(simpleContainerWriter);
-    }
-
-    @Test
-    public void testSubtreeWriter() throws Exception {
-        writerRegistry = new FlatWriterRegistryBuilder(new YangDAG())
-                // Handles also container from grouping
-                .subtreeAdd(Sets.newHashSet(Ids.CONTAINER_FROM_GROUPING_ID), containerWithChoiceWriter)
-                .build();
-
-        final ModifiableDataTreeDelegator modifiableDataTreeDelegator =
-                new ModifiableDataTreeDelegator(serializer, dataTree, schemaContext, writerRegistry, contextBroker);
-
-        final ContainerWithChoice containerWithChoice =
-                new ContainerWithChoiceBuilder().setContainerFromGrouping(getContainerFromGrouping()).build();
-
-        // Test write subtree node
-        DataModification dataModification = modifiableDataTreeDelegator.newModification();
-        writeContainerFromGrouping(dataModification);
-        dataModification.commit();
-
-        verify(containerWithChoiceWriter, atLeastOnce()).getManagedDataObjectType();
-        verify(containerWithChoiceWriter)
-                .processModification(eq(Ids.CONTAINER_WITH_CHOICE_ID), eq(null), eq(containerWithChoice), any(WriteContext.class));
-        verifyNoMoreInteractions(containerWithChoiceWriter);
-
-        // Test delete sub-node
-        dataModification = modifiableDataTreeDelegator.newModification();
-        final ContainerWithChoice containerWithChoiceEmpty = new ContainerWithChoiceBuilder().build();
-        deleteContainerFromGrouping(dataModification);
-        dataModification.commit();
-
-        verify(containerWithChoiceWriter, atLeastOnce()).getManagedDataObjectType();
-        verify(containerWithChoiceWriter)
-                .processModification(eq(Ids.CONTAINER_WITH_CHOICE_ID), eq(containerWithChoice), eq(containerWithChoiceEmpty), any(WriteContext.class));
-        verifyNoMoreInteractions(containerWithChoiceWriter);
-
-        // Test write with subtree node that's not handled by subtree writer
-        dataModification = modifiableDataTreeDelegator.newModification();
-        writeContainerWithChoice(dataModification);
-        try {
-            dataModification.commit();
-            fail("Missing writer for C3 should occur");
-        } catch (IllegalArgumentException e) {
-            return;
-        }
-    }
-
-    private void deleteContainerFromGrouping(final DataModification dataModification) {
-        dataModification.delete(serializer.toYangInstanceIdentifier(Ids.CONTAINER_FROM_GROUPING_ID));
     }
 }
