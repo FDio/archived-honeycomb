@@ -63,6 +63,9 @@ public interface WriterCustomizer<D extends DataObject> {
         throw new UnsupportedOperationException(
                 "Default implementation of updateCurrentAttributes should not be invoked." +
                         "Either override this method or do not invoke it directly");
+
+//        deleteCurrentAttributes(id, dataBefore, writeContext);
+//        writeCurrentAttributes(id, dataAfter, writeContext);
     }
 
     /**
