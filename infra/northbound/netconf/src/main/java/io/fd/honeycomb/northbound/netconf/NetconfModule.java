@@ -43,6 +43,7 @@ import org.opendaylight.netconf.notifications.NetconfNotificationCollector;
 import org.opendaylight.netconf.notifications.NetconfNotificationListener;
 import org.opendaylight.netconf.notifications.NetconfNotificationRegistry;
 import org.opendaylight.netconf.notifications.impl.NetconfNotificationManager;
+import org.opendaylight.netconf.ssh.NetconfNorthboundSshServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,8 +139,7 @@ public class NetconfModule extends NorthboundPrivateModule<NetconfConfiguration>
         bind(NetconfTcpServerProvider.NetconfTcpServer.class).toProvider(NetconfTcpServerProvider.class)
                 .asEagerSingleton();
         expose(NetconfTcpServerProvider.NetconfTcpServer.class);
-        bind(NetconfSshServerProvider.NetconfSshServer.class).toProvider(NetconfSshServerProvider.class)
-                .asEagerSingleton();
-        return expose(NetconfSshServerProvider.NetconfSshServer.class);
+        bind(NetconfNorthboundSshServer.class).toProvider(NetconfSshServerProvider.class).asEagerSingleton();
+        return expose(NetconfNorthboundSshServer.class);
     }
 }
