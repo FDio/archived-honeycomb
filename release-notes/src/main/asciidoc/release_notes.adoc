@@ -21,9 +21,15 @@ Adding to the list of existing features: https://docs.fd.io/honeycomb/1.17.10/re
 
 === New features
 
+* https://jira.fd.io/browse/HONEYCOMB-363[Configurable BGP extensions] - separate modules for each BGP extension
+* https://jira.fd.io/browse/HONEYCOMB-359[Wildcarded subtree writers] - writers than can process whole subtree
+* https://jira.fd.io/browse/HONEYCOMB-417[BGP ODL Nitrogen SR1]
+
 === Removed features
 
 === Modified features
+
+* https://jira.fd.io/browse/HONEYCOMB-405[Fixed revert process for indirect updates]
 
 === Deprecated features
 

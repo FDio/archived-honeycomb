@@ -78,9 +78,9 @@
                 <project-version>${project.version}</project-version>
                 <project-public-version>18.01</project-public-version>
                 <project-version-in-jira>11004</project-version-in-jira>
-                <project-branch>master</project-branch>
+                <project-branch>stable/1801</project-branch>
                 <project-git-web>https://git.fd.io/cgit/honeycomb/tree</project-git-web>
-                <project-odl-branch>stable-carbon</project-odl-branch>
+                <project-odl-branch>stable-nitrogen</project-odl-branch>
               </attributes>
             </configuration>
           </execution>
