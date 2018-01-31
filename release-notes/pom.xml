@@ -80,7 +80,7 @@
                 <project-version-in-jira>11103</project-version-in-jira>
                 <project-branch>master</project-branch>
                 <project-git-web>https://git.fd.io/cgit/honeycomb/tree</project-git-web>
-                <project-odl-branch>stable-carbon</project-odl-branch>
+                <project-odl-branch>stable-nitrogen</project-odl-branch>
               </attributes>
             </configuration>
           </execution>
