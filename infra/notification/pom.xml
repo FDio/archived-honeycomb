@@ -18,13 +18,13 @@
   <parent>
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>honeycomb-parent</artifactId>
-    <version>1.18.01-SNAPSHOT</version>
+    <version>1.18.01</version>
     <relativePath>../../common/honeycomb-parent</relativePath>
   </parent>
 
   <groupId>io.fd.honeycomb</groupId>
   <artifactId>notification-aggregator</artifactId>
-  <version>1.18.01-SNAPSHOT</version>
+  <version>1.18.01</version>
   <name>${project.artifactId}</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
