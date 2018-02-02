@@ -3,7 +3,7 @@ module hc-aug-test {
   namespace "urn:opendaylight:params:xml:ns:yang:hc:aug:test";
   prefix "hcat";
 
-  revision "2017-01--9" {
+  revision "2017-01-09" {
     description "Test model for aumentations of augmentations (https://jira.fd.io/browse/HONEYCOMB-302)";
   }
 
