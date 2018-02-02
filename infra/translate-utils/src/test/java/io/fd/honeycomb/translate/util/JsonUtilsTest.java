@@ -23,6 +23,7 @@ import com.google.common.io.ByteStreams;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
@@ -32,10 +33,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.parser.stmt.reactor.CrossSourceStatementReactor;
-import org.opendaylight.yangtools.yang.parser.stmt.reactor.EffectiveSchemaContext;
-import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangInferencePipeline;
-import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangStatementSourceImpl;
+import org.opendaylight.yangtools.yang.model.api.SchemaContext;
+import org.opendaylight.yangtools.yang.test.util.YangParserTestUtils;
 
 public class JsonUtilsTest {
 
@@ -47,23 +46,20 @@ public class JsonUtilsTest {
     private static final QName STRING_LEAF_QNAME = QName.create(TOP_CONTAINER_NAME, "string");
 
     private Path tmpPersistFile;
-    private EffectiveSchemaContext effectiveSchemaContext;
+    private SchemaContext schemaContext;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         tmpPersistFile = Files.createTempFile("testing-hc-persistence", "json");
-
-        final CrossSourceStatementReactor.BuildAction buildAction = YangInferencePipeline.RFC6020_REACTOR.newBuild();
-        buildAction.addSource(new YangStatementSourceImpl(getClass().getResourceAsStream("/test-persistence.yang")));
-        effectiveSchemaContext = buildAction.buildEffective();
+        schemaContext = YangParserTestUtils.parseYangSources(Collections.singletonList("/test-persistence.yang"));
     }
 
     @Test
     public void testPersist() throws Exception {
 
         NormalizedNode<?, ?> data = getData("testing");
-        JsonUtils.writeJsonRoot(data, effectiveSchemaContext, Files.newOutputStream(tmpPersistFile, StandardOpenOption.CREATE));
+        JsonUtils.writeJsonRoot(data, schemaContext, Files.newOutputStream(tmpPersistFile, StandardOpenOption.CREATE));
         assertTrue(Files.exists(tmpPersistFile));
 
         String persisted = new String(Files.readAllBytes(tmpPersistFile));
@@ -73,7 +69,7 @@ public class JsonUtilsTest {
         assertEquals(expected, persisted);
 
         data = getData("testing2");
-        JsonUtils.writeJsonRoot(data, effectiveSchemaContext, Files.newOutputStream(tmpPersistFile, StandardOpenOption.CREATE));
+        JsonUtils.writeJsonRoot(data, schemaContext, Files.newOutputStream(tmpPersistFile, StandardOpenOption.CREATE));
         persisted = new String(Files.readAllBytes(tmpPersistFile));
         assertEquals(expected.replace("testing", "testing2"), persisted);
 
@@ -84,13 +80,13 @@ public class JsonUtilsTest {
     @Test
     public void testRestore() throws Exception {
         final ContainerNode normalizedNodeOptional = JsonUtils
-            .readJsonRoot(effectiveSchemaContext, getClass().getResourceAsStream("/expected-persisted-output.txt"));
+            .readJsonRoot(schemaContext, getClass().getResourceAsStream("/expected-persisted-output.txt"));
         assertEquals(getData("testing"), normalizedNodeOptional);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testRestoreInvalidFile() throws Exception {
-        JsonUtils.readJsonRoot(effectiveSchemaContext, getClass().getResourceAsStream("/test-persistence.yang"));
+        JsonUtils.readJsonRoot(schemaContext, getClass().getResourceAsStream("/test-persistence.yang"));
     }
 
     private ContainerNode getData(final String stringValue) {

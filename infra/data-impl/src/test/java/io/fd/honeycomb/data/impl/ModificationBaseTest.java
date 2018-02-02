@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -46,9 +47,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.ListNodeBuil
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.InMemoryDataTreeFactory;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.parser.spi.meta.ReactorException;
-import org.opendaylight.yangtools.yang.parser.stmt.reactor.CrossSourceStatementReactor;
-import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangInferencePipeline;
-import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangStatementSourceImpl;
+import org.opendaylight.yangtools.yang.test.util.YangParserTestUtils;
 
 abstract class ModificationBaseTest extends ModificationMetadata {
 
@@ -127,10 +126,7 @@ abstract class ModificationBaseTest extends ModificationMetadata {
     }
 
     SchemaContext getSchemaCtx() throws ReactorException {
-        final CrossSourceStatementReactor.BuildAction buildAction = YangInferencePipeline.RFC6020_REACTOR.newBuild();
-        buildAction.addSource(
-                new YangStatementSourceImpl(ModificationDiffTest.class.getResourceAsStream("/test-diff.yang")));
-        return buildAction.buildEffective();
+        return YangParserTestUtils.parseYangSources(Collections.singletonList("/test-diff.yang"));
     }
 
     DataTreeModification getModification(final TipProducingDataTree dataTree) {
