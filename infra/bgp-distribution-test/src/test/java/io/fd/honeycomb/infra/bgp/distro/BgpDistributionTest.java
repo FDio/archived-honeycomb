@@ -119,7 +119,7 @@ public class BgpDistributionTest {
             final byte[] msg = readMessage(inputStream);
             LOG.info("Received BGP message: {}", msg);
 
-            Assert.assertEquals(BGP_OPEN_MSG_TYPE, msg[BGP_MSG_TYPE_OFFSET]);
+            Assert.assertEquals("BGP OPEN message type was expected", BGP_OPEN_MSG_TYPE, msg[BGP_MSG_TYPE_OFFSET]);
         }
     }
 
@@ -131,7 +131,8 @@ public class BgpDistributionTest {
     }
 
     private void assertSuccessStatus(final HttpResponse<String> jsonNodeHttpResponse) {
-        assertTrue(jsonNodeHttpResponse.getStatus() >= 200);
-        assertTrue(jsonNodeHttpResponse.getStatus() < 400);
+        final int statusCode = jsonNodeHttpResponse.getStatus();
+        assertTrue("Expected HTTP status code in range [200, 400), but was: " + statusCode,
+            statusCode >= 200 && statusCode < 400);
     }
 }

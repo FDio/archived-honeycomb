@@ -176,7 +176,8 @@ public class BaseMinimalDistributionTest {
     }
 
     private void assertSuccessStatus(final HttpResponse<String> jsonNodeHttpResponse) {
-        assertTrue(jsonNodeHttpResponse.getStatus() >= 200);
-        assertTrue(jsonNodeHttpResponse.getStatus() < 400);
+        final int statusCode = jsonNodeHttpResponse.getStatus();
+        assertTrue("Expected HTTP status code in range [200, 400), but was: " + statusCode,
+            statusCode >= 200 && statusCode < 400);
     }
 }
