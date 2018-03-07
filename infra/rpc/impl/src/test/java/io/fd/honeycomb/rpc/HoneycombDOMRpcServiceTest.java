@@ -17,13 +17,14 @@
 package io.fd.honeycomb.rpc;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -41,8 +42,6 @@ public class HoneycombDOMRpcServiceTest {
     private SchemaPath path;
     @Mock
     private DataObject input;
-    @Mock
-    private ContainerNode output;
 
     private ContainerNode node;
     private HoneycombDOMRpcService service;
@@ -51,32 +50,41 @@ public class HoneycombDOMRpcServiceTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         node = mockContainerNode(QName.create("a"));
-
         service = new HoneycombDOMRpcService(serializer, registry);
-
-        Mockito.when(serializer.fromNormalizedNodeRpcData(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(input);
-        Mockito.when(serializer.toNormalizedNodeRpcData(ArgumentMatchers.any())).thenReturn(output);
+        when(serializer.fromNormalizedNodeRpcData(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(input);
     }
 
     @Test
     public void testInvokeRpc() throws Exception {
-        Mockito.when(registry.invoke(path, input)).thenReturn(CompletableFuture.completedFuture(input));
+        final ContainerNode outputBi = mock(ContainerNode.class);
+        final DataObject outputBa = mock(DataObject.class);
+        when(serializer.toNormalizedNodeRpcData(ArgumentMatchers.any())).thenReturn(outputBi);
+        when(registry.invoke(path, input)).thenReturn(CompletableFuture.completedFuture(outputBa));
 
-        assertEquals(output, service.invokeRpc(path, node).get().getResult());
+        assertEquals(outputBi, service.invokeRpc(path, node).get().getResult());
+    }
+
+    @Test
+    public void testInvokeRpcNoResult() throws Exception {
+        final DataObject outputBa = null;
+        final ContainerNode outputBi = null;
+        when(registry.invoke(path, input)).thenReturn(CompletableFuture.completedFuture(outputBa));
+
+        assertEquals(outputBi, service.invokeRpc(path, node).get().getResult());
     }
 
     @Test(expected = RpcException.class)
     public void testInvokeRpcFailed() throws Exception {
         final CompletableFuture future = new CompletableFuture();
         future.completeExceptionally(new RuntimeException());
-        Mockito.when(registry.invoke(path, input)).thenReturn(future);
+        when(registry.invoke(path, input)).thenReturn(future);
 
         service.invokeRpc(path, node).checkedGet();
     }
 
     private ContainerNode mockContainerNode(final QName nn1) {
-        final ContainerNode nn1B = Mockito.mock(ContainerNode.class);
-        Mockito.when(nn1B.getNodeType()).thenReturn(nn1);
+        final ContainerNode nn1B = mock(ContainerNode.class);
+        when(nn1B.getNodeType()).thenReturn(nn1);
         return nn1B;
     }
 }

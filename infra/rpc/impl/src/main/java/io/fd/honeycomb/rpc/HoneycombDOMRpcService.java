@@ -71,8 +71,12 @@ public final class HoneycombDOMRpcService implements DOMRpcService {
     private ListenableFuture<DOMRpcResult> getDOMRpcResult(final ListenableFuture<DataObject> invoke) {
         return Futures.transform(
             invoke,
-            (Function<DataObject, DOMRpcResult>) output -> {
-                final ContainerNode outputNode = serializer.toNormalizedNodeRpcData(output);
+            output -> {
+                // If result is available convert it to BI form. Otherwise pass null as DOMRpcResult expects.
+                ContainerNode outputNode = null;
+                if (output != null) {
+                    outputNode = serializer.toNormalizedNodeRpcData(output);
+                }
                 return new DefaultDOMRpcResult(outputNode);
             });
     }
