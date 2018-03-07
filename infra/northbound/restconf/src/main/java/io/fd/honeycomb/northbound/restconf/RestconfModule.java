@@ -19,7 +19,7 @@ package io.fd.honeycomb.northbound.restconf;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import io.fd.honeycomb.northbound.NorthboundAbstractModule;
-import io.fd.honeycomb.northbound.restconf.JettyServerStarter.ServerInit;
+import io.fd.honeycomb.northbound.restconf.JettyServerStarter.RestconfJettyServer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.opendaylight.netconf.sal.rest.api.RestConnector;
@@ -54,6 +54,6 @@ public class RestconfModule extends NorthboundAbstractModule<RestconfConfigurati
                 .toProvider(HttpsConnectorProvider.class)
                 .in(Singleton.class);
         bind(RestConnector.class).toProvider(RestconfProvider.class).in(Singleton.class);
-        bind(ServerInit.class).toProvider(JettyServerStarter.class).asEagerSingleton();
+        bind(RestconfJettyServer.class).toProvider(JettyServerStarter.class).asEagerSingleton();
     }
 }
