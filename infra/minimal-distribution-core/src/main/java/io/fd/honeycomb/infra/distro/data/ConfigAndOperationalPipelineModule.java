@@ -47,7 +47,7 @@ public class ConfigAndOperationalPipelineModule extends PrivateModule {
 
     @Override
     protected void configure() {
-        bind(ShutdownHandler.class).to(ShutdownHandlerImpl.class).in(Singleton.class);
+        bind(ShutdownHandler.class).toProvider(ShutdownHandlerProvider.class).in(Singleton.class);
         expose(ShutdownHandler.class);
 
         // Mount point service is required by notification service and restconf

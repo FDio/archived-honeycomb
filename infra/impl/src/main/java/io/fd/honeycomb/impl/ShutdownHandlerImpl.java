@@ -16,7 +16,6 @@
 
 package io.fd.honeycomb.impl;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.fd.honeycomb.data.init.ShutdownHandler;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -32,7 +31,6 @@ public final class ShutdownHandlerImpl implements ShutdownHandler {
 
     public ShutdownHandlerImpl() {
         components = new LinkedList<>();
-        Runtime.getRuntime().addShutdownHook(new Thread((this::performShutdown)));
     }
 
     @Override
@@ -60,8 +58,8 @@ public final class ShutdownHandlerImpl implements ShutdownHandler {
         }
     }
 
-    @VisibleForTesting
-    void performShutdown() {
+    @Override
+    public void performShutdown() {
         // close components in reverse order that they were registered
         components.descendingIterator().forEachRemaining(closeable -> {
             LOG.info("Closing component {}", closeable.getName());

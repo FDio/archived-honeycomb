@@ -19,15 +19,20 @@ package io.fd.honeycomb.data.init;
 import javax.annotation.Nonnull;
 
 /**
- * Handles closing of closeable components
+ * Handles closing of closeable components.
  */
 public interface ShutdownHandler {
 
     /**
-     * Register component to be properly closed on shutdown
+     * Registers component to be properly closed on shutdown.
      *
      * @param name      component name
      * @param component closeable component
      */
     void register(@Nonnull final String name, @Nonnull final AutoCloseable component);
+
+    /**
+     * Performs shutdown for all registered components.
+     */
+    void performShutdown();
 }
