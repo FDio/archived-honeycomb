@@ -20,9 +20,11 @@ import io.fd.honeycomb.data.init.ShutdownHandler;
 import java.util.Deque;
 import java.util.LinkedList;
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@NotThreadSafe
 public final class ShutdownHandlerImpl implements ShutdownHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(ShutdownHandlerImpl.class);
@@ -70,5 +72,8 @@ public final class ShutdownHandlerImpl implements ShutdownHandler {
                 LOG.warn("Unable to close component {}", closeable.getName(), e);
             }
         });
+        // AutoCloseable.close() might not be idempotent, so remove registered components
+        // to prevent multiple invocations:
+        components.clear();
     }
 }
