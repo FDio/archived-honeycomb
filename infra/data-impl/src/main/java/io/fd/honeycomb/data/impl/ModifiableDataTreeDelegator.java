@@ -66,7 +66,6 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
 
     private final WriterRegistry writerRegistry;
     private final org.opendaylight.controller.md.sal.binding.api.DataBroker contextBroker;
-    // TODO HONEYCOMB-161 what to use instead of deprecated BindingNormalizedNodeSerializer ?
     private final BindingNormalizedNodeSerializer serializer;
     private final SchemaContext schema;
 

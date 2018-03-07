@@ -44,7 +44,6 @@ public final class HoneycombDOMRpcService implements DOMRpcService {
             ? (DOMRpcException) e
             : new RpcException("RPC failed", e);
 
-    // TODO HONEYCOMB-161 what to use instead of deprecated BindingNormalizedNodeSerializer ?
     private final BindingNormalizedNodeSerializer serializer;
     private final RpcRegistry rpcRegistry;
 
