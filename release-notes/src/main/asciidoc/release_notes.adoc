@@ -17,7 +17,7 @@ For VPP specific distribution of Honeycomb, please refer to https://wiki.fd.io/v
 https://wiki.fd.io/view/Honeycomb/Release_Plans/Release_Plan_{project-public-version}[Release plan]
 
 == Features
-Adding to the list of existing features: https://docs.fd.io/honeycomb/1.18.01/release-notes-aggregator/release_notes.html#_features[1801 feature list]
+Adding to the list of existing features: https://docs.fd.io/honeycomb/1.18.04/release-notes-aggregator/release_notes.html#_features[1801 feature list]
 
 === New features
 
