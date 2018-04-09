@@ -21,7 +21,7 @@
     <parent>
         <groupId>io.fd.honeycomb.common</groupId>
         <artifactId>honeycomb-parent</artifactId>
-        <version>1.18.04-SNAPSHOT</version>
+        <version>1.18.07-SNAPSHOT</version>
         <relativePath>../../honeycomb-parent</relativePath>
     </parent>
 
@@ -29,7 +29,7 @@
 
     <groupId>io.fd.honeycomb.yang</groupId>
     <artifactId>yang-whitelist-impl</artifactId>
-    <version>1.18.04-SNAPSHOT</version>
+    <version>1.18.07-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
 
