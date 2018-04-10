@@ -23,7 +23,6 @@ import io.fd.honeycomb.data.init.ShutdownHandler;
 import org.opendaylight.controller.config.yang.netconf.mdsal.notification.CapabilityChangeNotificationProducer;
 import org.opendaylight.controller.config.yang.netconf.mdsal.notification.NotificationToMdsalWriter;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactoryListener;
@@ -65,8 +64,7 @@ public class NetconfNotificationMapperProvider extends ProviderTrait<NetconfOper
         writer.start();
 
         LOG.trace("Initializing CapabilityChangeNotificationProducer");
-        final DataTreeChangeListener<Capabilities> publisher =
-            new CapabilityChangeNotificationProducer(notificationCollector, dataBroker);
+        new CapabilityChangeNotificationProducer(notificationCollector, dataBroker);
 
         LOG.trace("Providing NetconfNotificationOperationServiceFactory");
         NetconfNotificationOperationServiceFactory netconfNotificationOperationServiceFactory =

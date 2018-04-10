@@ -59,10 +59,10 @@ final class HttpsConnectorProvider extends ProviderTrait<ServerConnector> {
         URL keystoreURL = getClass().getResource(cfg.restconfKeystore.get());
         sslContextFactory.setKeyStorePath(keystoreURL.getPath());
         sslContextFactory.setKeyStorePassword(cfg.keystorePassword.get());
-        sslContextFactory.setKeyManagerPassword((cfg.keystoreManagerPassword.get()));
+        sslContextFactory.setKeyManagerPassword(cfg.keystoreManagerPassword.get());
         URL truststoreURL = getClass().getResource(cfg.restconfTruststore.get());
         sslContextFactory.setTrustStorePath(truststoreURL.getPath());
-        sslContextFactory.setTrustStorePassword((cfg.truststorePassword.get()));
+        sslContextFactory.setTrustStorePassword(cfg.truststorePassword.get());
         // TODO HONEYCOMB-167 make this more configurable
         sslContextFactory.setExcludeCipherSuites("SSL_RSA_WITH_DES_CBC_SHA", "SSL_DHE_RSA_WITH_DES_CBC_SHA",
                 "SSL_DHE_DSS_WITH_DES_CBC_SHA", "SSL_RSA_EXPORT_WITH_RC4_40_MD5",

@@ -16,17 +16,16 @@
 
 package io.fd.honeycomb.test.tools;
 
+import static com.google.common.base.Preconditions.checkState;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
-
-import javax.annotation.Nonnull;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Process yang data from json to BA Objects
@@ -56,7 +55,7 @@ final class YangDataProcessorRegistry {
 
     private YangDataProcessor pickProcessor(final YangInstanceIdentifier yangInstanceIdentifier) {
         final List<YangDataProcessor> eligibleProcessors = processors.stream()
-                .filter(processors -> processors.canProcess(yangInstanceIdentifier))
+                .filter(processor -> processor.canProcess(yangInstanceIdentifier))
                 .collect(Collectors.toList());
 
         // canProcess should be exclusive for node type, but just in case
