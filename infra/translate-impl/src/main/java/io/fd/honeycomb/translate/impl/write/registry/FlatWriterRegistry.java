@@ -202,7 +202,7 @@ final class FlatWriterRegistry implements WriterRegistry {
             if (writersData.isEmpty()) {
                 // If there are no data for current writer, but it is a SubtreeWriter and there are updates to
                 // its children, still invoke it with its root data
-                if (writer instanceof SubtreeWriter<?> && isAffected(((SubtreeWriter<?>) writer), updates)) {
+                if (writer instanceof SubtreeWriter<?> && isAffected((SubtreeWriter<?>) writer, updates)) {
                     // Provide parent data for SubtreeWriter for further processing
                     writersData = getParentDataObjectUpdate(ctx, updates, writer);
                 } else {

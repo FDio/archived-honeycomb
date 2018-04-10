@@ -25,7 +25,7 @@ public class ShutdownHandlerProvider extends ProviderTrait<ShutdownHandler> {
     protected ShutdownHandler create() {
         final ShutdownHandler handler = new ShutdownHandlerImpl();
         // Make sure ShutdownHandler is run on JVM shutdown
-        Runtime.getRuntime().addShutdownHook(new Thread((handler::performShutdown)));
+        Runtime.getRuntime().addShutdownHook(new Thread(handler::performShutdown));
         return handler;
     }
 }

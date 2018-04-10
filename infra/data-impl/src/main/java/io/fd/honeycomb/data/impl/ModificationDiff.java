@@ -146,12 +146,12 @@ final class ModificationDiff {
                     final AbstractImmutableDataContainerNode<YangInstanceIdentifier.PathArgument> parentContainerNode =
                             (AbstractImmutableDataContainerNode) parentData;
 
-                    final Map<YangInstanceIdentifier, NormalizedNodeUpdate> updates =
+                    final Map<YangInstanceIdentifier, NormalizedNodeUpdate> childUpdates =
                             parentContainerNode.getChildren().entrySet().stream()
                                     .flatMap(entry -> registry.normalizedUpdates(modification.getId(), entry).stream())
                                     .collect(Collectors.toMap(NormalizedNodeUpdate::getId, update -> update));
 
-                    return new ModificationDiff(updates);
+                    return new ModificationDiff(childUpdates);
                 }
             }
             return EMPTY_DIFF;
