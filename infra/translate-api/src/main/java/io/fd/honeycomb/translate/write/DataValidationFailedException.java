@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.honeycomb.translate.ValidationFailedException;
 import javax.annotation.Nonnull;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
@@ -75,5 +76,78 @@ public class DataValidationFailedException extends ValidationFailedException {
     @Nonnull
     public InstanceIdentifier<?> getFailedId() {
         return failedId;
+    }
+
+    /**
+     * Create specific validated failed exception.
+     */
+    public static class CreateValidationFailedException extends DataValidationFailedException {
+        private static final long serialVersionUID = 1;
+
+        private final transient DataObject data;
+
+        public CreateValidationFailedException(@Nonnull final InstanceIdentifier<?> failedId,
+                                               @Nonnull final DataObject data,
+                                               @Nonnull final Throwable cause) {
+            super(failedId, getMsg(failedId, data), cause);
+            this.data = checkNotNull(data, "data");
+        }
+
+        private static String getMsg(final @Nonnull InstanceIdentifier<?> failedId,
+                                     final @Nonnull DataObject data) {
+            return String.format("Failed to validate create request for: %s at: %s.", data, failedId);
+        }
+
+        public DataObject getData() {
+            return data;
+        }
+    }
+
+    /**
+     * Update specific validated failed exception.
+     */
+    public static class UpdateValidationFailedException extends DataValidationFailedException {
+        private static final long serialVersionUID = 1;
+
+        private final transient DataObject dataBefore;
+        private final transient DataObject dataAfter;
+
+        public UpdateValidationFailedException(@Nonnull final InstanceIdentifier<?> failedId,
+                                               @Nonnull final DataObject dataBefore,
+                                               @Nonnull final DataObject dataAfter,
+                                               @Nonnull final Throwable cause) {
+            super(failedId, getMsg(failedId, dataBefore, dataAfter), cause);
+            this.dataBefore = checkNotNull(dataBefore, "dataBefore");
+            this.dataAfter = checkNotNull(dataAfter, "dataAfter");
+        }
+
+        private static String getMsg(final @Nonnull InstanceIdentifier<?> failedId, final DataObject dataBefore,
+                                     final @Nonnull DataObject dataAfter) {
+            return String
+                .format("Failed to validate update request from: %s to: %s, at: %s.", dataBefore, dataAfter, failedId);
+        }
+
+        public DataObject getDataBefore() {
+            return dataBefore;
+        }
+
+        public DataObject getDataAfter() {
+            return dataAfter;
+        }
+    }
+
+    /**
+     * Delete specific validated failed exception.
+     */
+    public static class DeleteValidationFailedException extends DataValidationFailedException {
+        private static final long serialVersionUID = 1;
+
+        public DeleteValidationFailedException(@Nonnull final InstanceIdentifier<?> failedId, @Nonnull final Throwable cause) {
+            super(failedId, getMsg(failedId), cause);
+        }
+
+        private static String getMsg(@Nonnull final InstanceIdentifier<?> failedId) {
+            return String.format("Failed to validate delete request: %s.", failedId);
+        }
     }
 }

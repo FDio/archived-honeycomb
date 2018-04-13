@@ -77,5 +77,4 @@ public interface WriterCustomizer<D extends DataObject> {
     void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
                                  @Nonnull final D dataBefore,
                                  @Nonnull final WriteContext writeContext) throws WriteFailedException;
-
 }

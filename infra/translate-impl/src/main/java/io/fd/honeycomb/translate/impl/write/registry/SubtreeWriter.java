@@ -19,6 +19,7 @@ package io.fd.honeycomb.translate.impl.write.registry;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.collect.Iterables;
+import io.fd.honeycomb.translate.write.DataValidationFailedException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.translate.write.Writer;
@@ -65,6 +66,13 @@ final class SubtreeWriter<D extends DataObject> implements Writer<D> {
      */
     Set<InstanceIdentifier<?>> getHandledChildTypes() {
         return handledChildTypes;
+    }
+
+    @Override
+    public void validate(@Nonnull final InstanceIdentifier<? extends DataObject> id,
+                         @Nullable final DataObject dataBefore, @Nullable final DataObject dataAfter,
+                         @Nonnull final WriteContext ctx) throws DataValidationFailedException {
+        delegate.validate(id, dataBefore, dataAfter, ctx);
     }
 
     @Override

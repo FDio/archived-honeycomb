@@ -16,9 +16,10 @@
 
 package io.fd.honeycomb.translate.impl.write;
 
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.util.write.AbstractGenericWriter;
+import io.fd.honeycomb.translate.write.Validator;
+import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -39,7 +40,13 @@ public final class GenericWriter<D extends DataObject> extends AbstractGenericWr
                          @Nonnull final WriterCustomizer<D> customizer) {
         super(type, isUpdateSupported(customizer));
         this.customizer = customizer;
+    }
 
+    public GenericWriter(@Nonnull final InstanceIdentifier<D> type,
+                         @Nonnull final WriterCustomizer<D> customizer,
+                         @Nonnull final Validator<D> validator) {
+        super(type, isUpdateSupported(customizer), validator);
+        this.customizer = customizer;
     }
 
     static boolean isUpdateSupported(final @Nonnull WriterCustomizer<?> customizer) {

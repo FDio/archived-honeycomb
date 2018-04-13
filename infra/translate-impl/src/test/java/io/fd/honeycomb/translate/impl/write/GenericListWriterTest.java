@@ -22,6 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.translate.write.Validator;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.Collections;
@@ -42,7 +43,6 @@ public class GenericListWriterTest {
     private ListWriterCustomizer<IdentifiableDataObject, DataObjectIdentifier> customizer;
     @Mock
     private WriteContext ctx;
-    private GenericListWriter<IdentifiableDataObject, DataObjectIdentifier> writer;
     @Mock
     private IdentifiableDataObject before;
     @Mock
@@ -51,11 +51,15 @@ public class GenericListWriterTest {
     private IdentifiableDataObject after;
     @Mock
     private DataObjectIdentifier keyAfter;
+    @Mock
+    private Validator<IdentifiableDataObject> validator;
+
+    private GenericListWriter<IdentifiableDataObject, DataObjectIdentifier> writer;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        writer = new GenericListWriter<>(DATA_OBJECT_ID, customizer);
+        writer = new GenericListWriter<>(DATA_OBJECT_ID, customizer, validator);
         when(before.getKey()).thenReturn(beforeKey);
         when(after.getKey()).thenReturn(keyAfter);
     }
@@ -105,5 +109,26 @@ public class GenericListWriterTest {
                 .deleteCurrentAttributes(DATA_OBJECT_ID, before, ctx);
         writer = new GenericListWriter<>(DATA_OBJECT_ID, customizer);
         writer.deleteCurrentAttributes(DATA_OBJECT_ID, before, ctx);
+    }
+
+    @Test
+    public void testValidate() throws Exception {
+        assertEquals(DATA_OBJECT_ID, writer.getManagedDataObjectType());
+
+        final InstanceIdentifier<IdentifiableDataObject> keyedIdBefore =
+            (InstanceIdentifier<IdentifiableDataObject>) InstanceIdentifier.create(Collections
+                .singleton(new InstanceIdentifier.IdentifiableItem<>(IdentifiableDataObject.class, beforeKey)));
+        final InstanceIdentifier<IdentifiableDataObject> keyedIdAfter =
+            (InstanceIdentifier<IdentifiableDataObject>) InstanceIdentifier.create(Collections
+                .singleton(new InstanceIdentifier.IdentifiableItem<>(IdentifiableDataObject.class, keyAfter)));
+
+        writer.validate(DATA_OBJECT_ID, before, after, ctx);
+        verify(validator).validateUpdate(keyedIdBefore, before, after, ctx);
+
+        writer.validate(DATA_OBJECT_ID, before, null, ctx);
+        verify(validator).validateDelete(keyedIdBefore, before, ctx);
+
+        writer.validate(DATA_OBJECT_ID, null, after, ctx);
+        verify(validator).validateWrite(keyedIdAfter, after, ctx);
     }
 }

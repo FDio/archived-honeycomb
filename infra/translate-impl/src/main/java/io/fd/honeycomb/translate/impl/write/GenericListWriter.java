@@ -19,12 +19,13 @@ package io.fd.honeycomb.translate.impl.write;
 import static io.fd.honeycomb.translate.impl.write.GenericWriter.isUpdateSupported;
 
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.write.AbstractGenericWriter;
 import io.fd.honeycomb.translate.write.ListWriter;
+import io.fd.honeycomb.translate.write.Validator;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
@@ -42,6 +43,13 @@ public final class GenericListWriter<D extends DataObject & Identifiable<K>, K e
     public GenericListWriter(@Nonnull final InstanceIdentifier<D> type,
                              @Nonnull final ListWriterCustomizer<D, K> customizer) {
         super(type, isUpdateSupported(customizer));
+        this.customizer = customizer;
+    }
+
+    public GenericListWriter(@Nonnull final InstanceIdentifier<D> type,
+                             @Nonnull final ListWriterCustomizer<D, K> customizer,
+                             @Nonnull final Validator<D> validator) {
+        super(type, isUpdateSupported(customizer), validator);
         this.customizer = customizer;
     }
 
@@ -79,22 +87,25 @@ public final class GenericListWriter<D extends DataObject & Identifiable<K>, K e
     @Override
     protected void writeCurrent(final InstanceIdentifier<D> id, final D data, final WriteContext ctx)
         throws WriteFailedException {
-        super.writeCurrent(getId(id, data), data, ctx);
+        super.writeCurrent(getManagedId(id, data), data, ctx);
     }
 
     @Override
     protected void updateCurrent(final InstanceIdentifier<D> id, final D dataBefore, final D dataAfter,
                                  final WriteContext ctx) throws WriteFailedException {
-        super.updateCurrent(getId(id, dataBefore), dataBefore, dataAfter, ctx);
+        super.updateCurrent(getManagedId(id, dataBefore), dataBefore, dataAfter, ctx);
     }
 
     @Override
     protected void deleteCurrent(final InstanceIdentifier<D> id, final D dataBefore, final WriteContext ctx)
         throws WriteFailedException {
-        super.deleteCurrent(getId(id, dataBefore), dataBefore, ctx);
+        super.deleteCurrent(getManagedId(id, dataBefore), dataBefore, ctx);
     }
 
-    private InstanceIdentifier<D> getId(final InstanceIdentifier<D> id, final D current) {
+    @Override
+    protected InstanceIdentifier<D> getManagedId(@Nonnull final InstanceIdentifier<? extends DataObject> currentId,
+                                                 @Nonnull final D current) {
+        final InstanceIdentifier<D> id = (InstanceIdentifier<D>) currentId;
         // Make sure the key is present
         if (isWildcarded(id)) {
             return getSpecificId(id, current);

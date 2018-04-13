@@ -365,6 +365,71 @@ public class FlatWriterRegistryTest {
         }
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testValidateMissingWriter() throws Exception {
+        final FlatWriterRegistry flatWriterRegistry =
+            new FlatWriterRegistry(ImmutableMap.of(DataObject1.IID, writer1));
+
+        final Multimap<InstanceIdentifier<?>, DataObjectUpdate> updates = HashMultimap.create();
+        addUpdate(updates, DataObject1.class);
+        addUpdate(updates, DataObject2.class);
+        flatWriterRegistry.validateModifications(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
+    }
+
+    @Test
+    public void testValidateSingleWriter() throws Exception {
+        final FlatWriterRegistry flatWriterRegistry =
+            new FlatWriterRegistry(ImmutableMap.of(DataObject1.IID, writer1, DataObject2.IID, writer2));
+
+        final Multimap<InstanceIdentifier<?>, DataObjectUpdate> updates = HashMultimap.create();
+        final InstanceIdentifier<DataObject1> iid = InstanceIdentifier.create(DataObject1.class);
+        final InstanceIdentifier<DataObject1> iid2 = InstanceIdentifier.create(DataObject1.class);
+        final DataObject1 dataObject = mock(DataObject1.class);
+        updates.put(DataObject1.IID, DataObjectUpdate.create(iid, dataObject, dataObject));
+        updates.put(DataObject1.IID, DataObjectUpdate.create(iid2, dataObject, dataObject));
+        flatWriterRegistry
+            .validateModifications(new WriterRegistry.DataObjectUpdates(updates, ImmutableMultimap.of()), ctx);
+
+        verify(writer1).validate(iid, dataObject, dataObject, ctx);
+        verify(writer1).validate(iid2, dataObject, dataObject, ctx);
+        // Invoked when registry is being created
+        verifyNoMoreInteractions(writer1);
+        verifyZeroInteractions(writer2);
+    }
+
+    @Test
+    public void testValidateMultipleWriters() throws Exception {
+        final FlatWriterRegistry flatWriterRegistry =
+            new FlatWriterRegistry(ImmutableMap.of(DataObject1.IID, writer1, DataObject2.IID, writer2));
+
+        final Multimap<InstanceIdentifier<?>, DataObjectUpdate.DataObjectDelete> deletes = HashMultimap.create();
+        final Multimap<InstanceIdentifier<?>, DataObjectUpdate> updates = HashMultimap.create();
+        final InstanceIdentifier<DataObject1> iid = InstanceIdentifier.create(DataObject1.class);
+        final DataObject1 dataObject = mock(DataObject1.class);
+        // Writer 1 delete
+        deletes.put(DataObject1.IID,
+            ((DataObjectUpdate.DataObjectDelete) DataObjectUpdate.create(iid, dataObject, null)));
+        // Writer 1 create
+        updates.put(DataObject1.IID, DataObjectUpdate.create(iid, null, dataObject));
+        final InstanceIdentifier<DataObject2> iid2 = InstanceIdentifier.create(DataObject2.class);
+        final DataObject2 dataObject2 = mock(DataObject2.class);
+        // Writer 2 delete
+        deletes.put(DataObject2.IID,
+            ((DataObjectUpdate.DataObjectDelete) DataObjectUpdate.create(iid2, dataObject2, null)));
+        // Writer 2 update
+        updates.put(DataObject2.IID, DataObjectUpdate.create(iid2, dataObject2, dataObject2));
+        flatWriterRegistry.validateModifications(new WriterRegistry.DataObjectUpdates(updates, deletes), ctx);
+
+        // Ignore order
+        verify(writer1).validate(iid, dataObject, null, ctx);
+        verify(writer1).validate(iid, null, dataObject, ctx);
+        verify(writer2).validate(iid2, dataObject2, null, ctx);
+        verify(writer2).validate(iid2, dataObject2, dataObject2, ctx);
+
+        verifyNoMoreInteractions(writer1);
+        verifyNoMoreInteractions(writer2);
+    }
+
     private <D extends DataObject> void addKeyedUpdate(final Multimap<InstanceIdentifier<?>, DataObjectUpdate> updates,
                                                        final Class<D> type) throws Exception {
         final InstanceIdentifier<D> iid = (InstanceIdentifier<D>) type.getDeclaredField("IID").get(null);

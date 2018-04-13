@@ -16,19 +16,20 @@
 
 package io.fd.honeycomb.translate.util.write;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.fd.honeycomb.translate.util.RWUtils;
+import io.fd.honeycomb.translate.write.DataValidationFailedException;
+import io.fd.honeycomb.translate.write.Validator;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.translate.write.Writer;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 public abstract class AbstractGenericWriter<D extends DataObject> implements Writer<D> {
 
@@ -36,10 +37,17 @@ public abstract class AbstractGenericWriter<D extends DataObject> implements Wri
 
     private final InstanceIdentifier<D> instanceIdentifier;
     private final boolean supportsUpdate;
+    private Validator<D> validator;
 
     protected AbstractGenericWriter(final InstanceIdentifier<D> type, final boolean supportsUpdate) {
         this.instanceIdentifier = RWUtils.makeIidWildcarded(type);
         this.supportsUpdate = supportsUpdate;
+    }
+
+    protected AbstractGenericWriter(final InstanceIdentifier<D> type, final boolean supportsUpdate,
+                                    final Validator<D> validator) {
+        this(type, supportsUpdate);
+        this.validator = validator;
     }
 
     protected void writeCurrent(final InstanceIdentifier<D> id, final D data, final WriteContext ctx)
@@ -88,6 +96,42 @@ public abstract class AbstractGenericWriter<D extends DataObject> implements Wri
             checkArgument(dataBefore != null && dataAfter != null, "No data to process");
             updateCurrent((InstanceIdentifier<D>) id, castToManaged(dataBefore), castToManaged(dataAfter), ctx);
         }
+    }
+
+    @Override
+    public void validate(@Nonnull final InstanceIdentifier<? extends DataObject> id,
+                         @Nullable final DataObject dataBefore, @Nullable final DataObject dataAfter,
+                         @Nonnull final WriteContext ctx) throws DataValidationFailedException {
+        if (validator == null) {
+            LOG.trace("{}: validator is not defined. Skipping validation for {}", this, id);
+            return;
+        }
+        LOG.trace("{}: Validating : {}, before: {} after: {}", this, id, dataBefore, dataAfter);
+
+        checkArgument(idPointsToCurrent(id), "Cannot handle data: %s. Only: %s can be handled by writer: %s",
+            id, getManagedDataObjectType(), this);
+
+        if (isWrite(dataBefore, dataAfter)) {
+            final D after = castToManaged(dataAfter);
+            validator.validateWrite(getManagedId(id, after), after, ctx);
+        } else if (isDelete(dataBefore, dataAfter)) {
+            final D before = castToManaged(dataBefore);
+            validator.validateDelete(getManagedId(id, before), before, ctx);
+        } else {
+            checkArgument(dataBefore != null && dataAfter != null, "No data to process");
+            if (dataBefore.equals(dataAfter)) {
+                LOG.debug("{}: Skipping validation (no update) for: {}", this, id);
+                // No change, ignore
+                return;
+            }
+            final D before = castToManaged(dataBefore);
+            validator.validateUpdate(getManagedId(id, before), before, castToManaged(dataAfter), ctx);
+        }
+    }
+
+    protected InstanceIdentifier<D> getManagedId(@Nonnull final InstanceIdentifier<? extends DataObject> currentId,
+                                                 @Nonnull final D current) {
+        return (InstanceIdentifier<D>) currentId;
     }
 
     private void checkDataType(@Nonnull final DataObject dataAfter) {

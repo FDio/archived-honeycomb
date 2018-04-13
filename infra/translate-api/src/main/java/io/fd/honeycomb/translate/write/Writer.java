@@ -33,6 +33,20 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public interface Writer<D extends DataObject> extends SubtreeManager<D> {
 
     /**
+     * Validates data modification.
+     *
+     * @param id Identifier of data being validated
+     * @param dataBefore Old data
+     * @param dataAfter New, updated data
+     * @param ctx Write context enabling writer to get information about candidate data as well as current data
+     */
+    default void validate(@Nonnull final InstanceIdentifier<? extends DataObject> id,
+                          @Nullable final DataObject dataBefore,
+                          @Nullable final DataObject dataAfter,
+                          @Nonnull final WriteContext ctx) throws DataValidationFailedException {
+    }
+
+    /**
      * Process modifications and translate them as create/update/delete operations to lower level
      *
      * @param id         Identifier of data being written

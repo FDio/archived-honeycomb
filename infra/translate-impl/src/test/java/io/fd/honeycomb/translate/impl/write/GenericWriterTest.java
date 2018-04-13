@@ -23,6 +23,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
+import io.fd.honeycomb.translate.write.Validator;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import org.junit.Before;
@@ -40,16 +41,19 @@ public class GenericWriterTest {
     private WriterCustomizer<DataObject> customizer;
     @Mock
     private WriteContext ctx;
-    private GenericWriter<DataObject> writer;
     @Mock
     private DataObject before;
     @Mock
     private DataObject after;
+    @Mock
+    private Validator<DataObject> validator;
+
+    private GenericWriter<DataObject> writer;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        writer = new GenericWriter<>(DATA_OBJECT_ID, customizer);
+        writer = new GenericWriter<>(DATA_OBJECT_ID, customizer, validator);
     }
 
     @Test
@@ -93,5 +97,18 @@ public class GenericWriterTest {
         assertFalse(GenericWriter.isUpdateSupported(new NoopWriters.NonDirectUpdateWriterCustomizer()));
         assertTrue(GenericWriter.isUpdateSupported(new NoopWriters.DirectUpdateWriterCustomizer()));
         assertTrue(GenericWriter.isUpdateSupported(new NoopWriters.ParentImplDirectUpdateWriterCustomizer()));
+    }
+
+    @Test
+    public void testValidate() throws Exception {
+        assertEquals(DATA_OBJECT_ID, writer.getManagedDataObjectType());
+        writer.validate(DATA_OBJECT_ID, before, after, ctx);
+        verify(validator).validateUpdate(DATA_OBJECT_ID, before, after, ctx);
+
+        writer.validate(DATA_OBJECT_ID, before, null, ctx);
+        verify(validator).validateDelete(DATA_OBJECT_ID, before, ctx);
+
+        writer.validate(DATA_OBJECT_ID, null, after, ctx);
+        verify(validator).validateWrite(DATA_OBJECT_ID, after, ctx);
     }
 }

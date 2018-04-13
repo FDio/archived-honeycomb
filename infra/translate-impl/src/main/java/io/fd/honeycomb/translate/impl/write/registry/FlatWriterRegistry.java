@@ -28,12 +28,14 @@ import com.google.common.collect.Sets;
 import io.fd.honeycomb.translate.TranslationException;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.write.DataObjectUpdate;
+import io.fd.honeycomb.translate.write.DataValidationFailedException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.Writer;
 import io.fd.honeycomb.translate.write.registry.UpdateFailedException;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +75,33 @@ final class FlatWriterRegistry implements WriterRegistry {
         this.writersOrderReversed = Sets.newLinkedHashSet(Lists.reverse(Lists.newArrayList(writersById.keySet())));
         this.writersOrder = writersById.keySet();
         this.writers = writersById.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toSet());
+    }
+
+    @Override
+    public void validateModifications(@Nonnull final DataObjectUpdates updates, @Nonnull final WriteContext ctx)
+        throws DataValidationFailedException {
+        // Optimization: validation order is not relevant, so do not merge deletes and updates.
+        validateModifications(updates.getDeletes(), ctx);
+        validateModifications(updates.getUpdates(), ctx);
+    }
+
+    private void validateModifications(
+        @Nonnull final Multimap<InstanceIdentifier<?>, ? extends DataObjectUpdate> updates,
+        @Nonnull final WriteContext ctx) throws DataValidationFailedException {
+        if (updates.isEmpty()) {
+            return;
+        }
+        // Fail early if some handlers are missing.
+        checkAllTypesCanBeHandled(updates);
+
+        // Validators do not modify anything, so order of validators is not important.
+        // We iterate over writersOrder instead of modifications for consistent handling of subtree writers case.
+        for (InstanceIdentifier<?> writerType : writersOrder) {
+            final Writer<?> writer = getWriter(writerType);
+            for (DataObjectUpdate singleUpdate : getWritersData(updates, writer, writerType, ctx)) {
+                writer.validate(singleUpdate.getId(), singleUpdate.getDataBefore(), singleUpdate.getDataAfter(), ctx);
+            }
+        }
     }
 
     @Override
@@ -207,26 +236,11 @@ final class FlatWriterRegistry implements WriterRegistry {
         LOG.debug("Performing bulk update for: {}", updates.keySet());
         // Iterate over all writers and call update if there are any related updates
         for (InstanceIdentifier<?> writerType : writersOrder) {
-            Collection<? extends DataObjectUpdate> writersData = updates.get(writerType);
             final Writer<?> writer = getWriter(writerType);
-
-            if (writersData.isEmpty()) {
-                // If there are no data for current writer, but it is a SubtreeWriter and there are updates to
-                // its children, still invoke it with its root data
-                if (writer instanceof SubtreeWriter<?> && isAffected((SubtreeWriter<?>) writer, updates)) {
-                    // Provide parent data for SubtreeWriter for further processing
-                    writersData = getParentDataObjectUpdate(ctx, updates, writer);
-                } else {
-                    // Skipping unaffected writer
-                    // Alternative to this would be modification sort according to the order of writers
-                    continue;
-                }
-            }
-
             LOG.debug("Performing update for: {}", writerType);
             LOG.trace("Performing update with writer: {}", writer);
 
-            for (DataObjectUpdate singleUpdate : writersData) {
+            for (DataObjectUpdate singleUpdate : getWritersData(updates, writer, writerType, ctx)) {
                 try {
                     writer.processModification(singleUpdate.getId(), singleUpdate.getDataBefore(),
                             singleUpdate.getDataAfter(), ctx);
@@ -238,6 +252,29 @@ final class FlatWriterRegistry implements WriterRegistry {
                 LOG.debug("Update successful for: {}", singleUpdate);
             }
         }
+    }
+
+    private Collection<? extends DataObjectUpdate> getWritersData(
+        final Multimap<InstanceIdentifier<?>, ? extends DataObjectUpdate> updates, final Writer<?> writer,
+        final InstanceIdentifier<?> writerType, final WriteContext ctx) {
+        Collection<? extends DataObjectUpdate> writersData = updates.get(writerType);
+
+        if (writersData.isEmpty()) {
+            // If there are no data for current writer, but it is a SubtreeWriter and there are updates to
+            // its children, still invoke it with its root data.
+            // Notice that child updates will be ignored if the set of all modifications
+            // contain both parent update and child updates. But this is ok, since all changes are already expressed in
+            // the parent update.
+            if (writer instanceof SubtreeWriter<?> && isAffected((SubtreeWriter<?>) writer, updates)) {
+                // Provide parent data for SubtreeWriter for further processing
+                writersData = getParentDataObjectUpdate(ctx, updates, writer);
+            } else {
+                // Skipping unaffected writer
+                // Alternative to this would be modification sort according to the order of writers
+                return Collections.emptyList();
+            }
+        }
+        return writersData;
     }
 
     private void checkAllTypesCanBeHandled(
