@@ -68,6 +68,16 @@ public class ModifiableDataTreeDelegatorTest extends ModifiableDataTreeDelegator
     }
 
     @Test
+    public void testValidateTwice() throws Exception {
+        final MapNode nestedList = getNestedList("listEntry", "listValue");
+
+        final DataModification dataModification = configDataTree.newModification();
+        dataModification.write(NESTED_LIST_ID, nestedList);
+        dataModification.validate();
+        dataModification.validate();
+    }
+
+    @Test
     public void testCommitSuccessful() throws Exception {
         final MapNode nestedList = getNestedList("listEntry", "listValue");
 

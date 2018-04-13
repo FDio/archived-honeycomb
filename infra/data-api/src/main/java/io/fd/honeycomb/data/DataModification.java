@@ -18,9 +18,9 @@ package io.fd.honeycomb.data;
 
 import com.google.common.annotations.Beta;
 import io.fd.honeycomb.translate.TranslationException;
+import io.fd.honeycomb.translate.ValidationFailedException;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
 
 /**
  * Modification of a {@link ModifiableDataManager}.
@@ -55,18 +55,21 @@ public interface DataModification extends ReadableDataManager, AutoCloseable {
     /**
      * Alters data tree using this modification.
      *
-     * @throws DataValidationFailedException if modification data is not valid
-     * @throws TranslationException if failed while updating data tree state
+     * @throws TranslationException if commit failed while updating data tree state
      */
-    void commit() throws DataValidationFailedException, TranslationException;
+    void commit() throws TranslationException;
 
     /**
-     * Validate and prepare modification before commit. Besides commit, no further operation is expected after validate
-     * and the behaviour is undefined.
+     * Validates state of the {@link DataModification}.
      *
-     * @throws DataValidationFailedException if modification data is not valid
+     * <p>The operation does not have any side-effects on the modification state.
+     *
+     * <p>It can be executed many times, providing the same results
+     * if the state of the modification has not been changed.
+     *
+     * @throws ValidationFailedException if modification data is not valid
      */
-    void validate() throws DataValidationFailedException;
+    void validate() throws ValidationFailedException;
 
     /**
      * Perform cleanup if necessary.
@@ -75,4 +78,5 @@ public interface DataModification extends ReadableDataManager, AutoCloseable {
     default void close() {
         // by default, no cleanup is required
     }
+
 }

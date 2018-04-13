@@ -27,6 +27,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.util.concurrent.CheckedFuture;
 import io.fd.honeycomb.data.DataModification;
+import io.fd.honeycomb.translate.ValidationFailedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -34,7 +35,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
 
 public class WriteTransactionTest {
 
@@ -104,7 +104,7 @@ public class WriteTransactionTest {
 
     @Test
     public void testSubmitFailed() throws Exception {
-        doThrow(mock(DataValidationFailedException.class)).when(configSnapshot).commit();
+        doThrow(mock(ValidationFailedException.class)).when(configSnapshot).commit();
         final CheckedFuture<Void, TransactionCommitFailedException> future = writeTx.submit();
         try {
             future.get();
