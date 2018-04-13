@@ -29,7 +29,6 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.fd.honeycomb.data.DataModification;
-import io.fd.honeycomb.translate.TranslationException;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -41,7 +40,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,7 +141,7 @@ final class WriteTransaction implements DOMDataWriteTransaction {
             }
 
             status = COMMITED;
-        } catch (DataValidationFailedException | TranslationException e) {
+        } catch (Exception e) {
             status = FAILED;
             LOG.error("Submit failed", e);
             return Futures.immediateFailedCheckedFuture(
