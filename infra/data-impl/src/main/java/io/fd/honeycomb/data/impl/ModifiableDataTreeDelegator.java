@@ -18,6 +18,8 @@ package io.fd.honeycomb.data.impl;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.util.concurrent.Futures.immediateCheckedFuture;
+import static io.fd.honeycomb.data.impl.ModifiableDataTreeDelegator.DataTreeWriteContextFactory.DataTreeWriteContext;
+import static io.fd.honeycomb.data.impl.ModifiableDataTreeManager.DataTreeContextFactory.DataTreeContext;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
@@ -28,6 +30,7 @@ import io.fd.honeycomb.data.DataModification;
 import io.fd.honeycomb.data.ReadableDataManager;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.TranslationException;
+import io.fd.honeycomb.translate.ValidationFailedException;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.TransactionMappingContext;
 import io.fd.honeycomb.translate.util.write.TransactionWriteContext;
@@ -35,6 +38,7 @@ import io.fd.honeycomb.translate.write.DataObjectUpdate;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.registry.UpdateFailedException;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
+import io.fd.honeycomb.translate.write.registry.WriterRegistry.DataObjectUpdates;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,7 +87,7 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
                                        @Nonnull final SchemaContext schema,
                                        @Nonnull final WriterRegistry writerRegistry,
                                        @Nonnull final DataBroker contextBroker) {
-        super(dataTree);
+        super(dataTree, new DataTreeWriteContextFactory());
         this.contextBroker = checkNotNull(contextBroker, "contextBroker should not be null");
         this.serializer = checkNotNull(serializer, "serializer should not be null");
         this.writerRegistry = checkNotNull(writerRegistry, "writerRegistry should not be null");
@@ -109,28 +113,50 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
             this.untouchedModification = untouchedModification;
         }
 
+        @Override
+        protected void validateCandidate(final DataTreeContext dataTreeContext) throws ValidationFailedException {
+            final DataObjectUpdates baUpdates =
+                getUpdates((DataTreeWriteContextFactory.DataTreeWriteContext) dataTreeContext);
+            LOG.debug("ModifiableDataTreeDelegator.validateCandidate() extracted updates={}", baUpdates);
+
+            try (final WriteContext ctx = getTransactionWriteContext()) {
+                writerRegistry.validateModifications(baUpdates, ctx);
+            }
+        }
+
+        private DataObjectUpdates getUpdates(final DataTreeWriteContext dataTreeContext) {
+            DataObjectUpdates updates = dataTreeContext.getUpdates();
+            if (updates != null) {
+                return updates;
+            } else {
+                final DataTreeCandidate candidate = dataTreeContext.getCandidate();
+                final DataTreeCandidateNode rootNode = candidate.getRootNode();
+                final YangInstanceIdentifier rootPath = candidate.getRootPath();
+                LOG.trace("ConfigDataTree.getUpdates() rootPath={}, rootNode={}, dataBefore={}, dataAfter={}",
+                    rootPath, rootNode, rootNode.getDataBefore(), rootNode.getDataAfter());
+
+                final ModificationDiff modificationDiff = new ModificationDiff.ModificationDiffBuilder()
+                    .setCtx(schema).build(rootNode);
+                LOG.debug("ConfigDataTree.getUpdates() diff: {}", modificationDiff);
+
+                // Distinguish between updates (create + update) and deletes
+                updates = toBindingAware(writerRegistry, modificationDiff.getUpdates());
+                dataTreeContext.setUpdates(updates);
+                return updates;
+            }
+        }
+
         /**
-         * Pass the changes to underlying writer layer.
-         * Transform from BI to BA.
-         * Revert(Write data before to subtrees that have been successfully modified before failure) in case of failure.
+         * Pass the changes to underlying writer layer. Transform from BI to BA. Revert(Write data before to subtrees
+         * that have been successfully modified before failure) in case of failure.
          */
         @Override
-        protected void processCandidate(final DataTreeCandidate candidate)
-            throws TranslationException {
+        protected void processCandidate(final DataTreeContext dataTreeContext) throws TranslationException {
+            final DataTreeWriteContextFactory.DataTreeWriteContext dataTreeWriteContext =
+                (DataTreeWriteContextFactory.DataTreeWriteContext) dataTreeContext;
 
-            final DataTreeCandidateNode rootNode = candidate.getRootNode();
-            final YangInstanceIdentifier rootPath = candidate.getRootPath();
-            LOG.trace("ConfigDataTree.modify() rootPath={}, rootNode={}, dataBefore={}, dataAfter={}",
-                rootPath, rootNode, rootNode.getDataBefore(), rootNode.getDataAfter());
-
-            final ModificationDiff modificationDiff = new ModificationDiff.ModificationDiffBuilder()
-                    .setCtx(schema).build(rootNode);
-            LOG.debug("ConfigDataTree.modify() diff: {}", modificationDiff);
-
-            // Distinguish between updates (create + update) and deletes
-            final WriterRegistry.DataObjectUpdates baUpdates =
-                    toBindingAware(writerRegistry, modificationDiff.getUpdates());
-            LOG.debug("ConfigDataTree.modify() extracted updates={}", baUpdates);
+            final DataObjectUpdates baUpdates = dataTreeWriteContext.getUpdates();
+            LOG.debug("ModifiableDataTreeDelegator.processCandidate() extracted updates={}", baUpdates);
 
             final WriteContext ctx = getTransactionWriteContext();
             final MappingContext mappingContext = ctx.getMappingContext();
@@ -297,6 +323,40 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
         return dataObject;
     }
 
+    static final class DataTreeWriteContextFactory implements ModifiableDataTreeManager.DataTreeContextFactory {
+        @Nonnull
+        @Override
+        public DataTreeWriteContext create(@Nonnull final DataTreeCandidate candidate) {
+            return new DataTreeWriteContext(candidate);
+        }
+
+        /**
+         * Implementation of {@link DataTreeContext} that, in addition to {@link DataTreeCandidate}, stores also
+         * {@DataObjectUpdates}. The {@link DataObjectUpdates} are shared by the validation and translation process.
+         */
+        static final class DataTreeWriteContext implements DataTreeContext {
+            private final DataTreeCandidate candidate;
+            private DataObjectUpdates updates;
+
+            DataTreeWriteContext(@Nonnull final DataTreeCandidate candidate) {
+                this.candidate = candidate;
+            }
+
+            @Nonnull
+            @Override
+            public DataTreeCandidate getCandidate() {
+                return candidate;
+            }
+
+            public void setUpdates(@Nonnull final DataObjectUpdates updates) {
+                this.updates = updates;
+            }
+
+            DataObjectUpdates getUpdates() {
+                return updates;
+            }
+        }
+    }
 }
 
 

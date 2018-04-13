@@ -21,6 +21,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import io.fd.honeycomb.translate.TranslationException;
 import io.fd.honeycomb.translate.write.DataObjectUpdate;
+import io.fd.honeycomb.translate.write.DataValidationFailedException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.Writer;
 import java.util.Set;
@@ -34,6 +35,16 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 @Beta
 public interface WriterRegistry {
+    /**
+     * Validates provided DataObject updates.
+     *
+     * @param updates Updates to be validated
+     * @param ctx Write context that provides information about current state of DataTree.
+     * @throws DataValidationFailedException if validation failed.
+     */
+    default void validateModifications(@Nonnull DataObjectUpdates updates, @Nonnull WriteContext ctx) throws
+        DataValidationFailedException {
+    }
 
     /**
      * Performs bulk update.

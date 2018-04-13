@@ -24,6 +24,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -75,6 +76,12 @@ public class ModifiableDataTreeDelegatorTest extends ModifiableDataTreeDelegator
         dataModification.write(NESTED_LIST_ID, nestedList);
         dataModification.validate();
         dataModification.validate();
+
+        final Multimap<InstanceIdentifier<?>, DataObjectUpdate> map = HashMultimap.create();
+        map.put(DEFAULT_ID, DataObjectUpdate.create(DEFAULT_ID, null, DEFAULT_DATA_OBJECT));
+        final WriterRegistry.DataObjectUpdates updates =
+            new WriterRegistry.DataObjectUpdates(map, ImmutableMultimap.of());
+        verify(writer, times(2)).validateModifications(eq(updates), any(WriteContext.class));
     }
 
     @Test

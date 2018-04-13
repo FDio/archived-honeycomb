@@ -55,6 +55,8 @@ public interface DataModification extends ReadableDataManager, AutoCloseable {
     /**
      * Alters data tree using this modification.
      *
+     * <p>Modification is validated before application.
+     *
      * @throws TranslationException if commit failed while updating data tree state
      */
     void commit() throws TranslationException;

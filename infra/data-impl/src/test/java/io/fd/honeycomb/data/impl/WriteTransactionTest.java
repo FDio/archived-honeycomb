@@ -98,7 +98,6 @@ public class WriteTransactionTest {
     @Test
     public void testSubmit() throws Exception {
         writeTx.submit();
-        verify(configSnapshot).validate();
         verify(configSnapshot).commit();
     }
 

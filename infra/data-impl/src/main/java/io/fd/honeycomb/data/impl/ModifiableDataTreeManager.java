@@ -19,6 +19,7 @@ package io.fd.honeycomb.data.impl;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.util.concurrent.Futures.immediateCheckedFuture;
+import static io.fd.honeycomb.data.impl.ModifiableDataTreeManager.DataTreeContextFactory.DataTreeContext;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -50,9 +51,16 @@ public class ModifiableDataTreeManager implements ModifiableDataManager {
     private static final Logger LOG = LoggerFactory.getLogger(ModifiableDataTreeManager.class);
 
     private final DataTree dataTree;
+    private final DataTreeContextFactory contextFactory;
 
     public ModifiableDataTreeManager(@Nonnull final DataTree dataTree) {
+        this(dataTree, candidate -> (() -> candidate));
+    }
+
+    public ModifiableDataTreeManager(@Nonnull final DataTree dataTree,
+                                     @Nonnull final DataTreeContextFactory contextFactory) {
         this.dataTree = checkNotNull(dataTree, "dataTree should not be null");
+        this.contextFactory = contextFactory;
     }
 
     @Override
@@ -102,13 +110,13 @@ public class ModifiableDataTreeManager implements ModifiableDataManager {
 
         @Override
         public final void commit() throws TranslationException {
-            final DataTreeCandidate candidate = prepareCandidate(modification);
-            validateCandidate(candidate);
-            processCandidate(candidate);
-            dataTree.commit(candidate);
+            final DataTreeContext candidateContext = prepareCandidateContext(modification);
+            validateCandidate(candidateContext);
+            processCandidate(candidateContext);
+            dataTree.commit(candidateContext.getCandidate());
         }
 
-        private DataTreeCandidate prepareCandidate(final DataTreeModification dataTreeModification)
+        private DataTreeContext prepareCandidateContext(final DataTreeModification dataTreeModification)
             throws ValidationFailedException {
             // Seal the modification (required to perform validate)
             dataTreeModification.ready();
@@ -120,14 +128,14 @@ public class ModifiableDataTreeManager implements ModifiableDataManager {
                 throw new ValidationFailedException(e);
             }
 
-            return dataTree.prepare(dataTreeModification);
+            return contextFactory.create(dataTree.prepare(dataTreeModification));
         }
 
-        protected void validateCandidate(final DataTreeCandidate candidate) throws ValidationFailedException {
+        protected void validateCandidate(final DataTreeContext dataTreeContext) throws ValidationFailedException {
             // NOOP
         }
 
-        protected void processCandidate(final DataTreeCandidate candidate) throws TranslationException {
+        protected void processCandidate(final DataTreeContext dataTreeContext) throws TranslationException {
             // NOOP
         }
 
@@ -141,7 +149,7 @@ public class ModifiableDataTreeManager implements ModifiableDataManager {
             checkState(cursor != null, "DataTreeModificationCursor for root path should not be null");
             modification.applyToCursor(cursor);
             // Then validate it.
-            validateCandidate(prepareCandidate(modificationCopy));
+            validateCandidate(prepareCandidateContext(modificationCopy));
         }
 
         @Override
@@ -153,6 +161,18 @@ public class ModifiableDataTreeManager implements ModifiableDataManager {
                 false,
                 false
             ) + '}';
+        }
+    }
+
+    interface DataTreeContextFactory {
+        DataTreeContext create(final DataTreeCandidate candidate);
+
+        /**
+         * Stores DataTreeCandidate. Implementation may also store additional data to optimize validation
+         * and translation process.
+         */
+        interface DataTreeContext {
+            DataTreeCandidate getCandidate();
         }
     }
 }

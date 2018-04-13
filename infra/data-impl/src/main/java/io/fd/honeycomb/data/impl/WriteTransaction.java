@@ -125,14 +125,6 @@ final class WriteTransaction implements DOMDataWriteTransaction {
         try {
             status = SUBMITED;
 
-            // Validate first to catch any issues before attempting commit
-            if (configModification != null) {
-                configModification.validate();
-            }
-            if (operationalModification != null) {
-                operationalModification.validate();
-            }
-
             if(configModification != null) {
                 configModification.commit();
             }
