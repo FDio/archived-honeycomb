@@ -145,7 +145,7 @@ final class WriteTransaction implements DOMDataWriteTransaction {
             status = COMMITED;
         } catch (DataValidationFailedException | TranslationException e) {
             status = FAILED;
-            LOG.debug("Submit failed", e);
+            LOG.error("Submit failed", e);
             return Futures.immediateFailedCheckedFuture(
                 new TransactionCommitFailedException("Failed to validate DataTreeModification", e));
         }
