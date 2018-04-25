@@ -18,6 +18,7 @@ package io.fd.honeycomb.translate.impl.write.registry;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.stream.Collectors.toMap;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
@@ -33,11 +34,11 @@ import io.fd.honeycomb.translate.write.registry.UpdateFailedException;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -160,25 +161,35 @@ final class FlatWriterRegistry implements WriterRegistry {
                 .orElse(null);
     }
 
-    private Collection<DataObjectUpdate> getParentDataObjectUpdate(final WriteContext ctx,
+    static Collection<DataObjectUpdate> getParentDataObjectUpdate(final WriteContext ctx,
                                                                    final Multimap<InstanceIdentifier<?>, ? extends DataObjectUpdate> updates,
                                                                    final Writer<?> writer) {
         // Now read data for subtree reader root, but first keyed ID is needed and that ID can be cut from updates
-        InstanceIdentifier<?> firstAffectedChildId = ((SubtreeWriter<?>) writer).getHandledChildTypes().stream()
+        return ((SubtreeWriter<?>) writer).getHandledChildTypes().stream()
                 .filter(updates::containsKey)
                 .map(unkeyedId -> updates.get(unkeyedId))
                 .flatMap(doUpdates -> doUpdates.stream())
                 .map(DataObjectUpdate::getId)
-                .findFirst()
-                .get();
+                .map(id -> getSingleParentDataObjectUpdate(ctx, (Multimap<InstanceIdentifier<?>, DataObjectUpdate>) updates, writer, id))
+                // Reduce the list of updates by putting them to a map. If a subtree writer for container gets 2 children updated, it will
+                // get only a single update, however if its a registered on a listand 2 different list items get their children updated,
+                // both updates should be preserved.
+                // Essentially, only group child updates in case the ID from root to writer is identical
+                .collect(toMap(update -> RWUtils.cutId(update.getId(), writer.getManagedDataObjectType()), Function.identity(), (u1, u2) -> u1))
+                .values();
+    }
 
+    private static DataObjectUpdate getSingleParentDataObjectUpdate(WriteContext ctx, Multimap<InstanceIdentifier<?>, DataObjectUpdate> updates, Writer<?> writer, InstanceIdentifier<?> firstAffectedChildId) {
         final InstanceIdentifier<?> parentKeyedId =
                 RWUtils.cutId(firstAffectedChildId, writer.getManagedDataObjectType());
 
         final Optional<? extends DataObject> parentBefore = ctx.readBefore(parentKeyedId);
         final Optional<? extends DataObject> parentAfter = ctx.readAfter(parentKeyedId);
-        return Collections.singleton(
-                DataObjectUpdate.create(parentKeyedId, parentBefore.orNull(), parentAfter.orNull()));
+
+        // Put the parent update data into updates map so that revert can also access the state
+        DataObjectUpdate parentUpdate = DataObjectUpdate.create(parentKeyedId, parentBefore.orNull(), parentAfter.orNull());
+        updates.put(RWUtils.makeIidWildcarded(parentKeyedId), parentUpdate);
+        return parentUpdate;
     }
 
     private void bulkUpdate(

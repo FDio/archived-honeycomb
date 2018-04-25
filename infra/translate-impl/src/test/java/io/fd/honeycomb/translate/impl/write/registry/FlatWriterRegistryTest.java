@@ -31,10 +31,13 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import io.fd.honeycomb.translate.util.DataObjects;
 import io.fd.honeycomb.translate.util.DataObjects.DataObject1;
 import io.fd.honeycomb.translate.util.DataObjects.DataObject2;
@@ -44,6 +47,8 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.translate.write.Writer;
 import io.fd.honeycomb.translate.write.registry.UpdateFailedException;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -55,6 +60,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 public class FlatWriterRegistryTest {
 
@@ -89,6 +95,58 @@ public class FlatWriterRegistryTest {
     private static Answer<Object> answerWithImpl() {
         return invocationOnMock -> new CheckedMockWriter(Writer.class.cast(invocationOnMock.getMock())).canProcess(
                 InstanceIdentifier.class.cast(invocationOnMock.getArguments()[0]));
+    }
+
+    @Test
+    public void testSubtreeWriterUpdateAggregation() throws Exception {
+        Multimap<InstanceIdentifier<?>, DataObjectUpdate> updates = HashMultimap.create();
+
+        when(ctx.readAfter(DataObject1.IID)).thenReturn(Optional.of(mock(DataObject1.class)));
+        when(ctx.readBefore(DataObject1.IID)).thenReturn(Optional.of(mock(DataObject1.class)));
+
+        Writer<?> writer = SubtreeWriter.createForWriter(Collections.singleton(DataObjects.DataObject1ChildK.IID), writer1);
+
+        InstanceIdentifier<DataObjects.DataObject1ChildK> update1Id = DataObject1.IID.child(DataObjects.DataObject1ChildK.class, new DataObjects.DataObject1ChildKey());
+        InstanceIdentifier<DataObjects.DataObject1ChildK> update2Id = DataObject1.IID.child(DataObjects.DataObject1ChildK.class, new DataObjects.DataObject1ChildKey());
+        updates.putAll(DataObjects.DataObject1ChildK.IID,
+                Lists.newArrayList(
+                        DataObjectUpdate.create(update1Id, mock(DataObjects.DataObject1ChildK.class), mock(DataObjects.DataObject1ChildK.class)),
+                        DataObjectUpdate.create(update2Id, mock(DataObjects.DataObject1ChildK.class), mock(DataObjects.DataObject1ChildK.class))));
+
+        Collection<DataObjectUpdate> parentDataObjectUpdate = FlatWriterRegistry.getParentDataObjectUpdate(ctx, updates, writer);
+        // Just a single update, since there are 2 child updates for a container, they get reduced
+        assertEquals(1, parentDataObjectUpdate.size());
+    }
+
+    @Test
+    public void testSubtreeWriterUpdateAggregationForList() throws Exception {
+        Multimap<InstanceIdentifier<?>, DataObjectUpdate> updates = HashMultimap.create();
+
+        KeyedInstanceIdentifier<DataObjects.DataObject1ChildK, DataObjects.DataObject1ChildKey> parentKeyedId1 =
+                DataObject1.IID.child(DataObjects.DataObject1ChildK.class, new DataObjects.DataObject1ChildKey());
+        KeyedInstanceIdentifier<DataObjects.DataObject1ChildK, DataObjects.DataObject1ChildKey> parentKeyedId2 =
+                DataObject1.IID.child(DataObjects.DataObject1ChildK.class, new DataObjects.DataObject1ChildKey());
+
+        when(ctx.readBefore(parentKeyedId1)).thenReturn(Optional.of(mock(DataObjects.DataObject1ChildK.class)));
+        when(ctx.readAfter(parentKeyedId1)).thenReturn(Optional.of(mock(DataObjects.DataObject1ChildK.class)));
+        when(ctx.readBefore(parentKeyedId2)).thenReturn(Optional.of(mock(DataObjects.DataObject1ChildK.class)));
+        when(ctx.readAfter(parentKeyedId2)).thenReturn(Optional.of(mock(DataObjects.DataObject1ChildK.class)));
+
+        Writer<?> writer = SubtreeWriter.createForWriter(Sets.newHashSet(
+                InstanceIdentifier.create(DataObjects.DataObject1ChildK.class).child(DataObjects.DataObject1ChildK.DataObject1ChildKNested.class),
+                InstanceIdentifier.create(DataObjects.DataObject1ChildK.class).child(DataObjects.DataObject1ChildK.DataObject1ChildKNested2.class)),
+                writer4);
+
+        InstanceIdentifier<DataObjects.DataObject1ChildK.DataObject1ChildKNested> updateList1Id = parentKeyedId1.child(DataObjects.DataObject1ChildK.DataObject1ChildKNested.class);
+        InstanceIdentifier<DataObjects.DataObject1ChildK.DataObject1ChildKNested> updateList2Id = parentKeyedId2.child(DataObjects.DataObject1ChildK.DataObject1ChildKNested.class);
+        updates.putAll(DataObjects.DataObject1ChildK.DataObject1ChildKNested.IID,
+                Lists.newArrayList(
+                        DataObjectUpdate.create(updateList1Id, mock(DataObjects.DataObject1ChildK.DataObject1ChildKNested.class), mock(DataObjects.DataObject1ChildK.DataObject1ChildKNested.class)),
+                        DataObjectUpdate.create(updateList2Id, mock(DataObjects.DataObject1ChildK.DataObject1ChildKNested.class), mock(DataObjects.DataObject1ChildK.DataObject1ChildKNested.class))));
+
+        Collection<DataObjectUpdate> parentDataObjectUpdate = FlatWriterRegistry.getParentDataObjectUpdate(ctx, updates, writer);
+        // 2 updates for 2 different list items
+        assertEquals(2, parentDataObjectUpdate.size());
     }
 
     @Test
