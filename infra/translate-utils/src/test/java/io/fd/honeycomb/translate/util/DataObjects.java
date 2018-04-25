@@ -69,6 +69,14 @@ public class DataObjects {
                 RWUtils.makeIidWildcarded(InstanceIdentifier.create(DataObject1.class).child(DataObject1ChildK.class));
         InstanceIdentifier<DataObject1ChildK> INTERNALLY_KEYED_IID = InstanceIdentifier.create(DataObject1.class)
                 .child(DataObject1ChildK.class, new DataObject1ChildKey());
+
+        public interface DataObject1ChildKNested extends DataObject, ChildOf<DataObject1ChildK> {
+            InstanceIdentifier<DataObject1ChildK.DataObject1ChildKNested> IID = DataObject1ChildK.IID.child(DataObject1ChildK.DataObject1ChildKNested.class);
+        }
+
+        public interface DataObject1ChildKNested2 extends DataObject, ChildOf<DataObject1ChildK> {
+            InstanceIdentifier<DataObject1ChildK.DataObject1ChildKNested2> IID = DataObject1ChildK.IID.child(DataObject1ChildK.DataObject1ChildKNested2.class);
+        }
     }
 
     public static class DataObject1ChildKey implements Identifier<DataObject1ChildK> {
