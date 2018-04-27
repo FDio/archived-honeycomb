@@ -1,6 +1,6 @@
 = Linkstate
 
-Configure http://docs.opendaylight.org/en/${project-odl-branch}/user-guide/bgp-user-guide.html#link-state-family[Linkstate] extension for ODL BGP
+Configure http://docs.opendaylight.org/en/stable-oxygen/user-guide/bgpcep-guide/bgp/bgp-user-guide-linkstate-family.html[Linkstate] extension for ODL BGP
 
 Handles following table types:
 

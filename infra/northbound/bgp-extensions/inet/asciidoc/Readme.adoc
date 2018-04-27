@@ -1,6 +1,6 @@
 = Inet
 
-Configure http://docs.opendaylight.org/en/${project-odl-branch}/user-guide/bgp-user-guide.html#evpn-family[Inet] extension for ODL BGP
+Configure http://docs.opendaylight.org/en/stable-oxygen/user-guide/bgpcep-guide/bgp/bgp-user-guide-ip-unicast-family.html[Inet] extension for ODL BGP
 
 Handles following table types:
 

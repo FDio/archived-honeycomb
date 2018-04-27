@@ -1,6 +1,6 @@
 = Labeled-unicast
 
-Configure http://docs.opendaylight.org/en/${project-odl-branch}/user-guide/bgp-user-guide.html#ip-labeled-unicast-family[LabeledUnicast] extension for ODL BGP
+Configure http://docs.opendaylight.org/en/stable-oxygen/user-guide/bgpcep-guide/bgp/bgp-user-guide-labeled-family.html[Labeled Unicast] extension for ODL BGP
 
 Handles following table types:
 
