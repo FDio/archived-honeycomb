@@ -18,14 +18,14 @@
   <parent>
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>honeycomb-parent</artifactId>
-    <version>1.18.04</version>
+    <version>1.18.04.1-SNAPSHOT</version>
     <relativePath>../common/honeycomb-parent</relativePath>
   </parent>
 
   <groupId>io.fd.honeycomb</groupId>
   <artifactId>samples-aggregator</artifactId>
   <name>${project.artifactId}</name>
-  <version>1.18.04</version>
+  <version>1.18.04.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
   <description>Aggregator for Honeycomb sample plugins</description>

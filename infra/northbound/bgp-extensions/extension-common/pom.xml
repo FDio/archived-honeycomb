@@ -21,7 +21,7 @@
     <parent>
         <artifactId>impl-parent</artifactId>
         <groupId>io.fd.honeycomb.common</groupId>
-        <version>1.18.04</version>
+        <version>1.18.04.1-SNAPSHOT</version>
         <relativePath>../../../../common/impl-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -29,7 +29,7 @@
     <groupId>io.fd.honeycomb.northbound.bgp</groupId>
     <artifactId>extension-common</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.18.04</version>
+    <version>1.18.04.1-SNAPSHOT</version>
 
     <dependencies>
         <!-- DI-->
