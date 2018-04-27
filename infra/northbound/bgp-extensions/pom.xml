@@ -21,7 +21,7 @@
     <parent>
         <artifactId>honeycomb-parent</artifactId>
         <groupId>io.fd.honeycomb.common</groupId>
-        <version>1.18.04-SNAPSHOT</version>
+        <version>1.18.04</version>
         <relativePath>../../../common/honeycomb-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -29,7 +29,7 @@
     <groupId>io.fd.honeycomb.northbound.bgp</groupId>
     <artifactId>bgp-extensions</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.18.04-SNAPSHOT</version>
+    <version>1.18.04</version>
     <modules>
         <module>evpn</module>
         <module>inet</module>

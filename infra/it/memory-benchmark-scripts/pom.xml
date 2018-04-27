@@ -17,7 +17,7 @@
     <groupId>io.fd.honeycomb.it</groupId>
     <artifactId>benchmark-scripts</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.18.04-SNAPSHOT</version>
+    <version>1.18.04</version>
     <packaging>jar</packaging>
 
     <build>
