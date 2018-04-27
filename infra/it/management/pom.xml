@@ -32,6 +32,7 @@
 
     <groupId>io.fd.honeycomb.it</groupId>
     <artifactId>management</artifactId>
+    <name>${project.artifactId}</name>
     <version>1.18.04-SNAPSHOT</version>
 
     <dependencies>

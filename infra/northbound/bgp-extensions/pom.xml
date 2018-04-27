@@ -28,6 +28,7 @@
 
     <groupId>io.fd.honeycomb.northbound.bgp</groupId>
     <artifactId>bgp-extensions</artifactId>
+    <name>${project.artifactId}</name>
     <version>1.18.04-SNAPSHOT</version>
     <modules>
         <module>evpn</module>

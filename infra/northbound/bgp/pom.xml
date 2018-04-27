@@ -29,6 +29,7 @@
 
     <groupId>io.fd.honeycomb.northbound</groupId>
     <artifactId>bgp</artifactId>
+    <name>${project.artifactId}</name>
     <version>1.18.04-SNAPSHOT</version>
 
     <dependencies>

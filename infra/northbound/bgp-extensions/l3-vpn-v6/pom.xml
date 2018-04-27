@@ -28,6 +28,7 @@
 
     <groupId>io.fd.honeycomb.northbound.bgp</groupId>
     <artifactId>l3-vpn-v6</artifactId>
+    <name>${project.artifactId}</name>
     <version>1.18.04-SNAPSHOT</version>
 
     <dependencies>

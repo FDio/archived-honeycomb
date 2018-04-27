@@ -12,5 +12,6 @@
 
     <groupId>io.fd.honeycomb.it</groupId>
     <artifactId>memory-benchmark-api</artifactId>
+    <name>${project.artifactId}</name>
     <version>1.18.04-SNAPSHOT</version>
 </project>

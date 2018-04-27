@@ -29,6 +29,7 @@
 
     <groupId>io.fd.honeycomb.it</groupId>
     <artifactId>memory-benchmark</artifactId>
+    <name>${project.artifactId}</name>
     <!-- Static version, we don't want it to be deployed anyway-->
     <version>1.0.0</version>
     <properties>
