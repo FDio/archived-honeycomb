@@ -1,6 +1,6 @@
 = Evpn
 
-Configure http://docs.opendaylight.org/en/${project-odl-branch}/user-guide/bgp-user-guide.html#evpn-family[Evpn] extension for ODL BGP
+Configure http://docs.opendaylight.org/en/stable-oxygen/user-guide/bgpcep-guide/bgp/bgp-user-guide-evpn-family.html[Evpn] extension for ODL BGP
 
 Handles following table types:
 

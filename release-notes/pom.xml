@@ -80,7 +80,6 @@
                 <project-version-in-jira>11303</project-version-in-jira>
                 <project-branch>master</project-branch>
                 <project-git-web>https://git.fd.io/cgit/honeycomb/tree</project-git-web>
-                <project-odl-branch>stable-oxygen</project-odl-branch>
               </attributes>
             </configuration>
           </execution>
