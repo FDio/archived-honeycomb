@@ -21,6 +21,10 @@ Adding to the list of existing features: https://docs.fd.io/honeycomb/1.18.01/re
 
 === New features
 
+* https://jira.fd.io/browse/HONEYCOMB-402[Support for IPv6 BGP Peers]
+* https://jira.fd.io/browse/HONEYCOMB-423[BGP configuration read via Netconf]
+* https://jira.fd.io/browse/HONEYCOMB-424[ODL Oxygen]
+
 === Removed features
 
 === Modified features
