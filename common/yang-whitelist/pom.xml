@@ -29,6 +29,7 @@
 
     <groupId>io.fd.honeycomb.yang</groupId>
     <artifactId>yang-whitelist-aggregator</artifactId>
+    <name>${project.artifactId}</name>
     <packaging>pom</packaging>
     <modules>
         <module>yang-whitelist-api</module>

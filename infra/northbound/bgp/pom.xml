@@ -30,6 +30,7 @@
     <groupId>io.fd.honeycomb.northbound</groupId>
     <artifactId>bgp</artifactId>
     <version>1.18.07-SNAPSHOT</version>
+    <name>${project.artifactId}</name>
 
     <dependencies>
         <!-- Common northbound configuration -->

@@ -28,6 +28,7 @@
 
     <groupId>io.fd.honeycomb.northbound</groupId>
     <artifactId>northbound-aggegator</artifactId>
+    <name>${project.artifactId}</name>
     <packaging>pom</packaging>
 
     <modules>

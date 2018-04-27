@@ -27,6 +27,7 @@
 
     <groupId>io.fd.honeycomb.footprint</groupId>
     <artifactId>footprint-aggregator</artifactId>
+    <name>${project.artifactId}</name>
     <packaging>pom</packaging>
     <modules>
         <module>footprint-api</module>

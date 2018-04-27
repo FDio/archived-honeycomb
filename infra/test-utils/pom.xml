@@ -28,6 +28,7 @@
 
     <groupId>io.fd.honeycomb.infra</groupId>
     <artifactId>test-utils</artifactId>
+    <name>${project.artifactId}</name>
     <packaging>pom</packaging>
     <modules>
         <module>test-api</module>

@@ -29,6 +29,7 @@
     <groupId>io.fd.honeycomb</groupId>
     <artifactId>binding-init</artifactId>
     <version>1.18.07-SNAPSHOT</version>
+    <name>${project.artifactId}</name>
 
     <properties>
         <slf4j-api.version>1.7.25</slf4j-api.version>
