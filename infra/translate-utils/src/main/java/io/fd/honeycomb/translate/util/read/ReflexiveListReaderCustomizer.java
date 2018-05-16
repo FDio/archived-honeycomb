@@ -16,24 +16,26 @@
 
 package io.fd.honeycomb.translate.util.read;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.ReflectionUtils;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import javax.annotation.Nonnull;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.List;
-
-import static com.google.common.base.Preconditions.*;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 /**
  * Might be slow.
@@ -43,12 +45,29 @@ public class ReflexiveListReaderCustomizer<C extends DataObject & Identifiable<K
         implements ListReaderCustomizer<C, K, B> {
 
     private final List<K> staticKeys;
+    private final Class<? extends Identifier> keyType;
 
     public ReflexiveListReaderCustomizer(@Nonnull final Class<C> typeClass, @Nonnull final Class<B> builderClass,
                                          @Nonnull final List<K> staticKeys) {
         super(typeClass, builderClass);
         this.staticKeys = checkNotNull(staticKeys, "Static keys cannot be null");
         checkState(!this.staticKeys.isEmpty(), "No static keys provided");
+        keyType = staticKeys.get(0).getClass();
+    }
+
+    @Override
+    public void readCurrentAttributes(final InstanceIdentifier<C> id, final B builder, final ReadContext context)
+        throws ReadFailedException {
+        final Optional<Method> method =
+            ReflectionUtils.findMethodReflex(builder.getClass(), "setKey",
+                Collections.singletonList(keyType), builder.getClass());
+        checkArgument(method.isPresent(), "Unable to setKey to %s", builder);
+
+        try {
+            method.get().invoke(builder, ((KeyedInstanceIdentifier)id).getKey());
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalArgumentException("Unable to setKey to " + builder, e);
+        }
     }
 
     @Override
