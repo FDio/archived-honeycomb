@@ -64,13 +64,16 @@ public class NetconfNotificationMapperProvider extends ProviderTrait<NetconfOper
         writer.start();
 
         LOG.trace("Initializing CapabilityChangeNotificationProducer");
-        new CapabilityChangeNotificationProducer(notificationCollector, dataBroker);
+        final CapabilityChangeNotificationProducer capabilityChangeNotificationProducer =
+            new CapabilityChangeNotificationProducer(notificationCollector, dataBroker);
 
         LOG.trace("Providing NetconfNotificationOperationServiceFactory");
-        NetconfNotificationOperationServiceFactory netconfNotificationOperationServiceFactory =
+        final NetconfNotificationOperationServiceFactory netconfNotificationOperationServiceFactory =
             new NetconfNotificationOperationServiceFactory(notificationRegistry, aggregator);
 
         shutdownHandler.register("netconf-notification-service-factory", netconfNotificationOperationServiceFactory);
+        shutdownHandler.register("capability-change-notification-producer",
+            capabilityChangeNotificationProducer::close);
         shutdownHandler.register("notification-to-mdsal-writer", writer);
         return netconfNotificationOperationServiceFactory;
     }
