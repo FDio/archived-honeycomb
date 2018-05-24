@@ -21,14 +21,14 @@
     <parent>
         <artifactId>impl-parent</artifactId>
         <groupId>io.fd.honeycomb.common</groupId>
-        <version>1.18.01.2</version>
+        <version>1.18.01.3-SNAPSHOT</version>
         <relativePath>../../common/impl-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fd.honeycomb</groupId>
     <artifactId>binding-init</artifactId>
-    <version>1.18.01.2</version>
+    <version>1.18.01.3-SNAPSHOT</version>
 
     <properties>
         <slf4j-api.version>1.7.25</slf4j-api.version>
