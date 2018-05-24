@@ -21,7 +21,7 @@
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>honeycomb-parent</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.18.01.2-SNAPSHOT</version>
+    <version>1.18.01.2</version>
     <packaging>pom</packaging>
     <prerequisites>
         <maven>3.1.1</maven>
@@ -289,7 +289,7 @@
                             <groupId>io.fd.honeycomb.common</groupId>
                             <artifactId>honeycomb-checkstyle</artifactId>
                             <!-- Hardcoded version to prevent archetype generated projects to use their own project version -->
-                            <version>1.18.01.2-SNAPSHOT</version>
+                            <version>1.18.01.2</version>
                         </dependency>
                         <!-- Necessary for logging checks -->
                         <dependency>
@@ -537,7 +537,7 @@
                         <dependency>
                             <groupId>io.fd.honeycomb.doc</groupId>
                             <artifactId>asciidoc-scripts</artifactId>
-                            <version>1.18.01.2-SNAPSHOT</version>
+                            <version>1.18.01.2</version>
                         </dependency>
                     </dependencies>
                 </plugin>

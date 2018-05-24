@@ -21,14 +21,14 @@
     <parent>
         <artifactId>impl-parent</artifactId>
         <groupId>io.fd.honeycomb.common</groupId>
-        <version>1.18.01.2-SNAPSHOT</version>
+        <version>1.18.01.2</version>
         <relativePath>../../../../common/impl-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fd.honeycomb.northbound.bgp</groupId>
     <artifactId>l3-vpn-v6</artifactId>
-    <version>1.18.01.2-SNAPSHOT</version>
+    <version>1.18.01.2</version>
 
     <dependencies>
         <dependency>
