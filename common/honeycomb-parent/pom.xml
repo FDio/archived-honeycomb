@@ -46,14 +46,14 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- ODL dependencies -->
-        <odl.yangtools.version>2.0.3</odl.yangtools.version>
-        <odl.mdsal.version>2.4.1</odl.mdsal.version>
-        <odl.mdsal.controller.version>1.7.1</odl.mdsal.controller.version>
-        <odl.mdsalmodel.version>0.12.1</odl.mdsalmodel.version>
-        <odl.netconf.version>1.4.1</odl.netconf.version>
-        <odl.restconf.version>1.7.1</odl.restconf.version>
-        <odl.salGenerator.version>0.12.1</odl.salGenerator.version>
-        <odl.bgpcep.version>0.9.1</odl.bgpcep.version>
+        <odl.yangtools.version>2.0.5</odl.yangtools.version>
+        <odl.mdsal.version>2.4.2</odl.mdsal.version>
+        <odl.mdsal.controller.version>1.7.2</odl.mdsal.controller.version>
+        <odl.mdsalmodel.version>0.12.2</odl.mdsalmodel.version>
+        <odl.netconf.version>1.4.2</odl.netconf.version>
+        <odl.restconf.version>1.7.2</odl.restconf.version>
+        <odl.salGenerator.version>0.12.2</odl.salGenerator.version>
+        <odl.bgpcep.version>0.9.2</odl.bgpcep.version>
         <salGeneratorPath>target/generated-sources/mdsal-binding</salGeneratorPath>
 
         <!-- common dependencies -->
