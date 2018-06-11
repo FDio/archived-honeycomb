@@ -65,11 +65,7 @@ public class ModifiableDataTreeManager implements ModifiableDataManager {
         private boolean validated = false;
 
         ConfigSnapshot() {
-            this(dataTree.takeSnapshot().newModification());
-        }
-
-        protected ConfigSnapshot(final DataTreeModification modification) {
-            this.modification = modification;
+            this.modification = dataTree.takeSnapshot().newModification();
         }
 
         @Override
