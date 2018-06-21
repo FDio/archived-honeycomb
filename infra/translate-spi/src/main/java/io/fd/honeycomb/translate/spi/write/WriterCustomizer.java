@@ -26,7 +26,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 /**
  * CompositeChildWriter SPI to customize its behavior.
  *
- * @param <D> Specific DataObject derived type (Identifiable), that is handled by this customizer
+ * @param <D> Specific DataObject derived type (Identifiable), that is handled by this customizer.
  */
 @Beta
 public interface WriterCustomizer<D extends DataObject> {
@@ -47,7 +47,7 @@ public interface WriterCustomizer<D extends DataObject> {
     /**
      * Handle update operation. U from CRUD.
      * By default, updates will be broken into delete + create.
-     * Override this if there is a direct support for updates on lower level
+     * Override this if there is a direct support for updates on lower level.
      *
      * @param id Identifier(from root) of data being written
      * @param dataBefore Old data
@@ -63,9 +63,6 @@ public interface WriterCustomizer<D extends DataObject> {
         throw new UnsupportedOperationException(
                 "Default implementation of updateCurrentAttributes should not be invoked." +
                         "Either override this method or do not invoke it directly");
-
-//        deleteCurrentAttributes(id, dataBefore, writeContext);
-//        writeCurrentAttributes(id, dataAfter, writeContext);
     }
 
     /**
