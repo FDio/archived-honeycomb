@@ -20,7 +20,6 @@ import com.google.common.annotations.Beta;
 import io.fd.honeycomb.translate.SubtreeManager;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.Route;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -40,7 +39,7 @@ public interface RouteWriter<R extends Route> extends SubtreeManager<R> {
      * @throws WriteFailedException.CreateFailedException if create was unsuccessful
      */
     void create(@Nonnull final InstanceIdentifier<R> id,
-                @Nullable final R dataAfter) throws WriteFailedException.CreateFailedException;
+                @Nonnull final R dataAfter) throws WriteFailedException.CreateFailedException;
 
     /**
      * Handles delete operation.
@@ -49,7 +48,7 @@ public interface RouteWriter<R extends Route> extends SubtreeManager<R> {
      * @throws WriteFailedException.DeleteFailedException if delete was unsuccessful
      */
     void delete(@Nonnull final InstanceIdentifier<R> id,
-                @Nullable final R dataBefore) throws WriteFailedException.DeleteFailedException;
+                @Nonnull final R dataBefore) throws WriteFailedException.DeleteFailedException;
 
     /**
      * Handles update operation.
@@ -59,6 +58,6 @@ public interface RouteWriter<R extends Route> extends SubtreeManager<R> {
      * @throws WriteFailedException.UpdateFailedException if update was unsuccessful
      */
     void update(@Nonnull final InstanceIdentifier<R> id,
-                @Nullable final R dataBefore,
-                @Nullable final R dataAfter) throws WriteFailedException.UpdateFailedException;
+                @Nonnull final R dataBefore,
+                @Nonnull final R dataAfter) throws WriteFailedException.UpdateFailedException;
 }

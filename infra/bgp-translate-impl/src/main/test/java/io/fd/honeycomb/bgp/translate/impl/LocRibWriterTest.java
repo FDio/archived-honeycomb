@@ -21,7 +21,6 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import io.fd.honeycomb.translate.bgp.RouteWriter;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
@@ -32,8 +31,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.Ipv4Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4RouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4RouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.routes.LabeledUnicastRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.routes.list.LabeledUnicastRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev171207.PathId;
@@ -126,18 +125,18 @@ public class LocRibWriterTest {
         }
 
         @Override
-        public void create(@Nonnull final InstanceIdentifier id, @Nullable final Route dataAfter)
+        public void create(@Nonnull final InstanceIdentifier id, @Nonnull final Route dataAfter)
             throws WriteFailedException.CreateFailedException {
         }
 
         @Override
-        public void delete(@Nonnull final InstanceIdentifier id, @Nullable final Route dataBefore)
+        public void delete(@Nonnull final InstanceIdentifier id, @Nonnull final Route dataBefore)
             throws WriteFailedException.DeleteFailedException {
         }
 
         @Override
-        public void update(@Nonnull final InstanceIdentifier id, @Nullable final Route dataBefore,
-                           @Nullable final Route dataAfter) throws WriteFailedException.UpdateFailedException {
+        public void update(@Nonnull final InstanceIdentifier id, @Nonnull final Route dataBefore,
+                           @Nonnull final Route dataAfter) throws WriteFailedException.UpdateFailedException {
         }
     }
 }
