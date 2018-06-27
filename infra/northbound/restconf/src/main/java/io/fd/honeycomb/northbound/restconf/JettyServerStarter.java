@@ -61,8 +61,8 @@ class JettyServerStarter extends ProviderTrait<JettyServerStarter.RestconfJettyS
     @Override
     protected RestconfJettyServer create() {
         final RestconfJettyServer jettyServer = new RestconfJettyServer(server);
-        jettyServer.start();
         shutdownHandler.register(RestconfJettyServer.class.getCanonicalName(), jettyServer);
+        jettyServer.start();
         return jettyServer;
     }
 
