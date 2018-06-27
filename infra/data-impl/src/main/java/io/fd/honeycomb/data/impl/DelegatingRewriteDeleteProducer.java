@@ -44,7 +44,6 @@ abstract class DelegatingRewriteDeleteProducer implements RewriteDeleteProducer 
                                                               @Nonnull final Map.Entry<YangInstanceIdentifier.PathArgument, DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?>> entry) {
         // just delegates to lower level
         checkState(entry.getValue() instanceof DataContainerNode, "Unable to extract children");
-        checkState(entry.getValue() instanceof DataContainerChild, "Unable to extract identifier");
         final Collection<DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?>> value =
                 DataContainerNode.class.cast(entry.getValue()).getValue();
         return value.stream()
