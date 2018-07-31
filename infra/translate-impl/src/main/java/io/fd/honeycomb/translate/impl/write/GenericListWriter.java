@@ -79,33 +79,27 @@ public final class GenericListWriter<D extends DataObject & Identifiable<K>, K e
     @Override
     protected void writeCurrent(final InstanceIdentifier<D> id, final D data, final WriteContext ctx)
         throws WriteFailedException {
-        // Make sure the key is present
-        if (isWildcarded(id)) {
-            super.writeCurrent(getSpecificId(id, data), data, ctx);
-        } else {
-            super.writeCurrent(id, data, ctx);
-        }
+        super.writeCurrent(getId(id, data), data, ctx);
     }
 
     @Override
     protected void updateCurrent(final InstanceIdentifier<D> id, final D dataBefore, final D dataAfter,
                                  final WriteContext ctx) throws WriteFailedException {
-        // Make sure the key is present
-        if (isWildcarded(id)) {
-            super.updateCurrent(getSpecificId(id, dataBefore), dataBefore, dataAfter, ctx);
-        } else {
-            super.updateCurrent(id, dataBefore, dataAfter, ctx);
-        }
+        super.updateCurrent(getId(id, dataBefore), dataBefore, dataAfter, ctx);
     }
 
     @Override
     protected void deleteCurrent(final InstanceIdentifier<D> id, final D dataBefore, final WriteContext ctx)
         throws WriteFailedException {
+        super.deleteCurrent(getId(id, dataBefore), dataBefore, ctx);
+    }
+
+    private InstanceIdentifier<D> getId(final InstanceIdentifier<D> id, final D current) {
         // Make sure the key is present
         if (isWildcarded(id)) {
-            super.deleteCurrent(getSpecificId(id, dataBefore), dataBefore, ctx);
+            return getSpecificId(id, current);
         } else {
-            super.deleteCurrent(id, dataBefore, ctx);
+            return id;
         }
     }
 
