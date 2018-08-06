@@ -40,9 +40,7 @@ import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 public final class HoneycombDOMRpcService implements DOMRpcService {
 
     private static final Function<? super Exception, DOMRpcException> ANY_EX_TO_RPC_EXCEPTION_MAPPER =
-        (Function<Exception, DOMRpcException>) e -> (e instanceof DOMRpcException)
-            ? (DOMRpcException) e
-            : new RpcException("RPC failed", e);
+        e -> (e instanceof DOMRpcException) ? (DOMRpcException) e : new RpcException("RPC failed", e);
 
     private final BindingNormalizedNodeSerializer serializer;
     private final RpcRegistry rpcRegistry;
