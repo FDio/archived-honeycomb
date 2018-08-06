@@ -18,7 +18,6 @@ package io.fd.honeycomb.translate.util;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import io.fd.honeycomb.translate.SubtreeManager;
@@ -64,12 +63,7 @@ public final class RWUtils {
     public static InstanceIdentifier.PathArgument getNextId(@Nonnull final InstanceIdentifier<? extends DataObject> id,
                                                             @Nonnull final InstanceIdentifier<? extends DataObject> type) {
         final Iterable<InstanceIdentifier.PathArgument> pathArguments = id.getPathArguments();
-        final int i = Iterables.indexOf(pathArguments, new Predicate<InstanceIdentifier.PathArgument>() {
-            @Override
-            public boolean apply(final InstanceIdentifier.PathArgument input) {
-                return input.getType().isAssignableFrom(type.getTargetType());
-            }
-        });
+        final int i = Iterables.indexOf(pathArguments, input -> input.getType().isAssignableFrom(type.getTargetType()));
         Preconditions.checkArgument(i >= 0, "Unable to find %s type in %s", type.getTargetType(), id);
         return Iterables.get(pathArguments, i + 1);
     }
@@ -107,12 +101,7 @@ public final class RWUtils {
     public static <D extends DataObject> InstanceIdentifier<D> cutId(@Nonnull final InstanceIdentifier<? extends DataObject> id,
                                                                      @Nonnull final InstanceIdentifier<D> type) {
         final Iterable<InstanceIdentifier.PathArgument> pathArguments = id.getPathArguments();
-        final int i = Iterables.indexOf(pathArguments, new Predicate<InstanceIdentifier.PathArgument>() {
-            @Override
-            public boolean apply(final InstanceIdentifier.PathArgument input) {
-                return input.getType().equals(type.getTargetType());
-            }
-        });
+        final int i = Iterables.indexOf(pathArguments, input -> input.getType().equals(type.getTargetType()));
         Preconditions.checkArgument(i >= 0, "ID %s does not contain %s", id, type);
         return (InstanceIdentifier<D>) InstanceIdentifier.create(Iterables.limit(pathArguments, i + 1));
     }
@@ -141,24 +130,14 @@ public final class RWUtils {
     }
 
     public static final Function<SubtreeManager<? extends DataObject>, Class<? extends DataObject>>
-        MANAGER_CLASS_FUNCTION = new Function<SubtreeManager<? extends DataObject>, Class<? extends DataObject>>() {
-        @Override
-        public Class<? extends DataObject> apply(final SubtreeManager<? extends DataObject> input) {
-            return input.getManagedDataObjectType().getTargetType();
-        }
-    };
+        MANAGER_CLASS_FUNCTION = input -> input.getManagedDataObjectType().getTargetType();
 
     public static final Function<SubtreeManager<? extends Augmentation<?>>, Class<? extends DataObject>>
-        MANAGER_CLASS_AUG_FUNCTION = new Function<SubtreeManager<? extends Augmentation<?>>, Class<? extends DataObject>>() {
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public Class<? extends DataObject> apply(final SubtreeManager<? extends Augmentation<?>> input) {
+        MANAGER_CLASS_AUG_FUNCTION = input -> {
             final Class<? extends Augmentation<?>> targetType = input.getManagedDataObjectType().getTargetType();
             Preconditions.checkArgument(DataObject.class.isAssignableFrom(targetType));
             return (Class<? extends DataObject>) targetType;
-        }
-    };
+        };
 
     /**
      * Transform a keyed instance identifier into a wildcarded one.
