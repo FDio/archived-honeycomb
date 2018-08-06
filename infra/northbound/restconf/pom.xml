@@ -29,6 +29,7 @@
     <groupId>io.fd.honeycomb.northbound</groupId>
     <artifactId>restconf</artifactId>
     <version>1.18.10-SNAPSHOT</version>
+    <name>${project.artifactId}</name>
 
     <properties>
         <jersey.version>1.19.1</jersey.version>

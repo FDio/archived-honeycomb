@@ -29,6 +29,7 @@
     <groupId>io.fd.honeycomb.northbound</groupId>
     <artifactId>netconf</artifactId>
     <version>1.18.10-SNAPSHOT</version>
+    <name>${project.artifactId}</name>
 
     <properties>
         <yang.modules.whitelist>
