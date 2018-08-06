@@ -21,6 +21,8 @@ Adding to the list of existing features: https://docs.fd.io/honeycomb/1.18.04/re
 
 === New features
 
+* https://jira.fd.io/browse/HONEYCOMB-439[ODL Oxygen SR2]
+
 === Removed features
 
 === Modified features
