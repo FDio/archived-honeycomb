@@ -21,7 +21,7 @@
         </target>
         <default-operation>none</default-operation>
         <config>
-            <top-container xmlns="urn:honeycomb:params:xml:ns:yang:test:validate" xmlns:a="urn:ietf:params:xml:ns:netconf:base:1.0" a:operation="create">
+            <top-container xmlns="urn:honeycomb:params:xml:ns:yang:test:edit:config" xmlns:a="urn:ietf:params:xml:ns:netconf:base:1.0" a:operation="create">
                 <list-in-container>
                     <name>item1</name>>
                 </list-in-container>

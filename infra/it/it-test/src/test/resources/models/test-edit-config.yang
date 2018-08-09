@@ -1,6 +1,6 @@
-module test-validate {
+module test-edit-config {
     yang-version 1;
-    namespace "urn:honeycomb:params:xml:ns:yang:test:validate";
+    namespace "urn:honeycomb:params:xml:ns:yang:test:edit:config";
     prefix "td";
 
     revision "2018-06-08" {

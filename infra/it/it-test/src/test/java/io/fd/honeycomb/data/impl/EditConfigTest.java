@@ -60,8 +60,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-public class TestValidate {
-    private static final Logger LOG = LoggerFactory.getLogger(TestValidate.class);
+public class EditConfigTest {
+    private static final Logger LOG = LoggerFactory.getLogger(EditConfigTest.class);
     private static final String SESSION_ID_FOR_REPORTING = "netconf-test-session";
     private static final Document RPC_REPLY_OK = getReplyOk();
 
@@ -78,7 +78,7 @@ public class TestValidate {
         MockitoAnnotations.initMocks(this);
 
         final SchemaContext schemaContext =
-            YangParserTestUtils.parseYangResources(TestValidate.class, "/models/test-validate.yang");
+            YangParserTestUtils.parseYangResources(EditConfigTest.class, "/models/test-edit-config.yang");
         when(schemaService.registerSchemaContextListener(any())).thenAnswer(invocation -> {
             SchemaContextListener listener = invocation.getArgument(0);
             listener.onGlobalContextUpdated(schemaContext);
@@ -107,7 +107,7 @@ public class TestValidate {
     }
 
     @Test
-    public void testValidateMissingMandatoryNode() throws Exception {
+    public void testMissingMandatoryNode() throws Exception {
         final TransactionProvider transactionProvider = new TransactionProvider(dataBroker, SESSION_ID_FOR_REPORTING);
         verifyResponse(edit("messages/edit-config/edit-config-missing-mandatory-node.xml", transactionProvider));
         try {
