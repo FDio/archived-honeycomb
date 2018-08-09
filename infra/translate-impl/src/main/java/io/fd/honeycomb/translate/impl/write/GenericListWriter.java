@@ -85,30 +85,14 @@ public final class GenericListWriter<D extends DataObject & Identifiable<K>, K e
     }
 
     @Override
-    protected void writeCurrent(final InstanceIdentifier<D> id, final D data, final WriteContext ctx)
-        throws WriteFailedException {
-        super.writeCurrent(getManagedId(id, data), data, ctx);
-    }
-
-    @Override
-    protected void updateCurrent(final InstanceIdentifier<D> id, final D dataBefore, final D dataAfter,
-                                 final WriteContext ctx) throws WriteFailedException {
-        super.updateCurrent(getManagedId(id, dataBefore), dataBefore, dataAfter, ctx);
-    }
-
-    @Override
-    protected void deleteCurrent(final InstanceIdentifier<D> id, final D dataBefore, final WriteContext ctx)
-        throws WriteFailedException {
-        super.deleteCurrent(getManagedId(id, dataBefore), dataBefore, ctx);
-    }
-
-    @Override
-    protected InstanceIdentifier<D> getManagedId(@Nonnull final InstanceIdentifier<? extends DataObject> currentId,
-                                                 @Nonnull final D current) {
+    @SuppressWarnings("unchecked")
+    protected InstanceIdentifier<D> getSpecificId(@Nonnull final InstanceIdentifier<? extends DataObject> currentId,
+                                                  @Nonnull final D current) {
         final InstanceIdentifier<D> id = (InstanceIdentifier<D>) currentId;
         // Make sure the key is present
         if (isWildcarded(id)) {
-            return getSpecificId(id, current);
+            return RWUtils.replaceLastInId(id,
+                new InstanceIdentifier.IdentifiableItem<>(id.getTargetType(), current.getKey()));
         } else {
             return id;
         }
@@ -116,10 +100,5 @@ public final class GenericListWriter<D extends DataObject & Identifiable<K>, K e
 
     private boolean isWildcarded(final InstanceIdentifier<D> id) {
         return id.firstIdentifierOf(getManagedDataObjectType().getTargetType()).isWildcarded();
-    }
-
-    private InstanceIdentifier<D> getSpecificId(final InstanceIdentifier<D> currentId, final D current) {
-        return RWUtils.replaceLastInId(currentId,
-            new InstanceIdentifier.IdentifiableItem<>(currentId.getTargetType(), current.getKey()));
     }
 }

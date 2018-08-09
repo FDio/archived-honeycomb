@@ -50,33 +50,6 @@ public abstract class AbstractGenericWriter<D extends DataObject> implements Wri
         this.validator = validator;
     }
 
-    protected void writeCurrent(final InstanceIdentifier<D> id, final D data, final WriteContext ctx)
-        throws WriteFailedException {
-        LOG.debug("{}: Writing current: {} data: {}", this, id, data);
-        writeCurrentAttributes(id, data, ctx);
-        LOG.debug("{}: Current node written successfully", this);
-    }
-
-    protected void updateCurrent(final InstanceIdentifier<D> id, final D dataBefore, final D dataAfter,
-                                 final WriteContext ctx) throws WriteFailedException {
-        LOG.debug("{}: Updating current: {} dataBefore: {}, datAfter: {}", this, id, dataBefore, dataAfter);
-
-        if (dataBefore.equals(dataAfter)) {
-            LOG.debug("{}: Skipping current(no update): {}", this, id);
-            // No change, ignore
-            return;
-        }
-        updateCurrentAttributes(id, dataBefore, dataAfter, ctx);
-        LOG.debug("{}: Current node updated successfully", this);
-    }
-
-    protected void deleteCurrent(final InstanceIdentifier<D> id, final D dataBefore, final WriteContext ctx)
-        throws WriteFailedException {
-        LOG.debug("{}: Deleting current: {} dataBefore: {}", this, id, dataBefore);
-        deleteCurrentAttributes(id, dataBefore, ctx);
-    }
-
-    @SuppressWarnings("unchecked")
     @Override
     public void processModification(@Nonnull final InstanceIdentifier<? extends DataObject> id,
                                     @Nullable final DataObject dataBefore,
@@ -89,12 +62,23 @@ public abstract class AbstractGenericWriter<D extends DataObject> implements Wri
                 id, getManagedDataObjectType(), this);
 
         if (isWrite(dataBefore, dataAfter)) {
-            writeCurrent((InstanceIdentifier<D>) id, castToManaged(dataAfter), ctx);
+            LOG.debug("{}: Writing {} data: {}", this, id, dataAfter);
+            final D after = castToManaged(dataAfter);
+            writeCurrentAttributes(getSpecificId(id, after), after, ctx);
         } else if (isDelete(dataBefore, dataAfter)) {
-            deleteCurrent((InstanceIdentifier<D>) id, castToManaged(dataBefore), ctx);
+            LOG.debug("{}: Deleting {} data: {}", this, id, dataBefore);
+            final D before = castToManaged(dataBefore);
+            deleteCurrentAttributes(getSpecificId(id, before), before, ctx);
         } else {
+            LOG.debug("{}: Updating {} dataBefore: {}, datAfter: {}", this, id, dataBefore, dataAfter);
             checkArgument(dataBefore != null && dataAfter != null, "No data to process");
-            updateCurrent((InstanceIdentifier<D>) id, castToManaged(dataBefore), castToManaged(dataAfter), ctx);
+            if (dataBefore.equals(dataAfter)) {
+                LOG.debug("{}: Skipping modification (no update): {}", this, id);
+                // No change, ignore
+                return;
+            }
+            final D before = castToManaged(dataBefore);
+            updateCurrentAttributes(getSpecificId(id, before), before, castToManaged(dataAfter), ctx);
         }
     }
 
@@ -113,10 +97,10 @@ public abstract class AbstractGenericWriter<D extends DataObject> implements Wri
 
         if (isWrite(dataBefore, dataAfter)) {
             final D after = castToManaged(dataAfter);
-            validator.validateWrite(getManagedId(id, after), after, ctx);
+            validator.validateWrite(getSpecificId(id, after), after, ctx);
         } else if (isDelete(dataBefore, dataAfter)) {
             final D before = castToManaged(dataBefore);
-            validator.validateDelete(getManagedId(id, before), before, ctx);
+            validator.validateDelete(getSpecificId(id, before), before, ctx);
         } else {
             checkArgument(dataBefore != null && dataAfter != null, "No data to process");
             if (dataBefore.equals(dataAfter)) {
@@ -125,12 +109,13 @@ public abstract class AbstractGenericWriter<D extends DataObject> implements Wri
                 return;
             }
             final D before = castToManaged(dataBefore);
-            validator.validateUpdate(getManagedId(id, before), before, castToManaged(dataAfter), ctx);
+            validator.validateUpdate(getSpecificId(id, before), before, castToManaged(dataAfter), ctx);
         }
     }
 
-    protected InstanceIdentifier<D> getManagedId(@Nonnull final InstanceIdentifier<? extends DataObject> currentId,
-                                                 @Nonnull final D current) {
+    @SuppressWarnings("unchecked")
+    protected InstanceIdentifier<D> getSpecificId(@Nonnull final InstanceIdentifier<? extends DataObject> currentId,
+                                                  @Nonnull final D current) {
         return (InstanceIdentifier<D>) currentId;
     }
 
