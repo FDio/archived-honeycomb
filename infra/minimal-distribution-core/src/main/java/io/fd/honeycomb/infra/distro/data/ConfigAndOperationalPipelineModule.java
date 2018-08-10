@@ -24,7 +24,6 @@ import io.fd.honeycomb.data.ReadableDataManager;
 import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.data.init.ShutdownHandler;
 import io.fd.honeycomb.impl.EmptyDomMountService;
-import io.fd.honeycomb.impl.ShutdownHandlerImpl;
 import io.fd.honeycomb.infra.distro.data.config.WriterRegistryProvider;
 import io.fd.honeycomb.infra.distro.data.oper.ReadableDTDelegProvider;
 import io.fd.honeycomb.infra.distro.data.oper.ReaderRegistryProvider;
@@ -37,7 +36,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMMountPointService;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
 import org.opendaylight.controller.md.sal.dom.broker.impl.DOMNotificationRouter;
-import org.opendaylight.controller.sal.core.api.Broker;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 
 public class ConfigAndOperationalPipelineModule extends PrivateModule {
@@ -99,9 +97,6 @@ public class ConfigAndOperationalPipelineModule extends PrivateModule {
         // Create notification service
         bind(DOMNotificationRouter.class).toProvider(DOMNotificationServiceProvider.class).in(Singleton.class);
         expose(DOMNotificationRouter.class);
-        // Wrap notification service, data broker and schema service in a Broker MD-SAL API
-        bind(Broker.class).toProvider(HoneycombDOMBrokerProvider.class).in(Singleton.class);
-        expose(Broker.class);
     }
 
     private void configureRpcs() {
