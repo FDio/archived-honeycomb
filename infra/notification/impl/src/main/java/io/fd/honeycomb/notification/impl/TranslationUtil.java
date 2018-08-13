@@ -38,7 +38,9 @@ import org.opendaylight.yangtools.yang.data.codec.xml.XMLStreamNormalizedNodeStr
 
 public final class TranslationUtil {
 
-    public TranslationUtil() {}
+    private TranslationUtil() {
+        throw new UnsupportedOperationException("Utility class cannot be instantiated.");
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(TranslationUtil.class);
     private static final XMLOutputFactory XML_FACTORY;
