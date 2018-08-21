@@ -89,7 +89,7 @@ public class PersistingDataTreeAdapter implements DataTree {
         delegateDependency.commit(dataTreeCandidate);
         LOG.debug("Delegate commit successful. Persisting data");
 
-        // FIXME doing full read and full write might not be the fastest way of persisting data here
+        // TODO(HONEYCOMB-163): doing full read and full write might not be the fastest way of persisting data here
         final DataTreeSnapshot dataTreeSnapshot = delegateDependency.takeSnapshot();
 
         // TODO this can be handled in background by a dedicated thread + a limited blocking queue

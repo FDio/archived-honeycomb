@@ -89,12 +89,12 @@ final class Modification {
     }
 
     com.google.common.base.Optional<NormalizedNode<?, ?>> getDataBefore() {
-        // FIXME switch to java.util.Optional when rest of ODL infra does
+        // TODO(HONEYCOMB-192): switch to java.util.Optional when rest of ODL infra does
         return com.google.common.base.Optional.fromNullable(dataCandidate.getDataBefore().orElse(null));
     }
 
     com.google.common.base.Optional<NormalizedNode<?, ?>> getDataAfter() {
-        // FIXME switch to java.util.Optional when rest of ODL infra does
+        // TODO(HONEYCOMB-192): switch to java.util.Optional when rest of ODL infra does
         return com.google.common.base.Optional.fromNullable(dataCandidate.getDataAfter().orElse(null));
     }
 
