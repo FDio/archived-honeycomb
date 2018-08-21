@@ -37,7 +37,18 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class RWUtils {
 
-    // TODO HONEYCOMB-172 update the utils methods considering Java8. Make sure they still work by wiring a detailed unit test first
+    // TODO(HONEYCOMB-172): update the utils methods considering Java8.
+    // Make sure they still work by wiring a detailed unit test first
+
+    public static final Function<SubtreeManager<? extends DataObject>, Class<? extends DataObject>>
+        MANAGER_CLASS_FUNCTION = input -> input.getManagedDataObjectType().getTargetType();
+
+    public static final Function<SubtreeManager<? extends Augmentation<?>>, Class<? extends DataObject>>
+        MANAGER_CLASS_AUG_FUNCTION = input -> {
+        final Class<? extends Augmentation<?>> targetType = input.getManagedDataObjectType().getTargetType();
+        Preconditions.checkArgument(DataObject.class.isAssignableFrom(targetType));
+        return (Class<? extends DataObject>) targetType;
+    };
 
     private RWUtils() {}
 
@@ -128,16 +139,6 @@ public final class RWUtils {
         }
         return objectObjectLinkedHashMap;
     }
-
-    public static final Function<SubtreeManager<? extends DataObject>, Class<? extends DataObject>>
-        MANAGER_CLASS_FUNCTION = input -> input.getManagedDataObjectType().getTargetType();
-
-    public static final Function<SubtreeManager<? extends Augmentation<?>>, Class<? extends DataObject>>
-        MANAGER_CLASS_AUG_FUNCTION = input -> {
-            final Class<? extends Augmentation<?>> targetType = input.getManagedDataObjectType().getTargetType();
-            Preconditions.checkArgument(DataObject.class.isAssignableFrom(targetType));
-            return (Class<? extends DataObject>) targetType;
-        };
 
     /**
      * Transform a keyed instance identifier into a wildcarded one.
