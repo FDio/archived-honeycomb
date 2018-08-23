@@ -41,10 +41,11 @@ public interface Validator<D extends DataObject> {
      * @param writeContext Write context that provides information about current state of DataTree.
      * @throws CreateValidationFailedException if write validation failed
      */
-    void validateWrite(
-        @Nonnull final InstanceIdentifier<D> id,
-        @Nonnull final D dataAfter,
-        @Nonnull final WriteContext writeContext) throws CreateValidationFailedException;
+    default void validateWrite(@Nonnull final InstanceIdentifier<D> id,
+                               @Nonnull final D dataAfter,
+                               @Nonnull final WriteContext writeContext) throws CreateValidationFailedException {
+        // Validation on write is optional
+    }
 
     /**
      * Validates update operation.
@@ -55,8 +56,12 @@ public interface Validator<D extends DataObject> {
      * @param writeContext Write context that provides information about current state of DataTree.
      * @throws UpdateValidationFailedException if update validation failed
      */
-    void validateUpdate(InstanceIdentifier<D> id, D dataBefore, D dataAfter, WriteContext writeContext)
-        throws UpdateValidationFailedException;
+    default void validateUpdate(@Nonnull InstanceIdentifier<D> id,
+                                @Nonnull D dataBefore,
+                                @Nonnull D dataAfter,
+                                @Nonnull WriteContext writeContext) throws UpdateValidationFailedException {
+        // Validation on update is optional
+    }
 
     /**
      * Validates delete operation.
@@ -66,6 +71,9 @@ public interface Validator<D extends DataObject> {
      * @param writeContext Write context that provides information about current state of DataTree.
      * @throws DeleteValidationFailedException if delete validation failed
      */
-    void validateDelete(InstanceIdentifier<D> id, D dataBefore, WriteContext writeContext)
-        throws DeleteValidationFailedException;
+    default void validateDelete(@Nonnull InstanceIdentifier<D> id,
+                                @Nonnull D dataBefore,
+                                @Nonnull WriteContext writeContext) throws DeleteValidationFailedException {
+        // Validation on delete is optional
+    }
 }
