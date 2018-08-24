@@ -63,7 +63,7 @@ public interface DelegatingReader<D extends DataObject, B extends Builder<D>> ex
     }
 
     @Override
-    default boolean isPresent(InstanceIdentifier<D> id, D built, final ReadContext ctx) throws ReadFailedException {
+    default boolean isPresent(InstanceIdentifier<D> id, D built, final ReadContext ctx) {
         return getDelegate().isPresent(id, built, ctx);
     }
 

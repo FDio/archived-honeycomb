@@ -46,8 +46,7 @@ public interface Reader<D extends DataObject, B extends Builder<D>> extends Subt
      *
      * @return true if the result value is present.
      */
-    boolean isPresent(@Nonnull InstanceIdentifier<D> id, @Nonnull D built, @Nonnull ReadContext ctx)
-            throws ReadFailedException;
+    boolean isPresent(@Nonnull InstanceIdentifier<D> id, @Nonnull D built, @Nonnull ReadContext ctx);
 
     /**
      * Reads data identified by id

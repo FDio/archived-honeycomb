@@ -68,7 +68,7 @@ public interface ReaderCustomizer<O extends DataObject, B extends Builder<O>> {
      *
      * @return true if value is present (even if empty)
      */
-    default boolean isPresent(final InstanceIdentifier<O> id, final O built, final ReadContext ctx) throws ReadFailedException {
+    default boolean isPresent(final InstanceIdentifier<O> id, final O built, final ReadContext ctx) {
         // Default impl = check whether read value is empty
         return !built.equals(getBuilder(id).build());
     }

@@ -75,8 +75,7 @@ public class GenericReader<C extends DataObject, B extends Builder<C>>
     }
 
     @Override
-    public boolean isPresent(final InstanceIdentifier<C> id, final C built, final ReadContext ctx)
-            throws ReadFailedException {
+    public boolean isPresent(final InstanceIdentifier<C> id, final C built, final ReadContext ctx) {
         return customizer.isPresent(id, built, ctx);
     }
 
