@@ -1,0 +1,4 @@
+{
+  "default-import-policy": "ACCEPT-ROUTE",
+  "default-export-policy": "ACCEPT-ROUTE"
+}

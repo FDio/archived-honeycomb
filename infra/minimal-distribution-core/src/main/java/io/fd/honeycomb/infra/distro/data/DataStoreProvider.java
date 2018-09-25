@@ -21,12 +21,12 @@ import io.fd.honeycomb.binding.init.ProviderTrait;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.store.impl.InMemoryDOMDataStore;
 import org.opendaylight.controller.md.sal.dom.store.impl.InMemoryDOMDataStoreFactory;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 
 public final class DataStoreProvider extends ProviderTrait<InMemoryDOMDataStore> {
 
     @Inject
-    private SchemaService schemaService;
+    private DOMSchemaService schemaService;
     private String name;
     private LogicalDatastoreType type;
 

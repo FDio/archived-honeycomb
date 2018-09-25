@@ -95,7 +95,7 @@ public class ReflexiveListReaderCustomizerTest {
         }
 
         @Override
-        public TestingListKey getKey() {
+        public TestingListKey key() {
             return key;
         }
 
@@ -133,7 +133,7 @@ public class ReflexiveListReaderCustomizerTest {
             return new TestingListObject(key);
         }
 
-        public TestingListObjectBuilder setKey(final TestingListObject.TestingListKey key) {
+        public TestingListObjectBuilder withKey(final TestingListObject.TestingListKey key) {
             this.key = key;
             return this;
         }

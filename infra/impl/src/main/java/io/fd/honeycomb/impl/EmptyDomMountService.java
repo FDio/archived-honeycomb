@@ -17,9 +17,10 @@
 package io.fd.honeycomb.impl;
 
 import com.google.common.base.Optional;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.dom.api.DOMMountPoint;
 import org.opendaylight.controller.md.sal.dom.api.DOMMountPointService;
-import org.opendaylight.controller.sal.core.api.mount.MountProvisionListener;
+import org.opendaylight.mdsal.dom.api.DOMMountPointListener;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
@@ -39,17 +40,17 @@ public class EmptyDomMountService implements DOMMountPointService {
     }
 
     @Override
-    public ListenerRegistration<MountProvisionListener> registerProvisionListener(
-        final MountProvisionListener mountProvisionListener) {
-        return new ListenerRegistration<MountProvisionListener>() {
+    public ListenerRegistration<DOMMountPointListener> registerProvisionListener(final DOMMountPointListener listener) {
+        return new ListenerRegistration<DOMMountPointListener>() {
             @Override
             public void close() {
                 // Noop
             }
 
+            @Nonnull
             @Override
-            public MountProvisionListener getInstance() {
-                return mountProvisionListener;
+            public DOMMountPointListener getInstance() {
+                return listener;
             }
         };
     }

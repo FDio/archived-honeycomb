@@ -25,7 +25,7 @@ import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 
 public final class ModifiableDTDelegProvider extends ProviderTrait<ModifiableDataManager> {
@@ -33,7 +33,7 @@ public final class ModifiableDTDelegProvider extends ProviderTrait<ModifiableDat
     @Inject
     private BindingToNormalizedNodeCodec serializer;
     @Inject
-    private SchemaService schemaService;
+    private DOMSchemaService schemaService;
     @Inject
     @Named(ConfigAndOperationalPipelineModule.HONEYCOMB_CONFIG)
     private DataTree dataTree;

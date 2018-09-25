@@ -24,15 +24,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.translate.read.InitFailedException;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.yangtools.concepts.Builder;
 
 public class GenericInitListReaderTest extends AbstractListReaderTest {
@@ -69,12 +73,13 @@ public class GenericInitListReaderTest extends AbstractListReaderTest {
         final Initialized<TestingData> initialized = Initialized.create(DATA_OBJECT_ID, data);
         when(getCustomizer().isPresent(any(), any(), any())).thenReturn(true);
         doReturn(initialized).when(getCustomizer()).init(any(), any(), any());
+        when(writeTx.commit()).thenReturn(FluentFuture.from(Futures.immediateFuture(null)));
         when(broker.newWriteOnlyTransaction()).thenReturn(writeTx);
 
         getReader().init(broker, DATA_OBJECT_ID, ctx);
 
         verify(writeTx, times(2)).merge(LogicalDatastoreType.CONFIGURATION, DATA_OBJECT_ID, data, true);
-        verify(writeTx, times(2)).submit();
+        verify(writeTx, times(2)).commit();
     }
 
     @Test(expected = InitFailedException.class)

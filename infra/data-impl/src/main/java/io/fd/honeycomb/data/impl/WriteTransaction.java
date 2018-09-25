@@ -18,26 +18,22 @@ package io.fd.honeycomb.data.impl;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
-import static org.opendaylight.controller.md.sal.common.api.TransactionStatus.CANCELED;
-import static org.opendaylight.controller.md.sal.common.api.TransactionStatus.COMMITED;
-import static org.opendaylight.controller.md.sal.common.api.TransactionStatus.FAILED;
-import static org.opendaylight.controller.md.sal.common.api.TransactionStatus.NEW;
-import static org.opendaylight.controller.md.sal.common.api.TransactionStatus.SUBMITED;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import io.fd.honeycomb.data.DataModification;
+import io.fd.honeycomb.translate.TranslationException;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
-import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.slf4j.Logger;
@@ -52,7 +48,7 @@ final class WriteTransaction implements DOMDataWriteTransaction {
     private DataModification operationalModification;
     @Nullable
     private DataModification configModification;
-    private TransactionStatus status = NEW;
+    private TransactionStatus status = TransactionStatus.NEW;
 
     private WriteTransaction(@Nullable final DataModification configModification,
                              @Nullable final DataModification operationalModification) {
@@ -61,7 +57,7 @@ final class WriteTransaction implements DOMDataWriteTransaction {
     }
 
     private void checkIsNew() {
-        Preconditions.checkState(status == NEW, "Transaction was submitted or canceled");
+        Preconditions.checkState(status == TransactionStatus.NEW, "Transaction was submitted or canceled");
     }
 
     @Override
@@ -98,14 +94,14 @@ final class WriteTransaction implements DOMDataWriteTransaction {
 
     @Override
     public boolean cancel() {
-        if (status != NEW) {
+        if (status != TransactionStatus.NEW) {
             // only NEW transactions can be cancelled
             return false;
         } else {
             if (configModification != null) {
                 configModification.close();
             }
-            status = CANCELED;
+            status = TransactionStatus.CANCELED;
             return true;
         }
     }
@@ -117,35 +113,57 @@ final class WriteTransaction implements DOMDataWriteTransaction {
         handleOperation(store, (modification) -> modification.delete(path));
     }
 
+    @Deprecated
     @Override
     public CheckedFuture<Void, TransactionCommitFailedException> submit() {
         LOG.trace("WriteTransaction.submit()");
         checkIsNew();
 
         try {
-            status = SUBMITED;
-
-            if(configModification != null) {
-                configModification.commit();
-            }
-            if(operationalModification != null) {
-                operationalModification.commit();
-            }
-
-            status = COMMITED;
+            validateAndCommit();
         } catch (Exception e) {
-            status = FAILED;
+            status = TransactionStatus.FAILED;
             LOG.error("Submit failed", e);
             return Futures.immediateFailedCheckedFuture(
-                new TransactionCommitFailedException("Failed to validate DataTreeModification", e));
+                    new TransactionCommitFailedException("Failed to validate DataTreeModification", e));
         }
         return Futures.immediateCheckedFuture(null);
     }
 
+    private void validateAndCommit() throws TranslationException {
+        status = TransactionStatus.SUBMITED;
+        // Validate first to catch any issues before attempting commit
+        if (configModification != null) {
+            configModification.validate();
+        }
+        if (operationalModification != null) {
+            operationalModification.validate();
+        }
+
+        if (configModification != null) {
+            configModification.commit();
+        }
+        if (operationalModification != null) {
+            operationalModification.commit();
+        }
+
+        status = TransactionStatus.COMMITED;
+    }
+
     @Override
-    @Deprecated
-    public ListenableFuture<RpcResult<TransactionStatus>> commit() {
-        throw new UnsupportedOperationException("deprecated");
+    public @NonNull FluentFuture<? extends CommitInfo> commit() {
+        LOG.trace("WriteTransaction.commit()");
+        checkIsNew();
+        try {
+            validateAndCommit();
+        } catch (Exception e) {
+            status = TransactionStatus.FAILED;
+            LOG.error("Submit failed", e);
+            return FluentFuture
+                    .from(Futures.immediateFailedFuture(
+                            new TransactionCommitFailedException("Failed to validate DataTreeModification", e)));
+        }
+        return FluentFuture.from(Futures.immediateFuture(null));
     }
 
     @Override
@@ -168,5 +186,31 @@ final class WriteTransaction implements DOMDataWriteTransaction {
     static WriteTransaction create(@Nonnull final DataModification configData,
                             @Nonnull final DataModification operationalData) {
         return new WriteTransaction(requireNonNull(configData), requireNonNull(operationalData));
+    }
+
+    // TODO consider removing because original class was deprecated and removed, this is just temporary fix.
+    enum TransactionStatus {
+        /**
+         * The transaction has been freshly allocated. The user is still accessing
+         * it and it has not been sealed.
+         */
+        NEW,
+        /**
+         * The transaction has been completed by the user and sealed. It is currently
+         * awaiting execution.
+         */
+        SUBMITED,
+        /**
+         * The transaction has been successfully committed to backing store.
+         */
+        COMMITED,
+        /**
+         * The transaction has failed to commit due to some underlying issue.
+         */
+        FAILED,
+        /**
+         * Currently unused.
+         */
+        CANCELED,
     }
 }

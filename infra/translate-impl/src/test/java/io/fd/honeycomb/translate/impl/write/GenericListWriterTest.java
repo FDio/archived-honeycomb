@@ -60,8 +60,8 @@ public class GenericListWriterTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         writer = new GenericListWriter<>(DATA_OBJECT_ID, customizer, validator);
-        when(before.getKey()).thenReturn(beforeKey);
-        when(after.getKey()).thenReturn(keyAfter);
+        when(before.key()).thenReturn(beforeKey);
+        when(after.key()).thenReturn(keyAfter);
     }
 
     @Test

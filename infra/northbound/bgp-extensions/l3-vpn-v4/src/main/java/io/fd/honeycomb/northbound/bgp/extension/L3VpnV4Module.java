@@ -19,14 +19,14 @@ package io.fd.honeycomb.northbound.bgp.extension;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Provider;
 import io.fd.honeycomb.translate.write.WriterFactory;
-import org.opendaylight.protocol.bgp.l3vpn.ipv4.BgpIpv4Activator;
-import org.opendaylight.protocol.bgp.l3vpn.ipv4.RibIpv4Activator;
+import org.opendaylight.protocol.bgp.l3vpn.BGPActivator;
+import org.opendaylight.protocol.bgp.l3vpn.RIBActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.L3VPNIPV4UNICAST;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.MplsLabeledVpnSubsequentAddressFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,12 +41,12 @@ public class L3VpnV4Module extends AbstractBgpExtensionModule {
 
     @Override
     public Set<Class<? extends RIBExtensionProviderActivator>> getRibActivators() {
-        return ImmutableSet.of(RibIpv4Activator.class);
+        return ImmutableSet.of(RIBActivator.class);
     }
 
     @Override
     public Set<Class<? extends BGPExtensionProviderActivator>> getExtensionActivators() {
-        return ImmutableSet.of(BgpIpv4Activator.class);
+        return ImmutableSet.of(BGPActivator.class);
     }
 
     @Override

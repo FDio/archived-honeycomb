@@ -22,6 +22,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.translate.read.InitFailedException;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
@@ -66,12 +68,13 @@ public class GenericIntReaderTest extends AbstractReaderTest {
 
         when(getCustomizer().isPresent(DATA_OBJECT_ID, data, ctx)).thenReturn(true);
         doReturn(initialized).when(getCustomizer()).init(DATA_OBJECT_ID, data, ctx);
+        when(writeTx.commit()).thenReturn(FluentFuture.from(Futures.immediateFuture(null)));
         when(broker.newWriteOnlyTransaction()).thenReturn(writeTx);
 
         getReader().init(broker, DATA_OBJECT_ID, ctx);
 
         verify(writeTx).merge(LogicalDatastoreType.CONFIGURATION, DATA_OBJECT_ID, data, true);
-        verify(writeTx).submit();
+        verify(writeTx).commit();
     }
 
     @Test(expected = InitFailedException.class)

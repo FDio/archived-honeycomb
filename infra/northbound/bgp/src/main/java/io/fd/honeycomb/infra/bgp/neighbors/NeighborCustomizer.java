@@ -18,9 +18,9 @@ package io.fd.honeycomb.infra.bgp.neighbors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.isApplicationPeer;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.fd.honeycomb.infra.bgp.BgpConfiguration;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -33,10 +33,19 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.rib.impl.config.AppPeer;
 import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeer;
 import org.opendaylight.protocol.bgp.rib.impl.config.PeerBean;
+import org.opendaylight.protocol.bgp.rib.impl.config.PeerGroupConfigLoader;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.Protocols;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborPeerGroupConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NetworkInstanceProtocol;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,17 +59,24 @@ final class NeighborCustomizer implements ListWriterCustomizer<Neighbor, Neighbo
     private static final Logger LOG = LoggerFactory.getLogger(NeighborCustomizer.class);
     private final RIB globalRib;
     private final BGPPeerRegistry peerRegistry;
+    private final PeerGroupConfigLoader peerGroupLoader;
     private BGPTableTypeRegistryConsumer tableTypeRegistry;
+    @VisibleForTesting
+    static final InstanceIdentifier<Bgp> bgpIid = InstanceIdentifier.create(NetworkInstances.class)
+            .child(NetworkInstance.class).child(Protocols.class).child(Protocol.class).augmentation(
+                    NetworkInstanceProtocol.class).child(Bgp.class);
 
 
     @GuardedBy("this")
     private final Map<InstanceIdentifier<Neighbor>, PeerBean> peers = new HashMap<>();
 
     public NeighborCustomizer(@Nonnull final RIB globalRib, @Nonnull final BGPPeerRegistry peerRegistry,
-                              @Nonnull final BGPTableTypeRegistryConsumer tableTypeRegistry) {
+                              @Nonnull final BGPTableTypeRegistryConsumer tableTypeRegistry,
+                              final BgpConfiguration configuration) {
         this.globalRib = checkNotNull(globalRib, "globalRib should not be null");
-        this.peerRegistry = checkNotNull(peerRegistry, "globalRib should not be null");
+        this.peerRegistry = checkNotNull(peerRegistry, "peerRegistry should not be null");
         this.tableTypeRegistry = checkNotNull(tableTypeRegistry, "tableTypeRegistry should not be null");
+        this.peerGroupLoader = checkNotNull(configuration, "configuration should not be null");
     }
 
     @VisibleForTesting
@@ -80,7 +96,7 @@ final class NeighborCustomizer implements ListWriterCustomizer<Neighbor, Neighbo
                                                     @Nonnull final WriteContext writeContext)
         throws WriteFailedException {
         final PeerBean peer;
-        if (isApplicationPeer(neighbor)) {
+        if (isAppPeer(neighbor)) {
             LOG.debug("Creating AppPeer bean for {}: {}", id, neighbor);
             peer = new AppPeer();
         } else {
@@ -88,9 +104,21 @@ final class NeighborCustomizer implements ListWriterCustomizer<Neighbor, Neighbo
             peer = new BgpPeer(null);
         }
         LOG.debug("Starting bgp peer for {}", id);
-        peer.start(globalRib, neighbor, tableTypeRegistry);
+        peer.start(globalRib, neighbor, bgpIid, peerGroupLoader, tableTypeRegistry);
         peer.instantiateServiceInstance();
         addPeer(id, peer);
+    }
+
+    static boolean isAppPeer(final Neighbor neighbor) {
+        Config config = neighbor.getConfig();
+        if (config != null) {
+            NeighborPeerGroupConfig config1 = config.augmentation(NeighborPeerGroupConfig.class);
+            if (config1 != null) {
+                String peerGroup = config1.getPeerGroup();
+                return peerGroup != null && peerGroup.equals("application-peers");
+            }
+        }
+        return false;
     }
 
     @Override
@@ -103,7 +131,7 @@ final class NeighborCustomizer implements ListWriterCustomizer<Neighbor, Neighbo
         final PeerBean peer = peers.get(id);
         checkState(peer != null, "Could not find peer bean while updating neighbor {}", id);
         closePeerBean(peer);
-        peer.start(globalRib, dataAfter, tableTypeRegistry);
+        peer.start(globalRib, dataAfter, bgpIid, peerGroupLoader, tableTypeRegistry);
         peer.instantiateServiceInstance();
         LOG.debug("Peer instance updated {}", peer);
     }

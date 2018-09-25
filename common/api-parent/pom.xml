@@ -28,6 +28,10 @@
   <version>1.18.10-SNAPSHOT</version>
   <packaging>pom</packaging>
 
+  <properties>
+    <annotations.version>3.0.0</annotations.version>
+  </properties>
+
   <build>
     <pluginManagement>
       <plugins>
@@ -116,6 +120,11 @@
     <dependency>
       <groupId>org.opendaylight.yangtools</groupId>
       <artifactId>yang-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>annotations</artifactId>
+      <version>${annotations.version}</version>
     </dependency>
   </dependencies>
 </project>

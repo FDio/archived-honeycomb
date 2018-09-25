@@ -34,6 +34,7 @@
     <guice.config.version>1.2.0</guice.config.version>
     <skinny.logback.version>1.0.8</skinny.logback.version>
     <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
+    <osgi-core.version>5.0.0</osgi-core.version>
   </properties>
 
   <dependencyManagement>

@@ -131,7 +131,7 @@ public abstract class AbstractListReaderTest {
         }
 
         @Override
-        public TestingKey getKey() {
+        public TestingKey key() {
             return new TestingKey();
         }
 

@@ -29,11 +29,9 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadWriteTransaction;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -83,14 +81,6 @@ public class DataBrokerTest {
 
         // verify that read transactions use config snapshot
         verify(configSnapshot).read(path);
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testRegisterDataChangeListener() {
-        final YangInstanceIdentifier path = mock(YangInstanceIdentifier.class);
-        final DOMDataChangeListener listener = mock(DOMDataChangeListener.class);
-        broker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, path, listener,
-                AsyncDataBroker.DataChangeScope.BASE);
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -153,14 +143,6 @@ public class DataBrokerTest {
 
             final YangInstanceIdentifier path = mock(YangInstanceIdentifier.class);
             readTx.read(LogicalDatastoreType.CONFIGURATION, path);
-        }
-
-        @Test(expected = UnsupportedOperationException.class)
-        public void testRegisterDataChangeListener() {
-            final YangInstanceIdentifier path = mock(YangInstanceIdentifier.class);
-            final DOMDataChangeListener listener = mock(DOMDataChangeListener.class);
-            broker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, path, listener,
-                    AsyncDataBroker.DataChangeScope.BASE);
         }
 
         @Test(expected = UnsupportedOperationException.class)

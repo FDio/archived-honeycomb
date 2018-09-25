@@ -29,7 +29,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
@@ -41,14 +41,14 @@ public class RestoringInitializer implements DataTreeInitializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(RestoringInitializer.class);
 
-    private final SchemaService schemaService;
+    private final DOMSchemaService schemaService;
     private final Path path;
     private final DOMDataBroker dataTree;
     private final RestorationType restorationType;
     private final LogicalDatastoreType datastoreType;
     private final JsonReader jsonReader;
 
-    public RestoringInitializer(@Nonnull final SchemaService schemaService,
+    public RestoringInitializer(@Nonnull final DOMSchemaService schemaService,
                                 @Nonnull final Path path,
                                 @Nonnull final DOMDataBroker dataTree,
                                 @Nonnull final RestorationType restorationType,
@@ -62,7 +62,7 @@ public class RestoringInitializer implements DataTreeInitializer {
         this.jsonReader = jsonReader;
     }
 
-    public RestoringInitializer(@Nonnull final SchemaService schemaService,
+    public RestoringInitializer(@Nonnull final DOMSchemaService schemaService,
                                 @Nonnull final Path path,
                                 @Nonnull final DOMDataBroker dataTree,
                                 @Nonnull final RestorationType restorationType,

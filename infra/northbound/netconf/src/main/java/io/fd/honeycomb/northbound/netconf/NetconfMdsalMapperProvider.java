@@ -23,8 +23,7 @@ import com.google.inject.name.Named;
 import io.fd.honeycomb.binding.init.ProviderTrait;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
-import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactoryListener;
 import org.opendaylight.netconf.mdsal.connector.MdsalNetconfOperationServiceFactory;
@@ -32,11 +31,9 @@ import org.opendaylight.netconf.mdsal.connector.MdsalNetconfOperationServiceFact
 public final class NetconfMdsalMapperProvider extends ProviderTrait<NetconfOperationServiceFactory> {
 
     @Inject
-    private SchemaService schemaService;
+    private DOMSchemaService schemaService;
     @Inject
     private NetconfOperationServiceFactoryListener aggregator;
-    @Inject
-    private ModuleInfoBackedContext moduleInfoBackedContext;
     @Inject
     @Named(HONEYCOMB_CONFIG)
     private DOMDataBroker domBroker;
@@ -48,7 +45,8 @@ public final class NetconfMdsalMapperProvider extends ProviderTrait<NetconfOpera
     @Override
     protected MdsalNetconfOperationServiceFactory create() {
         MdsalNetconfOperationServiceFactory mdsalNetconfOperationServiceFactory =
-                new MdsalNetconfOperationServiceFactory(schemaService, moduleInfoBackedContext, netconfOperationServiceFactoryListener, domBroker, rpcService);
+                new MdsalNetconfOperationServiceFactory(schemaService, netconfOperationServiceFactoryListener,
+                        domBroker, rpcService);
         return mdsalNetconfOperationServiceFactory;
     }
 }

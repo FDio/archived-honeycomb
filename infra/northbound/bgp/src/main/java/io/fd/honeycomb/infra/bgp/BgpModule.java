@@ -47,6 +47,8 @@ public final class BgpModule extends PrivateModule {
         // Create BGPDispatcher BGPDispatcher for creating BGP clients
         bind(EventLoopGroup.class).toProvider(BgpNettyThreadGroupProvider.class).in(Singleton.class);
         bind(BGPDispatcher.class).toProvider(BGPDispatcherImplProvider.class).in(Singleton.class);
+        // Bind BgpPolicy configuration before RIB is initialized
+        install(new BgpPolicyConfigurationModule());
 
         configureRIB();
 

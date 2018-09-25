@@ -26,12 +26,12 @@ import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import java.nio.file.Paths;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 
 final class PersistedConfigInitializerProvider extends ProviderTrait<RestoringInitializer> {
 
     @Inject
-    private SchemaService schemaService;
+    private DOMSchemaService schemaService;
     @Inject
     protected HoneycombConfiguration cfgAttributes;
     @Inject

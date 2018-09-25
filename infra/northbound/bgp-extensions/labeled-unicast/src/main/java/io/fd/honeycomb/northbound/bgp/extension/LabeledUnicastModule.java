@@ -32,11 +32,11 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.r
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4LABELLEDUNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6LABELLEDUNICAST;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.LabeledUnicastSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.AfiSafi2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev171207.AfiSafi2Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.LabeledUnicastSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAddPathsConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborAddPathsConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev180329.Ipv6AddressFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,8 +87,8 @@ public class LabeledUnicastModule extends AbstractBgpExtensionModule {
         @Override
         public AfiSafi get() {
             return new AfiSafiBuilder().setAfiSafiName(IPV4LABELLEDUNICAST.class)
-                    .addAugmentation(AfiSafi2.class,
-                            new AfiSafi2Builder().setReceive(cfg.isBgpMultiplePathsEnabled())
+                    .addAugmentation(NeighborAddPathsConfig .class,
+                            new NeighborAddPathsConfigBuilder().setReceive(cfg.isBgpMultiplePathsEnabled())
                                     .setSendMax(cfg.bgpSendMaxMaths.get().shortValue()).build())
                     .build();
         }
@@ -101,8 +101,8 @@ public class LabeledUnicastModule extends AbstractBgpExtensionModule {
         @Override
         public AfiSafi get() {
             return new AfiSafiBuilder().setAfiSafiName(IPV6LABELLEDUNICAST.class)
-                    .addAugmentation(AfiSafi2.class,
-                            new AfiSafi2Builder().setReceive(cfg.isBgpMultiplePathsEnabled())
+                    .addAugmentation(NeighborAddPathsConfig .class,
+                            new NeighborAddPathsConfigBuilder().setReceive(cfg.isBgpMultiplePathsEnabled())
                                     .setSendMax(cfg.bgpSendMaxMaths.get().shortValue()).build())
                     .build();
         }

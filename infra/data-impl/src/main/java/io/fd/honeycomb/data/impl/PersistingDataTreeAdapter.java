@@ -29,7 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
@@ -62,7 +62,7 @@ public class PersistingDataTreeAdapter implements DataTree {
      * @param schemaService schemaContext provier
      */
     public PersistingDataTreeAdapter(@Nonnull final DataTree delegate,
-                                     @Nonnull final SchemaService schemaService,
+                                     @Nonnull final DOMSchemaService schemaService,
                                      @Nonnull final Path persistPath) {
         this(delegate, new JsonPersister(persistPath, schemaService));
     }
@@ -102,9 +102,9 @@ public class PersistingDataTreeAdapter implements DataTree {
     static class JsonPersister {
 
         private final Path path;
-        private final SchemaService schemaServiceDependency;
+        private final DOMSchemaService schemaServiceDependency;
 
-        JsonPersister(final Path persistPath, final SchemaService schemaService) {
+        JsonPersister(final Path persistPath, final DOMSchemaService schemaService) {
             this.path = testPersistPath(checkNotNull(persistPath, "persistPath is null"));
             this.schemaServiceDependency = checkNotNull(schemaService, "schemaService is null");
         }

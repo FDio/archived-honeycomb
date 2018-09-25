@@ -26,17 +26,13 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataChangeListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,14 +71,6 @@ public class DataBroker implements DOMDataBroker, Closeable {
     public DOMDataWriteTransaction newWriteOnlyTransaction() {
         LOG.trace("DataBroker({}).newWriteOnlyTransaction()", this);
         return transactionFactory.newWriteOnlyTransaction();
-    }
-
-    @Override
-    public ListenerRegistration<DOMDataChangeListener> registerDataChangeListener(final LogicalDatastoreType store,
-                                                                                  final YangInstanceIdentifier path,
-                                                                                  final DOMDataChangeListener listener,
-                                                                                  final DataChangeScope triggeringScope) {
-        throw new UnsupportedOperationException("Not supported");
     }
 
     @Override

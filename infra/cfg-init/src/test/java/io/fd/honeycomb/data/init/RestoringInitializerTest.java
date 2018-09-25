@@ -34,7 +34,7 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -43,7 +43,7 @@ import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 public class RestoringInitializerTest {
 
     @Mock
-    private SchemaService schemaService;
+    private DOMSchemaService schemaService;
     @Mock
     private SchemaContext schemaContext;
     @Mock

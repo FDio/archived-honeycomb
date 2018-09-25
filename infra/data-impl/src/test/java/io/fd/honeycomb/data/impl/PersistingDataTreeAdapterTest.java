@@ -35,7 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
@@ -47,7 +47,7 @@ public class PersistingDataTreeAdapterTest {
     @Mock
     private DataTree delegatingDataTree;
     @Mock
-    private SchemaService schemaService;
+    private DOMSchemaService schemaService;
     @Mock
     private DataTreeSnapshot snapshot;
     @Mock

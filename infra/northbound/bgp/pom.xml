@@ -79,6 +79,11 @@
             <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>bgp-rib-impl</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-openconfig-rp-impl</artifactId>
+            <version>${odl.bgpcep.version}</version>
+        </dependency>
 
         <!-- test dependencies -->
         <dependency>

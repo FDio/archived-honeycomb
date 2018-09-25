@@ -54,6 +54,12 @@
       <groupId>org.opendaylight.mdsal.model</groupId>
       <artifactId>ietf-topology</artifactId>
     </dependency>
+    <!--Required by FakeBindingAwareBroker -> BundleContext-->
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>${osgi-core.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>junit</groupId>

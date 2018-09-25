@@ -19,6 +19,9 @@ package io.fd.honeycomb.translate.impl.read;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.MoreExecutors;
 import io.fd.honeycomb.translate.read.InitFailedException;
 import io.fd.honeycomb.translate.read.InitReader;
 import io.fd.honeycomb.translate.read.ReadContext;
@@ -26,8 +29,10 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import javax.annotation.Nonnull;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -68,6 +73,17 @@ public final class GenericInitReader<O extends DataObject, B extends Builder<O>>
     static void writeInit(final DataBroker broker, final Initialized<? extends DataObject> init) {
         final WriteTransaction writeTx = broker.newWriteOnlyTransaction();
         writeTx.merge(CONFIGURATION, (InstanceIdentifier) init.getId(), init.getData(), true);
-        writeTx.submit();
+        FluentFuture<? extends CommitInfo> future = writeTx.commit();
+        future.addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(@NullableDecl final CommitInfo commitInfo) {
+                LOG.debug("Transaction: {} successfully committed.", writeTx);
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.warn("Transaction: {} failed.", writeTx);
+            }
+        }, MoreExecutors.directExecutor());
     }
 }

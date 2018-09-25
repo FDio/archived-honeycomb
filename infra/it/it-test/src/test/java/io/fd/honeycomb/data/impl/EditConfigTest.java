@@ -38,9 +38,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.config.util.xml.DocumentedException;
-import org.opendaylight.controller.config.util.xml.XmlUtil;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
+import org.opendaylight.netconf.api.DocumentedException;
+import org.opendaylight.netconf.api.xml.XmlUtil;
 import org.opendaylight.netconf.mapping.api.NetconfOperation;
 import org.opendaylight.netconf.mapping.api.NetconfOperationChainedExecution;
 import org.opendaylight.netconf.mdsal.connector.CurrentSchemaContext;
@@ -68,7 +68,7 @@ public class EditConfigTest {
     @Mock
     private ReadableDataManager operationalData;
     @Mock
-    private SchemaService schemaService;
+    private DOMSchemaService schemaService;
 
     private CurrentSchemaContext currentSchemaContext;
     private DataBroker dataBroker;

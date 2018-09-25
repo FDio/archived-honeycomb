@@ -29,6 +29,7 @@ import io.fd.honeycomb.translate.impl.write.NoopWriters.NonDirectUpdateWriterCus
 import io.fd.honeycomb.translate.impl.write.NoopWriters.ParentImplDirectUpdateWriterCustomizer;
 import io.fd.honeycomb.translate.util.DataObjects;
 import io.fd.honeycomb.translate.write.Writer;
+import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.Set;
 import org.hamcrest.CoreMatchers;
@@ -66,15 +67,29 @@ public class SubtreeWriterTest {
     }
 
     @Test
+    public void testCanHandleChild() throws Exception {
+        final SubtreeWriter<?> forWriter = createSubtreeWriter();
+
+        InstanceIdentifier<DataObjects.DataObject4.DataObject41.DataObject411> testIid = InstanceIdentifier.create(
+                DataObjects.DataObject4.class).child(DataObjects.DataObject4.DataObject41.class).child(
+                DataObjects.DataObject4.DataObject41.DataObject411.class);
+        assertTrue(forWriter.canProcess(testIid));
+    }
+
+    @Test
     public void testSubtreeWriterCreation() throws Exception {
-        final SubtreeWriter<?> forWriter = (SubtreeWriter<?>) SubtreeWriter.createForWriter(Sets.newHashSet(
+        final SubtreeWriter<?> forWriter = createSubtreeWriter();
+
+        assertEquals(writer.getManagedDataObjectType(), forWriter.getManagedDataObjectType());
+        assertEquals(3, forWriter.getHandledChildTypes().size());
+    }
+
+    private SubtreeWriter<?> createSubtreeWriter() {
+        return (SubtreeWriter<?>) SubtreeWriter.createForWriter(Sets.newHashSet(
                 DataObjects.DataObject4.DataObject41.IID,
                 DataObjects.DataObject4.DataObject41.DataObject411.IID,
                 DataObjects.DataObject4.DataObject42.IID),
                 writer);
-
-        assertEquals(writer.getManagedDataObjectType(), forWriter.getManagedDataObjectType());
-        assertEquals(3, forWriter.getHandledChildTypes().size());
     }
 
     @Test

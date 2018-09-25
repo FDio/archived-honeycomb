@@ -25,14 +25,14 @@ import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
-import org.opendaylight.controller.sal.core.api.model.SchemaService;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 
 public final class ReadableDTDelegProvider extends ProviderTrait<ReadableDataManager> {
 
     @Inject
     private BindingToNormalizedNodeCodec serializer;
     @Inject
-    private SchemaService schemaService;
+    private DOMSchemaService schemaService;
     @Inject
     private ReaderRegistry registry;
     @Inject

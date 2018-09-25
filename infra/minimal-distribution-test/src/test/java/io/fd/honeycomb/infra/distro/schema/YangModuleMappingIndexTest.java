@@ -36,7 +36,7 @@ public class YangModuleMappingIndexTest {
         final Collection<String> yangModules =
                 index.getByModuleName("io.fd.honeycomb.infra.distro.cfgattrs.CfgAttrsModule");
         assertNotNull(yangModules);
-        assertEquals(51, yangModules.size());
+        assertEquals(50, yangModules.size());
         assertTrue(yangModules.contains(
                 "org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.md.sal.remote.rev140114.$YangModelBindingProvider"));
         assertTrue(yangModules.contains(

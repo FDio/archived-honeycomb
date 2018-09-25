@@ -24,6 +24,7 @@ import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.translate.write.Writer;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -99,7 +100,20 @@ final class SubtreeWriter<D extends DataObject> implements Writer<D> {
             }
             return false;
         }
-        return handledChildTypes.contains(instanceIdentifier);
+        return handledChildTypes.parallelStream()
+                .filter(childIiD -> instanceIdentifier.getTargetType().equals(childIiD.getTargetType()))
+                .anyMatch(instanceIdentifier1 -> isPathEqual(instanceIdentifier, instanceIdentifier1));
+    }
+
+    private boolean isPathEqual(@Nonnull final InstanceIdentifier<?> iid, final InstanceIdentifier<?> childIiD) {
+        // Verifying path because the same type can be used in several places.
+        Iterator<InstanceIdentifier.PathArgument> pathArguments = iid.getPathArguments().iterator();
+        for (final InstanceIdentifier.PathArgument pathArgument : childIiD.getPathArguments()) {
+            if (!pathArguments.hasNext() || !pathArgument.getType().equals(pathArguments.next().getType())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

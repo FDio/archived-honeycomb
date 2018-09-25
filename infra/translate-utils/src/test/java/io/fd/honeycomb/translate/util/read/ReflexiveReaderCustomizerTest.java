@@ -16,21 +16,25 @@
 
 package io.fd.honeycomb.translate.util.read;
 
-import com.google.common.collect.Lists;
-import io.fd.honeycomb.translate.read.ReadContext;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.opendaylight.yangtools.concepts.Builder;
-import org.opendaylight.yangtools.yang.binding.*;
-
-import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verifyZeroInteractions;
+
+import com.google.common.collect.Lists;
+import io.fd.honeycomb.translate.read.ReadContext;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.Nonnull;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.opendaylight.yangtools.concepts.Builder;
+import org.opendaylight.yangtools.yang.binding.Augmentation;
+import org.opendaylight.yangtools.yang.binding.DataContainer;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class ReflexiveReaderCustomizerTest {
 
@@ -111,7 +115,7 @@ public class ReflexiveReaderCustomizerTest {
         }
 
         @Override
-        public TestingListKey getKey() {
+        public TestingListKey key() {
             return new TestingListKey();
         }
 

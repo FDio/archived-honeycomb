@@ -97,7 +97,7 @@ public class HoneycombTestRunnerContainerTest implements InjectablesProcessor {
     public void testLeafInAugmentedContainer() {
         assertNotNull(containerWithLeafInAugment);
         assertNotNull(containerWithLeafInAugment.getAugmentedContainer());
-        assertEquals("nameInAugment", containerWithLeafInAugment.getAugmentedContainer().getAugmentation(
+        assertEquals("nameInAugment", containerWithLeafInAugment.getAugmentedContainer().augmentation(
                 AugContainerAugmentation.class).getNameInAugment());
     }
 

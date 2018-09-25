@@ -59,14 +59,14 @@ public class ReflexiveListReaderCustomizer<C extends DataObject & Identifiable<K
     public void readCurrentAttributes(final InstanceIdentifier<C> id, final B builder, final ReadContext context)
         throws ReadFailedException {
         final Optional<Method> method =
-            ReflectionUtils.findMethodReflex(builder.getClass(), "setKey",
+            ReflectionUtils.findMethodReflex(builder.getClass(), "withKey",
                 Collections.singletonList(keyType), builder.getClass());
-        checkArgument(method.isPresent(), "Unable to setKey to %s", builder);
+        checkArgument(method.isPresent(), "Unable to build withKey for %s", builder);
 
         try {
             method.get().invoke(builder, ((KeyedInstanceIdentifier)id).getKey());
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new IllegalArgumentException("Unable to setKey to " + builder, e);
+            throw new IllegalArgumentException("Unable to build withKey for " + builder, e);
         }
     }
 

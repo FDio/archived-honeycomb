@@ -75,6 +75,11 @@
             <artifactId>bgp-parser-impl</artifactId>
             <version>${odl.bgpcep.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-binding-broker-impl</artifactId>
+            <version>${odl.mdsal.controller.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

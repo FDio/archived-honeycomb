@@ -68,7 +68,7 @@ public class HoneycombSubtreeReadInfraTest extends AbstractInfraTest {
                                                           final ListInContainerBuilder builder,
                                                           final ReadContext context) throws ReadFailedException {
                             super.readCurrentAttributes(id, builder, context);
-                            builder.setKey(id.firstKeyOf(ListInContainer.class));
+                            builder.withKey(id.firstKeyOf(ListInContainer.class));
                         }
                     });
 

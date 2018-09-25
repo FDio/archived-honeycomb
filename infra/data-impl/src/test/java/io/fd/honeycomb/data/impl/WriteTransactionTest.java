@@ -27,6 +27,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.util.concurrent.CheckedFuture;
 import io.fd.honeycomb.data.DataModification;
+import io.fd.honeycomb.translate.TranslationException;
 import io.fd.honeycomb.translate.ValidationFailedException;
 import org.junit.Before;
 import org.junit.Test;
@@ -115,9 +116,11 @@ public class WriteTransactionTest {
 
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testCommit() {
+    @Test
+    public void testCommit() throws TranslationException {
         writeTx.commit();
+        verify(configSnapshot).validate();
+        verify(configSnapshot).commit();
     }
 
     @Test
