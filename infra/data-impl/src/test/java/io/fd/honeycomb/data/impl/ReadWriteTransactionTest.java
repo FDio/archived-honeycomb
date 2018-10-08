@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
@@ -35,7 +34,7 @@ public class ReadWriteTransactionTest {
     private DOMDataReadOnlyTransaction readTx;
 
     @Mock
-    private DOMDataWriteTransaction writeTx;
+    private ValidableTransaction writeTx;
 
     private LogicalDatastoreType store;
 

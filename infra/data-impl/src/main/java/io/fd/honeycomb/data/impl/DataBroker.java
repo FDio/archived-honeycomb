@@ -33,6 +33,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.opendaylight.netconf.mdsal.connector.DOMDataTransactionValidator;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +82,10 @@ public class DataBroker implements DOMDataBroker, Closeable {
     @Nonnull
     @Override
     public Map<Class<? extends DOMDataBrokerExtension>, DOMDataBrokerExtension> getSupportedExtensions() {
-        return Collections.emptyMap();
+        return Collections.singletonMap(
+            DOMDataTransactionValidator.class,
+            (DOMDataTransactionValidator) tx -> ((ValidableTransaction)tx).validate()
+        );
     }
 
     /**

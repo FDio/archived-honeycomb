@@ -32,7 +32,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.netconf.mdsal.connector.DOMDataTransactionValidator;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -40,7 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @NotThreadSafe
-final class WriteTransaction implements DOMDataWriteTransaction {
+final class WriteTransaction implements ValidableTransaction {
 
     private static final Logger LOG = LoggerFactory.getLogger(WriteTransaction.class);
 
@@ -120,7 +120,7 @@ final class WriteTransaction implements DOMDataWriteTransaction {
         checkIsNew();
 
         try {
-            validateAndCommit();
+            doCommit();
         } catch (Exception e) {
             status = TransactionStatus.FAILED;
             LOG.error("Submit failed", e);
@@ -130,16 +130,8 @@ final class WriteTransaction implements DOMDataWriteTransaction {
         return Futures.immediateCheckedFuture(null);
     }
 
-    private void validateAndCommit() throws TranslationException {
+    private void doCommit() throws TranslationException {
         status = TransactionStatus.SUBMITED;
-        // Validate first to catch any issues before attempting commit
-        if (configModification != null) {
-            configModification.validate();
-        }
-        if (operationalModification != null) {
-            operationalModification.validate();
-        }
-
         if (configModification != null) {
             configModification.commit();
         }
@@ -155,7 +147,7 @@ final class WriteTransaction implements DOMDataWriteTransaction {
         LOG.trace("WriteTransaction.commit()");
         checkIsNew();
         try {
-            validateAndCommit();
+            doCommit();
         } catch (Exception e) {
             status = TransactionStatus.FAILED;
             LOG.error("Submit failed", e);
@@ -169,6 +161,21 @@ final class WriteTransaction implements DOMDataWriteTransaction {
     @Override
     public Object getIdentifier() {
         return this;
+    }
+
+    @Override
+    public CheckedFuture<Void, DOMDataTransactionValidator.ValidationFailedException> validate() {
+        try {
+            if (configModification != null) {
+                configModification.validate();
+            }
+            if (operationalModification != null) {
+                operationalModification.validate();
+            }
+        } catch (Exception e) {
+            return Futures.immediateFailedCheckedFuture(new DOMDataTransactionValidator.ValidationFailedException(e.getMessage(), e.getCause()));
+        }
+        return Futures.immediateCheckedFuture(null);
     }
 
 
@@ -188,7 +195,7 @@ final class WriteTransaction implements DOMDataWriteTransaction {
         return new WriteTransaction(requireNonNull(configData), requireNonNull(operationalData));
     }
 
-    // TODO consider removing because original class was deprecated and removed, this is just temporary fix.
+    // TODO consider refactor based on implemented contract.
     enum TransactionStatus {
         /**
          * The transaction has been freshly allocated. The user is still accessing

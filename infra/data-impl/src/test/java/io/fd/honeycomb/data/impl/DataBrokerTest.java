@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.data.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -34,6 +36,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListen
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadWriteTransaction;
+import org.opendaylight.netconf.mdsal.connector.DOMDataTransactionValidator;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 public class DataBrokerTest {
@@ -93,7 +96,8 @@ public class DataBrokerTest {
     public void testGetSupportedExtensions() {
         final Map<Class<? extends DOMDataBrokerExtension>, DOMDataBrokerExtension> supportedExtensions =
                 broker.getSupportedExtensions();
-        assertTrue(supportedExtensions.isEmpty());
+        assertEquals(1, supportedExtensions.size());
+        assertNotNull(supportedExtensions.get(DOMDataTransactionValidator.class));
     }
 
     public static class DataBrokerForContextTest {

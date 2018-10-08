@@ -31,6 +31,7 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataReadTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.netconf.mdsal.connector.DOMDataTransactionValidator;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.slf4j.Logger;
@@ -40,15 +41,15 @@ import org.slf4j.LoggerFactory;
  * Composite DOM transaction that delegates reads to a {@link DOMDataReadTransaction} delegate and writes to a {@link
  * DOMDataWriteTransaction} delegate.
  */
-final class ReadWriteTransaction implements DOMDataReadWriteTransaction {
+final class ReadWriteTransaction implements DOMDataReadWriteTransaction, ValidableTransaction {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReadWriteTransaction.class);
 
     private final DOMDataReadOnlyTransaction delegateReadTx;
-    private final DOMDataWriteTransaction delegateWriteTx;
+    private final ValidableTransaction delegateWriteTx;
 
     ReadWriteTransaction(@Nonnull final DOMDataReadOnlyTransaction delegateReadTx,
-                         @Nonnull final DOMDataWriteTransaction delegateWriteTx) {
+                         @Nonnull final ValidableTransaction delegateWriteTx) {
         this.delegateReadTx = Preconditions.checkNotNull(delegateReadTx, "delegateReadTx should not be null");
         this.delegateWriteTx = Preconditions.checkNotNull(delegateWriteTx, "delegateWriteTx should not be null");
     }
@@ -110,6 +111,11 @@ final class ReadWriteTransaction implements DOMDataReadWriteTransaction {
     @Override
     public Object getIdentifier() {
         return this;
+    }
+
+    @Override
+    public CheckedFuture<Void, DOMDataTransactionValidator.ValidationFailedException> validate() {
+        return delegateWriteTx.validate();
     }
 }
 

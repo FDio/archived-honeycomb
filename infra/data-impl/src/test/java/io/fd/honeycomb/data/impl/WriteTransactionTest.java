@@ -119,7 +119,6 @@ public class WriteTransactionTest {
     @Test
     public void testCommit() throws TranslationException {
         writeTx.commit();
-        verify(configSnapshot).validate();
         verify(configSnapshot).commit();
     }
 
