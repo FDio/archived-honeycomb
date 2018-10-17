@@ -20,7 +20,7 @@
     <parent>
         <groupId>io.fd.honeycomb.common</groupId>
         <artifactId>impl-parent</artifactId>
-        <version>1.18.10-SNAPSHOT</version>
+        <version>1.18.10-RC1</version>
         <relativePath>../../common/impl-parent</relativePath>
     </parent>
 
@@ -28,7 +28,7 @@
     <groupId>io.fd.honeycomb</groupId>
     <artifactId>bgp-translate-api</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.18.10-SNAPSHOT</version>
+    <version>1.18.10-RC1</version>
     <dependencies>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
