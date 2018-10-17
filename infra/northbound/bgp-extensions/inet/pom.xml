@@ -21,14 +21,14 @@
     <parent>
         <artifactId>impl-parent</artifactId>
         <groupId>io.fd.honeycomb.common</groupId>
-        <version>1.18.10-RC1</version>
+        <version>1.18.10-SNAPSHOT</version>
         <relativePath>../../../../common/impl-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fd.honeycomb.northbound.bgp</groupId>
     <artifactId>inet</artifactId>
-    <version>1.18.10-RC1</version>
+    <version>1.18.10-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 
     <dependencies>
