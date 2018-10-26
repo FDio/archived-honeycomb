@@ -17,7 +17,7 @@
   <parent>
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>api-parent</artifactId>
-    <version>1.18.10</version>
+    <version>1.18.10.1-SNAPSHOT</version>
     <relativePath>../../../common/api-parent</relativePath>
   </parent>
 
@@ -25,7 +25,7 @@
   <groupId>io.fd.honeycomb.samples.interfaces</groupId>
   <artifactId>interfaces-models</artifactId>
   <name>${project.artifactId}</name>
-  <version>1.18.10</version>
+  <version>1.18.10.1-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
   <properties>
