@@ -21,6 +21,10 @@ Adding to the list of existing features: https://docs.fd.io/honeycomb/1.18.07/re
 
 === New features
 
+* https://jira.fd.io/browse/HONEYCOMB-433[ODL Fluorine]
+* https://jira.fd.io/browse/HONEYCOMB-429[Copy-config support]
+* https://jira.fd.io/browse/HONEYCOMB-431[Candidate validation]
+
 === Removed features
 
 === Modified features
