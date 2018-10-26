@@ -19,7 +19,7 @@
     <parent>
         <artifactId>impl-parent</artifactId>
         <groupId>io.fd.honeycomb.common</groupId>
-        <version>1.18.10-SNAPSHOT</version>
+        <version>1.18.10</version>
         <relativePath>../../../common/impl-parent</relativePath>
     </parent>
 
@@ -27,10 +27,10 @@
     <groupId>io.fd.honeycomb.it</groupId>
     <artifactId>honeycomb-it-test</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.18.10-SNAPSHOT</version>
+    <version>1.18.10</version>
 
     <properties>
-        <hc.infra.version>1.18.10-SNAPSHOT</hc.infra.version>
+        <hc.infra.version>1.18.10</hc.infra.version>
     </properties>
 
     <dependencies>
