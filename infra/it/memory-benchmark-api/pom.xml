@@ -5,13 +5,13 @@
     <parent>
         <artifactId>api-parent</artifactId>
         <groupId>io.fd.honeycomb.common</groupId>
-        <version>1.19.01-RC1</version>
+        <version>1.19.01-SNAPSHOT</version>
         <relativePath>../../../common/api-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fd.honeycomb.it</groupId>
     <artifactId>memory-benchmark-api</artifactId>
-    <version>1.19.01-RC1</version>
+    <version>1.19.01-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 </project>
