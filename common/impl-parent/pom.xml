@@ -19,14 +19,14 @@
   <parent>
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>honeycomb-parent</artifactId>
-    <version>1.19.01-SNAPSHOT</version>
+    <version>1.19.01</version>
     <relativePath>../honeycomb-parent</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>impl-parent</artifactId>
   <name>${project.artifactId}</name>
-  <version>1.19.01-SNAPSHOT</version>
+  <version>1.19.01</version>
   <packaging>pom</packaging>
 
   <properties>
@@ -118,7 +118,7 @@
             <dependency>
               <groupId>io.fd.honeycomb.common</groupId>
               <artifactId>common-scripts</artifactId>
-              <version>1.19.01-SNAPSHOT</version>
+              <version>1.19.01</version>
             </dependency>
           </dependencies>
         </plugin>
