@@ -22,14 +22,14 @@
     <parent>
         <groupId>io.fd.honeycomb.common</groupId>
         <artifactId>honeycomb-parent</artifactId>
-        <version>1.19.01</version>
+        <version>1.19.01.1-SNAPSHOT</version>
         <relativePath>../../../common/honeycomb-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.honeycomb</groupId>
     <artifactId>benchmark</artifactId>
-    <version>1.19.01</version>
+    <version>1.19.01.1-SNAPSHOT</version>
     <name>${project.artifactId}</name>
     <packaging>jar</packaging>
 
