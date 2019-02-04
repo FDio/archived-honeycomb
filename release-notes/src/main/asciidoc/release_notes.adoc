@@ -21,6 +21,8 @@ Adding to the list of existing features: https://docs.fd.io/honeycomb/1.18.10/re
 
 === New features
 
+* https://jira.fd.io/browse/HONEYCOMB-448[Prepare migration to JAVA 11]
+
 === Removed features
 
 === Modified features
