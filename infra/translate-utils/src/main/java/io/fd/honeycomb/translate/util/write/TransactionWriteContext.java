@@ -18,17 +18,17 @@ package io.fd.honeycomb.translate.util.write;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.write.WriteContext;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeReadTransaction;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -39,15 +39,15 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
  */
 public final class TransactionWriteContext implements WriteContext {
 
-    private final DOMDataReadOnlyTransaction beforeTx;
-    private final DOMDataReadOnlyTransaction afterTx;
+    private final DOMDataTreeReadTransaction beforeTx;
+    private final DOMDataTreeReadTransaction afterTx;
     private final ModificationCache ctx;
     private final BindingNormalizedNodeSerializer serializer;
     private final MappingContext mappingContext;
 
     public TransactionWriteContext(final BindingNormalizedNodeSerializer serializer,
-                                   final DOMDataReadOnlyTransaction beforeTx,
-                                   final DOMDataReadOnlyTransaction afterTx,
+                                   final DOMDataTreeReadTransaction beforeTx,
+                                   final DOMDataTreeReadTransaction afterTx,
                                    final MappingContext mappingContext) {
         this.serializer = serializer;
         this.beforeTx = beforeTx;
@@ -70,18 +70,17 @@ public final class TransactionWriteContext implements WriteContext {
 
 
     private <T extends DataObject> Optional<T> read(final InstanceIdentifier<T> currentId,
-                                                    final DOMDataReadOnlyTransaction tx) {
+                                                    final DOMDataTreeReadTransaction tx) {
         final YangInstanceIdentifier path = serializer.toYangInstanceIdentifier(currentId);
 
-        final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read =
-                tx.read(LogicalDatastoreType.CONFIGURATION, path);
+        final FluentFuture<Optional<NormalizedNode<?, ?>>> read = tx.read(LogicalDatastoreType.CONFIGURATION, path);
 
         try {
             // TODO HONEYCOMB-169 once the APIs are asynchronous use just Futures.transform
-            final Optional<NormalizedNode<?, ?>> optional = read.checkedGet();
+            final Optional<NormalizedNode<?, ?>> optional = read.get();
 
             if (!optional.isPresent()) {
-                return Optional.absent();
+                return Optional.empty();
             }
 
             final NormalizedNode<?, ?> data = optional.get();
@@ -91,7 +90,7 @@ public final class TransactionWriteContext implements WriteContext {
             checkState(targetType.isAssignableFrom(entry.getValue().getClass()),
                 "Unexpected data object type, should be: %s, but was: %s", targetType, entry.getValue().getClass());
             return Optional.of(targetType.cast(entry.getValue()));
-        } catch (ReadFailedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             throw new IllegalStateException("Unable to perform read", e);
         }
     }

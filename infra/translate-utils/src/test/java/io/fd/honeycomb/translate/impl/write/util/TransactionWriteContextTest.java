@@ -27,20 +27,20 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.util.DataObjects;
 import io.fd.honeycomb.translate.util.write.TransactionWriteContext;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeReadTransaction;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -51,9 +51,9 @@ public class TransactionWriteContextTest {
     @Mock
     private BindingNormalizedNodeSerializer serializer;
     @Mock
-    private DOMDataReadOnlyTransaction beforeTx;
+    private DOMDataTreeReadTransaction beforeTx;
     @Mock
-    private DOMDataReadOnlyTransaction afterTx;
+    private DOMDataTreeReadTransaction afterTx;
     @Mock
     private Map.Entry entry;
     @Mock
@@ -73,7 +73,7 @@ public class TransactionWriteContextTest {
     @Test
     public void testReadBeforeNoData() throws Exception {
         when(beforeTx.read(eq(LogicalDatastoreType.CONFIGURATION), any(YangInstanceIdentifier.class))).thenReturn(
-                Futures.immediateCheckedFuture(Optional.absent()));
+                FluentFutures.immediateFluentFuture(Optional.empty()));
 
         final InstanceIdentifier<DataObjects.DataObject1> instanceId =
                 InstanceIdentifier.create(DataObjects.DataObject1.class);
@@ -89,7 +89,7 @@ public class TransactionWriteContextTest {
     @Test
     public void testReadBefore() throws Exception {
         when(beforeTx.read(eq(LogicalDatastoreType.CONFIGURATION), any(YangInstanceIdentifier.class))).thenReturn(
-                Futures.immediateCheckedFuture(Optional.of(mock(NormalizedNode.class))));
+                FluentFutures.immediateFluentFuture(Optional.of(mock(NormalizedNode.class))));
 
         final InstanceIdentifier<DataObjects.DataObject1> instanceId =
                 InstanceIdentifier.create(DataObjects.DataObject1.class);
@@ -107,14 +107,14 @@ public class TransactionWriteContextTest {
     @Test(expected = IllegalStateException.class)
     public void testReadBeforeFailed() throws Exception {
         when(beforeTx.read(LogicalDatastoreType.CONFIGURATION, yangId)).thenReturn(
-                Futures.immediateFailedCheckedFuture(mock(ReadFailedException.class)));
+                FluentFutures.immediateFailedFluentFuture(mock(ReadFailedException.class)));
         transactionWriteContext.readBefore(mock(InstanceIdentifier.class));
     }
 
     @Test(expected = IllegalStateException.class)
     public void testReadAfterFailed() throws Exception {
         when(afterTx.read(LogicalDatastoreType.CONFIGURATION, yangId)).thenReturn(
-                Futures.immediateFailedCheckedFuture(mock(ReadFailedException.class)));
+                FluentFutures.immediateFailedFluentFuture(mock(ReadFailedException.class)));
         transactionWriteContext.readAfter(mock(InstanceIdentifier.class));
     }
 

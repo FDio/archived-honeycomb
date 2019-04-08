@@ -18,7 +18,7 @@ package io.fd.honeycomb.translate.read;
 
 import com.google.common.annotations.Beta;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 

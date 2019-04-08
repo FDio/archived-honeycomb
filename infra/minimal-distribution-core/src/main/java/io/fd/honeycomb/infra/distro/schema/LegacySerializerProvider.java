@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2019 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package io.fd.honeycomb.infra.distro.schema;
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
 import javassist.ClassPool;
-import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
 import org.opendaylight.mdsal.binding.dom.codec.gen.impl.DataObjectSerializerGenerator;
 import org.opendaylight.mdsal.binding.dom.codec.gen.impl.StreamWriterGenerator;
 import org.opendaylight.mdsal.binding.dom.codec.impl.BindingNormalizedNodeCodecRegistry;
@@ -27,7 +27,7 @@ import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.mdsal.binding.generator.util.BindingRuntimeContext;
 import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
 
-public class SerializerProvider extends ProviderTrait<BindingToNormalizedNodeCodec> {
+public class LegacySerializerProvider extends ProviderTrait<BindingToNormalizedNodeCodec> {
 
     @Inject
     private ModuleInfoBackedContext mibCtx;
@@ -36,6 +36,7 @@ public class SerializerProvider extends ProviderTrait<BindingToNormalizedNodeCod
     protected BindingToNormalizedNodeCodec create() {
         final DataObjectSerializerGenerator serializerGenerator =
             StreamWriterGenerator.create(JavassistUtils.forClassPool(ClassPool.getDefault()));
+
         BindingNormalizedNodeCodecRegistry codecRegistry = new BindingNormalizedNodeCodecRegistry(serializerGenerator);
         BindingRuntimeContext ctx = BindingRuntimeContext.create(mibCtx, mibCtx.getSchemaContext());
         codecRegistry.onBindingRuntimeContextUpdated(ctx);

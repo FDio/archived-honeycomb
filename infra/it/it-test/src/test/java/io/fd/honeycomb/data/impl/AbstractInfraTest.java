@@ -20,14 +20,13 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.util.concurrent.Futures;
 import java.util.Arrays;
 import java.util.Map;
 import javassist.ClassPool;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
+import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.binding.dom.codec.gen.impl.DataObjectSerializerGenerator;
 import org.opendaylight.mdsal.binding.dom.codec.gen.impl.StreamWriterGenerator;
@@ -35,6 +34,7 @@ import org.opendaylight.mdsal.binding.dom.codec.impl.BindingNormalizedNodeCodecR
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.mdsal.binding.generator.util.BindingRuntimeContext;
 import org.opendaylight.mdsal.binding.generator.util.JavassistUtils;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -52,9 +52,9 @@ abstract class AbstractInfraTest {
     protected SchemaContext schemaContext;
 
     @Mock
-    protected org.opendaylight.controller.md.sal.binding.api.DataBroker contextBroker;
+    protected org.opendaylight.mdsal.binding.api.DataBroker contextBroker;
     @Mock
-    private org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction ctxTx;
+    private org.opendaylight.mdsal.binding.api.ReadWriteTransaction ctxTx;
 
     static BindingToNormalizedNodeCodec getSerializer(final ModuleInfoBackedContext moduleInfoBackedContext,
                                                       final SchemaContext schemaContext) {
@@ -82,7 +82,7 @@ abstract class AbstractInfraTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         when(contextBroker.newReadWriteTransaction()).thenReturn(ctxTx);
-        when(ctxTx.submit()).thenReturn(Futures.immediateCheckedFuture(null));
+        when(ctxTx.commit()).thenReturn(FluentFutures.immediateNullFluentFuture());
 
         initSerializer();
         postSetup();

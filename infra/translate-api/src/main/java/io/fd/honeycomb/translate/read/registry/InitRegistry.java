@@ -20,7 +20,7 @@ package io.fd.honeycomb.translate.read.registry;
 import io.fd.honeycomb.translate.read.InitFailedException;
 import io.fd.honeycomb.translate.read.ReadContext;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 
 /**
  * Root initializer.

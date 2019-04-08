@@ -18,7 +18,7 @@ package io.fd.honeycomb.northbound.restconf;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import org.opendaylight.controller.md.sal.dom.api.DOMMountPointService;
+import org.opendaylight.mdsal.dom.api.DOMMountPointService;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.netconf.sal.restconf.impl.ControllerContext;
 

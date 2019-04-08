@@ -20,7 +20,7 @@ import static io.fd.honeycomb.northbound.bgp.extension.AbstractBgpExtensionModul
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import io.fd.honeycomb.translate.util.write.BindingBrokerWriter;
+import io.fd.honeycomb.translate.util.write.LegacyBindingBrokerWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import javax.annotation.Nonnull;
@@ -38,6 +38,6 @@ public class L3VpnV6WriterFactory implements WriterFactory {
 
     @Override
     public void init(@Nonnull ModifiableWriterRegistryBuilder registry) {
-        registry.wildcardedSubtreeAdd(new BindingBrokerWriter<>(V6_ROUTES_IID, dataBroker));
+        registry.wildcardedSubtreeAdd(new LegacyBindingBrokerWriter<>(V6_ROUTES_IID, dataBroker));
     }
 }

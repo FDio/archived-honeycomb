@@ -16,15 +16,14 @@
 
 package io.fd.honeycomb.translate.util;
 
-import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.MappingContext;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -38,10 +37,10 @@ public final class RealtimeMappingContext implements MappingContext {
 
     @Override
     public <T extends DataObject> Optional<T> read(@Nonnull final InstanceIdentifier<T> currentId) {
-        try (ReadOnlyTransaction tx = contextBindingBrokerDependency.newReadOnlyTransaction()) {
+        try (ReadTransaction tx = contextBindingBrokerDependency.newReadOnlyTransaction()) {
             try {
-                return tx.read(LogicalDatastoreType.OPERATIONAL, currentId).checkedGet();
-            } catch (ReadFailedException e) {
+                return tx.read(LogicalDatastoreType.OPERATIONAL, currentId).get();
+            } catch (InterruptedException | ExecutionException e) {
                 throw new IllegalStateException("Unable to perform read of " + currentId, e);
             }
         }
@@ -52,8 +51,8 @@ public final class RealtimeMappingContext implements MappingContext {
         final WriteTransaction writeTx = contextBindingBrokerDependency.newWriteOnlyTransaction();
         writeTx.delete(LogicalDatastoreType.OPERATIONAL, path);
         try {
-            writeTx.submit().checkedGet();
-        } catch (TransactionCommitFailedException e) {
+            writeTx.commit().get();
+        } catch (InterruptedException | ExecutionException e) {
             throw new IllegalStateException("Unable to perform delete of " + path, e);
         }
     }
@@ -61,10 +60,10 @@ public final class RealtimeMappingContext implements MappingContext {
     @Override
     public <T extends DataObject> void merge(final InstanceIdentifier<T> path, final T data) {
         final WriteTransaction writeTx = contextBindingBrokerDependency.newWriteOnlyTransaction();
-        writeTx.merge(LogicalDatastoreType.OPERATIONAL, path, data, true);
+        writeTx.mergeParentStructureMerge(LogicalDatastoreType.OPERATIONAL, path, data);
         try {
-            writeTx.submit().checkedGet();
-        } catch (TransactionCommitFailedException e) {
+            writeTx.commit().get();
+        } catch (InterruptedException | ExecutionException e) {
             throw new IllegalStateException("Unable to perform merge of " + path, e);
         }
     }
@@ -72,10 +71,10 @@ public final class RealtimeMappingContext implements MappingContext {
     @Override
     public <T extends DataObject> void put(final InstanceIdentifier<T> path, final T data) {
         final WriteTransaction writeTx = contextBindingBrokerDependency.newWriteOnlyTransaction();
-        writeTx.put(LogicalDatastoreType.OPERATIONAL, path, data, true);
+        writeTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, path, data);
         try {
-            writeTx.submit().checkedGet();
-        } catch (TransactionCommitFailedException e) {
+            writeTx.commit().get();
+        } catch (InterruptedException | ExecutionException e) {
             throw new IllegalStateException("Unable to perform put of " + path, e);
         }
     }

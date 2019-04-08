@@ -135,7 +135,7 @@ final class ModificationDiff {
 
         private ModificationDiff detectUnderDisappearedNonPresenceContainer(
                 @Nonnull final Modification modification) {
-            final com.google.common.base.Optional<NormalizedNode<?, ?>> dataBefore = modification.getDataBefore();
+            final java.util.Optional<NormalizedNode<?, ?>> dataBefore = modification.getDataBefore();
 
             // is disappear case
             if (dataBefore.isPresent()) {

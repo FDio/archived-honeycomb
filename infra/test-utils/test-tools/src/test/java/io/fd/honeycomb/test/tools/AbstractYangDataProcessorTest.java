@@ -21,7 +21,7 @@ import io.fd.honeycomb.test.tools.annotations.InjectablesProcessor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import org.junit.Before;
-import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
+import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.data.rev150105.$YangModuleInfoImpl;
 import org.opendaylight.yangtools.yang.data.util.AbstractModuleStringInstanceIdentifierCodec;

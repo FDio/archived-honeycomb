@@ -101,7 +101,7 @@ public final class RWUtils {
     @Nonnull
     public static <D extends DataObject & Identifiable<K>, K extends Identifier<D>> InstanceIdentifier.IdentifiableItem<D, K> getCurrentIdItem(
         @Nonnull final InstanceIdentifier<D> id, final K key) {
-        return new InstanceIdentifier.IdentifiableItem<>(id.getTargetType(), key);
+        return InstanceIdentifier.IdentifiableItem.of(id.getTargetType(), key);
     }
 
     /**
@@ -160,7 +160,7 @@ public final class RWUtils {
      */
     @SuppressWarnings("unchecked")
     public static <D extends DataObject> InstanceIdentifier<D> makeIidLastWildcarded(final InstanceIdentifier<D> id) {
-        final InstanceIdentifier.Item<D> wildcardedItem = new InstanceIdentifier.Item<>(id.getTargetType());
+        final InstanceIdentifier.Item<D> wildcardedItem = InstanceIdentifier.Item.of(id.getTargetType());
         final Iterable<InstanceIdentifier.PathArgument> pathArguments = id.getPathArguments();
         return (InstanceIdentifier<D>) InstanceIdentifier.create(
                 Iterables.concat(
@@ -170,7 +170,7 @@ public final class RWUtils {
 
     private static InstanceIdentifier.PathArgument cleanPathArgumentFromKeys(final InstanceIdentifier.PathArgument pathArgument) {
         return pathArgument instanceof InstanceIdentifier.IdentifiableItem<?, ?>
-                ? new InstanceIdentifier.Item<>(pathArgument.getType())
+                ? InstanceIdentifier.Item.of(pathArgument.getType())
                 : pathArgument;
     }
 }

@@ -27,7 +27,7 @@ import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.data.init.InitializerRegistry;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 
 public final class InitializerRegistryAdapterProvider extends ProviderTrait<InitializerRegistry> {
 

@@ -24,11 +24,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -90,7 +90,7 @@ public class RestoringInitializer implements DataTreeInitializer {
         try {
             final ContainerNode containerNode = jsonReader.readData(schemaService.getGlobalContext(), path);
 
-            final DOMDataWriteTransaction domDataWriteTransaction = dataTree.newWriteOnlyTransaction();
+            final DOMDataTreeWriteTransaction domDataWriteTransaction = dataTree.newWriteOnlyTransaction();
             for (DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?> dataContainerChild : containerNode
                 .getValue()) {
                 final YangInstanceIdentifier iid = YangInstanceIdentifier.create(dataContainerChild.getIdentifier());
@@ -110,11 +110,11 @@ public class RestoringInitializer implements DataTreeInitializer {
             }
 
             // Block here to prevent subsequent initializers processing before context is fully restored
-            domDataWriteTransaction.submit().checkedGet();
+            domDataWriteTransaction.commit().get();
             LOG.debug("Data from {} restored successfully", path);
 
-        } catch (IOException | TransactionCommitFailedException e) {
-            throw new InitializeException("Unable to restore data from " + path, e);
+        } catch (IOException | InterruptedException | ExecutionException ex) {
+            throw new InitializeException("Unable to restore data from " + path, ex);
         }
     }
 

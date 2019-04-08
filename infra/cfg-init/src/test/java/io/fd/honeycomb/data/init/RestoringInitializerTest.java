@@ -20,7 +20,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.google.common.util.concurrent.Futures;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -31,10 +30,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -53,7 +53,7 @@ public class RestoringInitializerTest {
     @Mock
     private ContainerNode data;
     @Mock
-    private DOMDataWriteTransaction writeTx;
+    private DOMDataTreeWriteTransaction writeTx;
     private Path path;
     private YangInstanceIdentifier.NodeIdentifier nodeId =
             new YangInstanceIdentifier.NodeIdentifier(QName.create("namespace", "data"));
@@ -65,7 +65,7 @@ public class RestoringInitializerTest {
         when(schemaService.getGlobalContext()).thenReturn(schemaContext);
         when(jsonReader.readData(schemaContext, path)).thenReturn(data);
         when(dataTree.newWriteOnlyTransaction()).thenReturn(writeTx);
-        when(writeTx.submit()).thenReturn(Futures.immediateCheckedFuture(null));
+        when(writeTx.commit()).thenReturn(FluentFutures.immediateNullFluentFuture());
         when(data.getValue()).thenReturn(Collections.singleton(data));
         when(data.getIdentifier()).thenReturn(nodeId);
     }
@@ -92,7 +92,7 @@ public class RestoringInitializerTest {
 
         verify(dataTree).newWriteOnlyTransaction();
         verify(writeTx).put(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.create(nodeId), data);
-        verify(writeTx).submit();
+        verify(writeTx).commit();
     }
 
     @Test

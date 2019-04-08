@@ -21,7 +21,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.translate.write.DataObjectUpdate;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
@@ -32,8 +31,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -52,7 +52,7 @@ abstract class ModifiableDataTreeDelegatorBaseTest extends ModificationBaseTest 
     @Mock
     DataBroker contextBroker;
     @Mock
-    org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction tx;
+    org.opendaylight.mdsal.binding.api.ReadWriteTransaction tx;
 
     @Captor
     ArgumentCaptor<WriteContext> writeContextCaptor;
@@ -72,7 +72,7 @@ abstract class ModifiableDataTreeDelegatorBaseTest extends ModificationBaseTest 
         MockitoAnnotations.initMocks(this);
         dataTree = getDataTree();
         when(contextBroker.newReadWriteTransaction()).thenReturn(tx);
-        when(tx.submit()).thenReturn(Futures.immediateCheckedFuture(null));
+        when(tx.commit()).thenReturn(FluentFutures.immediateNullFluentFuture());
 
         when(serializer.fromYangInstanceIdentifier(any(YangInstanceIdentifier.class)))
                 .thenReturn(((InstanceIdentifier) DEFAULT_ID));

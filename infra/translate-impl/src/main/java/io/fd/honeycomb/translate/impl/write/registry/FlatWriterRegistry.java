@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.stream.Collectors.toMap;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -39,6 +38,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -216,7 +216,8 @@ final class FlatWriterRegistry implements WriterRegistry {
         final Optional<? extends DataObject> parentAfter = ctx.readAfter(parentKeyedId);
 
         // Put the parent update data into updates map so that revert can also access the state
-        DataObjectUpdate parentUpdate = DataObjectUpdate.create(parentKeyedId, parentBefore.orNull(), parentAfter.orNull());
+        DataObjectUpdate parentUpdate =
+                DataObjectUpdate.create(parentKeyedId, parentBefore.orElse(null), parentAfter.orElse(null));
         updates.put(RWUtils.makeIidWildcarded(parentKeyedId), parentUpdate);
         return parentUpdate;
     }

@@ -17,15 +17,13 @@
 package io.fd.honeycomb.data.impl;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.util.concurrent.Futures.immediateCheckedFuture;
 import static io.fd.honeycomb.data.impl.ModifiableDataTreeDelegator.DataTreeWriteContextFactory.DataTreeWriteContext;
 import static io.fd.honeycomb.data.impl.ModifiableDataTreeManager.DataTreeContextFactory.DataTreeContext;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import io.fd.honeycomb.data.DataModification;
 import io.fd.honeycomb.data.ReadableDataManager;
 import io.fd.honeycomb.translate.MappingContext;
@@ -41,14 +39,17 @@ import io.fd.honeycomb.translate.write.registry.WriterRegistry;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry.DataObjectUpdates;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeReadTransaction;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -67,7 +68,8 @@ import org.slf4j.LoggerFactory;
 public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ModifiableDataTreeDelegator.class);
-    private static final ReadableDataManager EMPTY_OPERATIONAL = p -> immediateCheckedFuture(Optional.absent());
+    private static final ReadableDataManager EMPTY_OPERATIONAL =
+            p -> FluentFutures.immediateFluentFuture(Optional.empty());
 
     private final WriterRegistry writerRegistry;
     private final DataBroker contextBroker;
@@ -163,10 +165,10 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
             try {
                 writerRegistry.processModifications(baUpdates, ctx);
 
-                final CheckedFuture<Void, TransactionCommitFailedException> contextUpdateResult =
-                    ((TransactionMappingContext) mappingContext).submit();
+                final FluentFuture<? extends CommitInfo> contextUpdateResult =
+                        ((TransactionMappingContext) mappingContext).commit();
                 // Blocking on context data update
-                contextUpdateResult.checkedGet();
+                contextUpdateResult.get();
             } catch (UpdateFailedException e) {
                 // TODO - HONEYCOMB-411
                 LOG.warn("Failed to apply all changes", e);
@@ -192,11 +194,11 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
                 // not passing the cause,its logged above and it would be logged after transaction
                 // ended again(prevent double logging of same error
                 throw new Reverter.RevertSuccessException(getNonProcessedNodes(baUpdates, processed));
-            } catch (TransactionCommitFailedException e) {
+            } catch (InterruptedException | ExecutionException ex) {
                 // TODO HONEYCOMB-162 revert should probably occur when context is not written successfully
                 final String msg = "Error while updating mapping context data";
-                LOG.error(msg, e);
-                throw new TranslationException(msg, e);
+                LOG.error(msg, ex);
+                throw new TranslationException(msg, ex);
             } finally {
                 // Using finally instead of try-with-resources in order to leave ctx open for BulkUpdateException catch
                 // block. The context is needed there, but try-with-resources closes the resource before handling ex.
@@ -218,9 +220,10 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
         @SuppressWarnings("squid:S2095")
         private TransactionWriteContext getRevertTransactionContext(final MappingContext affectedMappingContext) {
             // Before Tx == after partial update
-            final DOMDataReadOnlyTransaction beforeTx = ReadOnlyTransaction.create(this, EMPTY_OPERATIONAL);
+            final DOMDataTreeReadTransaction beforeTx = ReadOnlyTransaction.create(this, EMPTY_OPERATIONAL);
             // After Tx == before partial update
-            final DOMDataReadOnlyTransaction afterTx = ReadOnlyTransaction.create(untouchedModification, EMPTY_OPERATIONAL);
+            final DOMDataTreeReadTransaction afterTx =
+                    ReadOnlyTransaction.create(untouchedModification, EMPTY_OPERATIONAL);
             return new TransactionWriteContext(serializer, beforeTx, afterTx, affectedMappingContext);
         }
 
@@ -229,9 +232,10 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
         @SuppressWarnings("squid:S2095")
         private TransactionWriteContext getTransactionWriteContext() {
             // Before Tx must use modification
-            final DOMDataReadOnlyTransaction beforeTx = ReadOnlyTransaction.create(untouchedModification, EMPTY_OPERATIONAL);
+            final DOMDataTreeReadTransaction
+                    beforeTx = ReadOnlyTransaction.create(untouchedModification, EMPTY_OPERATIONAL);
             // After Tx must use current modification
-            final DOMDataReadOnlyTransaction afterTx = ReadOnlyTransaction.create(this, EMPTY_OPERATIONAL);
+            final DOMDataTreeReadTransaction afterTx = ReadOnlyTransaction.create(this, EMPTY_OPERATIONAL);
             final TransactionMappingContext mappingContext = new TransactionMappingContext(
                 contextBroker.newReadWriteTransaction());
             return new TransactionWriteContext(serializer, beforeTx, afterTx, mappingContext);

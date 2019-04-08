@@ -24,7 +24,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.infra.bgp.BgpConfiguration;
@@ -115,7 +114,7 @@ public class NeighborCustomizerTest {
 
         when(globalRib.createPeerChain(any())).thenReturn(chain);
         when(chain.newWriteOnlyTransaction()).thenReturn(tx);
-        when(tx.submit()).thenReturn(mock(CheckedFuture.class));
+        when(tx.commit()).thenReturn(mock(FluentFuture.class));
         when(globalRib.getRibSupportContext()).thenReturn(mock(RIBSupportContextRegistry.class));
         when(globalRib.getService()).thenReturn(mock(DOMDataTreeChangeService.class));
         when(globalRib.getDispatcher()).thenReturn(dispatcher);

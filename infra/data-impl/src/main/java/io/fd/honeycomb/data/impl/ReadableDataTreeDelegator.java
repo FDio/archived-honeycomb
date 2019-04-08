@@ -21,12 +21,10 @@ import static com.google.common.collect.Iterables.getOnlyElement;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Multimap;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.FluentFuture;
 import io.fd.honeycomb.data.ReadableDataManager;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
@@ -36,9 +34,12 @@ import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import io.fd.honeycomb.translate.util.TransactionMappingContext;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -67,7 +68,7 @@ public final class ReadableDataTreeDelegator implements ReadableDataManager {
     private final BindingNormalizedNodeSerializer serializer;
     private final ReaderRegistry readerRegistry;
     private final SchemaContext globalContext;
-    private final org.opendaylight.controller.md.sal.binding.api.DataBroker contextBroker;
+    private final org.opendaylight.mdsal.binding.api.DataBroker contextBroker;
 
     /**
      * Creates operational data tree instance.
@@ -80,7 +81,7 @@ public final class ReadableDataTreeDelegator implements ReadableDataManager {
     public ReadableDataTreeDelegator(@Nonnull BindingNormalizedNodeSerializer serializer,
                                      @Nonnull final SchemaContext globalContext,
                                      @Nonnull final ReaderRegistry readerRegistry,
-                                     @Nonnull final org.opendaylight.controller.md.sal.binding.api.DataBroker contextBroker) {
+                                     @Nonnull final org.opendaylight.mdsal.binding.api.DataBroker contextBroker) {
         this.contextBroker = checkNotNull(contextBroker, "contextBroker should not be null");
         this.globalContext = checkNotNull(globalContext, "globalContext should not be null");
         this.serializer = checkNotNull(serializer, "serializer should not be null");
@@ -88,12 +89,12 @@ public final class ReadableDataTreeDelegator implements ReadableDataManager {
     }
 
     @Override
-    public CheckedFuture<Optional<NormalizedNode<?, ?>>,
-            org.opendaylight.controller.md.sal.common.api.data.ReadFailedException> read(
+    public FluentFuture<Optional<NormalizedNode<?, ?>>> read(
             @Nonnull final YangInstanceIdentifier yangInstanceIdentifier) {
 
-        try (TransactionMappingContext mappingContext = new TransactionMappingContext(contextBroker.newReadWriteTransaction());
-            ReadContext ctx = new ReadContextImpl(mappingContext)) {
+        try (TransactionMappingContext mappingContext = new TransactionMappingContext(
+                contextBroker.newReadWriteTransaction());
+             ReadContext ctx = new ReadContextImpl(mappingContext)) {
 
             final Optional<NormalizedNode<?, ?>> value;
             if (checkNotNull(yangInstanceIdentifier).equals(YangInstanceIdentifier.EMPTY)) {
@@ -103,24 +104,17 @@ public final class ReadableDataTreeDelegator implements ReadableDataManager {
             }
 
             // Submit context mapping updates
-            final CheckedFuture<Void, TransactionCommitFailedException> contextUpdateResult =
-                ((TransactionMappingContext) ctx.getMappingContext()).submit();
+            final FluentFuture<? extends CommitInfo> contextUpdateResult =
+                    ((TransactionMappingContext) ctx.getMappingContext()).commit();
             // Blocking on context data update
-            contextUpdateResult.checkedGet();
+            contextUpdateResult.get();
 
-            return Futures.immediateCheckedFuture(value);
+            return FluentFutures.immediateFluentFuture(value);
 
-        } catch (ReadFailedException e) {
-            return Futures.immediateFailedCheckedFuture(
-                new org.opendaylight.controller.md.sal.common.api.data.ReadFailedException("Failed to read data", e));
-        } catch (TransactionCommitFailedException e) {
-            // Context write failed. This should not happen, but if it does, there's not much that can be done here
-            // ... try to read again
-            final String msg = "Error while updating mapping context data";
-            LOG.error(msg, e);
-            return Futures.immediateFailedCheckedFuture(
-                new org.opendaylight.controller.md.sal.common.api.data.ReadFailedException(msg, e)
-            );
+        } catch (InterruptedException | ExecutionException | ReadFailedException ex) {
+            return FluentFutures.immediateFailedFluentFuture(
+                    new org.opendaylight.controller.md.sal.common.api.data.ReadFailedException("Failed to read data",
+                            ex));
         }
     }
 
@@ -138,9 +132,9 @@ public final class ReadableDataTreeDelegator implements ReadableDataManager {
 
         if (dataObject.isPresent()) {
             final NormalizedNode<?, ?> value = toNormalizedNodeFunction(path).apply(dataObject.get());
-            return Optional.<NormalizedNode<?, ?>>fromNullable(value);
+            return Optional.ofNullable(value);
         } else {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 

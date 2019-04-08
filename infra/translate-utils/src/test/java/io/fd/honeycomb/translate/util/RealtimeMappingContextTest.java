@@ -21,19 +21,18 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.FluentFuture;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -44,7 +43,7 @@ public class RealtimeMappingContextTest {
     private RealtimeMappingContext ctx;
     private InstanceIdentifier<DataObject> id = InstanceIdentifier.create(DataObject.class);
     @Mock
-    private ReadOnlyTransaction readTx;
+    private ReadTransaction readTx;
     @Mock
     private WriteTransaction writeTx;
     @Mock
@@ -58,59 +57,60 @@ public class RealtimeMappingContextTest {
 
         when(broker.newReadOnlyTransaction()).thenReturn(readTx);
         when(broker.newWriteOnlyTransaction()).thenReturn(writeTx);
-        when(writeTx.submit()).thenReturn(Futures.immediateCheckedFuture(null));
+        when(writeTx.commit()).thenReturn(FluentFutures.immediateNullFluentFuture());
     }
 
     @Test
-    public void testRead() throws Exception {
-        final CheckedFuture<Optional<DataObject>, ReadFailedException> futureData =
-                Futures.immediateCheckedFuture(Optional.of((data)));
+    public void testRead() {
+        final FluentFuture<Optional<DataObject>> futureData =
+                FluentFutures.immediateFluentFuture(Optional.of((data)));
         when(readTx.read(LogicalDatastoreType.OPERATIONAL, id)).thenReturn(futureData);
 
         assertSame(ctx.read(id).get(), data);
         verify(broker).newReadOnlyTransaction();
         verify(readTx).read(LogicalDatastoreType.OPERATIONAL, id);
 
-        when(readTx.read(LogicalDatastoreType.OPERATIONAL, id)).thenReturn(Futures.immediateCheckedFuture(Optional.absent()));
+        when(readTx.read(LogicalDatastoreType.OPERATIONAL, id))
+                .thenReturn(FluentFutures.immediateFluentFuture(Optional.empty()));
         assertFalse(ctx.read(id).isPresent());
     }
 
     @Test
-    public void testMerge() throws Exception {
+    public void testMerge() {
         ctx.merge(id, data);
         verify(broker).newWriteOnlyTransaction();
-        verify(writeTx).merge(LogicalDatastoreType.OPERATIONAL, id, data, true);
+        verify(writeTx).mergeParentStructureMerge(LogicalDatastoreType.OPERATIONAL, id, data);
     }
 
     @Test(expected = IllegalStateException.class)
     public void testMergeFailure() throws Exception {
-        when(writeTx.submit()).thenReturn(Futures.immediateFailedCheckedFuture(ex));
+        when(writeTx.commit()).thenReturn(FluentFutures.immediateFailedFluentFuture(ex));
         ctx.merge(id, data);
     }
 
     @Test
-    public void testPut() throws Exception {
+    public void testPut() {
         ctx.put(id, data);
         verify(broker).newWriteOnlyTransaction();
-        verify(writeTx).put(LogicalDatastoreType.OPERATIONAL, id, data, true);
+        verify(writeTx).mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, id, data);
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testPutFailure() throws Exception {
-        when(writeTx.submit()).thenReturn(Futures.immediateFailedCheckedFuture(ex));
+    public void testPutFailure() {
+        when(writeTx.commit()).thenReturn(FluentFutures.immediateFailedFluentFuture(ex));
         ctx.put(id, data);
     }
 
     @Test
-    public void testDelete() throws Exception {
+    public void testDelete() {
         ctx.delete(id);
         verify(broker).newWriteOnlyTransaction();
         verify(writeTx).delete(LogicalDatastoreType.OPERATIONAL, id);
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testDeleteFailure() throws Exception {
-        when(writeTx.submit()).thenReturn(Futures.immediateFailedCheckedFuture(ex));
+    public void testDeleteFailure() {
+        when(writeTx.commit()).thenReturn(FluentFutures.immediateFailedFluentFuture(ex));
         ctx.delete(id);
     }
 }

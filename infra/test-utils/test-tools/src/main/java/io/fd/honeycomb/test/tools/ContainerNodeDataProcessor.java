@@ -22,7 +22,7 @@ import static io.fd.honeycomb.translate.util.JsonUtils.readJson;
 
 import java.io.InputStream;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
+import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;

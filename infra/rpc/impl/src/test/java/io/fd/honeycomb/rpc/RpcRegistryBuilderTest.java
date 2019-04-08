@@ -20,13 +20,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.URI;
-import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.opendaylight.controller.md.sal.dom.api.DOMRpcImplementationNotAvailableException;
+import org.opendaylight.mdsal.dom.api.DOMRpcImplementationNotAvailableException;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
@@ -68,7 +67,7 @@ public class RpcRegistryBuilderTest {
     }
 
     @Test
-    public void testServiceNotFound() throws ExecutionException, InterruptedException {
+    public void testServiceNotFound() {
         final SchemaPath id = SchemaPath.ROOT.createChild(QName.create(namespace, "c"));
         final DataObject request = Mockito.mock(DataObject.class);
 

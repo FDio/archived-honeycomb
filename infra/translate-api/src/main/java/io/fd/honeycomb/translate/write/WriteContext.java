@@ -17,8 +17,8 @@
 package io.fd.honeycomb.translate.write;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.ModificationContext;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;

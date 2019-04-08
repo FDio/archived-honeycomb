@@ -19,6 +19,7 @@ package io.fd.honeycomb.data.impl;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -60,13 +61,11 @@ final class NormalizedNodeUpdate {
     }
 
     static NormalizedNodeUpdate create(@Nonnull final Modification modification) {
-        final com.google.common.base.Optional<NormalizedNode<?, ?>> beforeData =
-                modification.getDataBefore();
-        final com.google.common.base.Optional<NormalizedNode<?, ?>> afterData =
-                modification.getDataAfter();
+        final Optional<NormalizedNode<?, ?>> beforeData = modification.getDataBefore();
+        final Optional<NormalizedNode<?, ?>> afterData = modification.getDataAfter();
         checkArgument(beforeData.isPresent() || afterData.isPresent(),
                 "Both before and after data are null for %s", modification.getId());
-        return NormalizedNodeUpdate.create(modification.getId(), beforeData.orNull(), afterData.orNull());
+        return NormalizedNodeUpdate.create(modification.getId(), beforeData.orElse(null), afterData.orElse(null));
     }
 
     static NormalizedNodeUpdate create(@Nonnull final YangInstanceIdentifier id,

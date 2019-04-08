@@ -32,10 +32,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import io.fd.honeycomb.test.model.Ids;
 import io.fd.honeycomb.translate.impl.read.GenericListReader;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
@@ -51,6 +50,7 @@ import io.fd.honeycomb.translate.util.read.ReflexiveListReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.ReflexiveReaderCustomizer;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.junit.Test;
@@ -151,11 +151,11 @@ public class HoneycombReadInfraTest extends AbstractInfraTest {
     public void testReadAll() throws Exception {
         final ReadableDataTreeDelegator readableDataTreeDelegator =
                 new ReadableDataTreeDelegator(serializer, schemaContext, registry, contextBroker);
-        final CheckedFuture<Optional<NormalizedNode<?, ?>>, org.opendaylight.controller.md.sal.common.api.data.ReadFailedException>
+        final FluentFuture<Optional<NormalizedNode<?, ?>>>
                 read = readableDataTreeDelegator.read(YangInstanceIdentifier.EMPTY);
 
         final Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> readAll =
-                toBinding(read.checkedGet().get());
+                toBinding(read.get().get());
         assertThat(readAll.size(), is(2));
         assertTrue(readAll.containsKey(Ids.CONTAINER_WITH_LIST_ID));
         assertEquals(readContainerWithList(), readAll.get(Ids.CONTAINER_WITH_LIST_ID).stream().findFirst().get());

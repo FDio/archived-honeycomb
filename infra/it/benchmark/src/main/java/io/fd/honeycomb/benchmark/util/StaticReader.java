@@ -16,10 +16,10 @@
 
 package io.fd.honeycomb.benchmark.util;
 
-import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.read.Reader;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.yangtools.concepts.Builder;

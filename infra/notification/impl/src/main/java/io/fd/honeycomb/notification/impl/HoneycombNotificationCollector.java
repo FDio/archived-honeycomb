@@ -19,7 +19,7 @@ package io.fd.honeycomb.notification.impl;
 import io.fd.honeycomb.notification.NotificationCollector;
 import java.util.Collection;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

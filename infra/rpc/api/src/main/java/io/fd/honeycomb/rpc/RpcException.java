@@ -17,7 +17,7 @@
 package io.fd.honeycomb.rpc;
 
 import com.google.common.annotations.Beta;
-import org.opendaylight.controller.md.sal.dom.api.DOMRpcException;
+import org.opendaylight.mdsal.dom.api.DOMRpcException;
 
 @Beta
 public class RpcException extends DOMRpcException {

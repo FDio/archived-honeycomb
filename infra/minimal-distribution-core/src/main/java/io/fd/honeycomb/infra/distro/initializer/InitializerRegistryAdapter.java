@@ -23,7 +23,7 @@ import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.registry.InitRegistry;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

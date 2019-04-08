@@ -16,14 +16,14 @@
 
 package io.fd.honeycomb.translate.util;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import io.fd.honeycomb.translate.MappingContext;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
+import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -43,9 +43,9 @@ public class TransactionMappingContext implements MappingContext {
     @Override
     public <T extends DataObject> Optional<T> read(@Nonnull final InstanceIdentifier<T> currentId) {
         try {
-            return readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, currentId).checkedGet();
-        } catch (ReadFailedException e) {
-            throw new IllegalStateException("Unable to perform read", e);
+            return readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, currentId).get();
+        } catch (InterruptedException | ExecutionException ex) {
+            throw new IllegalStateException("Unable to perform read", ex);
         }
     }
 
@@ -64,8 +64,8 @@ public class TransactionMappingContext implements MappingContext {
         readWriteTransaction.put(LogicalDatastoreType.OPERATIONAL, path, data, true);
     }
 
-    public CheckedFuture<Void, TransactionCommitFailedException> submit() {
-        return readWriteTransaction.submit();
+    public FluentFuture<? extends CommitInfo> commit() {
+        return readWriteTransaction.commit();
     }
 
     @Override

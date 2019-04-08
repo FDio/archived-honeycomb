@@ -16,39 +16,28 @@
 
 package io.fd.honeycomb.data.impl;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FluentFuture;
+import java.util.Optional;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang3.builder.RecursiveToStringStyle;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataReadTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataReadWriteTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
-import org.opendaylight.netconf.mdsal.connector.DOMDataTransactionValidator;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeReadTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeReadWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Composite DOM transaction that delegates reads to a {@link DOMDataReadTransaction} delegate and writes to a {@link
- * DOMDataWriteTransaction} delegate.
+ * Composite DOM transaction that delegates reads to a {@link DOMDataTreeReadTransaction} delegate and writes to a {@link
+ * DOMDataTreeWriteTransaction} delegate.
  */
-final class ReadWriteTransaction implements DOMDataReadWriteTransaction, ValidableTransaction {
+final class ReadWriteTransaction implements DOMDataTreeReadWriteTransaction, ValidableTransaction {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ReadWriteTransaction.class);
-
-    private final DOMDataReadOnlyTransaction delegateReadTx;
+    private final DOMDataTreeReadTransaction delegateReadTx;
     private final ValidableTransaction delegateWriteTx;
 
-    ReadWriteTransaction(@Nonnull final DOMDataReadOnlyTransaction delegateReadTx,
+    ReadWriteTransaction(@Nonnull final DOMDataTreeReadTransaction delegateReadTx,
                          @Nonnull final ValidableTransaction delegateWriteTx) {
         this.delegateReadTx = Preconditions.checkNotNull(delegateReadTx, "delegateReadTx should not be null");
         this.delegateWriteTx = Preconditions.checkNotNull(delegateWriteTx, "delegateWriteTx should not be null");
@@ -78,33 +67,19 @@ final class ReadWriteTransaction implements DOMDataReadWriteTransaction, Validab
     }
 
     @Override
-    public CheckedFuture<Void, TransactionCommitFailedException> submit() {
-        //TODO - remove after https://bugs.opendaylight.org/show_bug.cgi?id=7791 resolved
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Submitting transaction {}", ReflectionToStringBuilder.toString(
-                    delegateWriteTx,
-                    RecursiveToStringStyle.MULTI_LINE_STYLE,
-                    false,
-                    false
-            ));
-        }
-        return delegateWriteTx.submit();
-    }
-
-    @Override
     public FluentFuture<? extends CommitInfo> commit() {
         return delegateWriteTx.commit();
     }
 
     @Override
-    public CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read(final LogicalDatastoreType store,
-                                                                                   final YangInstanceIdentifier path) {
+    public FluentFuture<Optional<NormalizedNode<?, ?>>> read(final LogicalDatastoreType store,
+                                                             final YangInstanceIdentifier path) {
         return delegateReadTx.read(store, path);
     }
 
     @Override
-    public CheckedFuture<Boolean, ReadFailedException> exists(final LogicalDatastoreType store,
-                                                              final YangInstanceIdentifier path) {
+    public FluentFuture<Boolean> exists(final LogicalDatastoreType store,
+                                        final YangInstanceIdentifier path) {
         return delegateReadTx.exists(store, path);
     }
 
@@ -114,7 +89,7 @@ final class ReadWriteTransaction implements DOMDataReadWriteTransaction, Validab
     }
 
     @Override
-    public CheckedFuture<Void, DOMDataTransactionValidator.ValidationFailedException> validate() {
+    public FluentFuture<Void> validate() {
         return delegateWriteTx.validate();
     }
 }

@@ -29,8 +29,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.broker.impl.PingPongDataBroker;
+import org.opendaylight.controller.sal.core.compat.LegacyDOMDataBrokerAdapter;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.impl.BGPRibRoutingPolicyFactoryImpl;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistry;
@@ -80,6 +81,10 @@ final class BgpRIBProvider extends ProviderTrait<RIB> {
 
     @Override
     protected RIB create() {
+
+        LegacyDOMDataBrokerAdapter DomDataBrokerAdapter = new LegacyDOMDataBrokerAdapter(domBroker);
+        DomDataBrokerAdapter.getSupportedExtensions().get(DOMSchemaService.class);
+
         Preconditions.checkArgument(policyCfg.getPolicyConfig().isPresent(),
                 "Bgp policy configuration failed to load. Check bgp-policy.json configuration file.");
         final AsNumber asNumber = new AsNumber(cfg.bgpAsNumber.get().longValue());
@@ -91,9 +96,10 @@ final class BgpRIBProvider extends ProviderTrait<RIB> {
 
         final ArrayList<AfiSafi> afiSafiList = new ArrayList<>(configuredAfiSafis);
         // based on org.opendaylight.protocol.bgp.rib.impl.config.RibImpl.createRib
-        final PingPongDataBroker pingPongDataBroker = new PingPongDataBroker(domBroker);
+        final PingPongDataBroker pingPongDataBroker = new PingPongDataBroker(DomDataBrokerAdapter);
         final CodecsRegistryImpl codecsRegistry =
                 CodecsRegistryImpl.create(codec, extensions.getClassLoadingStrategy());
+
         final BGPRibRoutingPolicyFactoryImpl bgpRibRoutingPolicyFactory =
                 new BGPRibRoutingPolicyFactoryImpl(dataBroker, new StatementRegistry());
         final BGPRibRoutingPolicy ribPolicies = bgpRibRoutingPolicyFactory

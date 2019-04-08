@@ -23,11 +23,11 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.util.DataObjects;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -48,14 +48,14 @@ public class SubtreeReaderTest {
     private ReadContext ctx;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         Mockito.doReturn(DataObjects.DataObject4.IID).when(delegate).getManagedDataObjectType();
         doReturn(DataObject1.IID).when(delegateLocal).getManagedDataObjectType();
     }
 
     @Test
-    public void testCreate() throws Exception {
+    public void testCreate() {
         final Reader<DataObjects.DataObject4, Builder<DataObjects.DataObject4>> subtreeR =
                 SubtreeReader.createForReader(Sets.newHashSet(DataObjects.DataObject4.DataObject41.IID), delegate);
 
@@ -76,7 +76,8 @@ public class SubtreeReaderTest {
         final Reader<DataObjects.DataObject4, Builder<DataObjects.DataObject4>> subtreeR =
                 SubtreeReader.createForReader(Sets.newHashSet(DataObjects.DataObject4.DataObject41.IID), delegate);
 
-        doReturn(Optional.fromNullable(mock(DataObjects.DataObject4.class))).when(delegate).read(DataObjects.DataObject4.IID, ctx);
+        doReturn(Optional.ofNullable(mock(DataObjects.DataObject4.class))).when(delegate)
+                .read(DataObjects.DataObject4.IID, ctx);
         subtreeR.read(DataObjects.DataObject4.DataObject41.IID, ctx);
     }
 
@@ -85,7 +86,7 @@ public class SubtreeReaderTest {
         final Reader<DataObjects.DataObject4, Builder<DataObjects.DataObject4>> subtreeR =
                 SubtreeReader.createForReader(Sets.newHashSet(DataObjects.DataObject4.DataObject41.IID), delegate);
 
-        doReturn(Optional.absent()).when(delegate).read(DataObjects.DataObject4.IID, ctx);
+        doReturn(Optional.empty()).when(delegate).read(DataObjects.DataObject4.IID, ctx);
         assertFalse(subtreeR.read(DataObjects.DataObject4.DataObject41.IID, ctx).isPresent());
     }
 
@@ -97,7 +98,7 @@ public class SubtreeReaderTest {
         final DataObject1 mock = mock(DataObject1.class);
         final DataObject1.DataObject11 mock11 = mock(DataObject1.DataObject11.class);
         doReturn(mock11).when(mock).getDataObject11();
-        doReturn(Optional.fromNullable(mock)).when(delegateLocal).read(DataObject1.IID, ctx);
+        doReturn(Optional.ofNullable(mock)).when(delegateLocal).read(DataObject1.IID, ctx);
         assertEquals(mock11, subtreeR.read(DataObject1.DataObject11.IID, ctx).get());
     }
 
@@ -109,7 +110,7 @@ public class SubtreeReaderTest {
         final DataObject1 mock = mock(DataObject1.class);
         final DataObject1.DataObject11 mock11 = mock(DataObject1.DataObject11.class);
         doReturn(mock11).when(mock).getDataObject11();
-        doReturn(Optional.fromNullable(mock)).when(delegateLocal).read(DataObject1.IID, ctx);
+        doReturn(Optional.ofNullable(mock)).when(delegateLocal).read(DataObject1.IID, ctx);
         assertEquals(mock, subtreeR.read(DataObject1.IID, ctx).get());
     }
 

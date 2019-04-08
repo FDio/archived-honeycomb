@@ -20,9 +20,9 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
-import org.opendaylight.controller.md.sal.dom.broker.impl.DOMNotificationRouter;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
+import org.opendaylight.mdsal.dom.api.DOMRpcService;
+import org.opendaylight.mdsal.dom.broker.DOMNotificationRouter;
 import org.opendaylight.netconf.sal.restconf.impl.BrokerFacade;
 import org.opendaylight.netconf.sal.restconf.impl.ControllerContext;
 
@@ -40,8 +40,6 @@ final class BrokerFacadeProvider extends ProviderTrait<BrokerFacade> {
 
     @Override
     protected BrokerFacade create() {
-        BrokerFacade brokerFacade =
-                BrokerFacade.newInstance(rpcService, domDataBroker, notificationService, controllerContext);
-        return brokerFacade;
+        return BrokerFacade.newInstance(rpcService, domDataBroker, notificationService, controllerContext);
     }
 }

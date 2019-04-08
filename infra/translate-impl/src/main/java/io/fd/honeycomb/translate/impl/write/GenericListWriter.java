@@ -92,7 +92,7 @@ public final class GenericListWriter<D extends DataObject & Identifiable<K>, K e
         // Make sure the key is present
         if (isWildcarded(id)) {
             return RWUtils.replaceLastInId(id,
-                new InstanceIdentifier.IdentifiableItem<>(id.getTargetType(), current.key()));
+                    InstanceIdentifier.IdentifiableItem.of(id.getTargetType(), current.key()));
         } else {
             return id;
         }

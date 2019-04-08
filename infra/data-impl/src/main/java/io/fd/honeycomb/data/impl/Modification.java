@@ -88,14 +88,12 @@ final class Modification {
         return dataCandidate.getModificationType();
     }
 
-    com.google.common.base.Optional<NormalizedNode<?, ?>> getDataBefore() {
-        // TODO(HONEYCOMB-192): switch to java.util.Optional when rest of ODL infra does
-        return com.google.common.base.Optional.fromNullable(dataCandidate.getDataBefore().orElse(null));
+    Optional<NormalizedNode<?, ?>> getDataBefore() {
+        return dataCandidate.getDataBefore();
     }
 
-    com.google.common.base.Optional<NormalizedNode<?, ?>> getDataAfter() {
-        // TODO(HONEYCOMB-192): switch to java.util.Optional when rest of ODL infra does
-        return com.google.common.base.Optional.fromNullable(dataCandidate.getDataAfter().orElse(null));
+    Optional<NormalizedNode<?, ?>> getDataAfter() {
+        return dataCandidate.getDataAfter();
     }
 
     Object getSchemaNode() {
@@ -216,7 +214,7 @@ final class Modification {
                 ((SchemaNode) schemaNode).getQName().equals(identifier.getNodeType())) {
                 found = schemaNode;
             } else {
-                found = ((DataNodeContainer) schemaNode).getDataChildByName(identifier.getNodeType());
+                found = ((DataNodeContainer) schemaNode).findDataChildByName(identifier.getNodeType()).orElse(null);
             }
         } else if (schemaNode instanceof ChoiceSchemaNode) {
             // For choices, iterate through all the cases

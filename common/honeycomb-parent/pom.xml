@@ -46,14 +46,14 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- ODL dependencies -->
-        <odl.yangtools.version>2.0.11</odl.yangtools.version>
-        <odl.mdsal.version>2.5.0</odl.mdsal.version>
-        <odl.mdsal.controller.version>1.8.0</odl.mdsal.controller.version>
-        <odl.mdsalmodel.version>0.13.0</odl.mdsalmodel.version>
-        <odl.netconf.version>1.5.0</odl.netconf.version>
-        <odl.restconf.version>1.8.0</odl.restconf.version>
-        <odl.salGenerator.version>0.13.0</odl.salGenerator.version>
-        <odl.bgpcep.version>0.10.0</odl.bgpcep.version>
+        <odl.yangtools.version>2.1.8</odl.yangtools.version>
+        <odl.mdsal.version>3.0.6</odl.mdsal.version>
+        <odl.mdsal.controller.version>1.9.0</odl.mdsal.controller.version>
+        <odl.mdsalmodel.version>0.13.2</odl.mdsalmodel.version>
+        <odl.netconf.version>1.6.0</odl.netconf.version>
+        <odl.restconf.version>1.9.0</odl.restconf.version>
+        <odl.salGenerator.version>0.13.2</odl.salGenerator.version>
+        <odl.bgpcep.version>0.11.0</odl.bgpcep.version>
         <salGeneratorPath>target/generated-sources/mdsal-binding</salGeneratorPath>
 
         <!-- common dependencies -->
@@ -66,8 +66,8 @@
         <jdt.version>2.1.150</jdt.version>
 
         <!-- plugins -->
-        <checkstyle.plugin.version>2.17</checkstyle.plugin.version>
-        <checkstyle.version>7.1.2</checkstyle.version>
+        <checkstyle.plugin.version>3.0.0</checkstyle.plugin.version>
+        <checkstyle.version>8.18</checkstyle.version>
         <maven.javadoc.version>2.10.3</maven.javadoc.version>
         <jacoco.version>0.7.9</jacoco.version>
         <enforcer.version>1.4</enforcer.version>
@@ -275,7 +275,10 @@
                             <phase>process-sources</phase>
                             <configuration>
                                 <configLocation>honeycomb-checkstyle-logging.xml</configLocation>
-                                <sourceDirectory>${project.basedir}</sourceDirectory>
+                                <sourceDirectories>
+                                    <sourceDirectory>${project.basedir}</sourceDirectory>
+                                </sourceDirectories>
+
                                 <outputFile>${project.build.directory}/checkstyle-logging-result.xml</outputFile>
                             </configuration>
                         </execution>

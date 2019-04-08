@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
@@ -74,13 +75,13 @@ public class HoneycombDOMRpcServiceTest {
         assertEquals(outputBi, service.invokeRpc(path, node).get().getResult());
     }
 
-    @Test(expected = RpcException.class)
+    @Test(expected = ExecutionException.class)
     public void testInvokeRpcFailed() throws Exception {
         final CompletableFuture future = new CompletableFuture();
         future.completeExceptionally(new RuntimeException());
         when(registry.invoke(path, input)).thenReturn(future);
 
-        service.invokeRpc(path, node).checkedGet();
+        service.invokeRpc(path, node).get();
     }
 
     private ContainerNode mockContainerNode(final QName nn1) {

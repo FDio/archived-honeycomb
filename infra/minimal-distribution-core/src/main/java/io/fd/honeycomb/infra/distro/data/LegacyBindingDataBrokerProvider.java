@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2019 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +16,29 @@
 
 package io.fd.honeycomb.infra.distro.data;
 
-import static io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule.HONEYCOMB_CONFIG;
-
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.dom.adapter.BindingDOMDataBrokerAdapter;
-import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.impl.BindingDOMDataBrokerAdapter;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
+import org.opendaylight.controller.sal.core.compat.LegacyDOMDataBrokerAdapter;
+import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 
 /**
- * Provides binding adapter for {@link io.fd.honeycomb.data.impl.DataBroker}.
+ * Provider for legacy {@linkDataBroker} used in BGP Module.
  */
-final class HoneycombBindingDataBrokerProvider extends ProviderTrait<DataBroker> {
-
+public class LegacyBindingDataBrokerProvider extends ProviderTrait<DataBroker> {
     @Inject
-    @Named(HONEYCOMB_CONFIG)
     private DOMDataBroker domDataBroker;
     @Inject
     private BindingToNormalizedNodeCodec mappingService;
+    @Inject
+    private ModuleInfoBackedContext mibCtx;
 
     @Override
     protected BindingDOMDataBrokerAdapter create() {
-        return new BindingDOMDataBrokerAdapter(domDataBroker, mappingService);
+        return new BindingDOMDataBrokerAdapter(new LegacyDOMDataBrokerAdapter(domDataBroker), mappingService);
     }
+
 }

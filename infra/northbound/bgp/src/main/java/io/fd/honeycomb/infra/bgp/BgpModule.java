@@ -25,12 +25,12 @@ import com.google.inject.name.Names;
 import io.fd.honeycomb.infra.distro.data.BindingDataBrokerProvider;
 import io.fd.honeycomb.infra.distro.data.DataStoreProvider;
 import io.fd.honeycomb.infra.distro.data.InmemoryDOMDataBrokerProvider;
+import io.fd.honeycomb.infra.distro.data.LegacyBindingDataBrokerProvider;
 import io.fd.honeycomb.translate.bgp.RibWriter;
 import io.netty.channel.EventLoopGroup;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.store.impl.InMemoryDOMDataStore;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
+import org.opendaylight.mdsal.dom.store.inmemory.InMemoryDOMDataStore;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.slf4j.Logger;
@@ -67,12 +67,12 @@ public final class BgpModule extends PrivateModule {
     private void configureRIB() {
         // Create inmemory config data store for HONEYCOMB_BGP
         bind(InMemoryDOMDataStore.class).annotatedWith(Names.named(CONFIG))
-            .toProvider(new DataStoreProvider(CONFIG, LogicalDatastoreType.CONFIGURATION))
+                .toProvider(new DataStoreProvider(CONFIG))
             .in(Singleton.class);
 
         // Create inmemory operational data store for HONEYCOMB_BGP
         bind(InMemoryDOMDataStore.class).annotatedWith(Names.named(OPERATIONAL))
-            .toProvider(new DataStoreProvider(OPERATIONAL, LogicalDatastoreType.OPERATIONAL))
+                .toProvider(new DataStoreProvider(OPERATIONAL))
             .in(Singleton.class);
 
         // Wrap datastores as DOMDataBroker
@@ -83,6 +83,12 @@ public final class BgpModule extends PrivateModule {
         bind(DataBroker.class).annotatedWith(Names.named(HONEYCOMB_BGP)).toProvider(BindingDataBrokerProvider.class)
             .in(Singleton.class);
         expose(DataBroker.class).annotatedWith(Names.named(HONEYCOMB_BGP));
+
+        bind(org.opendaylight.controller.md.sal.binding.api.DataBroker.class).annotatedWith(Names.named(HONEYCOMB_BGP))
+                .toProvider(LegacyBindingDataBrokerProvider.class)
+                .in(Singleton.class);
+        expose(org.opendaylight.controller.md.sal.binding.api.DataBroker.class)
+                .annotatedWith(Names.named(HONEYCOMB_BGP));
 
         // Create RIB instance
         bind(RIB.class).toProvider(BgpRIBProvider.class).in(Singleton.class);

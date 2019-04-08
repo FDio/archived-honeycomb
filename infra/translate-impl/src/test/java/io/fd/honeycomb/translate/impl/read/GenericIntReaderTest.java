@@ -21,6 +21,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.CONFIGURATION;
 
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.Futures;
@@ -30,9 +31,8 @@ import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
@@ -73,7 +73,7 @@ public class GenericIntReaderTest extends AbstractReaderTest {
 
         getReader().init(broker, DATA_OBJECT_ID, ctx);
 
-        verify(writeTx).merge(LogicalDatastoreType.CONFIGURATION, DATA_OBJECT_ID, data, true);
+        verify(writeTx).merge(CONFIGURATION, DATA_OBJECT_ID, data);
         verify(writeTx).commit();
     }
 

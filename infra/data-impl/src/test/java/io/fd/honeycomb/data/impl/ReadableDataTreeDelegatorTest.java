@@ -30,29 +30,30 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.FluentFuture;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeReadTransaction;
 import org.opendaylight.yangtools.util.UnmodifiableCollection;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -87,7 +88,7 @@ public class ReadableDataTreeDelegatorTest {
     @Mock
     private DOMDataBroker netconfMonitoringBroker;
     @Mock
-    private DOMDataReadOnlyTransaction domDataReadOnlyTransaction;
+    private DOMDataTreeReadTransaction domDataReadOnlyTransaction;
     @Mock
     private DataBroker contextBroker;
 
@@ -95,16 +96,16 @@ public class ReadableDataTreeDelegatorTest {
     public void setUp() {
         initMocks(this);
         operationalData = new ReadableDataTreeDelegator(serializer, globalContext, reader, contextBroker);
-        doReturn(schemaNode).when(globalContext).getDataChildByName(any(QName.class));
+        doReturn(Optional.of(schemaNode)).when(globalContext).findDataChildByName(any(QName.class));
 
         doReturn(domDataReadOnlyTransaction).when(netconfMonitoringBroker).newReadOnlyTransaction();
-        doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(domDataReadOnlyTransaction)
+        doReturn(FluentFutures.immediateFluentFuture(Optional.empty())).when(domDataReadOnlyTransaction)
             .read(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
 
-        final org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction ctxTransaction = mock(
-            org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction.class);
+        final org.opendaylight.mdsal.binding.api.ReadWriteTransaction ctxTransaction = mock(
+                org.opendaylight.mdsal.binding.api.ReadWriteTransaction.class);
         doReturn(ctxTransaction).when(contextBroker).newReadWriteTransaction();
-        doReturn(Futures.immediateCheckedFuture(null)).when(ctxTransaction).submit();
+        doReturn(FluentFutures.immediateNullFluentFuture()).when(ctxTransaction).commit();
     }
 
     @Test
@@ -124,7 +125,7 @@ public class ReadableDataTreeDelegatorTest {
         final DataContainerChild<?, ?> expectedValue = mock(DataContainerChild.class);
         doReturn(expectedValue).when(entry).getValue();
 
-        final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> future = operationalData.read(yangId);
+        final FluentFuture<Optional<NormalizedNode<?, ?>>> future = operationalData.read(yangId);
 
         verify(serializer).fromYangInstanceIdentifier(yangId);
         verify(reader).read(same(id), any(ReadContext.class));
@@ -137,9 +138,9 @@ public class ReadableDataTreeDelegatorTest {
     public void testReadNonExistingNode() throws Exception {
         final YangInstanceIdentifier yangId = mock(YangInstanceIdentifier.class);
         doReturn(id).when(serializer).fromYangInstanceIdentifier(yangId);
-        doReturn(Optional.absent()).when(reader).read(same(id), any(ReadContext.class));
+        doReturn(Optional.empty()).when(reader).read(same(id), any(ReadContext.class));
 
-        final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> future = operationalData.read(yangId);
+        final FluentFuture<Optional<NormalizedNode<?, ?>>> future = operationalData.read(yangId);
 
         verify(serializer).fromYangInstanceIdentifier(yangId);
         verify(reader).read(same(id), any(ReadContext.class));
@@ -151,13 +152,12 @@ public class ReadableDataTreeDelegatorTest {
     public void testReadFailed() throws Exception {
         doThrow(io.fd.honeycomb.translate.read.ReadFailedException.class).when(reader).readAll(any(ReadContext.class));
 
-        final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> future =
-                operationalData.read( YangInstanceIdentifier.EMPTY);
+        final FluentFuture<Optional<NormalizedNode<?, ?>>> future = operationalData.read(YangInstanceIdentifier.EMPTY);
 
         try {
-            future.checkedGet();
-        } catch (ReadFailedException e) {
-            assertTrue(e.getCause() instanceof io.fd.honeycomb.translate.read.ReadFailedException);
+            future.get();
+        } catch (ExecutionException e) {
+            assertTrue(e.getCause() instanceof ReadFailedException);
             return;
         }
         fail("ReadFailedException was expected");
@@ -181,7 +181,7 @@ public class ReadableDataTreeDelegatorTest {
         doReturn(vppYangId.getLastPathArgument()).when(vppStateContainer).getIdentifier();
 
         // Read root
-        final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> future =
+        final FluentFuture<Optional<NormalizedNode<?, ?>>> future =
                 operationalData.read(YangInstanceIdentifier.EMPTY);
 
         verify(reader).readAll(any(ReadContext.class));

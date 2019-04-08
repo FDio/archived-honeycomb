@@ -16,11 +16,11 @@
 
 package io.fd.honeycomb.translate.impl.read.registry;
 
+import static io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryTest.mockReader;
 import static io.fd.honeycomb.translate.util.DataObjects.DataObject4;
 import static io.fd.honeycomb.translate.util.DataObjects.DataObject4.DataObject41;
 import static io.fd.honeycomb.translate.util.DataObjects.DataObjectK;
 import static io.fd.honeycomb.translate.util.DataObjects.DataObjectKey;
-import static io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryTest.mockReader;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -28,7 +28,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.read.ListReader;
@@ -36,6 +35,7 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.util.DataObjects;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

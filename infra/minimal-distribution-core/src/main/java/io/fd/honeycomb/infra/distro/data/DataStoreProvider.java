@@ -18,26 +18,24 @@ package io.fd.honeycomb.infra.distro.data;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.store.impl.InMemoryDOMDataStore;
-import org.opendaylight.controller.md.sal.dom.store.impl.InMemoryDOMDataStoreFactory;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
+import org.opendaylight.mdsal.dom.store.inmemory.InMemoryDOMDataStore;
+import org.opendaylight.mdsal.dom.store.inmemory.InMemoryDOMDataStoreConfigProperties;
+import org.opendaylight.mdsal.dom.store.inmemory.InMemoryDOMDataStoreFactory;
 
 public final class DataStoreProvider extends ProviderTrait<InMemoryDOMDataStore> {
 
     @Inject
     private DOMSchemaService schemaService;
     private String name;
-    private LogicalDatastoreType type;
 
-    public DataStoreProvider(final String name,
-                             final LogicalDatastoreType type) {
+    public DataStoreProvider(final String name) {
         this.name = name;
-        this.type = type;
     }
 
     @Override
     protected InMemoryDOMDataStore create() {
-        return InMemoryDOMDataStoreFactory.create(name, type, schemaService, false, null);
+        return InMemoryDOMDataStoreFactory
+                .create(name, InMemoryDOMDataStoreConfigProperties.getDefault(), schemaService);
     }
 }

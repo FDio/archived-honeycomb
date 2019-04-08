@@ -23,18 +23,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.translate.read.ReadContext;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
 import org.opendaylight.yangtools.concepts.Builder;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -46,7 +46,7 @@ public class BindingBrokerReaderTest {
     @Mock
     private ReadContext ctx;
     @Mock
-    private ReadOnlyTransaction tx;
+    private ReadTransaction tx;
     @Mock
     private DataObject data;
     private BindingBrokerReader<DataObject, DataObjectBuilder> bbReader;
@@ -55,7 +55,8 @@ public class BindingBrokerReaderTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         when(broker.newReadOnlyTransaction()).thenReturn(tx);
-        when(tx.read(LogicalDatastoreType.CONFIGURATION, id)).thenReturn(Futures.immediateCheckedFuture(Optional.of(data)));
+        when(tx.read(LogicalDatastoreType.CONFIGURATION, id))
+                .thenReturn(FluentFutures.immediateFluentFuture(Optional.of(data)));
         bbReader = new BindingBrokerReader<>(id, broker, LogicalDatastoreType.CONFIGURATION, DataObjectBuilder.class);
     }
 
@@ -72,7 +73,7 @@ public class BindingBrokerReaderTest {
     @Test(expected = io.fd.honeycomb.translate.read.ReadFailedException.class)
     public void testFailedRead() throws Exception {
         when(tx.read(LogicalDatastoreType.CONFIGURATION, id))
-                .thenReturn(Futures.immediateFailedCheckedFuture(new ReadFailedException("failing")));
+                .thenReturn(FluentFutures.immediateFailedFluentFuture(new ReadFailedException("failing")));
         bbReader.read(id, ctx);
     }
 

@@ -17,10 +17,10 @@
 package io.fd.honeycomb.translate.read.registry;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Optional;
 import com.google.common.collect.Multimap;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -56,7 +56,6 @@ public interface ReaderRegistry extends InitRegistry {
      * @throws ReadFailedException if read was unsuccessful
      */
     @Nonnull
-    Optional<? extends DataObject> read(@Nonnull InstanceIdentifier<? extends DataObject> id,
-                                        @Nonnull ReadContext ctx)
+    Optional<? extends DataObject> read(@Nonnull InstanceIdentifier<? extends DataObject> id, @Nonnull ReadContext ctx)
             throws ReadFailedException;
 }

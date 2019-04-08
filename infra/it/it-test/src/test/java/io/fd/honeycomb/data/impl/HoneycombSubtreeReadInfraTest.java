@@ -20,11 +20,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import io.fd.honeycomb.test.model.Ids;
 import io.fd.honeycomb.translate.impl.read.GenericListReader;
 import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
@@ -35,6 +34,7 @@ import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.util.read.ReflexiveListReaderCustomizer;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -96,11 +96,11 @@ public class HoneycombSubtreeReadInfraTest extends AbstractInfraTest {
     public void testReadAll() throws Exception {
         final ReadableDataTreeDelegator readableDataTreeDelegator =
                 new ReadableDataTreeDelegator(serializer, schemaContext, registry, contextBroker);
-        final CheckedFuture<Optional<NormalizedNode<?, ?>>, org.opendaylight.controller.md.sal.common.api.data.ReadFailedException>
+        final FluentFuture<Optional<NormalizedNode<?, ?>>>
                 read = readableDataTreeDelegator.read(YangInstanceIdentifier.EMPTY);
 
         final Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> readAll =
-                toBinding(read.checkedGet().get());
+                toBinding(read.get().get());
         assertThat(readAll.size(), is(1));
         assertEquals(readEntireSubtree(), readAll.get(Ids.CONTAINER_WITH_LIST_ID).stream().findFirst().get());
     }

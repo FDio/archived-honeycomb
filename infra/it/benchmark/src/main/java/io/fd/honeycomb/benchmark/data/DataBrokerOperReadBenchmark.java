@@ -16,7 +16,6 @@
 
 package io.fd.honeycomb.benchmark.data;
 
-import com.google.inject.*;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import io.fd.honeycomb.benchmark.util.DataProvider;
@@ -29,9 +28,17 @@ import io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModule;
 import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.ContainerWithList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.ContainerWithListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.SimpleContainer;
@@ -41,15 +48,6 @@ import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.annotations.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 /**
  * Measures the performance of CONFIG writes into BA DataBroker, backed by HC infrastructure and then NOOP writers.

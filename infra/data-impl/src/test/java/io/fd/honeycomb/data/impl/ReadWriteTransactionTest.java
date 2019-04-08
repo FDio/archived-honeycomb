@@ -23,15 +23,15 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeReadTransaction;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 public class ReadWriteTransactionTest {
 
     @Mock
-    private DOMDataReadOnlyTransaction readTx;
+    private DOMDataTreeReadTransaction readTx;
 
     @Mock
     private ValidableTransaction writeTx;
@@ -78,15 +78,7 @@ public class ReadWriteTransactionTest {
     }
 
     @Test
-    public void testSubmit() throws Exception {
-        readWriteTx.submit();
-        verify(writeTx).submit();
-    }
-
-
-    @SuppressWarnings("deprecation")
-    @Test
-    public void testCommit() throws Exception {
+    public void testCommit() {
         readWriteTx.commit();
         verify(writeTx).commit();
     }
@@ -104,7 +96,7 @@ public class ReadWriteTransactionTest {
     }
 
     @Test
-    public void testGetIdentifier() throws Exception {
+    public void testGetIdentifier() {
         assertNotNull(readWriteTx.getIdentifier());
     }
 }

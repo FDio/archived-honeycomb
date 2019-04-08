@@ -28,19 +28,18 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import io.fd.honeycomb.data.DataModification;
 import io.fd.honeycomb.translate.write.DataObjectUpdate;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.registry.WriterRegistry;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.Test;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -54,9 +53,9 @@ public class ModifiableDataTreeDelegatorTest extends ModifiableDataTreeDelegator
     public void testRead() throws Exception {
         final ContainerNode topContainer = getTopContainer("topContainer");
         addNodeToTree(dataTree, topContainer, TOP_CONTAINER_ID);
-        final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read =
+        final FluentFuture<Optional<NormalizedNode<?, ?>>> read =
                 configDataTree.read(TOP_CONTAINER_ID);
-        final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read2 =
+        final FluentFuture<Optional<NormalizedNode<?, ?>>> read2 =
                 configDataTree.newModification().read(TOP_CONTAINER_ID);
         final Optional<NormalizedNode<?, ?>> normalizedNodeOptional = read.get();
         final Optional<NormalizedNode<?, ?>> normalizedNodeOptional2 = read2.get();
@@ -64,7 +63,7 @@ public class ModifiableDataTreeDelegatorTest extends ModifiableDataTreeDelegator
         assertEquals(normalizedNodeOptional, normalizedNodeOptional2);
         assertTrue(normalizedNodeOptional.isPresent());
         assertEquals(topContainer, normalizedNodeOptional.get());
-        assertEquals(dataTree.takeSnapshot().readNode(TOP_CONTAINER_ID), Optional.toJavaUtil(normalizedNodeOptional));
+        assertEquals(dataTree.takeSnapshot().readNode(TOP_CONTAINER_ID), normalizedNodeOptional);
     }
 
     @Test

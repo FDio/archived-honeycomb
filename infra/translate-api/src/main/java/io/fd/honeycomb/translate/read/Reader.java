@@ -17,8 +17,8 @@
 package io.fd.honeycomb.translate.read;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.SubtreeManager;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;

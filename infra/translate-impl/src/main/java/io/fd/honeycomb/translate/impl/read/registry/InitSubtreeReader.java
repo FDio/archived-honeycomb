@@ -23,7 +23,7 @@ import io.fd.honeycomb.translate.read.ListReader;
 import io.fd.honeycomb.translate.read.ReadContext;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;

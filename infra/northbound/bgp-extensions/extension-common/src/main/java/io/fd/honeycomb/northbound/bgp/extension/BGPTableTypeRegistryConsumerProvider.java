@@ -30,7 +30,7 @@ final class BGPTableTypeRegistryConsumerProvider extends ProviderTrait<BGPTableT
     @Override
     protected BGPTableTypeRegistryConsumer create() {
         final SimpleBGPTableTypeRegistryProvider registry = new SimpleBGPTableTypeRegistryProvider();
-        tableTypes.stream().forEach(tableType -> tableType.register(registry));
+        tableTypes.forEach(tableType -> tableType.register(registry));
         return registry;
     }
 

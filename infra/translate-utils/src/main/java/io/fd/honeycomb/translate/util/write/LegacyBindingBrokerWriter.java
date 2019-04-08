@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Cisco and/or its affiliates.
+ * Copyright (c) 2019 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package io.fd.honeycomb.translate.util.write;
 
-import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 
 import com.google.common.util.concurrent.FluentFuture;
 import io.fd.honeycomb.translate.write.WriteContext;
@@ -25,8 +25,8 @@ import io.fd.honeycomb.translate.write.Writer;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -34,11 +34,11 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 /**
  * Simple DataBroker backed writer allowing to delegate writes to different brokers.
  */
-public final class BindingBrokerWriter<D extends DataObject> implements Writer<D> {
+public final class LegacyBindingBrokerWriter<D extends DataObject> implements Writer<D> {
     private final InstanceIdentifier<D> instanceIdentifier;
     private final DataBroker dataBroker;
 
-    public BindingBrokerWriter(final InstanceIdentifier<D> instanceIdentifier, final DataBroker dataBroker) {
+    public LegacyBindingBrokerWriter(final InstanceIdentifier<D> instanceIdentifier, final DataBroker dataBroker) {
         this.instanceIdentifier = instanceIdentifier;
         this.dataBroker = dataBroker;
     }

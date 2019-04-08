@@ -59,7 +59,7 @@ public class ReflexiveListReaderCustomizerTest {
         final TestingListObjectBuilder builder = new TestingListObjectBuilder();
         final InstanceIdentifier<TestingListObject> id =
             (InstanceIdentifier<TestingListObject>) InstanceIdentifier.create(
-                Collections.singletonList(new InstanceIdentifier.IdentifiableItem<>(TestingListObject.class, keyOne)));
+                    Collections.singletonList(InstanceIdentifier.IdentifiableItem.of(TestingListObject.class, keyOne)));
         customizer.readCurrentAttributes(id, builder, readContext);
 
         assertEquals(keyOne, builder.getKey());

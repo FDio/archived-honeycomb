@@ -20,16 +20,15 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.translate.write.WriteContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -50,7 +49,7 @@ public class BindingBrokerWriterTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         when(broker.newWriteOnlyTransaction()).thenReturn(tx);
-        when(tx.submit()).thenReturn(Futures.immediateCheckedFuture(null));
+        when(tx.commit()).thenReturn(FluentFutures.immediateNullFluentFuture());
         bbWriter = new BindingBrokerWriter<>(id, broker);
     }
 
@@ -61,12 +60,12 @@ public class BindingBrokerWriterTest {
         bbWriter.processModification(id, data, data, ctx);
         verify(broker).newWriteOnlyTransaction();
         verify(tx).put(LogicalDatastoreType.CONFIGURATION, id, data);
-        verify(tx).submit();
+        verify(tx).commit();
     }
 
     @Test(expected = io.fd.honeycomb.translate.write.WriteFailedException.class)
     public void testFailedWrite() throws Exception {
-        when(tx.submit()).thenReturn(Futures.immediateFailedCheckedFuture(new TransactionCommitFailedException("failing")));
+        when(tx.commit()).thenReturn(FluentFutures.immediateFailedFluentFuture(new InterruptedException("failing")));
         bbWriter.processModification(id, data, data, ctx);
     }
 }

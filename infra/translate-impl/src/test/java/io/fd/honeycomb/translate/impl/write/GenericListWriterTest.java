@@ -70,10 +70,10 @@ public class GenericListWriterTest {
 
         final InstanceIdentifier<IdentifiableDataObject> keyedIdBefore =
                 (InstanceIdentifier<IdentifiableDataObject>) InstanceIdentifier.create(Collections
-                        .singleton(new InstanceIdentifier.IdentifiableItem<>(IdentifiableDataObject.class, beforeKey)));
+                        .singleton(InstanceIdentifier.IdentifiableItem.of(IdentifiableDataObject.class, beforeKey)));
         final InstanceIdentifier<IdentifiableDataObject> keyedIdAfter =
                 (InstanceIdentifier<IdentifiableDataObject>) InstanceIdentifier.create(Collections
-                        .singleton(new InstanceIdentifier.IdentifiableItem<>(IdentifiableDataObject.class, keyAfter)));
+                        .singleton(InstanceIdentifier.IdentifiableItem.of(IdentifiableDataObject.class, keyAfter)));
 
         writer.processModification(DATA_OBJECT_ID, before, after, ctx);
         verify(customizer).updateCurrentAttributes(keyedIdBefore, before, after, ctx);
@@ -117,10 +117,10 @@ public class GenericListWriterTest {
 
         final InstanceIdentifier<IdentifiableDataObject> keyedIdBefore =
             (InstanceIdentifier<IdentifiableDataObject>) InstanceIdentifier.create(Collections
-                .singleton(new InstanceIdentifier.IdentifiableItem<>(IdentifiableDataObject.class, beforeKey)));
+                    .singleton(InstanceIdentifier.IdentifiableItem.of(IdentifiableDataObject.class, beforeKey)));
         final InstanceIdentifier<IdentifiableDataObject> keyedIdAfter =
             (InstanceIdentifier<IdentifiableDataObject>) InstanceIdentifier.create(Collections
-                .singleton(new InstanceIdentifier.IdentifiableItem<>(IdentifiableDataObject.class, keyAfter)));
+                    .singleton(InstanceIdentifier.IdentifiableItem.of(IdentifiableDataObject.class, keyAfter)));
 
         writer.validate(DATA_OBJECT_ID, before, after, ctx);
         verify(validator).validateUpdate(keyedIdBefore, before, after, ctx);

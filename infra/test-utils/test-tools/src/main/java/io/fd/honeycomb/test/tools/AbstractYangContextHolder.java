@@ -16,10 +16,9 @@
 
 package io.fd.honeycomb.test.tools;
 
-import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
-import org.opendaylight.yangtools.yang.model.api.SchemaContext;
-
 import javax.annotation.Nonnull;
+import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
+import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 abstract class AbstractYangContextHolder {
 

@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.dom.spi.DOMNotificationSubscriptionListenerRegistry;
+import org.opendaylight.mdsal.dom.spi.DOMNotificationSubscriptionListenerRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.notifications.rev120206.NetconfSessionStart;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 

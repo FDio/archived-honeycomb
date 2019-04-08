@@ -22,15 +22,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.data.ReadableDataManager;
+import com.google.common.util.concurrent.FluentFuture;
 import io.fd.honeycomb.data.DataModification;
+import io.fd.honeycomb.data.ReadableDataManager;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
@@ -52,8 +51,7 @@ public class ReadOnlyTransactionTest {
     @Test
     public void testExists() {
         final YangInstanceIdentifier path = mock(YangInstanceIdentifier.class);
-        final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException>
-                future = mock(CheckedFuture.class);
+        final FluentFuture<Optional<NormalizedNode<?, ?>>> future = mock(FluentFuture.class);
         when(operationalData.read(path)).thenReturn(future);
 
         readOnlyTx.exists(LogicalDatastoreType.OPERATIONAL, path);

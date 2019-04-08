@@ -17,19 +17,18 @@
 package io.fd.honeycomb.data.impl;
 
 import com.google.common.annotations.Beta;
-import com.google.common.util.concurrent.CheckedFuture;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
+import com.google.common.util.concurrent.FluentFuture;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.netconf.mdsal.connector.DOMDataTransactionValidator;
-import org.opendaylight.netconf.mdsal.connector.DOMDataTransactionValidator.ValidationFailedException;
 
 /**
- * An {@link DOMDataWriteTransaction} than can be validated.
+ * An {@link DOMDataTreeWriteTransaction} than can be validated.
  * @see DOMDataTransactionValidator
  */
 @Beta
-interface ValidableTransaction extends DOMDataWriteTransaction {
+interface ValidableTransaction extends DOMDataTreeWriteTransaction {
     /**
-     * Validates state of the data tree associated with the provided {@link DOMDataWriteTransaction}.
+     * Validates state of the data tree associated with the provided {@link DOMDataTreeWriteTransaction}.
      *
      * <p>The operation should not have any side-effects on the transaction state.
      *
@@ -37,9 +36,8 @@ interface ValidableTransaction extends DOMDataWriteTransaction {
      * if the state of the transaction has not been changed.
      *
      * @return
-     *     a CheckedFuture containing the result of the validate operation. The future blocks until the validation
-     *     operation is complete. A successful validate returns nothing. On failure, the Future will fail
-     *     with a {@link ValidationFailedException} or an exception derived from ValidationFailedException.
+     *     a FluentFuture containing the result of the validate operation. The future blocks until the validation
+     *     operation is complete. A successful validate returns nothing. On failure, the Future will fail.
      */
-    CheckedFuture<Void, ValidationFailedException> validate();
+    FluentFuture<Void> validate();
 }

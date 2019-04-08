@@ -21,16 +21,16 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.FluentFuture;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.ReadFailedException;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -49,27 +49,27 @@ public class TransactionMappingContextTest {
         MockitoAnnotations.initMocks(this);
         ctx = new TransactionMappingContext(writeTx);
 
-        when(writeTx.submit()).thenReturn(Futures.immediateCheckedFuture(null));
+        when(writeTx.commit()).thenReturn(FluentFutures.immediateNullFluentFuture());
     }
 
     @Test
     public void testRead() throws Exception {
-        final CheckedFuture<Optional<DataObject>, ReadFailedException> futureData =
-                Futures.immediateCheckedFuture(Optional.of((data)));
+        final FluentFuture<Optional<DataObject>> futureData = FluentFutures.immediateFluentFuture(Optional.of((data)));
         when(writeTx.read(LogicalDatastoreType.OPERATIONAL, id)).thenReturn(futureData);
 
         assertSame(ctx.read(id).get(), data);
         verify(writeTx).read(LogicalDatastoreType.OPERATIONAL, id);
 
-        when(writeTx.read(LogicalDatastoreType.OPERATIONAL, id)).thenReturn(Futures.immediateCheckedFuture(Optional.absent()));
+        when(writeTx.read(LogicalDatastoreType.OPERATIONAL, id))
+                .thenReturn(FluentFutures.immediateFluentFuture(Optional.empty()));
         assertFalse(ctx.read(id).isPresent());
     }
 
 
     @Test(expected = IllegalStateException.class)
     public void testReadFailure() throws Exception {
-        final CheckedFuture<Optional<DataObject>, ReadFailedException> futureData =
-                Futures.immediateFailedCheckedFuture(ex);
+        final FluentFuture<Optional<DataObject>> futureData =
+                FluentFutures.immediateFailedFluentFuture(ex);
         when(writeTx.read(LogicalDatastoreType.OPERATIONAL, id)).thenReturn(futureData);
         assertSame(ctx.read(id).get(), data);
     }

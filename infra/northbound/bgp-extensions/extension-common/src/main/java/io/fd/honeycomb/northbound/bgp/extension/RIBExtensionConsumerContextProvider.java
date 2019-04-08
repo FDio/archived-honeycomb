@@ -19,14 +19,16 @@ package io.fd.honeycomb.northbound.bgp.extension;
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.data.init.ShutdownHandler;
-import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
-
-import org.opendaylight.protocol.bgp.rib.spi.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Set;
+import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
+import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
+import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContextActivator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RIBExtensionConsumerContextProvider extends ProviderTrait<RIBExtensionConsumerContext> {
     private static final Logger LOG = LoggerFactory.getLogger(RIBExtensionConsumerContextProvider.class);

@@ -18,19 +18,18 @@ package io.fd.honeycomb.data.impl;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.util.concurrent.Futures.immediateCheckedFuture;
 import static io.fd.honeycomb.data.impl.ModifiableDataTreeManager.DataTreeContextFactory.DataTreeContext;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import io.fd.honeycomb.data.DataModification;
 import io.fd.honeycomb.data.ModifiableDataManager;
-import io.fd.honeycomb.translate.ValidationFailedException;
 import io.fd.honeycomb.translate.TranslationException;
+import io.fd.honeycomb.translate.ValidationFailedException;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang3.builder.RecursiveToStringStyle;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.CursorAwareDataTreeModification;
@@ -69,7 +68,7 @@ public class ModifiableDataTreeManager implements ModifiableDataManager {
     }
 
     @Override
-    public final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read(@Nonnull final YangInstanceIdentifier path) {
+    public final FluentFuture<Optional<NormalizedNode<?, ?>>> read(@Nonnull final YangInstanceIdentifier path) {
         return newModification().read(path);
     }
 
@@ -83,14 +82,12 @@ public class ModifiableDataTreeManager implements ModifiableDataManager {
         }
 
         @Override
-        public CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read(
-                @Nonnull final YangInstanceIdentifier path) {
-            // TODO(HONEYCOMB-192): switch to java.util.Optional when rest of ODL infra does
-            final Optional<NormalizedNode<?, ?>> node = Optional.fromNullable(modification.readNode(path).orElse(null));
+        public FluentFuture<Optional<NormalizedNode<?, ?>>> read(@Nonnull final YangInstanceIdentifier path) {
+            final Optional<NormalizedNode<?, ?>> node = modification.readNode(path);
             if (LOG.isTraceEnabled() && node.isPresent()) {
                 LOG.trace("ConfigSnapshot.read: {}", node.get());
             }
-            return immediateCheckedFuture(node);
+            return FluentFutures.immediateFluentFuture(node);
         }
 
         @Override
@@ -145,9 +142,9 @@ public class ModifiableDataTreeManager implements ModifiableDataManager {
             // Sealed modification cannot be altered, so create copy.
             final CursorAwareDataTreeModification modificationCopy =
                 (CursorAwareDataTreeModification) snapshot.newModification();
-            final DataTreeModificationCursor cursor = modificationCopy.createCursor(dataTree.getRootPath());
-            checkState(cursor != null, "DataTreeModificationCursor for root path should not be null");
-            modification.applyToCursor(cursor);
+            Optional<? extends DataTreeModificationCursor> cursor = modificationCopy.openCursor(dataTree.getRootPath());
+            checkState(cursor.isPresent(), "DataTreeModificationCursor for root path should not be empty");
+            modification.applyToCursor(cursor.get());
             // Then validate it.
             validateCandidate(prepareCandidateContext(modificationCopy));
         }

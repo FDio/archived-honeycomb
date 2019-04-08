@@ -19,7 +19,6 @@ package io.fd.honeycomb.translate.impl.read.registry;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import io.fd.honeycomb.translate.read.InitFailedException;
@@ -36,8 +35,9 @@ import io.fd.honeycomb.translate.util.read.DelegatingReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
@@ -70,7 +70,7 @@ class CompositeReader<D extends DataObject, B extends Builder<D>>
     @SuppressWarnings("unchecked")
     public static <D extends DataObject> InstanceIdentifier<D> appendTypeToId(
         final InstanceIdentifier<? extends DataObject> parentId, final InstanceIdentifier<D> type) {
-        final InstanceIdentifier.PathArgument t = new InstanceIdentifier.Item<>(type.getTargetType());
+        final InstanceIdentifier.PathArgument t = InstanceIdentifier.Item.of(type.getTargetType());
         return (InstanceIdentifier<D>) InstanceIdentifier.create(Iterables.concat(
             parentId.getPathArguments(), Collections.singleton(t)));
     }

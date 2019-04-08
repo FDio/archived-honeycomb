@@ -16,14 +16,15 @@
 
 package io.fd.honeycomb.infra.bgp;
 
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.OPERATIONAL;
+
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.util.read.BindingBrokerReader;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRibBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -53,8 +54,8 @@ final class BgpReaderFactoryProvider extends ProviderTrait<ReaderFactory> {
 
         @Override
         public void init(final ModifiableReaderRegistryBuilder registry) {
-            registry.add(new BindingBrokerReader<>(InstanceIdentifier.create(BgpRib.class),
-                bgpDataBroker, LogicalDatastoreType.OPERATIONAL, BgpRibBuilder.class));
+            registry.add(new BindingBrokerReader<>(InstanceIdentifier.create(BgpRib.class), bgpDataBroker, OPERATIONAL,
+                    BgpRibBuilder.class));
         }
     }
 }

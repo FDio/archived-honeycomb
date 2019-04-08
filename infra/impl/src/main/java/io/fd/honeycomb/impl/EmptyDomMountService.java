@@ -16,11 +16,11 @@
 
 package io.fd.honeycomb.impl;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.dom.api.DOMMountPoint;
-import org.opendaylight.controller.md.sal.dom.api.DOMMountPointService;
+import org.opendaylight.mdsal.dom.api.DOMMountPoint;
 import org.opendaylight.mdsal.dom.api.DOMMountPointListener;
+import org.opendaylight.mdsal.dom.api.DOMMountPointService;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
@@ -31,7 +31,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 public class EmptyDomMountService implements DOMMountPointService {
     @Override
     public Optional<DOMMountPoint> getMountPoint(final YangInstanceIdentifier yangInstanceIdentifier) {
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override

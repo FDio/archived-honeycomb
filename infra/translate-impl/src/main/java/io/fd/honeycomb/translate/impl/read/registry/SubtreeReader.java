@@ -18,7 +18,6 @@ package io.fd.honeycomb.translate.impl.read.registry;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import io.fd.honeycomb.translate.read.ListReader;
 import io.fd.honeycomb.translate.read.ReadContext;
@@ -32,6 +31,7 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
@@ -133,7 +133,7 @@ class SubtreeReader<D extends DataObject, B extends Builder<D>> implements Deleg
                 Collections.emptyList(), nextId.getType());
 
         if (method.isPresent()) {
-            return Optional.fromNullable(filterSingle(parent, nextId, method.get()));
+            return Optional.ofNullable(filterSingle(parent, nextId, method.get()));
         } else {
             // List child nodes
             method = ReflectionUtils.findMethodReflex(managedType,
@@ -161,7 +161,7 @@ class SubtreeReader<D extends DataObject, B extends Builder<D>> implements Deleg
         final Method keyGetter = ReflectionUtils.findMethodReflex(nextId.getType(), "get",
                         Collections.emptyList(), key.getClass()).get();
 
-        return Optional.fromNullable(invoke.stream()
+        return Optional.ofNullable(invoke.stream()
                 .filter(item -> key.equals(invoke(keyGetter, nextId, item)))
                 .findFirst().orElse(null));
     }

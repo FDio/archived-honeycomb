@@ -24,8 +24,8 @@ import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.data.init.RestoringInitializer;
 import io.fd.honeycomb.infra.distro.cfgattrs.HoneycombConfiguration;
 import java.nio.file.Paths;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 
 final class PersistedConfigInitializerProvider extends ProviderTrait<RestoringInitializer> {

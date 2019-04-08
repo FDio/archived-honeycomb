@@ -18,19 +18,18 @@ package io.fd.honeycomb.rpc;
 
 import static net.javacrumbs.futureconverter.java8guava.FutureConverter.toListenableFuture;
 
-import com.google.common.base.Function;
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.controller.md.sal.dom.api.DOMRpcAvailabilityListener;
-import org.opendaylight.controller.md.sal.dom.api.DOMRpcException;
-import org.opendaylight.controller.md.sal.dom.api.DOMRpcResult;
-import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
-import org.opendaylight.controller.md.sal.dom.spi.DefaultDOMRpcResult;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.mdsal.dom.api.DOMRpcAvailabilityListener;
+import org.opendaylight.mdsal.dom.api.DOMRpcResult;
+import org.opendaylight.mdsal.dom.api.DOMRpcService;
+import org.opendaylight.mdsal.dom.spi.DefaultDOMRpcResult;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -38,9 +37,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 
 public final class HoneycombDOMRpcService implements DOMRpcService {
-
-    private static final Function<? super Exception, DOMRpcException> ANY_EX_TO_RPC_EXCEPTION_MAPPER =
-        e -> (e instanceof DOMRpcException) ? (DOMRpcException) e : new RpcException("RPC failed", e);
 
     private final BindingNormalizedNodeSerializer serializer;
     private final RpcRegistry rpcRegistry;
@@ -53,8 +49,8 @@ public final class HoneycombDOMRpcService implements DOMRpcService {
 
     @Nonnull
     @Override
-    public CheckedFuture<DOMRpcResult, DOMRpcException> invokeRpc(@Nonnull final SchemaPath schemaPath,
-                                                                  @Nullable final NormalizedNode<?, ?> normalizedNode) {
+    public FluentFuture<DOMRpcResult> invokeRpc(@Nonnull final SchemaPath schemaPath,
+                                                @Nullable final NormalizedNode<?, ?> normalizedNode) {
         DataObject input = null;
         if (normalizedNode != null) {
             // RPC input is optional
@@ -63,7 +59,7 @@ public final class HoneycombDOMRpcService implements DOMRpcService {
         }
         final CompletableFuture<DataObject> result = rpcRegistry.invoke(schemaPath, input).toCompletableFuture();
         final ListenableFuture<DOMRpcResult> output = getDOMRpcResult(toListenableFuture(result));
-        return Futures.makeChecked(output, ANY_EX_TO_RPC_EXCEPTION_MAPPER);
+        return FluentFuture.from(output);
     }
 
     private ListenableFuture<DOMRpcResult> getDOMRpcResult(final ListenableFuture<DataObject> invoke) {
@@ -76,7 +72,7 @@ public final class HoneycombDOMRpcService implements DOMRpcService {
                     outputNode = serializer.toNormalizedNodeRpcData(output);
                 }
                 return new DefaultDOMRpcResult(outputNode);
-            });
+            }, MoreExecutors.directExecutor());
     }
 
     @Nonnull

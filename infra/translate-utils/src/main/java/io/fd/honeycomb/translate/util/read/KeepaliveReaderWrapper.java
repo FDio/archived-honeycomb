@@ -16,13 +16,13 @@
 
 package io.fd.honeycomb.translate.util.read;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.Reader;
 import java.io.Closeable;
+import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -110,7 +110,7 @@ public final class KeepaliveReaderWrapper<D extends DataObject, B extends Builde
     private static final class NoopMappingContext implements MappingContext {
         @Override
         public <T extends DataObject> Optional<T> read(@Nonnull final InstanceIdentifier<T> currentId) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         @Override

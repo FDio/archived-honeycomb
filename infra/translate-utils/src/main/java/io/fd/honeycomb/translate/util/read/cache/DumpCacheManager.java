@@ -20,10 +20,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.nonNull;
 
-import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.noop.NoopDumpPostProcessingFunction;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public final class DumpCacheManager<T, U> {
      * @param cache      modification cache of current transaction
      * @throws ReadFailedException if execution of dumping request failed
      * @returns If present in cache ,returns cached instance, if not, tries to dump data using provided executor,
-     * otherwise Optional.absent()
+     * otherwise Optional.empty()
      */
     public Optional<T> getDump(@Nonnull final InstanceIdentifier<?> identifier,
                                @Nonnull final ModificationCache cache)
@@ -75,7 +75,7 @@ public final class DumpCacheManager<T, U> {
      * @param dumpParams parameters to configure dump request
      * @throws ReadFailedException if execution of dumping request failed
      * @returns If present in cache ,returns cached instance, if not, tries to dump data using provided executor,
-     * otherwise Optional.absent()
+     * otherwise Optional.empty()
      */
     public Optional<T> getDump(@Nonnull final InstanceIdentifier<?> identifier,
                                @Nonnull final ModificationCache cache, final U dumpParams)

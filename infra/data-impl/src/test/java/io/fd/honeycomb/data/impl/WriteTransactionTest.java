@@ -25,15 +25,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import io.fd.honeycomb.data.DataModification;
 import io.fd.honeycomb.translate.TranslationException;
 import io.fd.honeycomb.translate.ValidationFailedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
@@ -68,7 +69,7 @@ public class WriteTransactionTest {
 
     @Test(expected = IllegalStateException.class)
     public void testOnFinishedTx() {
-        writeTx.submit();
+        writeTx.commit();
         writeTx.put(LogicalDatastoreType.CONFIGURATION, path, data);
         verify(configSnapshot).write(path, data);
     }
@@ -86,7 +87,7 @@ public class WriteTransactionTest {
 
     @Test
     public void testCancelFinished() {
-        writeTx.submit();
+        writeTx.commit();
         assertFalse(writeTx.cancel());
     }
 
@@ -98,14 +99,14 @@ public class WriteTransactionTest {
 
     @Test
     public void testSubmit() throws Exception {
-        writeTx.submit();
+        writeTx.commit();
         verify(configSnapshot).commit();
     }
 
     @Test
     public void testSubmitFailed() throws Exception {
         doThrow(mock(ValidationFailedException.class)).when(configSnapshot).commit();
-        final CheckedFuture<Void, TransactionCommitFailedException> future = writeTx.submit();
+        final FluentFuture<? extends CommitInfo> future = writeTx.commit();
         try {
             future.get();
         } catch (Exception e) {

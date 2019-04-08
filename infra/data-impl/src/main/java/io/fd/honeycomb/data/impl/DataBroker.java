@@ -18,21 +18,22 @@ package io.fd.honeycomb.data.impl;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ClassToInstanceMap;
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import io.fd.honeycomb.data.DataModification;
 import io.fd.honeycomb.data.ModifiableDataManager;
 import io.fd.honeycomb.data.ReadableDataManager;
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBrokerExtension;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataReadWriteTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
+import org.eclipse.jdt.annotation.NonNull;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
+import org.opendaylight.mdsal.dom.api.DOMDataBrokerExtension;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeReadTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeReadWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
 import org.opendaylight.netconf.mdsal.connector.DOMDataTransactionValidator;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.slf4j.Logger;
@@ -57,35 +58,32 @@ public class DataBroker implements DOMDataBroker, Closeable {
     }
 
     @Override
-    public DOMDataReadOnlyTransaction newReadOnlyTransaction() {
-        LOG.trace("DataBroker({}).newReadOnlyTransaction()", this);
-        return transactionFactory.newReadOnlyTransaction();
+    public DOMDataTreeReadTransaction newReadOnlyTransaction() {
+        LOG.trace("DataBroker({}).newReadTransaction()", this);
+        return transactionFactory.newReadTransaction();
     }
 
     @Override
-    public DOMDataReadWriteTransaction newReadWriteTransaction() {
+    public DOMDataTreeReadWriteTransaction newReadWriteTransaction() {
         LOG.trace("DataBroker({}).newReadWriteTransaction()", this);
         return transactionFactory.newReadWriteTransaction();
     }
 
     @Override
-    public DOMDataWriteTransaction newWriteOnlyTransaction() {
-        LOG.trace("DataBroker({}).newWriteOnlyTransaction()", this);
-        return transactionFactory.newWriteOnlyTransaction();
+    public DOMDataTreeWriteTransaction newWriteOnlyTransaction() {
+        LOG.trace("DataBroker({}).newWriteTransaction()", this);
+        return transactionFactory.newWriteTransaction();
     }
 
     @Override
-    public DOMTransactionChain createTransactionChain(final TransactionChainListener listener) {
+    public DOMTransactionChain createTransactionChain(final DOMTransactionChainListener listener) {
         throw new UnsupportedOperationException("Not supported");
     }
 
-    @Nonnull
     @Override
-    public Map<Class<? extends DOMDataBrokerExtension>, DOMDataBrokerExtension> getSupportedExtensions() {
-        return Collections.singletonMap(
-            DOMDataTransactionValidator.class,
-            (DOMDataTransactionValidator) tx -> ((ValidableTransaction)tx).validate()
-        );
+    public @NonNull ClassToInstanceMap<DOMDataBrokerExtension> getExtensions() {
+        return ImmutableClassToInstanceMap.of(DOMDataTransactionValidator.class,
+                tx -> ((ValidableTransaction) tx).validate());
     }
 
     /**
@@ -118,11 +116,11 @@ public class DataBroker implements DOMDataBroker, Closeable {
      */
     public interface TransactionFactory {
 
-        DOMDataReadOnlyTransaction newReadOnlyTransaction();
+        DOMDataTreeReadTransaction newReadTransaction();
 
-        DOMDataReadWriteTransaction newReadWriteTransaction();
+        DOMDataTreeReadWriteTransaction newReadWriteTransaction();
 
-        DOMDataWriteTransaction newWriteOnlyTransaction();
+        DOMDataTreeWriteTransaction newWriteTransaction();
     }
 
     /**
@@ -139,12 +137,12 @@ public class DataBroker implements DOMDataBroker, Closeable {
         }
 
         @Override
-        public DOMDataReadOnlyTransaction newReadOnlyTransaction() {
+        public DOMDataTreeReadTransaction newReadTransaction() {
             return ReadOnlyTransaction.create(configDataTree.newModification(), operationalDataTree);
         }
 
         @Override
-        public DOMDataReadWriteTransaction newReadWriteTransaction() {
+        public DOMDataTreeReadWriteTransaction newReadWriteTransaction() {
             final DataModification configModification = configDataTree.newModification();
             return new ReadWriteTransaction(
                 ReadOnlyTransaction.create(configModification, operationalDataTree),
@@ -152,7 +150,7 @@ public class DataBroker implements DOMDataBroker, Closeable {
         }
 
         @Override
-        public DOMDataWriteTransaction newWriteOnlyTransaction() {
+        public DOMDataTreeWriteTransaction newWriteTransaction() {
             return WriteTransaction.createConfigOnly(configDataTree.newModification());
         }
     }
@@ -168,20 +166,20 @@ public class DataBroker implements DOMDataBroker, Closeable {
         }
 
         @Override
-        public DOMDataReadOnlyTransaction newReadOnlyTransaction() {
+        public DOMDataTreeReadTransaction newReadTransaction() {
             return ReadOnlyTransaction.createOperationalOnly(operationalDataTree);
         }
 
         @Override
-        public DOMDataReadWriteTransaction newReadWriteTransaction() {
+        public DOMDataTreeReadWriteTransaction newReadWriteTransaction() {
             final DataModification dataModification = operationalDataTree.newModification();
             return new ReadWriteTransaction(
-                ReadOnlyTransaction.createOperationalOnly(dataModification),
-                WriteTransaction.createOperationalOnly(dataModification));
+                    ReadOnlyTransaction.createOperationalOnly(dataModification),
+                    WriteTransaction.createOperationalOnly(dataModification));
         }
 
         @Override
-        public DOMDataWriteTransaction newWriteOnlyTransaction() {
+        public DOMDataTreeWriteTransaction newWriteTransaction() {
             return WriteTransaction.createOperationalOnly(operationalDataTree.newModification());
         }
     }

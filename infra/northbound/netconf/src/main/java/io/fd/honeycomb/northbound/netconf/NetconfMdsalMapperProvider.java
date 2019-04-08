@@ -21,8 +21,8 @@ import static io.fd.honeycomb.infra.distro.data.ConfigAndOperationalPipelineModu
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMRpcService;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
+import org.opendaylight.mdsal.dom.api.DOMRpcService;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactory;
 import org.opendaylight.netconf.mapping.api.NetconfOperationServiceFactoryListener;
@@ -44,9 +44,7 @@ public final class NetconfMdsalMapperProvider extends ProviderTrait<NetconfOpera
 
     @Override
     protected MdsalNetconfOperationServiceFactory create() {
-        MdsalNetconfOperationServiceFactory mdsalNetconfOperationServiceFactory =
-                new MdsalNetconfOperationServiceFactory(schemaService, netconfOperationServiceFactoryListener,
-                        domBroker, rpcService);
-        return mdsalNetconfOperationServiceFactory;
+        return new MdsalNetconfOperationServiceFactory(schemaService, netconfOperationServiceFactoryListener,
+                domBroker, rpcService);
     }
 }

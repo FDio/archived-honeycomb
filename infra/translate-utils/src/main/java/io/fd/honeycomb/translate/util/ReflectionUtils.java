@@ -16,9 +16,9 @@
 
 package io.fd.honeycomb.translate.util;
 
-import com.google.common.base.Optional;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 
 /**
@@ -36,7 +36,7 @@ public final class ReflectionUtils {
      * @param paramTypes List of input argument types
      * @param retType Return type
      *
-     * @return Found method or Optional.absent() if there's no such method
+     * @return Found method or Optional.empty() if there's no such method
      */
     @Nonnull
     public static Optional<Method> findMethodReflex(@Nonnull final Class<?> managedType,
@@ -49,7 +49,7 @@ public final class ReflectionUtils {
             }
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private static boolean isMethodMatch(final @Nonnull String prefix,

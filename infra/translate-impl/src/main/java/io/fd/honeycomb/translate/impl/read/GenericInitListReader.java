@@ -18,7 +18,6 @@ package io.fd.honeycomb.translate.impl.read;
 
 import static io.fd.honeycomb.translate.impl.read.GenericInitReader.writeInit;
 
-import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.read.InitFailedException;
 import io.fd.honeycomb.translate.read.InitListReader;
 import io.fd.honeycomb.translate.read.ReadContext;
@@ -26,8 +25,9 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
+import java.util.Optional;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;

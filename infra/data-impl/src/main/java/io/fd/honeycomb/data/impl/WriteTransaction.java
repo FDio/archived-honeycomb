@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.data.DataModification;
@@ -30,10 +29,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.netconf.mdsal.connector.DOMDataTransactionValidator;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
+import org.opendaylight.netconf.mdsal.connector.DOMDataTransactionValidator;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.slf4j.Logger;
@@ -113,23 +113,6 @@ final class WriteTransaction implements ValidableTransaction {
         handleOperation(store, (modification) -> modification.delete(path));
     }
 
-    @Deprecated
-    @Override
-    public CheckedFuture<Void, TransactionCommitFailedException> submit() {
-        LOG.trace("WriteTransaction.submit()");
-        checkIsNew();
-
-        try {
-            doCommit();
-        } catch (Exception e) {
-            status = TransactionStatus.FAILED;
-            LOG.error("Submit failed", e);
-            return Futures.immediateFailedCheckedFuture(
-                    new TransactionCommitFailedException("Failed to validate DataTreeModification", e));
-        }
-        return Futures.immediateCheckedFuture(null);
-    }
-
     private void doCommit() throws TranslationException {
         status = TransactionStatus.SUBMITED;
         if (configModification != null) {
@@ -164,7 +147,7 @@ final class WriteTransaction implements ValidableTransaction {
     }
 
     @Override
-    public CheckedFuture<Void, DOMDataTransactionValidator.ValidationFailedException> validate() {
+    public FluentFuture<Void> validate() {
         try {
             if (configModification != null) {
                 configModification.validate();
@@ -173,9 +156,10 @@ final class WriteTransaction implements ValidableTransaction {
                 operationalModification.validate();
             }
         } catch (Exception e) {
-            return Futures.immediateFailedCheckedFuture(new DOMDataTransactionValidator.ValidationFailedException(e.getMessage(), e.getCause()));
+            return FluentFutures.immediateFailedFluentFuture(
+                    new DOMDataTransactionValidator.ValidationFailedException(e.getMessage(), e.getCause()));
         }
-        return Futures.immediateCheckedFuture(null);
+        return FluentFutures.immediateNullFluentFuture();
     }
 
 

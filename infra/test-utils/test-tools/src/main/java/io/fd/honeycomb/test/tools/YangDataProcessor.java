@@ -19,9 +19,10 @@ package io.fd.honeycomb.test.tools;
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
+import org.opendaylight.mdsal.binding.dom.adapter.BindingToNormalizedNodeCodec;
 import org.opendaylight.mdsal.binding.generator.impl.BindingSchemaContextUtils;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -74,7 +75,7 @@ interface YangDataProcessor {
             return schemaContext;
         }
 
-        final com.google.common.base.Optional<InstanceIdentifier<? extends DataObject>> parentInstanceId;
+        final Optional<InstanceIdentifier<? extends DataObject>> parentInstanceId;
         try {
             parentInstanceId = serializer.toBinding(parentYangId);
         } catch (DeserializationException e) {
@@ -85,12 +86,13 @@ interface YangDataProcessor {
             throw new IllegalStateException(String.format("Unable to resolve %s to instance identifier", parentYangId));
         }
 
-        final com.google.common.base.Optional<DataNodeContainer> dataNodeContainerOptional =
+        final Optional<DataNodeContainer> dataNodeContainerOptional =
                 BindingSchemaContextUtils.findDataNodeContainer(schemaContext, parentInstanceId.get());
 
 
         if (!dataNodeContainerOptional.isPresent()) {
-            throw new IllegalArgumentException(String.format("Error finding DataNodeContainer for %s", parentInstanceId.get()));
+            throw new IllegalArgumentException(
+                    String.format("Error finding DataNodeContainer for %s", parentInstanceId.get()));
         }
 
         final DataNodeContainer parentNode = dataNodeContainerOptional.get();
@@ -99,13 +101,18 @@ interface YangDataProcessor {
     }
 
     @Nonnull
-    default Map.Entry<InstanceIdentifier<? extends DataObject>, DataObject> nodeBinding(@Nonnull final BindingToNormalizedNodeCodec serializer,
-                                                                                        @Nonnull final YangInstanceIdentifier identifier,
-                                                                                        @Nonnull final NormalizedNode<?, ?> data) {
+    default Map.Entry<InstanceIdentifier<? extends DataObject>, DataObject> nodeBinding(
+            @Nonnull final BindingToNormalizedNodeCodec serializer,
+            @Nonnull final YangInstanceIdentifier identifier,
+            @Nonnull final NormalizedNode<?, ?> data) throws IllegalArgumentException {
         try {
             return serializer.toBinding(new AbstractMap.SimpleImmutableEntry<>(identifier, data))
-                    .or(() -> {
-                        throw new IllegalArgumentException(String.format("Unable to create node binding  for %s|%s", identifier, data));
+                    .orElseThrow(new Supplier<RuntimeException>() {
+                        @Override
+                        public RuntimeException get() {
+                            throw new IllegalArgumentException(
+                                    String.format("Unable to create node binding  for %s|%s", identifier, data));
+                        }
                     });
         } catch (DeserializationException e) {
             throw new IllegalArgumentException(String.format("Unable to deserialize node %s|%s", identifier, data), e);
@@ -113,12 +120,17 @@ interface YangDataProcessor {
     }
 
     @Nonnull
-    default InstanceIdentifier<? extends DataObject> identifierBinding(@Nonnull final BindingToNormalizedNodeCodec serializer,
-                                                                       @Nonnull final YangInstanceIdentifier identifier) {
+    default InstanceIdentifier<? extends DataObject> identifierBinding(
+            @Nonnull final BindingToNormalizedNodeCodec serializer,
+            @Nonnull final YangInstanceIdentifier identifier) throws IllegalArgumentException{
         try {
             return serializer.toBinding(identifier)
-                    .or(() -> {
-                        throw new IllegalArgumentException(String.format("Unable convert %s to binding", identifier));
+                    .orElseThrow(new Supplier<RuntimeException>() {
+                        @Override
+                        public RuntimeException get() {
+                            throw new IllegalArgumentException(
+                                    String.format("Unable convert %s to binding", identifier));
+                        }
                     });
         } catch (DeserializationException e) {
             throw new IllegalArgumentException(String.format("Unable to deserialize %s", identifier), e);

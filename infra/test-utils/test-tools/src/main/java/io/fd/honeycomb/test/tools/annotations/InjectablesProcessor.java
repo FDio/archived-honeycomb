@@ -52,7 +52,8 @@ public interface InjectablesProcessor {
         return parameter.getAnnotation(InjectTestData.class).resourcePath();
     }
 
-    default YangInstanceIdentifier instanceIdentifier(@Nonnull final AbstractModuleStringInstanceIdentifierCodec parser, @Nonnull final Field field) {
+    default YangInstanceIdentifier instanceIdentifier(@Nonnull final AbstractModuleStringInstanceIdentifierCodec parser,
+                                                      @Nonnull final Field field) {
         final String identifier = field.getAnnotation(InjectTestData.class).id();
         // == used instead of equals to ensure constant was used
         if (NO_ID.equals(identifier)) {
@@ -62,7 +63,8 @@ public interface InjectablesProcessor {
         }
     }
 
-    default YangInstanceIdentifier instanceIdentifier(@Nonnull final AbstractModuleStringInstanceIdentifierCodec parser, @Nonnull final Parameter parameter) {
+    default YangInstanceIdentifier instanceIdentifier(@Nonnull final AbstractModuleStringInstanceIdentifierCodec parser,
+                                                      @Nonnull final Parameter parameter) {
         final String identifier = parameter.getAnnotation(InjectTestData.class).id();
         // == used instead of equals to ensure constant was used
         if (NO_ID.equals(identifier)) {

@@ -16,9 +16,8 @@
 
 package io.fd.honeycomb.translate.impl.read;
 
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.CONFIGURATION;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -28,10 +27,12 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
+import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -72,7 +73,15 @@ public final class GenericInitReader<O extends DataObject, B extends Builder<O>>
     @SuppressWarnings("unchecked")
     static void writeInit(final DataBroker broker, final Initialized<? extends DataObject> init) {
         final WriteTransaction writeTx = broker.newWriteOnlyTransaction();
-        writeTx.merge(CONFIGURATION, (InstanceIdentifier) init.getId(), init.getData(), true);
+
+        InstanceIdentifier id = init.getId();
+        if (id.getPathArguments() instanceof List && ((List) id.getPathArguments()).size() == 1) {
+            //root element only. not necessary to create parents
+            writeTx.merge(CONFIGURATION, id, init.getData());
+        }
+        else {
+            writeTx.mergeParentStructureMerge(CONFIGURATION, id, init.getData());
+        }
         FluentFuture<? extends CommitInfo> future = writeTx.commit();
         future.addCallback(new FutureCallback<CommitInfo>() {
             @Override

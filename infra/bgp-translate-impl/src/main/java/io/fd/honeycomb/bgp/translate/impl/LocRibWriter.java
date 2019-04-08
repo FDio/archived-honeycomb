@@ -52,7 +52,7 @@ public final class LocRibWriter implements RibWriter {
         // TODO(HONEYCOMB-367): updates for whole list instead of list item
         // are needed to support deleteALL (might be required for performance reasons).
         bgpDataBroker
-            .registerDataTreeChangeListener(new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, managedId),
-            new LocRibChangeListener(writer));
+                .registerDataTreeChangeListener(new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, managedId),
+                        new LocRibChangeListener(writer));
     }
 }

@@ -18,12 +18,12 @@ package io.fd.honeycomb.translate.util.read;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.util.ReflectionUtils;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.Augmentation;

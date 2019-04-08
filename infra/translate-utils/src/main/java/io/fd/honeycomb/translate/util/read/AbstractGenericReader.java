@@ -19,11 +19,11 @@ package io.fd.honeycomb.translate.util.read;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.read.ReadContext;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.read.Reader;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.honeycomb.translate.read.ReadFailedException;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -64,7 +64,7 @@ public abstract class AbstractGenericReader<D extends DataObject, B extends Buil
         final D built = builder.build();
         final Optional<D> read = isPresent(id, built, ctx)
             ? Optional.of(built)
-            : Optional.absent();
+                : Optional.empty();
 
         LOG.debug("{}: Current node read successfully. Result: {}", this, read);
         return read;
