@@ -41,9 +41,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.ContainerWithList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.SimpleContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.container.with.list.ListInContainer;
@@ -191,7 +191,7 @@ public class DataBrokerConfigWriteBenchmark extends AbstractModule implements Fi
         // Commit based on frequency set
         if (counter % submitFrequency == 0) {
             try {
-                tx.submit().get();
+                tx.commit().get();
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException("Submit failed", e);
             }

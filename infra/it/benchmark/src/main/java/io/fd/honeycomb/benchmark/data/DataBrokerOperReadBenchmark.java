@@ -16,6 +16,11 @@
 
 package io.fd.honeycomb.benchmark.data;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.Module;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import io.fd.honeycomb.benchmark.util.DataProvider;
@@ -36,9 +41,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.ContainerWithList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.ContainerWithListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.SimpleContainer;
@@ -116,7 +122,7 @@ public class DataBrokerOperReadBenchmark extends AbstractModule implements FileM
     private List<Reader<?, ?>> noopReaders = new ArrayList<>();
     private DataBroker dataBroker;
     private long counter = 0;
-    private ReadOnlyTransaction tx;
+    private @NonNull ReadTransaction tx;
     private HoneycombConfiguration instance;
 
     @Setup(Level.Iteration)

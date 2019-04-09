@@ -171,7 +171,7 @@ public interface DataProvider {
         private final List<DataProvider> values;
         private int valueSize;
 
-        public MultiValueDataProvider(final List<DataProvider> values) {
+        MultiValueDataProvider(final List<DataProvider> values) {
             // Wrap as array list so that index lookup is fast
             this.values = Lists.newArrayList(values);
             this.valueSize = values.size();

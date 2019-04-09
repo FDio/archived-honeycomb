@@ -17,7 +17,6 @@
 package io.fd.honeycomb.benchmark.util;
 
 import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.read.Reader;
 import java.util.Optional;
 import javax.annotation.Nonnull;
@@ -56,22 +55,22 @@ public final class StaticReader<T extends DataObject, B extends Builder<T>> impl
     }
 
     @Override
-    public boolean isPresent(final InstanceIdentifier<T> id, final T built, final ReadContext ctx) {
+    public boolean isPresent(@Nonnull final InstanceIdentifier<T> id, @Nonnull final T built,
+                             @Nonnull final ReadContext ctx) {
         return true;
     }
 
     @Nonnull
     @Override
     public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
-                                               @Nonnull final ReadContext ctx) throws ReadFailedException {
+                                               @Nonnull final ReadContext ctx) {
         counter++;
         return Optional.of(data.getData(counter));
     }
 
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<T> id, @Nonnull final B builder,
-                                      @Nonnull final ReadContext ctx)
-            throws ReadFailedException {
+                                      @Nonnull final ReadContext ctx) {
         throw new UnsupportedOperationException("No read current attrs!");
     }
 

@@ -17,7 +17,6 @@
 package io.fd.honeycomb.benchmark.util;
 
 import io.fd.honeycomb.translate.write.WriteContext;
-import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.translate.write.Writer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -43,7 +42,7 @@ public final class NoopWriter<T extends DataObject> implements Writer<T> {
     public void processModification(@Nonnull final InstanceIdentifier<? extends DataObject> id,
                        @Nullable final DataObject dataBefore,
                        @Nullable final DataObject dataAfter,
-                       @Nonnull final WriteContext ctx) throws WriteFailedException {
+                       @Nonnull final WriteContext ctx) {
         counter++;
         // NOOP
     }

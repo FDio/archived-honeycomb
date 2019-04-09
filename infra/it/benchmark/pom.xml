@@ -34,7 +34,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <jmh.version>1.15</jmh.version>
+        <jmh.version>1.21</jmh.version>
         <uberjar.name>benchmarks</uberjar.name>
     </properties>
 

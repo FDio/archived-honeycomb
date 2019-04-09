@@ -16,8 +16,8 @@
 
 package io.fd.honeycomb.benchmark.util;
 
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -26,7 +26,7 @@ public interface DataSubmitter {
 
     void submit(LogicalDatastoreType type, WriteTransaction tx, InstanceIdentifier<?> id, DataObject data);
 
-    public static DataSubmitter from(String operation) {
+    static DataSubmitter from(String operation) {
         switch (operation) {
             case "put": {
                 return (type, tx, id, data) -> tx.put(type, (InstanceIdentifier) id, data);
