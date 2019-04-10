@@ -23,7 +23,7 @@ import net.jmob.guice.conf.core.Syntax;
 /**
  * Class containing static configuration for ${rootArtifactId} module,<br>
  * either loaded from property file ${rootArtifactId}.json from classpath.
- * <p/>
+ *
  * Further documentation for the configuration injection can be found at:
  * https://github.com/yyvess/gconf
  */

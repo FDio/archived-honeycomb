@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Simple example of class handling Crud operations for plugin.
- * <p/>
+ *
  * No real handling, serves just as an illustration.
  *
  * TODO update javadoc

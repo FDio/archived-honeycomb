@@ -23,7 +23,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * ReadCustomizers which want to participate in the initializing process need to implement this interface.
- * <p/>
+ *
  * It is triggered after Honeycomb initializes the plugins to give them a change
  * reconcile(put data in HC in sync with underlying layer) with the underlying layer.
  */

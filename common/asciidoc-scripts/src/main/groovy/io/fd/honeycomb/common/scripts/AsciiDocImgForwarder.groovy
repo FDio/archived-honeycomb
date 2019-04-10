@@ -23,7 +23,7 @@ class AsciiDocImgForwarder {
 
     static final def ADOC_FOLDER = "asciidoc"
     static final def SITE_FOLDER = "site"
-    static final def PNG_EXTENSION = "png";
+    static final def PNG_EXTENSION = "png"
 
     /**
      * Copies generated images to site folder

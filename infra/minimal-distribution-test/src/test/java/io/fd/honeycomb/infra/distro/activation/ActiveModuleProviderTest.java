@@ -55,13 +55,13 @@ public class ActiveModuleProviderTest {
         assertThat(activeModules, hasItem(isA(Modules.ChildModule3.class)));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testLoadActiveModulesFailed() {
         final ImmutableList rawResources = of(
                 "// this should be skipped",
                 "// io.fd.honeycomb.infra.distro.Modules$ChildModule1",
                 "               io.fd.honeycomb.infra.distro.Modules$ChildModule2",
-                "### io.fd.honeycomb.infra.distro.Modules$ChildModule3     ",// it should fail because of this
+                "io.fd.honeycomb.infra.distro.Modules$ChildModule3     ",// it should fail because of this
                 "io.fd.honeycomb.infra.distro.Modules$ChildModule3",
                 "io.fd.honeycomb.infra.distro.Modules$NonModule"
         );

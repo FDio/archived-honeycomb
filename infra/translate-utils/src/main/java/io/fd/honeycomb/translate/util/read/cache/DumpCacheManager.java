@@ -53,12 +53,12 @@ public final class DumpCacheManager<T, U> {
     }
 
     /**
-     * Returns {@link Optional<T>} of dump
+     * Returns {@link Optional} of dump
      *
      * @param identifier identifier for origin of dumping context
      * @param cache      modification cache of current transaction
      * @throws ReadFailedException if execution of dumping request failed
-     * @returns If present in cache ,returns cached instance, if not, tries to dump data using provided executor,
+     * @return If present in cache ,returns cached instance, if not, tries to dump data using provided executor,
      * otherwise Optional.empty()
      */
     public Optional<T> getDump(@Nonnull final InstanceIdentifier<?> identifier,
@@ -68,13 +68,13 @@ public final class DumpCacheManager<T, U> {
     }
 
     /**
-     * Returns {@link Optional<T>} of dump
+     * Returns {@link Optional} of dump
      *
      * @param identifier identifier for origin of dumping context
      * @param cache      modification cache of current transaction
      * @param dumpParams parameters to configure dump request
      * @throws ReadFailedException if execution of dumping request failed
-     * @returns If present in cache ,returns cached instance, if not, tries to dump data using provided executor,
+     * @return If present in cache ,returns cached instance, if not, tries to dump data using provided executor,
      * otherwise Optional.empty()
      */
     public Optional<T> getDump(@Nonnull final InstanceIdentifier<?> identifier,

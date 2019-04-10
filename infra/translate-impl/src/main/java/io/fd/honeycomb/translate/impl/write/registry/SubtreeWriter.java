@@ -90,7 +90,7 @@ final class SubtreeWriter<D extends DataObject> implements Writer<D> {
     }
 
     @Override
-    public boolean canProcess(@Nonnull InstanceIdentifier<?> instanceIdentifier) {
+    public boolean canProcess(@Nonnull final InstanceIdentifier<? extends DataObject> instanceIdentifier) {
         if (isWildcarded) {
             final Class<D> parent = delegate.getManagedDataObjectType().getTargetType();
             for (InstanceIdentifier.PathArgument pathArgument : instanceIdentifier.getPathArguments()) {

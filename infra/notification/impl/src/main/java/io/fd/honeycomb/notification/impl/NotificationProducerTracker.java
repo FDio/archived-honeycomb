@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Starts & stops notification producer dependencies on demand.
+ * Starts &amp; stops notification producer dependencies on demand.
  * Uses {@link DOMNotificationSubscriptionListenerRegistry} to receive subscription change notifications.
  */
 @ThreadSafe

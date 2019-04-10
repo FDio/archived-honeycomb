@@ -22,8 +22,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * <yang-modules-whitelist> <modules> <module> <package>io.fd.aaa.bbb.ccc</package> <description>XYZ</description>
- * </module> </modules> </yang-modules-whitelist>
+ * &lt;yang-modules-whitelist&gt; &lt;modules&gt; &lt;module&gt; &lt;package&gt;io.fd.aaa.bbb.ccc&lt;/package&gt; &lt;description&gt;XYZ&lt;/description&gt;
+ * &lt;/module&gt; &lt;/modules&gt; &lt;/yang-modules-whitelist&gt;
  */
 @XmlRootElement
 public class YangModuleWhitelist {

@@ -2,6 +2,6 @@
 //
 // This distribution does not define any own modules.
 // In order to do so either distribution.modules property must be defined in distribution pom.xml,
-// containing list of desired modules to start, or this file can be directly edited with same effect.
+// containing list of desired modules to start or this file can be directly edited with same effect.
 //
-// Note : Modules should be referenced by full class name, e.g: io.fd.test.SampleModule, and separated with comma.
+// Note : Modules should be referenced by full class name. e.g: io.fd.test.SampleModule and separated with comma.

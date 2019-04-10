@@ -68,6 +68,11 @@
         <version>${guice.version}</version>
         <scope>test</scope>
       </dependency>
+      <dependency>
+        <groupId>org.javassist</groupId>
+        <artifactId>javassist</artifactId>
+        <version>3.24.1-GA</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -98,8 +103,9 @@
         </plugin>
         <!-- Generate module to yang provider index -->
         <plugin>
-          <groupId>org.codehaus.gmaven</groupId>
-          <artifactId>groovy-maven-plugin</artifactId>
+          <groupId>org.codehaus.gmavenplus</groupId>
+          <artifactId>gmavenplus-plugin</artifactId>
+          <version>${maven.groovy.version}</version>
           <executions>
             <execution>
               <id>generate-yang-index</id>
@@ -108,9 +114,14 @@
                 <goal>execute</goal>
               </goals>
               <configuration>
-                <source>
-                  io.fd.honeycomb.common.scripts.ModuleYangIndexGenerator.generateIndexForPresentModules(project, log)
-                </source>
+                <scripts>
+                  <script>
+                    <![CDATA[
+                      import io.fd.honeycomb.common.scripts.ModuleYangIndexGenerator
+                      ModuleYangIndexGenerator.generateIndexForPresentModules(project, log)
+                    ]]>
+                  </script>
+                </scripts>
               </configuration>
             </execution>
           </executions>
@@ -127,8 +138,8 @@
 
     <plugins>
       <plugin>
-        <groupId>org.codehaus.gmaven</groupId>
-        <artifactId>groovy-maven-plugin</artifactId>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
       </plugin>
     </plugins>
 

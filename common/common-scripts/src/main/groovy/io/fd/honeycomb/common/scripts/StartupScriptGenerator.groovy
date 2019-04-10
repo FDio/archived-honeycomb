@@ -57,7 +57,7 @@ class StartupScriptGenerator {
 
         def jarName = "${project.artifactId}-${project.version}.jar"
         def jvmParameters = "${additionalJvmParameters} -jar \$(dirname \$0)/${jarName}"
-        def scriptParent = Paths.get(project.build.outputDirectory, MINIMAL_RESOURCES_FOLDER)
+        def scriptParent = Paths.get(project.build.outputDirectory as String, MINIMAL_RESOURCES_FOLDER)
         scriptParent.toFile().mkdirs()
 
         def startScriptPath = generateStartupScript(jvmParameters, log, scriptParent, scriptTemplate)

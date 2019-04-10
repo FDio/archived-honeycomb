@@ -94,7 +94,7 @@ public final class ElementStateCustomizer implements
     /**
      *
      * Initialize configuration data based on operational data.
-     * <p/>
+     *
      * Very useful when a plugin is initiated but the underlying layer already contains some operation state.
      * Deriving the configuration from existing operational state enables reconciliation in case when
      * Honeycomb's persistence is not available to do the work for us.

@@ -122,7 +122,7 @@ public class PersistingDataTreeAdapterTest {
 
     @Test(expected = IllegalStateException.class)
     public void testPersistFailure() throws Exception {
-        doThrow(IOException.class).when(schemaService).getGlobalContext();
+        doThrow(IllegalStateException.class).when(schemaService).getGlobalContext();
         final PersistingDataTreeAdapter.JsonPersister jsonPersister =
                 new PersistingDataTreeAdapter.JsonPersister(tmpPersistFile, schemaService);
         // Nothing

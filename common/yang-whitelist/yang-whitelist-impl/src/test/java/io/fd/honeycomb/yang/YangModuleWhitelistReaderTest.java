@@ -18,11 +18,11 @@ package io.fd.honeycomb.yang;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
+import com.google.common.collect.ImmutableSet;
 import java.nio.file.Paths;
 import java.util.List;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -50,7 +50,6 @@ public class YangModuleWhitelistReaderTest {
         moduleA.setDescription("desc");
 
         moduleB.setPckg("module.b.package");
-
-        assertThat(modules, CoreMatchers.hasItems(moduleA, moduleB));
+        assertTrue(modules.containsAll(ImmutableSet.of(moduleA, moduleB)));
     }
 }

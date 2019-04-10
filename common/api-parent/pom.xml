@@ -29,7 +29,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <annotations.version>3.0.0</annotations.version>
+    <annotations.version>3.0.1</annotations.version>
   </properties>
 
   <build>

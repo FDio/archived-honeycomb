@@ -25,7 +25,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Example of an aggregated access interface.
- * <p/>
+ *
  * Shared by all the customizers hiding the ugly details of our data management.
  *
  * TODO update javadoc

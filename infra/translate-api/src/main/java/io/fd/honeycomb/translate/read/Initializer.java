@@ -24,7 +24,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Generic initializer.
- * <p/>
+ *
  * Capable of invoking 0..n edits as a result of existing operational data.
  */
 @Beta

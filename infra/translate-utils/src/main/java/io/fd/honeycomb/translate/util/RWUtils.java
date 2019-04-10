@@ -142,7 +142,7 @@ public final class RWUtils {
 
     /**
      * Transform a keyed instance identifier into a wildcarded one.
-     * <p/>
+     *
      * ! This has to be called also for wildcarded List instance identifiers
      * due to weird behavior of equals in InstanceIdentifier !
      */

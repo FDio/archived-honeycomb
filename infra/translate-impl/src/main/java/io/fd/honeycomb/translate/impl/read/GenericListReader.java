@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Composite implementation of {@link ListReader} able to place the read result into parent builder object intended
  * for list node type.
- * <p/>
+ *
  * This reader checks if the IDs are wildcarded in which case it performs read of all list entries. In case the ID has a
  * key, it reads only the specified value.
  */

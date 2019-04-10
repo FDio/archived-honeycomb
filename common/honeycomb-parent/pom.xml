@@ -57,22 +57,22 @@
         <salGeneratorPath>target/generated-sources/mdsal-binding</salGeneratorPath>
 
         <!-- common dependencies -->
-        <junit.version>4.11</junit.version>
-        <mockito.version>2.2.9</mockito.version>
-        <hamcrest.version>1.3</hamcrest.version>
+        <junit.version>4.12</junit.version>
+        <mockito.version>2.23.4</mockito.version>
+        <hamcrest.version>2.1</hamcrest.version>
         <guava.version>23.6-jre</guava.version>
-        <jsr305.version>3.0.0</jsr305.version>
-        <slf4j.version>1.7.21</slf4j.version>
-        <jdt.version>2.1.150</jdt.version>
+        <jsr305.version>3.0.2</jsr305.version>
+        <slf4j.version>1.7.25</slf4j.version>
+        <jdt.version>2.2.200</jdt.version>
 
         <!-- plugins -->
         <checkstyle.plugin.version>3.0.0</checkstyle.plugin.version>
         <checkstyle.version>8.18</checkstyle.version>
-        <maven.javadoc.version>2.10.3</maven.javadoc.version>
-        <jacoco.version>0.7.9</jacoco.version>
-        <enforcer.version>1.4</enforcer.version>
-        <maven.compile.plugin.version>3.5.1</maven.compile.plugin.version>
-        <maven.bundle.version>3.0.1</maven.bundle.version>
+        <maven.javadoc.version>3.0.1</maven.javadoc.version>
+        <jacoco.version>0.8.2</jacoco.version>
+        <enforcer.version>3.0.0-M2</enforcer.version>
+        <maven.compile.plugin.version>3.8.0</maven.compile.plugin.version>
+        <maven.bundle.version>4.1.0</maven.bundle.version>
 
         <!-- checkstyle -->
         <checkstyle.header.file>APACHE_HEADER.txt</checkstyle.header.file>
@@ -88,10 +88,10 @@
         <asciidoctorj.diagram.version>1.3.1</asciidoctorj.diagram.version>
 
         <!-- groovy -->
-        <maven.groovy.version>2.0</maven.groovy.version>
-        <groovy.version>2.4.7</groovy.version>
-        <groovy.eclipse.compiler.version>2.9.2-01</groovy.eclipse.compiler.version>
-        <groovy.eclipse.batch.version>2.4.3-01</groovy.eclipse.batch.version>
+        <maven.groovy.version>1.6.2</maven.groovy.version>
+        <groovy.version>2.5.5</groovy.version>
+        <groovy.eclipse.compiler.version>3.3.0-01</groovy.eclipse.compiler.version>
+        <groovy.eclipse.batch.version>2.5.6-02</groovy.eclipse.batch.version>
 
         <docs.base.url>https://nexus.fd.io/content/sites/site</docs.base.url>
         <docs.hc.folder>io/fd/honeycomb</docs.hc.folder>
@@ -220,7 +220,7 @@
             </dependency>
             <dependency>
                 <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest-all</artifactId>
+                <artifactId>hamcrest</artifactId>
                 <version>${hamcrest.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -321,6 +321,7 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven.javadoc.version}</version>
                     <configuration>
+                        <source>8</source>
                         <additionalparam>-Xdoclint:none</additionalparam>
                     </configuration>
                     <executions>
@@ -407,26 +408,27 @@
                     <version>${maven.compile.plugin.version}</version>
                     <configuration>
                         <!-- Use google's error-prone static analysis-->
-                        <compilerId>javac-with-errorprone</compilerId>
+                        <!-- TODO reenable errorprone once it is able to be built using java 11 -->
+                        <!--<compilerId>javac-with-errorprone</compilerId>-->
                         <forceJavacCompilerUse>true</forceJavacCompilerUse>
                         <showWarnings>true</showWarnings>
                         <source>1.8</source>
                         <target>1.8</target>
                     </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.codehaus.plexus</groupId>
-                            <artifactId>plexus-compiler-javac-errorprone</artifactId>
-                            <version>2.5</version>
-                        </dependency>
-                        <!-- override plexus-compiler-javac-errorprone's dependency on
-                             Error Prone with the latest version -->
-                        <dependency>
-                            <groupId>com.google.errorprone</groupId>
-                            <artifactId>error_prone_core</artifactId>
-                            <version>2.0.9</version>
-                        </dependency>
-                    </dependencies>
+                    <!--<dependencies>-->
+                        <!--<dependency>-->
+                            <!--<groupId>org.codehaus.plexus</groupId>-->
+                            <!--<artifactId>plexus-compiler-javac-errorprone</artifactId>-->
+                            <!--<version>2.8.5</version>-->
+                        <!--</dependency>-->
+                        <!--&lt;!&ndash; override plexus-compiler-javac-errorprone's dependency on-->
+                             <!--Error Prone with the latest version &ndash;&gt;-->
+                        <!--<dependency>-->
+                            <!--<groupId>com.google.errorprone</groupId>-->
+                            <!--<artifactId>error_prone_core</artifactId>-->
+                            <!--<version>2.3.2</version>-->
+                        <!--</dependency>-->
+                    <!--</dependencies>-->
                 </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
@@ -495,8 +497,8 @@
                     </dependencies>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.gmaven</groupId>
-                    <artifactId>groovy-maven-plugin</artifactId>
+                    <groupId>org.codehaus.gmavenplus</groupId>
+                    <artifactId>gmavenplus-plugin</artifactId>
                     <version>${maven.groovy.version}</version>
                     <executions>
                         <!-- Generate Readme.adoc if not present -->
@@ -508,9 +510,14 @@
                             </goals>
                             <configuration>
                                 <!-- Generate module adoc documentation -->
-                                <source>
-                                    io.fd.honeycomb.common.scripts.ReadmeGenerator.checkReadme(project, properties, log)
-                                </source>
+                                <scripts>
+                                    <script>
+                                        <![CDATA[
+                                            import io.fd.honeycomb.common.scripts.ReadmeGenerator
+                                            ReadmeGenerator.checkReadme(project, properties, log)
+                                        ]]>
+                                    </script>
+                                </scripts>
                             </configuration>
                         </execution>
                         <!-- Fix generated html -->
@@ -522,9 +529,14 @@
                             </goals>
                             <configuration>
                                 <!-- Site generates wrong link to Readme.html, trying to point to Readme.html at root -->
-                                <source>
-                                    io.fd.honeycomb.common.scripts.ReadmeGenerator.fixSite(project, properties, log)
-                                </source>
+                                <scripts>
+                                    <script>
+                                        <![CDATA[
+                                            import io.fd.honeycomb.common.scripts.ReadmeGenerator
+                                            ReadmeGenerator.fixSite(project, properties, log)
+                                        ]]>
+                                    </script>
+                                </scripts>
                             </configuration>
                         </execution>
                         <!-- copy generated schema pictures -->
@@ -536,13 +548,24 @@
                             </goals>
                             <configuration>
                                 <!-- Copies generated schema pictures from ascii-doctor folders to site folder-->
-                                <source>
-                                    io.fd.honeycomb.common.scripts.AsciiDocImgForwarder.copyGeneratedImages(project, properties, log)
-                                </source>
+                                <scripts>
+                                    <script>
+                                        <![CDATA[
+                                            import io.fd.honeycomb.common.scripts.AsciiDocImgForwarder
+                                            AsciiDocImgForwarder.copyGeneratedImages(project, properties, log)
+                                        ]]>
+                                    </script>
+                                </scripts>
                             </configuration>
                         </execution>
                     </executions>
                     <dependencies>
+                        <dependency>
+                            <groupId>org.codehaus.groovy</groupId>
+                            <artifactId>groovy-all</artifactId>
+                            <type>pom</type>
+                            <version>${groovy.version}</version>
+                        </dependency>
                         <dependency>
                             <groupId>io.fd.honeycomb.doc</groupId>
                             <artifactId>asciidoc-scripts</artifactId>
@@ -580,8 +603,8 @@
                 <artifactId>maven-bundle-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>groovy-maven-plugin</artifactId>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
             </plugin>
         </plugins>
 

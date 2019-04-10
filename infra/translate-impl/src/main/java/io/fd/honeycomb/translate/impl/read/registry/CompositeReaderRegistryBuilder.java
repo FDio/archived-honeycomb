@@ -86,7 +86,7 @@ public final class CompositeReaderRegistryBuilder
 
     /**
      * Create {@link CompositeReaderRegistry} with Readers ordered according to submitted relationships.
-     * <p/>
+     *
      * Note: The ordering only applies between nodes on the same level, inter-level and inter-subtree relationships are
      * ignored.
      */

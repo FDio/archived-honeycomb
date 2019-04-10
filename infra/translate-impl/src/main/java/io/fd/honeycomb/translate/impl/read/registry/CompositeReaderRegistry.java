@@ -46,8 +46,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Simple reader registry able to perform and aggregated read (ROOT read) on top of all provided readers. Also able to
  * delegate a specific read to one of the delegate readers.
- * <p/>
- * This could serve as a utility to hold & hide all available readers in upper layers.
+ *
+ * This could serve as a utility to hold &amp; hide all available readers in upper layers.
  */
 public final class CompositeReaderRegistry implements ReaderRegistry {
 

@@ -33,7 +33,7 @@ class ModulesListGenerator {
     static final def MODULE_LIST_FILE_SUFFIX = "-module-config"
     static final def SEPARATOR = ","
 
-    public static void generate(project, properties, log) {
+    public static void generate(project, log) {
         // module configuration file extraction
         // builds project name from group,artifact and version to prevent overwriting
         // while building multiple distribution project
@@ -42,7 +42,7 @@ class ModulesListGenerator {
 
         log.info "Generating list of modules started by distribution ${projectName}"
 
-        def activeModules = properties.getProperty(MODULES_LIST_CONTENT_PROPERTY, DEFAULT_MODULES_LIST)
+        def activeModules = project.properties.get(MODULES_LIST_CONTENT_PROPERTY, DEFAULT_MODULES_LIST)
                 .tokenize(SEPARATOR)
                 .collect { module -> module.trim() }
 
@@ -54,7 +54,7 @@ class ModulesListGenerator {
         outputPath.toFile().mkdirs()
 
         def outputFile = Paths.get(outputPath.toString(), "${projectName}${MODULE_LIST_FILE_SUFFIX}").toFile()
-        outputFile.createNewFile();
+        outputFile.createNewFile()
         log.info("Writing module configuration for distribution ${projectName} to ${outputPath}")
 
         if (activeModules.isEmpty()) {
