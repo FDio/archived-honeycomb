@@ -5,14 +5,14 @@
     <parent>
         <groupId>io.fd.honeycomb.common</groupId>
         <artifactId>honeycomb-parent</artifactId>
-        <version>1.19.04-SNAPSHOT</version>
+        <version>1.19.04-RC1</version>
         <relativePath>../../common/honeycomb-parent</relativePath>
     </parent>
 
     <groupId>io.fd.honeycomb.tools</groupId>
     <artifactId>honeycomb-plugin-archetype</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.19.04-SNAPSHOT</version>
+    <version>1.19.04-RC1</version>
     <packaging>jar</packaging>
     <modelVersion>4.0.0</modelVersion>
 
