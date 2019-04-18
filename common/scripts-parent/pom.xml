@@ -22,7 +22,7 @@
 
     <groupId>io.fd.honeycomb.scripts</groupId>
     <artifactId>scripts-parent</artifactId>
-    <version>1.19.04-SNAPSHOT</version>
+    <version>1.19.08-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
 
