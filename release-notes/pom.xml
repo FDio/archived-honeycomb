@@ -78,7 +78,7 @@
                 <project-version>${project.version}</project-version>
                 <project-public-version>19.04</project-public-version>
                 <project-version-in-jira>11501</project-version-in-jira>
-                <project-branch>master</project-branch>
+                <project-branch>stable/1904</project-branch>
                 <project-git-web>https://git.fd.io/cgit/honeycomb/tree</project-git-web>
               </attributes>
             </configuration>
