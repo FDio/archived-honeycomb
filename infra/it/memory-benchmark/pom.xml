@@ -22,7 +22,7 @@
     <parent>
         <groupId>io.fd.honeycomb.common</groupId>
         <artifactId>honeycomb-parent</artifactId>
-        <version>1.19.04-SNAPSHOT</version>
+        <version>1.19.04-RC2</version>
         <relativePath>../../../common/honeycomb-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -34,7 +34,7 @@
     <version>1.0.0</version>
     <properties>
         <commons-csv.version>1.6</commons-csv.version>
-        <honeycomb.version>1.19.04-SNAPSHOT</honeycomb.version>
+        <honeycomb.version>1.19.04-RC2</honeycomb.version>
         <maven.groovy.version>1.6.2</maven.groovy.version>
         <groovy.version>2.5.5</groovy.version>
         <groovy.eclipse.compiler.version>3.3.0-01</groovy.eclipse.compiler.version>
@@ -194,7 +194,7 @@
                     <dependency>
                         <groupId>io.fd.honeycomb.it</groupId>
                         <artifactId>benchmark-scripts</artifactId>
-                        <version>1.19.04-SNAPSHOT</version>
+                        <version>1.19.04-RC2</version>
                     </dependency>
                 </dependencies>
             </plugin>
