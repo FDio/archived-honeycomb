@@ -21,7 +21,7 @@
     <parent>
         <groupId>io.fd.honeycomb.scripts</groupId>
         <artifactId>scripts-parent</artifactId>
-        <version>1.19.04-SNAPSHOT</version>
+        <version>1.19.04</version>
         <relativePath>../scripts-parent</relativePath>
     </parent>
 
@@ -29,7 +29,7 @@
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>common-scripts</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.19.04-SNAPSHOT</version>
+    <version>1.19.04</version>
     <packaging>jar</packaging>
 
     <properties>
