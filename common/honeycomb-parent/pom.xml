@@ -50,6 +50,7 @@
         <odl.mdsal.version>3.0.6</odl.mdsal.version>
         <odl.mdsal.controller.version>1.9.0</odl.mdsal.controller.version>
         <odl.mdsalmodel.version>0.13.2</odl.mdsalmodel.version>
+        <odl.binding.model.version>2.0.0</odl.binding.model.version>
         <odl.netconf.version>1.6.0</odl.netconf.version>
         <odl.restconf.version>1.9.0</odl.restconf.version>
         <odl.salGenerator.version>0.13.2</odl.salGenerator.version>
