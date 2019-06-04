@@ -39,6 +39,8 @@ public final class HoneycombNotificationManagerProvider extends ProviderTrait<No
     @Inject
     private BindingToNormalizedNodeCodec codec;
 
+    private NotificationProducerTracker notificationProducerTracker;
+
     @Override
     protected HoneycombNotificationCollector create() {
         // Create the registry to keep track of what'OPERATIONAL registered
@@ -55,7 +57,7 @@ public final class HoneycombNotificationManagerProvider extends ProviderTrait<No
                         notificationProducerRegistry);
 
         // Create tracker, responsible for starting and stopping registered notification producers whenever necessary
-        NotificationProducerTracker notificationProducerTracker =
+        notificationProducerTracker =
                 new NotificationProducerTracker(notificationProducerRegistry, honeycombNotificationCollector,
                         notificationRouter);
 
