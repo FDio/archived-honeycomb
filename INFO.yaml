@@ -60,10 +60,10 @@ committers:
       id: 'mmarsale'
       timezone: 'Unknown/Unknown'
     - name: 'Robert Varga'
-      company: ''
+      company: 'PANTHEON.tech'
       email: 'nite@hq.sk'
       id: 'rovarga'
-      timezone: 'Unknown/Unknown'
+      timezone: 'Europe/Bratislava'
 tsc:
     approval: 'https://wiki.fd.io/view/TSC/Meeting_Minutes'
     changes:
